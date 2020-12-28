@@ -1,5 +1,6 @@
 # this program runs BALIMLE approach
 # It estimates all possible models.
+library(tidyverse)
 library(optimbase) #used for zeros and ones
 library(rootSolve) #used for gradient function
 library(numDeriv)  #used for hessian?
