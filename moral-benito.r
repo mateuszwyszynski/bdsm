@@ -39,7 +39,7 @@ ktoty=ktotx+1
 # ----------------------------------------------------------------------@
 
 transf1<-function(rawdata){
-  rawdata <- rawdata %>% scale %>% as_tibble()
+  rawdata <- rawdata %>% mutate(across(!(year:country), scale))
   
   csddata_df <- rawdata %>% group_by(year) %>%
     summarise(across(.fns = function(x) scale(x, scale = FALSE))) %>%
