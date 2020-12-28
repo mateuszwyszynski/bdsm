@@ -39,13 +39,7 @@ ktoty=ktotx+1
 # ----------------------------------------------------------------------@
 
 transf1<-function(rawdata){
-  # we first standarize the Xs regressors to facilitate convergence 
-  # I also added Y
-  xdata = rawdata[,1:ncol(rawdata)]
-  xmean = t(as.vector(colMeans(xdata))*t(ones(nrow(xdata),ncol(rawdata))))
-  xstd = t(as.vector(apply(xdata,2,sd))*t(ones(nrow(xdata),ncol(rawdata))))
-  xdatas = ( xdata - xmean ) / xstd
-  rawdata[,1:ncol(rawdata)] = xdatas
+  rawdata = rawdata %>% scale
   
   # dmtx will be the matrix for cross-sectional de-meaning
   dmtx=diag(n*t)-do.call("cbind",rep(list(do.call("rbind", rep(list(((1/n)*diag(t))), n))),n))
