@@ -23,9 +23,9 @@ rawdata<-readxl::read_excel("balimle-dataset.xlsx")
 #    VARIABLES IN RAWDATA                                                               
 #    1.FDI  2.FDIlag  3.EI  4.LLF  5.EX  6.SW  7.RES  8.LOPW  9.INT  10.RI              
 #-----------------------------------------------------------------------------------------
-rawdata=rawdata[,3:8]   #I select the regressors of interest @
+rawdata=rawdata[,1:8]   #I select the regressors of interest @
 varlist<- c("FDI","EI","LLF","EX", "SW")
-ktotx=ncol(rawdata)-2 
+ktotx=ncol(rawdata)-4
 ktoty=ktotx+1 
 
 # ----------------------------------------------------------------------@
@@ -38,11 +38,13 @@ ktoty=ktotx+1
 # ----------------------------------------------------------------------@
 
 transf1<-function(rawdata){
-  rawdata = rawdata %>% scale
+  rawdata <- rawdata %>% scale %>% as_tibble()
   
-  # dmtx will be the matrix for cross-sectional de-meaning
-  dmtx <- diag(n*t) - ones(n) %x% (1/n * diag(t))
-  csddata=dmtx%*%as.matrix(rawdata)
+  csddata <- rawdata %>% group_by(year) %>% 
+    summarise(across(.fns = function(x) scale(x, scale = FALSE))) %>%
+    arrange(country) %>% ungroup() %>% select(!(year:country)) %>%
+    as.matrix()
+  
   #now I organize the data for the Limited Information Maximum Likelihood parametrization @
   # following loop creates local variable limldata0 @
   varname = "limldata"
