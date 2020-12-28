@@ -49,17 +49,14 @@ transf1<-function(rawdata){
   
   #now I organize the data for the Limited Information Maximum Likelihood parametrization @
   # following loop creates local variable limldata0 @
-  limldata0 <- csddata_df %>% filter(year == year0) %>% select(lag_gdp) %>%
-    as.matrix()
-  
-  #This loop creates local variables limldata1:limldatat and unites them in limldata@
   limldata <- csddata_df %>%
     pivot_wider(names_from = year, values_from = gdp:pop,
                 names_glue = "{year}_{.value}", names_sort = TRUE) %>%
     select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>%
-    select(!ends_with("_lag_gdp") & !country) %>% as.matrix()
+    select(paste(toString(year0), "lag_gdp", sep = "_") |
+             !ends_with("_lag_gdp") & !country) %>% as.matrix()
   
-  return(list(csddata,cbind(limldata0,limldata)))
+  return(list(csddata, limldata))
 } 
   # this function transforms the data set:              @
   # first: standarization of variables                   
