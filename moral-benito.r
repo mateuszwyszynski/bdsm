@@ -24,6 +24,7 @@ rawdata<-readxl::read_excel("balimle-dataset.xlsx")
 #    1.FDI  2.FDIlag  3.EI  4.LLF  5.EX  6.SW  7.RES  8.LOPW  9.INT  10.RI              
 #-----------------------------------------------------------------------------------------
 rawdata=rawdata[,1:8]   #I select the regressors of interest @
+year0 <- min(rawdata$year)
 varlist<- c("FDI","EI","LLF","EX", "SW")
 ktotx=ncol(rawdata)-4
 ktoty=ktotx+1 
@@ -40,18 +41,16 @@ ktoty=ktotx+1
 transf1<-function(rawdata){
   rawdata <- rawdata %>% scale %>% as_tibble()
   
-  csddata <- rawdata %>% group_by(year) %>% 
+  csddata_df <- rawdata %>% group_by(year) %>%
     summarise(across(.fns = function(x) scale(x, scale = FALSE))) %>%
-    arrange(country) %>% ungroup() %>% select(!(year:country)) %>%
+    arrange(country) %>% ungroup()
+  csddata <- csddata_df %>% select(!(year:country)) %>%
     as.matrix()
   
   #now I organize the data for the Limited Information Maximum Likelihood parametrization @
   # following loop creates local variable limldata0 @
-  varname = "limldata"
-  limldata0= zeros(n,1)
-  for (ii in 1:n) {
-    limldata0[ii,]=csddata[((ii-1)*t+1),2]
-  }
+  limldata0 <- csddata_df %>% filter(year == year0) %>% select(lag_gdp) %>%
+    as.matrix()
   
   #This loop creates local variables limldata1:limldatat and unites them in limldata@
   limldata = zeros(n, ktoty*t)
