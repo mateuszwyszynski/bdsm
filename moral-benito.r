@@ -53,21 +53,11 @@ transf1<-function(rawdata){
     as.matrix()
   
   #This loop creates local variables limldata1:limldatat and unites them in limldata@
-  limldata = zeros(n, ktoty*t)
-  R = zeros(n, ktoty)
-  tmp = zeros(n, ktoty)
-  
-  for (i in 1:t) {
-    for (j in 1:n) {
-      tmp[j,]=csddata[((j-1)*t+i),c(1,3:ncol(csddata))]    
-    }
-    nam <- paste("limldata",i, sep=".")
-    assign(nam, tmp)
-    R = get(nam)
-    for (jj in 1:ktoty) {
-    limldata[,(jj+(i-1)*ktoty)] = R[,jj]
-    }
-  }  
+  limldata <- csddata_df %>%
+    pivot_wider(names_from = year, values_from = gdp:pop,
+                names_glue = "{year}_{.value}", names_sort = TRUE) %>%
+    select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>%
+    select(!ends_with("_lag_gdp") & !country) %>% as.matrix()
   
   return(list(csddata,cbind(limldata0,limldata)))
 } 
