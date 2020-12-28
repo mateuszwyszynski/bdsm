@@ -18,13 +18,12 @@ prandom=0 #prandom=1 for theta random Ley&Steel09. prandom = 0 for theta fixed
 #---------------------------------------------------------------------------------
 
 row=292; column=11; t=4; n=73
-rawdata<-read.csv("/Users/Mateusz/Documents/Work/Lazarski/Badania/data.csv",
-                  header=F) 
+rawdata<-readxl::read_excel("balimle-dataset.xlsx")
 
 #    VARIABLES IN RAWDATA                                                               
 #    1.FDI  2.FDIlag  3.EI  4.LLF  5.EX  6.SW  7.RES  8.LOPW  9.INT  10.RI              
 #-----------------------------------------------------------------------------------------
-rawdata=rawdata[,1:6]   #I select the regressors of interest @
+rawdata=rawdata[,3:8]   #I select the regressors of interest @
 varlist<- c("FDI","EI","LLF","EX", "SW")
 ktotx=ncol(rawdata)-2 
 ktoty=ktotx+1 
