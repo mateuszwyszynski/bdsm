@@ -41,7 +41,7 @@ transf1<-function(rawdata){
   rawdata = rawdata %>% scale
   
   # dmtx will be the matrix for cross-sectional de-meaning
-  dmtx=diag(n*t)-do.call("cbind",rep(list(do.call("rbind", rep(list(((1/n)*diag(t))), n))),n))
+  dmtx <- diag(n*t) - ones(n) %x% (1/n * diag(t))
   csddata=dmtx%*%as.matrix(rawdata)
   #now I organize the data for the Limited Information Maximum Likelihood parametrization @
   # following loop creates local variable limldata0 @
