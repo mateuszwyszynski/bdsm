@@ -44,11 +44,7 @@ liml_data_prep <- function(rawdata){
   csddata_df <- rawdata %>% group_by(year) %>%
     summarise(across(.fns = function(x) scale(x, scale = FALSE))) %>%
     arrange(country) %>% ungroup()
-  csddata <- csddata_df %>% select(!(year:country)) %>%
-    as.matrix()
   
-  #now I organize the data for the Limited Information Maximum Likelihood parametrization @
-  # following loop creates local variable limldata0 @
   limldata <- csddata_df %>%
     pivot_wider(names_from = year, values_from = gdp:pop,
                 names_glue = "{year}_{.value}", names_sort = TRUE) %>%
