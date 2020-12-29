@@ -55,17 +55,13 @@ liml_data_prep <- function(rawdata){
     select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>%
     select(paste(toString(year0), "lag_gdp", sep = "_") |
              !ends_with("_lag_gdp") & !country) %>% as.matrix()
-  
-  return(list(csddata, limldata))
 } 
   # this function transforms the data set:              @
   # first: standarization of variables                   
   # second: cross-sectional de-mean (time dummies)       
   # third: organization of data for the LIML estimation  
   # variable data is cross-sectional demeaned data       
-transformed <- liml_data_prep(rawdata)
-data<-transformed[[1]]
-R<-transformed[[2]]
+R <- liml_data_prep(rawdata)
 
 # dependent variable for the t periods NXt (matrix) 
 Y1=zeros(n, t)
