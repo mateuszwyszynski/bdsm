@@ -38,7 +38,7 @@ ktoty=ktotx+1
 #                 third: organization of data for the LIML estimation   @
 # ----------------------------------------------------------------------@
 
-transf1<-function(rawdata){
+liml_data_prep <- function(rawdata){
   rawdata <- rawdata %>% mutate(across(!(year:country), scale))
   
   csddata_df <- rawdata %>% group_by(year) %>%
@@ -63,7 +63,7 @@ transf1<-function(rawdata){
   # second: cross-sectional de-mean (time dummies)       
   # third: organization of data for the LIML estimation  
   # variable data is cross-sectional demeaned data       
-transformed<-transf1(rawdata)
+transformed <- liml_data_prep(rawdata)
 data<-transformed[[1]]
 R<-transformed[[2]]
 
