@@ -46,29 +46,25 @@ liml_data_prep <- function(df){
   csddata_df <- df %>% group_by(year) %>%
     summarise(across(.fns = function(x) scale(x, scale = FALSE))) %>%
     arrange(country) %>% ungroup()
-  
-  limldata <- csddata_df %>%
-    pivot_wider(names_from = year, values_from = gdp:pop,
-                names_glue = "{year}_{.value}", names_sort = TRUE) %>%
-    select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>%
-    select(paste(toString(year0), "lag_gdp", sep = "_") |
-             !ends_with("_lag_gdp") & !country)
 }
 
 R_df <- liml_data_prep(rawdata)
-R <- R_df %>% as.matrix()
 
-# Dependent variable for the t periods - matrix of size N x t
-Y1 <- R_df %>% select(matches("[0-9]+_gdp")) %>% as.matrix()
+# Dependent variables for the t periods - matrix of size N x t
+Y1 <- R_df %>% select(year, country, gdp) %>%
+  pivot_wider(names_from = year, values_from = gdp) %>%
+  select(!country) %>% as.matrix()
 
-# predetermined variables for the t-1 periods
-Y2=zeros(n, ktotx*(t-1))
-for (j in 0:(t-2)) {
-Y2[,(1+j*ktotx):((1+j)*ktotx)]=R[,(3+(j+1)*ktoty):(3+j+(j+2)*ktotx)]
-}
-X0=R[,3:(2+ktotx)]
-# X0 is for the first year, while Y2 for the 2:t
+# Regressors for the t periods:
+# X0 - for the first year
+# Y2 - for the remaining years
+Y2 <- R_df %>% select(!gdp & !lag_gdp) %>% filter(year != year0) %>%
+  pivot_wider(names_from = year, values_from = !country & !year) %>%
+  select(!country) %>%
+  select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>% as.matrix()
 
+X0 <- R_df %>% filter(year == year0) %>%
+  select(!(year:lag_gdp)) %>% as.matrix()
 
 # ---------------------------------------------------------------------------------
 # 		               SOME PRELIMINAR OBJECTS BALIMLE APPROACH   			      
@@ -130,9 +126,11 @@ for (turu in 1:tot) {
   kx=sum(mt); ky=kx+1  # number of regressors in the current model   
   
   #Z includes y0 and x0 as strictly exogenous variables
-  if (kx==0) { Z=R[,1] }
-  else { X0j = X0[,(mt==1)]
-    Z=cbind(R[,1],X0j) }
+  Z <- R_df %>% filter(year == year0) %>% select(lag_gdp) %>% as.matrix()
+  if (kx!=0) {
+    X0j <- X0[,(mt==1)]
+    Z <- cbind(Z ,X0j)
+  }
   # Q is the model specific annihilator (or residual maker) matrix           
   Q=diag(n)-Z%*%solve(crossprod(Z))%*%t(Z) 
   # nptbe is the Number of Parameters To Be Estimated in the current model  @
