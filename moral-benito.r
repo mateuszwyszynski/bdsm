@@ -44,7 +44,8 @@ liml_data_prep <- function(df){
   df <- df %>% mutate(across(!(year:country), scale))
   
   csddata_df <- df %>% group_by(year) %>%
-    summarise(across(.fns = function(x) scale(x, scale = FALSE))) %>%
+    summarise(country = country,
+              across(!country, function(x) scale(x, scale = FALSE))) %>%
     arrange(country) %>% ungroup()
 }
 
