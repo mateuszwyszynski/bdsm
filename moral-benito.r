@@ -58,11 +58,8 @@ liml_data_prep <- function(df){
 R_df <- liml_data_prep(rawdata)
 R <- R_df %>% as.matrix()
 
-# dependent variable for the t periods NXt (matrix) 
-Y1=zeros(n, t)
-for (i in 0:(t-1)) {
-Y1[,(i+1)]=R[,(2+ktoty*i)]
-}
+# Dependent variable for the t periods - matrix of size N x t
+Y1 <- R_df %>% select(matches("[0-9]+_gdp")) %>% as.matrix()
 
 # predetermined variables for the t-1 periods
 Y2=zeros(n, ktotx*(t-1))
