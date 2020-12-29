@@ -29,15 +29,17 @@ varlist<- c("FDI","EI","LLF","EX", "SW")
 ktotx=ncol(rawdata)-4
 ktoty=ktotx+1 
 
-# ----------------------------------------------------------------------@
-#                    DATA TRANSFORMATION FUNCTION                       @
-#                    -----------------------------                      @
-#                 this function transforms the data set:                @
-#                 first: data standarization                            @
-#                 second: cross-sectional de-mean                       @
-#                 third: organization of data for the LIML estimation   @
-# ----------------------------------------------------------------------@
-
+#' Prepare data for LIML estimation
+#' 
+#' @description
+#' This is a function which prepares data for Limited Information Maximum
+#' Likelihood (LIML) Estimation. Following operations are performed:
+#' 
+#' 1. Data standarisation
+#' 2. Cross-sectional demeaning of variables
+#' 3. Organisation of data for the LIML estimation
+#' 
+#' @param df Dataframe with data that should be prepared for LIML estimation
 liml_data_prep <- function(df){
   df <- df %>% mutate(across(!(year:country), scale))
   
@@ -51,12 +53,8 @@ liml_data_prep <- function(df){
     select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>%
     select(paste(toString(year0), "lag_gdp", sep = "_") |
              !ends_with("_lag_gdp") & !country) %>% as.matrix()
-} 
-  # this function transforms the data set:              @
-  # first: standarization of variables                   
-  # second: cross-sectional de-mean (time dummies)       
-  # third: organization of data for the LIML estimation  
-  # variable data is cross-sectional demeaned data       
+}
+
 R <- liml_data_prep(rawdata)
 
 # dependent variable for the t periods NXt (matrix) 
