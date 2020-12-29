@@ -52,10 +52,11 @@ liml_data_prep <- function(df){
                 names_glue = "{year}_{.value}", names_sort = TRUE) %>%
     select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>%
     select(paste(toString(year0), "lag_gdp", sep = "_") |
-             !ends_with("_lag_gdp") & !country) %>% as.matrix()
+             !ends_with("_lag_gdp") & !country)
 }
 
-R <- liml_data_prep(rawdata)
+R_df <- liml_data_prep(rawdata)
+R <- R_df %>% as.matrix()
 
 # dependent variable for the t periods NXt (matrix) 
 Y1=zeros(n, t)
