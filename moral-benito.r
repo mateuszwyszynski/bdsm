@@ -38,10 +38,10 @@ ktoty=ktotx+1
 #                 third: organization of data for the LIML estimation   @
 # ----------------------------------------------------------------------@
 
-liml_data_prep <- function(rawdata){
-  rawdata <- rawdata %>% mutate(across(!(year:country), scale))
+liml_data_prep <- function(df){
+  df <- df %>% mutate(across(!(year:country), scale))
   
-  csddata_df <- rawdata %>% group_by(year) %>%
+  csddata_df <- df %>% group_by(year) %>%
     summarise(across(.fns = function(x) scale(x, scale = FALSE))) %>%
     arrange(country) %>% ungroup()
   
