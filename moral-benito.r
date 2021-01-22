@@ -26,8 +26,8 @@ rawdata<-readxl::read_excel("balimle-dataset.xlsx")
 rawdata=rawdata[,1:8]   #I select the regressors of interest @
 year0 <- min(rawdata$year)
 varlist<- c("FDI","EI","LLF","EX", "SW")
-ktotx=ncol(rawdata)-4
-ktoty=ktotx+1 
+regressors_n <- ncol(rawdata) - 4
+ktoty=regressors_n + 1
 
 #' Prepare data for LIML estimation
 #' 
@@ -74,11 +74,11 @@ X0 <- R_df %>% filter(year == year0) %>%
 #***                 PRIOR STRUCTURES for THE PRIOR MODEL SIZE                  ***
 # ---------------------------------------------------------------------------------
   
-pmsize=ktotx/2           # prior expected model size, options:                    
+pmsize=regressors_n/2           # prior expected model size, options:                    
     # 1. for "SDM" priors pmsize=3	                          
-    # 2. for "FLS" priors pmsize=ktotx/2	                  
-pinc=pmsize/ktotx
-b=(ktotx-pmsize)/pmsize   # parameter for beta (random) distribution of the prior inclusion probability  
+    # 2. for "FLS" priors pmsize=regressors_n/2	                  
+pinc=pmsize/regressors_n
+b=(regressors_n-pmsize)/pmsize   # parameter for beta (random) distribution of the prior inclusion probability  
   
 # ***                     STORAGE OBJECTS                                       ***
 # ---------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ fy=zeros(ktoty,1); fyt=0; ppmsize=0; cout=0
 #  		               LOOP COVERING FULL MODEL SPACE           			      
 #---------------------------------------------------------------------------------
 
-tot=2^ktotx #total number of models to be estimated
+tot=2^regressors_n #total number of models to be estimated
 for (turu in 1:tot) {
   
     # -----------------------------------------------------------------
@@ -99,16 +99,16 @@ for (turu in 1:tot) {
     #                   ---------------------------                    
     #                this function takes as input a number            
     #                and it converts the number to its binary          
-    #                representation in base ktotx                      
+    #                representation in base regressors_n                      
     #                in order to be a "model".                         
     # -----------------------------------------------------------------
 
     msel<-function(turu) {
-      v=zeros(ktotx,1)
-      x=2^(ktotx-1)
+      v=zeros(regressors_n,1)
+      x=2^(regressors_n-1)
       z=turu
       i=1
-      while(i<=ktotx) {
+      while(i<=regressors_n) {
         if (z>x) {
           v[i]=1
           z=z-x
@@ -135,7 +135,7 @@ for (turu in 1:tot) {
   # Q is the model specific annihilator (or residual maker) matrix           
   Q=diag(n)-Z%*%solve(crossprod(Z))%*%t(Z) 
   # nptbe is the Number of Parameters To Be Estimated in the current model  @
-  nptbe = 2*ky+t+1+(t^2+t-2)*ktotx/2
+  nptbe = 2*ky+t+1+(t^2+t-2)*regressors_n/2
   
   # t0in is the vector of initial values for the likelihood optimization   @
   t0in=0.5*ones(nptbe,1)                                  
@@ -148,18 +148,18 @@ for (turu in 1:tot) {
   
   lik<-function(t0in) {
     t0=t0in
-    B0=diag(t+(t-1)*ktotx)
+    B0=diag(t+(t-1)*regressors_n)
     C0=zeros(t,ky)
     for (ii in 2:t) {
       B0[ii,(ii-1)]=-t0[1]      # SEM method B11 in paper
     }
     i2=1
-    for (i1 in 1:ktotx) {
+    for (i1 in 1:regressors_n) {
       if (mt[i1]==0) {    # if x variable is not included 
         B0=B0 }
       else {              # if x variable is included     
         for (i11 in 2:t) {
-          B0[i11,(t+1+(i11-2)*ktotx+(i1-1))]=-t0[1+i2]      
+          B0[i11,(t+1+(i11-2)*regressors_n+(i1-1))]=-t0[1+i2]      
         }      
     i2=i2+1
       }  
@@ -193,15 +193,15 @@ for (turu in 1:tot) {
      # Here, I split sigma 12 in the sum of two parts, phi's matrix and psi's upper triangular matrix 
     
      # phi's matrix 
-    o120=zeros(t,(t-1)*ktotx)
+    o120=zeros(t,(t-1)*regressors_n)
       for (i6 in 1:t) {
         for (i7 in 1:(t-1)) {    
-          o120[i6,(1+(i7-1)*ktotx):(i7*ktotx)]=t(t0[(2*ky+t+2+(i7-1)*ktotx):(2*ky+t+2+i7*ktotx-1)])
+          o120[i6,(1+(i7-1)*regressors_n):(i7*regressors_n)]=t(t0[(2*ky+t+2+(i7-1)*regressors_n):(2*ky+t+2+i7*regressors_n-1)])
         }
       }
     
     # psi's upper triangular matrix 
-    o121=zeros(t,(t-1)*ktotx)
+    o121=zeros(t,(t-1)*regressors_n)
     # as o121 is an upper triangular matrix, each subsequent row has 1 element less 
   
     seq=zeros(t,1)
@@ -215,7 +215,7 @@ for (turu in 1:tot) {
       if (i8==t) {
         o121=o121 }
       else {
-        o121[i8,((i8-1)*ktotx+1):(ncol(o121))]=t(t0[(2*ky+t+2+(t-1+seq[i8])*ktotx):(2*ky+t+2+(t-1+seq[i8+1])*ktotx-1)])
+        o121[i8,((i8-1)*regressors_n+1):(ncol(o121))]=t(t0[(2*ky+t+2+(t-1+seq[i8])*regressors_n):(2*ky+t+2+(t-1+seq[i8+1])*regressors_n-1)])
       }
     }
     
@@ -303,19 +303,19 @@ for (turu in 1:tot) {
     t0=t0in
     likvec=zeros(n,1)
     
-    B0=diag(t+(t-1)*ktotx)
+    B0=diag(t+(t-1)*regressors_n)
     C0=zeros(t,ky)
     for (ii in 2:t) {
       B0[ii,(ii-1)]=-t0[1]      # SEM method B11 in paper
     }
     
     i2=1
-    for (i1 in 1:ktotx) {
+    for (i1 in 1:regressors_n) {
       if (mt[i1]==0) {    # if x variable is not included 
         B0=B0 }
       else {              # if x variable is included     
         for (i11 in 2:t) {
-          B0[i11,(t+1+(i11-2)*ktotx+(i1-1))]=-t0[1+i2]      
+          B0[i11,(t+1+(i11-2)*regressors_n+(i1-1))]=-t0[1+i2]      
         }      
         i2=i2+1
       }  
@@ -350,15 +350,15 @@ for (turu in 1:tot) {
     # Here, I split sigma 12 in the sum of two parts, phi's matrix and psi's upper triangular matrix 
     
     # phi's matrix 
-    o120=zeros(t,(t-1)*ktotx)
+    o120=zeros(t,(t-1)*regressors_n)
     for (i6 in 1:t) {
       for (i7 in 1:(t-1)) {    
-        o120[i6,(1+(i7-1)*ktotx):(i7*ktotx)]=t(t0[(2*ky+t+2+(i7-1)*ktotx):(2*ky+t+2+i7*ktotx-1)])
+        o120[i6,(1+(i7-1)*regressors_n):(i7*regressors_n)]=t(t0[(2*ky+t+2+(i7-1)*regressors_n):(2*ky+t+2+i7*regressors_n-1)])
       }
     }
     
     # psi's upper triangular matrix 
-    o121=zeros(t,(t-1)*ktotx)
+    o121=zeros(t,(t-1)*regressors_n)
     # as o121 is an upper triangular matrix, each subsequent row has 1 element less 
     
     seq=zeros(t,1)
@@ -372,7 +372,7 @@ for (turu in 1:tot) {
       if (i8==t) {
         o121=o121 }
       else {
-        o121[i8,((i8-1)*ktotx+1):(ncol(o121))]=t(t0[(2*ky+t+2+(t-1+seq[i8])*ktotx):(2*ky+t+2+(t-1+seq[i8+1])*ktotx-1)])
+        o121[i8,((i8-1)*regressors_n+1):(ncol(o121))]=t(t0[(2*ky+t+2+(t-1+seq[i8])*regressors_n):(2*ky+t+2+(t-1+seq[i8+1])*regressors_n-1)])
       }
     }
     
@@ -405,11 +405,11 @@ for (turu in 1:tot) {
     bict=exp(logl)                              # integrated likelihood approximation           #
     # prior model probability (either random -Ley&Steel09- or fixed) #
     if (prandom == 1) {
-      priorprobt=(gamma(1+kx))*(gamma(b+ktotx-kx))    #theta random#
+      priorprobt=(gamma(1+kx))*(gamma(b+regressors_n-kx))    #theta random#
       }
     
     if (prandom == 0) {
-      priorprobt=(pinc)^(kx)*(1-pinc)^(ktotx-kx)      #theta fixed#
+      priorprobt=(pinc)^(kx)*(1-pinc)^(regressors_n-kx)      #theta fixed#
     }
     
     # posterior model probability  #
