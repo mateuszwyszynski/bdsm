@@ -27,7 +27,7 @@ rawdata=rawdata[,1:8]   #I select the regressors of interest @
 year0 <- min(rawdata$year)
 varlist<- c("FDI","EI","LLF","EX", "SW")
 regressors_n <- ncol(rawdata) - 4
-ktoty=regressors_n + 1
+variables_n <- regressors_n + 1
 
 #' Prepare data for LIML estimation
 #' 
@@ -83,9 +83,9 @@ b=(regressors_n-pmsize)/pmsize   # parameter for beta (random) distribution of t
 # ***                     STORAGE OBJECTS                                       ***
 # ---------------------------------------------------------------------------------
    
-mod=zeros(ktoty,1); bet=zeros(ktoty,1); 
-pvarh=zeros(ktoty,1); pvarr=zeros(ktoty,1);
-fy=zeros(ktoty,1); fyt=0; ppmsize=0; cout=0
+mod=zeros(variables_n,1); bet=zeros(variables_n,1);
+pvarh=zeros(variables_n,1); pvarr=zeros(variables_n,1);
+fy=zeros(variables_n,1); fyt=0; ppmsize=0; cout=0
 
 #---------------------------------------------------------------------------------
 #  		               LOOP COVERING FULL MODEL SPACE           			      
@@ -421,12 +421,12 @@ for (turu in 1:tot) {
     
     # constructing the full vector of estimates #
       mty=rbind(1,mt) 
-    bt1=zeros(ktoty,1)
-    stdrt1=zeros(ktoty,1); stdht1=zeros(ktoty,1)
-    varht1=zeros(ktoty,1); varrt1=zeros(ktoty,1)
+    bt1=zeros(variables_n,1)
+    stdrt1=zeros(variables_n,1); stdht1=zeros(variables_n,1)
+    varht1=zeros(variables_n,1); varrt1=zeros(variables_n,1)
     it1=0
     it=1
-    for (it in 1:ktoty) {
+    for (it in 1:variables_n) {
       if (mty[it]==1) {
         it1=1+it1
         bt1[it]=bt[it1]
@@ -507,7 +507,7 @@ upoststdh=sqrt(uvarhleamer)
 # computing percentage of significant coeff estimates 
 nts=t(nts) 
 pts=t(pts)
-for (jt in 1:ktoty) {
+for (jt in 1:variables_n) {
   ntss=na.omit(nts[,jt]); ptss=na.omit(pts[,jt]); nsig=ntss<(-1.96); psig=ptss>1.96
   if (jt==1) {
     negper=mean(nsig); posper=mean(psig)
