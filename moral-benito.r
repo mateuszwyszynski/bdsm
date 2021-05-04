@@ -107,8 +107,10 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
     X0j <- X0[,(mt==1)]
     Z <- cbind(Z ,X0j)
   }
-  # Q is the model specific annihilator (or residual maker) matrix           
-  Q=diag(n)-Z%*%solve(crossprod(Z))%*%t(Z) 
+  
+  proj_matrix <- Z%*%solve(crossprod(Z))%*%t(Z)
+  res_maker_matrix <- diag(n)-Z%*%solve(crossprod(Z))%*%t(Z)
+  
   # nptbe is the Number of Parameters To Be Estimated in the current model  @
   nptbe = 2*ky+t+1+(t^2+t-2)*regressors_n/2
   
@@ -215,7 +217,7 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
    }
     else {
       U10=t(B110%*%t(Y1)+B120%*%t(Y2)-C0%*%t(Z))  # Ui1 from the paper 
-      H=crossprod(Y2-U10%*%solve(o110)%*%o120,Q)%*%(Y2-U10%*%solve(o110)%*%o120)
+      H=crossprod(Y2-U10%*%solve(o110)%*%o120,res_maker_matrix)%*%(Y2-U10%*%solve(o110)%*%o120)
       likf=-(n/2)*log(det(o110))-(1/2)*sum(diag(solve(o110)%*%t(U10)%*%U10))-(n/2)*log(det(H/n))  # concentrated log-likelihood in the appendix 
     }
     return(-likf)
@@ -359,7 +361,7 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
     o210=t(o120)
     
     U10=t(B110%*%t(Y1)+B120%*%t(Y2)-C0%*%t(Z))  # Ui1 from the paper 
-    H=crossprod(Y2-U10%*%solve(o110)%*%o120,Q)%*%(Y2-U10%*%solve(o110)%*%o120)
+    H=crossprod(Y2-U10%*%solve(o110)%*%o120,res_maker_matrix)%*%(Y2-U10%*%solve(o110)%*%o120)
     for (iter in 1:n) {
       u10i=as.matrix(U10[iter,])
       likvec[iter]=-(1/2)*log(det(o110))-(1/2)*log(det(H/n))-(1/2)*(t(u10i)%*%solve(o110)%*%u10i)
