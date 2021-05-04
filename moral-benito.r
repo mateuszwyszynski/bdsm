@@ -99,11 +99,12 @@ which_regs_bin_vectors <-
 for (row_ind in 1:nrow(which_regs_bin_vectors)) {
   mt <- as.matrix(t(which_regs_bin_vectors[row_ind, ]))
   out = (mt == 0)       # regressors out of the current model         
-  kx=sum(mt); ky=kx+1  # number of regressors in the current model   
-  
+  cur_regressors_n <- sum(mt)
+  cur_variables_n <- cur_regressors_n+1
+
   #Z includes y0 and x0 as strictly exogenous variables
   Z <- R_df %>% filter(year == year0) %>% select(lag_gdp) %>% as.matrix()
-  if (kx!=0) {
+  if (cur_regressors_n!=0) {
     X0j <- X0[,(mt==1)]
     Z <- cbind(Z ,X0j)
   }
@@ -111,7 +112,7 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
   proj_matrix <- Z%*%solve(crossprod(Z))%*%t(Z)
   res_maker_matrix <- diag(n) - proj_matrix
 
-  n_params_to_estimate <- 2*ky+t+1+(t^2+t-2)*regressors_n/2
+  n_params_to_estimate <- 2*cur_variables_n+t+1+(t^2+t-2)*regressors_n/2
 
   # t0in is the vector of initial values for the likelihood optimization   @
   t0in=0.5*ones(n_params_to_estimate,1)
@@ -125,7 +126,7 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
   lik<-function(t0in) {
     t0=t0in
     B0=diag(t+(t-1)*regressors_n)
-    C0=zeros(t,ky)
+    C0=zeros(t,cur_variables_n)
     for (ii in 2:t) {
       B0[ii,(ii-1)]=-t0[1]      # SEM method B11 in paper
     }
@@ -142,17 +143,17 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
     }
   
   # C1 matrix 
-    if (kx==0) {   
+    if (cur_regressors_n==0) {
     C0[1,1]=t0[1]+t0[2]
       for (i3 in 2:t) {
         C0[i3,1]=t0[2]
       }
     }
     else {
-    C0[1,1]=t0[1]+t0[1+ky]
-    C0[1,(2:ncol(C0))]=t(t0[2:ky])+t(t0[(ky+2):(ky+1+kx)])
+    C0[1,1]=t0[1]+t0[1+cur_variables_n]
+    C0[1,(2:ncol(C0))]=t(t0[2:cur_variables_n])+t(t0[(cur_variables_n+2):(cur_variables_n+1+cur_regressors_n)])
       for (i4 in 2:t) {
-        C0[i4,]=t(t0[(ky+1):(ky+kx+1)])
+        C0[i4,]=t(t0[(cur_variables_n+1):(cur_variables_n+cur_regressors_n+1)])
       }
     }
   # C2 matrix has closed-form solutions 
@@ -162,9 +163,9 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
   
     o110=zeros(t,t)
     for (i5 in 1:t) {
-        o110[i5,i5]=t0[2*ky+(i5+1)]^2
+        o110[i5,i5]=t0[2*cur_variables_n+(i5+1)]^2
     }
-    o110=o110+(t0[2*ky+1]^2)*(ones(t,t))  # Sigma 11 
+    o110=o110+(t0[2*cur_variables_n+1]^2)*(ones(t,t))  # Sigma 11 
     
      # Here, I split sigma 12 in the sum of two parts, phi's matrix and psi's upper triangular matrix 
     
@@ -172,7 +173,7 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
     o120=zeros(t,(t-1)*regressors_n)
       for (i6 in 1:t) {
         for (i7 in 1:(t-1)) {    
-          o120[i6,(1+(i7-1)*regressors_n):(i7*regressors_n)]=t(t0[(2*ky+t+2+(i7-1)*regressors_n):(2*ky+t+2+i7*regressors_n-1)])
+          o120[i6,(1+(i7-1)*regressors_n):(i7*regressors_n)]=t(t0[(2*cur_variables_n+t+2+(i7-1)*regressors_n):(2*cur_variables_n+t+2+i7*regressors_n-1)])
         }
       }
     
@@ -191,7 +192,7 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
       if (i8==t) {
         o121=o121 }
       else {
-        o121[i8,((i8-1)*regressors_n+1):(ncol(o121))]=t(t0[(2*ky+t+2+(t-1+seq[i8])*regressors_n):(2*ky+t+2+(t-1+seq[i8+1])*regressors_n-1)])
+        o121[i8,((i8-1)*regressors_n+1):(ncol(o121))]=t(t0[(2*cur_variables_n+t+2+(t-1+seq[i8])*regressors_n):(2*cur_variables_n+t+2+(t-1+seq[i8+1])*regressors_n-1)])
       }
     }
     
@@ -283,7 +284,7 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
     likvec=zeros(n,1)
     
     B0=diag(t+(t-1)*regressors_n)
-    C0=zeros(t,ky)
+    C0=zeros(t,cur_variables_n)
     for (ii in 2:t) {
       B0[ii,(ii-1)]=-t0[1]      # SEM method B11 in paper
     }
@@ -302,17 +303,17 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
     
     
     # C1 matrix 
-    if (kx==0) {   
+    if (cur_regressors_n==0) {
       C0[1,1]=t0[1]+t0[2]
       for (i3 in 2:t) {
         C0[i3,1]=t0[2]
       }
     }
     else {
-      C0[1,1]=t0[1]+t0[1+ky]
-      C0[1,(2:ncol(C0))]=t(t0[2:ky])+t(t0[(ky+2):(ky+1+kx)])
+      C0[1,1]=t0[1]+t0[1+cur_variables_n]
+      C0[1,(2:ncol(C0))]=t(t0[2:cur_variables_n])+t(t0[(cur_variables_n+2):(cur_variables_n+1+cur_regressors_n)])
       for (i4 in 2:t) {
-        C0[i4,]=t(t0[(ky+1):(ky+kx+1)])
+        C0[i4,]=t(t0[(cur_variables_n+1):(cur_variables_n+cur_regressors_n+1)])
       }
     }
     # C2 matrix has closed-form solutions 
@@ -322,9 +323,9 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
     
     o110=zeros(t,t)
     for (i5 in 1:t) {
-      o110[i5,i5]=t0[2*ky+(i5+1)]^2
+      o110[i5,i5]=t0[2*cur_variables_n+(i5+1)]^2
     }
-    o110=o110+(t0[2*ky+1]^2)*(ones(t,t))  # Sigma 11 
+    o110=o110+(t0[2*cur_variables_n+1]^2)*(ones(t,t))  # Sigma 11 
     
     # Here, I split sigma 12 in the sum of two parts, phi's matrix and psi's upper triangular matrix 
     
@@ -332,7 +333,7 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
     o120=zeros(t,(t-1)*regressors_n)
     for (i6 in 1:t) {
       for (i7 in 1:(t-1)) {    
-        o120[i6,(1+(i7-1)*regressors_n):(i7*regressors_n)]=t(t0[(2*ky+t+2+(i7-1)*regressors_n):(2*ky+t+2+i7*regressors_n-1)])
+        o120[i6,(1+(i7-1)*regressors_n):(i7*regressors_n)]=t(t0[(2*cur_variables_n+t+2+(i7-1)*regressors_n):(2*cur_variables_n+t+2+i7*regressors_n-1)])
       }
     }
     
@@ -351,7 +352,7 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
       if (i8==t) {
         o121=o121 }
       else {
-        o121[i8,((i8-1)*regressors_n+1):(ncol(o121))]=t(t0[(2*ky+t+2+(t-1+seq[i8])*regressors_n):(2*ky+t+2+(t-1+seq[i8+1])*regressors_n-1)])
+        o121[i8,((i8-1)*regressors_n+1):(ncol(o121))]=t(t0[(2*cur_variables_n+t+2+(t-1+seq[i8])*regressors_n):(2*cur_variables_n+t+2+(t-1+seq[i8+1])*regressors_n-1)])
       }
     }
     
@@ -380,23 +381,23 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
     varr=stdr^2; varh=stdh^2
     
     # storing results for the CURRENT model #    
-    logl=(-fout-(ky/2)*(log(n*t)))/n
+    logl=(-fout-(cur_variables_n/2)*(log(n*t)))/n
     bict=exp(logl)                              # integrated likelihood approximation           #
     # prior model probability (either random -Ley&Steel09- or fixed) #
     if (prandom == 1) {
-      priorprobt=(gamma(1+kx))*(gamma(b+regressors_n-kx))    #theta random#
+      priorprobt=(gamma(1+cur_regressors_n))*(gamma(b+regressors_n-cur_regressors_n))    #theta random#
       }
     
     if (prandom == 0) {
-      priorprobt=(pinc)^(kx)*(1-pinc)^(regressors_n-kx)      #theta fixed#
+      priorprobt=(pinc)^(cur_regressors_n)*(1-pinc)^(regressors_n-cur_regressors_n)      #theta fixed#
     }
     
     # posterior model probability  #
       postprob=priorprobt*bict
     
     # selecting estimates of interest (i.e. alpha and betas) #
-      bt=theta[1:ky]; stdrt=stdr[1:ky]; stdht=stdh[1:ky]
-    varht=varh[1:ky]; varrt=varr[1:ky]
+      bt=theta[1:cur_variables_n]; stdrt=stdr[1:cur_variables_n]; stdht=stdh[1:cur_variables_n]
+    varht=varh[1:cur_variables_n]; varrt=varr[1:cur_variables_n]
     
     # constructing the full vector of estimates #
       mty=rbind(1,mt) 
