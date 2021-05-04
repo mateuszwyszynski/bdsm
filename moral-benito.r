@@ -109,7 +109,7 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
   }
 
   proj_matrix <- Z%*%solve(crossprod(Z))%*%t(Z)
-  res_maker_matrix <- diag(n)-Z%*%solve(crossprod(Z))%*%t(Z)
+  res_maker_matrix <- diag(n) - proj_matrix
 
   n_params_to_estimate <- 2*ky+t+1+(t^2+t-2)*regressors_n/2
 
