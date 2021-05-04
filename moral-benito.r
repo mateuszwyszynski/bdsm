@@ -107,16 +107,15 @@ for (row_ind in 1:nrow(which_regs_bin_vectors)) {
     X0j <- X0[,(mt==1)]
     Z <- cbind(Z ,X0j)
   }
-  
+
   proj_matrix <- Z%*%solve(crossprod(Z))%*%t(Z)
   res_maker_matrix <- diag(n)-Z%*%solve(crossprod(Z))%*%t(Z)
-  
-  # nptbe is the Number of Parameters To Be Estimated in the current model  @
-  nptbe = 2*ky+t+1+(t^2+t-2)*regressors_n/2
-  
+
+  n_params_to_estimate <- 2*ky+t+1+(t^2+t-2)*regressors_n/2
+
   # t0in is the vector of initial values for the likelihood optimization   @
-  t0in=0.5*ones(nptbe,1)                                  
-  
+  t0in=0.5*ones(n_params_to_estimate,1)
+
    # ----------------------------------------------------------------------
    #                                                                        
    #                 LIKELIHOOD FUNCTION 1. BALIMLE.                       
