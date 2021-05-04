@@ -91,38 +91,13 @@ fy=zeros(variables_n,1); fyt=0; ppmsize=0; cout=0
 #  		               LOOP COVERING FULL MODEL SPACE           			      
 #---------------------------------------------------------------------------------
 
-tot=2^regressors_n #total number of models to be estimated
-for (turu in 1:tot) {
-  
-    # -----------------------------------------------------------------
-    #                   MODEL SELECTION FUNCTION                      
-    #                   ---------------------------                    
-    #                this function takes as input a number            
-    #                and it converts the number to its binary          
-    #                representation in base regressors_n                      
-    #                in order to be a "model".                         
-    # -----------------------------------------------------------------
+which_regs_bin_vectors <- replicate(regressors_n, 0:1, simplify = FALSE) %>%
+  expand.grid()
+which_regs_bin_vectors <-
+  which_regs_bin_vectors[,order(ncol(which_regs_bin_vectors):1)]
 
-    msel<-function(turu) {
-      v=zeros(regressors_n,1)
-      x=2^(regressors_n-1)
-      z=turu
-      i=1
-      while(i<=regressors_n) {
-        if (z>x) {
-          v[i]=1
-          z=z-x
-        }
-        else {
-          v[i]=0
-        }
-        x=x/2;
-        i=i+1;
-      }
-      return(v)
-    }
-
-  mt=msel(turu)
+for (row_ind in 1:nrow(which_regs_bin_vectors)) {
+  mt <- as.matrix(t(which_regs_bin_vectors[row_ind, ]))
   out = (mt == 0)       # regressors out of the current model         
   kx=sum(mt); ky=kx+1  # number of regressors in the current model   
   
@@ -451,7 +426,7 @@ for (turu in 1:tot) {
     # calculating the percentage of significant regressions #
     ptr=bt1/stdht1
     ntr=bt1/stdht1
-    if (turu==1) {
+    if (row_ind==1) {
       pts=ptr; nts=ntr
     } 
     else {
@@ -470,12 +445,12 @@ for (turu in 1:tot) {
     pvarh=pvarh+(postprob*varht1+postprob*(bt1*bt1))         # as in Leamer (1978) #
       
     # here we store model-specific diagnostics and estimates (BICs, likelihoods, betas...) #   
-    if (turu==1) {
-      modprob=postprob; modelid=turu; modpri=priorprobt; liks=exp(-fout/n); bics=bict
+    if (row_ind==1) {
+      modprob=postprob; modelid=row_ind; modpri=priorprobt; liks=exp(-fout/n); bics=bict
       betas=bt1; stds=stdht1; stdsr=stdrt1; foutt=-fout
     }
      else {
-       modprob=rbind(modprob,postprob); modelid=rbind(modelid,turu); modpri=rbind(modpri,priorprobt)
+       modprob=rbind(modprob,postprob); modelid=rbind(modelid,row_ind); modpri=rbind(modpri,priorprobt)
        liks=rbind(liks,exp(-fout/n)); bics=rbind(bics,bict); betas=cbind(betas,bt1)
        stds=cbind(stds,stdht1); stdsr=cbind(stdsr,stdrt1); foutt=rbind(foutt,(-fout))
      }
@@ -534,4 +509,3 @@ names(final)<-c(" 1.- RESULTS "," 2.- FURTHER INFORMATION "," 3.- COMPUTATION TI
                 " 5.- ALL STD. ERRORS (each row is a different model)"," 6.- ALL ROBUST STD. ERRORS (each row is a different model)",
                 " 7.- MODELS INFO ")
 final
-
