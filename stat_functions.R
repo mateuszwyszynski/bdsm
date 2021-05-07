@@ -1,3 +1,19 @@
+SEM_B_matrix <- function(params, regressors_n, periods_n) {
+  alpha <- params[1]
+  alpha_matrix <- diag(rep(-alpha, periods_n-1))
+  B11 <- diag(periods_n)
+  B11[2:periods_n, 1:(periods_n - 1)] <-
+    B11[2:periods_n, 1:(periods_n - 1)] + alpha_matrix
+
+  betas <- params[-1] %>% matrix(1)
+  betas_matrix <- bdiag(rep(list(-betas), periods_n - 1))
+  B12 <- rbind(zeros(1, regressors_n*(periods_n - 1)), betas_matrix)
+
+  B <- bdiag(B11, diag(regressors_n*(periods_n - 1)))
+  B[2:periods_n, -1:-periods_n] <-
+    B[2:periods_n, -1:-periods_n] + betas_matrix
+}
+
 lik <- function(t0in) {
   t0=t0in
   B0=diag(t+(t-1)*regressors_n)
