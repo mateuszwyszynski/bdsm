@@ -8,6 +8,7 @@ library(mcmc)
 library(matlib)   #used for inverse
 library(nlme)
 library("parallel")
+library(rje)
 no_of_cores = detectCores()
 set.seed(23)
 begin<-Sys.time()
@@ -26,8 +27,10 @@ rawdata<-readxl::read_excel("balimle-dataset.xlsx")
 rawdata=rawdata[,1:8]   #I select the regressors of interest @
 year0 <- min(rawdata$year)
 varlist<- c("FDI","EI","LLF","EX", "SW")
+regressors <- rev(colnames(rawdata)[-1:-4])
 regressors_n <- ncol(rawdata) - 4
 variables_n <- regressors_n + 1
+variables <- rev(colnames(rawdata)[-1:-3])
 
 #' Prepare data for LIML estimation
 #' 
@@ -91,23 +94,24 @@ fy=zeros(variables_n,1); fyt=0; ppmsize=0; cout=0
 #  		               LOOP COVERING FULL MODEL SPACE           			      
 #---------------------------------------------------------------------------------
 
+regressors_subsets <- powerSet(regressors)
 which_regs_bin_vectors <- replicate(regressors_n, 0:1, simplify = FALSE) %>%
   expand.grid()
 which_regs_bin_vectors <-
   which_regs_bin_vectors[,order(ncol(which_regs_bin_vectors):1)]
 
-for (row_ind in 1:nrow(which_regs_bin_vectors)) {
+row_ind <- 0
+for (regressors_subset in regressors_subsets) {
+  regressors_subset <- rev(regressors_subset)
+  row_ind <- row_ind + 1
   mt <- as.matrix(t(which_regs_bin_vectors[row_ind, ]))
   out = (mt == 0)       # regressors out of the current model         
   cur_regressors_n <- sum(mt)
   cur_variables_n <- cur_regressors_n+1
 
   #Z includes y0 and x0 as strictly exogenous variables
-  Z <- R_df %>% filter(year == year0) %>% select(lag_gdp) %>% as.matrix()
-  if (cur_regressors_n!=0) {
-    X0j <- X0[,(mt==1)]
-    Z <- cbind(Z ,X0j)
-  }
+  Z <- R_df %>% filter(year == year0) %>%
+    select(lag_gdp, regressors_subset) %>% as.matrix()
 
   proj_matrix <- Z%*%solve(crossprod(Z))%*%t(Z)
   res_maker_matrix <- diag(n) - proj_matrix
