@@ -12,6 +12,7 @@ SEM_B_matrix <- function(params, regressors_n, periods_n) {
   B <- bdiag(B11, diag(regressors_n*(periods_n - 1)))
   B[2:periods_n, -1:-periods_n] <-
     B[2:periods_n, -1:-periods_n] + betas_matrix
+  B
 }
 
 lik <- function(t0in) {
