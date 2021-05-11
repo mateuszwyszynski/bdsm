@@ -10,7 +10,7 @@ library(nlme)
 library("parallel")
 library(rje)
 
-source('stat_functions.R')
+source('R/stat_functions.R')
 
 no_of_cores = detectCores()
 set.seed(23)
@@ -18,14 +18,14 @@ begin<-Sys.time()
 prandom=0 #prandom=1 for theta random Ley&Steel09. prandom = 0 for theta fixed
 
 #---------------------------------------------------------------------------------
-#		   	                     LOADING THE DATASET			        		  
+#		   	                     LOADING THE DATASET
 #---------------------------------------------------------------------------------
 
 row=292; column=11; t=4; n=73
 rawdata<-readxl::read_excel("balimle-dataset.xlsx")
 
-#    VARIABLES IN RAWDATA                                                               
-#    1.FDI  2.FDIlag  3.EI  4.LLF  5.EX  6.SW  7.RES  8.LOPW  9.INT  10.RI              
+#    VARIABLES IN RAWDATA
+#    1.FDI  2.FDIlag  3.EI  4.LLF  5.EX  6.SW  7.RES  8.LOPW  9.INT  10.RI
 #-----------------------------------------------------------------------------------------
 rawdata=rawdata[,1:8]   #I select the regressors of interest @
 year0 <- min(rawdata$year)
@@ -36,19 +36,19 @@ variables_n <- regressors_n + 1
 variables <- rev(colnames(rawdata)[-1:-3])
 
 #' Prepare data for LIML estimation
-#' 
+#'
 #' @description
 #' This is a function which prepares data for Limited Information Maximum
 #' Likelihood (LIML) Estimation. Following operations are performed:
-#' 
+#'
 #' 1. Data standarisation
 #' 2. Cross-sectional demeaning of variables
 #' 3. Organisation of data for the LIML estimation
-#' 
+#'
 #' @param df Dataframe with data that should be prepared for LIML estimation
 liml_data_prep <- function(df){
   df <- df %>% mutate(across(!(year:country), scale))
-  
+
   csddata_df <- df %>% group_by(year) %>%
     summarise(country = country,
               across(!country, function(x) scale(x, scale = FALSE))) %>%
@@ -74,27 +74,27 @@ X0 <- R_df %>% filter(year == year0) %>%
   select(!(year:lag_gdp)) %>% as.matrix()
 
 # ---------------------------------------------------------------------------------
-# 		               SOME PRELIMINAR OBJECTS BALIMLE APPROACH   			      
+# 		               SOME PRELIMINAR OBJECTS BALIMLE APPROACH
 # ---------------------------------------------------------------------------------
-#   
+#
 #***                 PRIOR STRUCTURES for THE PRIOR MODEL SIZE                  ***
 # ---------------------------------------------------------------------------------
-  
-pmsize=regressors_n/2           # prior expected model size, options:                    
-    # 1. for "SDM" priors pmsize=3	                          
-    # 2. for "FLS" priors pmsize=regressors_n/2	                  
+
+pmsize=regressors_n/2           # prior expected model size, options:
+    # 1. for "SDM" priors pmsize=3
+    # 2. for "FLS" priors pmsize=regressors_n/2
 pinc=pmsize/regressors_n
-b=(regressors_n-pmsize)/pmsize   # parameter for beta (random) distribution of the prior inclusion probability  
-  
+b=(regressors_n-pmsize)/pmsize   # parameter for beta (random) distribution of the prior inclusion probability
+
 # ***                     STORAGE OBJECTS                                       ***
 # ---------------------------------------------------------------------------------
-   
+
 mod=zeros(variables_n,1); bet=zeros(variables_n,1);
 pvarh=zeros(variables_n,1); pvarr=zeros(variables_n,1);
 fy=zeros(variables_n,1); fyt=0; ppmsize=0; cout=0
 
 #---------------------------------------------------------------------------------
-#  		               LOOP COVERING FULL MODEL SPACE           			      
+#  		               LOOP COVERING FULL MODEL SPACE
 #---------------------------------------------------------------------------------
 
 regressors_subsets <- powerSet(regressors)
@@ -108,7 +108,7 @@ for (regressors_subset in regressors_subsets) {
   regressors_subset <- rev(regressors_subset)
   row_ind <- row_ind + 1
   mt <- as.matrix(t(which_regs_bin_vectors[row_ind, ]))
-  out = (mt == 0)       # regressors out of the current model         
+  out = (mt == 0)       # regressors out of the current model
   cur_regressors_n <- sum(mt)
   cur_variables_n <- cur_regressors_n+1
 
@@ -131,7 +131,7 @@ for (regressors_subset in regressors_subsets) {
   theta<-optimized[[1]]; fout<-optimized[[2]]
   # theta returns optimized parameters, fout is the value of the function lik at the maximum
   # we now compute model-specific standard errors @
-  
+
   he=myhess(lik,theta)
   #he=hessian(lik,theta) #alternative methods
   #hess=(fdHess(theta,lik))
@@ -144,28 +144,28 @@ for (regressors_subset in regressors_subsets) {
     stdr=sqrt(diag(solve(he)%*%(Imat)%*%solve(he)))
     stdh=sqrt(diag((solve(he)))) #sqrt of negative values(
     varr=stdr^2; varh=stdh^2
-    
-    # storing results for the CURRENT model #    
+
+    # storing results for the CURRENT model #
     logl=(-fout-(cur_variables_n/2)*(log(n*t)))/n
     bict=exp(logl)                              # integrated likelihood approximation           #
     # prior model probability (either random -Ley&Steel09- or fixed) #
     if (prandom == 1) {
       priorprobt=(gamma(1+cur_regressors_n))*(gamma(b+regressors_n-cur_regressors_n))    #theta random#
       }
-    
+
     if (prandom == 0) {
       priorprobt=(pinc)^(cur_regressors_n)*(1-pinc)^(regressors_n-cur_regressors_n)      #theta fixed#
     }
-    
+
     # posterior model probability  #
       postprob=priorprobt*bict
-    
+
     # selecting estimates of interest (i.e. alpha and betas) #
       bt=theta[1:cur_variables_n]; stdrt=stdr[1:cur_variables_n]; stdht=stdh[1:cur_variables_n]
     varht=varh[1:cur_variables_n]; varrt=varr[1:cur_variables_n]
-    
+
     # constructing the full vector of estimates #
-      mty=rbind(1,mt) 
+      mty=rbind(1,mt)
     bt1=zeros(variables_n,1)
     stdrt1=zeros(variables_n,1); stdht1=zeros(variables_n,1)
     varht1=zeros(variables_n,1); varrt1=zeros(variables_n,1)
@@ -188,30 +188,30 @@ for (regressors_subset in regressors_subsets) {
         varrt1[it]=0
       }
     }
-    
-    
+
+
     # calculating the percentage of significant regressions #
     ptr=bt1/stdht1
     ntr=bt1/stdht1
     if (row_ind==1) {
       pts=ptr; nts=ntr
-    } 
+    }
     else {
       pts=cbind(pts,ptr); nts=cbind(nts,ntr)
-    } 
+    }
 
     # accumulating estimates for posterior model probabilities #
     mod=mod+mty
     fy=fy+postprob*mty
     fyt=fyt+postprob
     ppmsize=ppmsize+postprob*(sum(mty))
-    
+
     # storing estimates conditional on inclusion #
-    bet=bet+postprob*bt1  
+    bet=bet+postprob*bt1
     pvarr=pvarr+(postprob*varrt1+postprob*(bt1*bt1))         # as in Leamer (1978) #
     pvarh=pvarh+(postprob*varht1+postprob*(bt1*bt1))         # as in Leamer (1978) #
-      
-    # here we store model-specific diagnostics and estimates (BICs, likelihoods, betas...) #   
+
+    # here we store model-specific diagnostics and estimates (BICs, likelihoods, betas...) #
     if (row_ind==1) {
       modprob=postprob; modelid=row_ind; modpri=priorprobt; liks=exp(-fout/n); bics=bict
       betas=bt1; stds=stdht1; stdsr=stdrt1; foutt=-fout
@@ -222,7 +222,7 @@ for (regressors_subset in regressors_subsets) {
        stds=cbind(stds,stdht1); stdsr=cbind(stdsr,stdrt1); foutt=rbind(foutt,(-fout))
      }
 }
-    
+
 #                         end of loop covering full model space                        #
 #--------------------------------------------------------------------------------------#
 popmsize=ppmsize/fyt
@@ -232,7 +232,7 @@ idprob=as.data.frame(cbind(modelid,modprob1,modpri,bics))
 names(idprob)<-c("model","postprob","riorprob","bics")
 row.names(idprob)<-NULL
 
-# computing posterior moments CONDITIONAL on inclusion 
+# computing posterior moments CONDITIONAL on inclusion
 postprobinc=fy/fyt
 postmean=bet/fy
 varrleamer=(pvarr/fy)-postmean^2
@@ -242,21 +242,21 @@ poststdh=sqrt(varhleamer)
 tr=postmean/poststdr
 th=postmean/poststdh
 
-# computing UNCONDITIONAL posterior moments 
+# computing UNCONDITIONAL posterior moments
 upostmean = postmean * postprobinc
 uvarrleamer = (varrleamer + (postmean^2))*postprobinc - (upostmean^2)
 uvarhleamer = (varhleamer + (postmean^2))*postprobinc - (upostmean^2)
 upoststdr=sqrt(uvarrleamer)
 upoststdh=sqrt(uvarhleamer)
 
-# computing percentage of significant coeff estimates 
-nts=t(nts) 
+# computing percentage of significant coeff estimates
+nts=t(nts)
 pts=t(pts)
 for (jt in 1:variables_n) {
   ntss=na.omit(nts[,jt]); ptss=na.omit(pts[,jt]); nsig=ntss<(-1.96); psig=ptss>1.96
   if (jt==1) {
     negper=mean(nsig); posper=mean(psig)
-  } 
+  }
   else {
     negper=rbind(negper,mean(nsig)); posper=rbind(posper,mean(psig))
   }
