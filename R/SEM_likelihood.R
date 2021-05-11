@@ -8,6 +8,7 @@
 #' @param periods_n integer
 #'
 #' @return matrix
+#' @importFrom magrittr %>%
 #' @export
 #'
 #' @examples
@@ -20,10 +21,10 @@ SEM_B_matrix <- function(params, regressors_n, periods_n) {
     B11[2:periods_n, 1:(periods_n - 1)] + alpha_matrix
 
   betas <- params[-1] %>% matrix(1)
-  betas_matrix <- bdiag(rep(list(-betas), periods_n - 1))
-  B12 <- rbind(zeros(1, regressors_n*(periods_n - 1)), betas_matrix)
+  betas_matrix <- Matrix::bdiag(rep(list(-betas), periods_n - 1))
+  B12 <- rbind(optimbase::zeros(1, regressors_n*(periods_n - 1)), betas_matrix)
 
-  B <- bdiag(B11, diag(regressors_n*(periods_n - 1)))
+  B <- Matrix::bdiag(B11, diag(regressors_n*(periods_n - 1)))
   B[2:periods_n, -1:-periods_n] <-
     B[2:periods_n, -1:-periods_n] + betas_matrix
   B
