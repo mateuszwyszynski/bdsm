@@ -30,6 +30,18 @@ SEM_B_matrix <- function(params, regressors_n, periods_n) {
   B
 }
 
+SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = NULL, phi_1 = NULL) {
+  C1 <- matrix(rep(phi_0, periods_n))
+  C1[1, 1] <- C1[1, 1] + alpha
+  if (!is.null(beta)) {
+    col2 <- matrix(rep(phi_1, periods_n), periods_n, byrow = TRUE)
+    col2[1, 1:length(beta)] <-
+      col2[1, 1:length(beta)] + beta
+    C1 <- cbind(C1, col2)
+  }
+  C1
+}
+
 lik <- function(t0in) {
   t0=t0in
   B0=diag(t+(t-1)*regressors_n)
