@@ -3,30 +3,31 @@
 #' Create coefficients matrix for Simultaneous Equations Model (SEM)
 #' representation.
 #'
-#' @param params numeric vector
-#' @param regressors_n integer
+#' @param alpha numeric
 #' @param periods_n integer
+#' @param beta numeric vector. Default is NULL for no regressors case.
 #'
 #' @return matrix
 #' @importFrom magrittr %>%
 #' @export
 #'
 #' @examples
-#' SEM_B_matrix(3:6, 3, 4)
-SEM_B_matrix <- function(params, regressors_n, periods_n) {
-  alpha <- params[1]
+#' SEM_B_matrix(3, 4, 4:6)
+SEM_B_matrix <- function(alpha, periods_n, beta = NULL) {
   alpha_matrix <- diag(rep(-alpha, periods_n-1))
-  B11 <- diag(periods_n)
-  B11[2:periods_n, 1:(periods_n - 1)] <-
-    B11[2:periods_n, 1:(periods_n - 1)] + alpha_matrix
+  B <- diag(periods_n)
+  B[2:periods_n, 1:(periods_n - 1)] <-
+    B[2:periods_n, 1:(periods_n - 1)] + alpha_matrix
 
-  betas <- params[-1] %>% matrix(1)
-  betas_matrix <- Matrix::bdiag(rep(list(-betas), periods_n - 1))
-  B12 <- rbind(optimbase::zeros(1, regressors_n*(periods_n - 1)), betas_matrix)
+  if (!is.null(beta)) {
+    regressors_n <- length(beta)
+    beta <- beta %>% matrix(1)
+    beta_matrix <- Matrix::bdiag(rep(list(-beta), periods_n - 1))
 
-  B <- Matrix::bdiag(B11, diag(regressors_n*(periods_n - 1)))
-  B[2:periods_n, -1:-periods_n] <-
-    B[2:periods_n, -1:-periods_n] + betas_matrix
+    B <- Matrix::bdiag(B, diag(regressors_n*(periods_n - 1)))
+    B[2:periods_n, -1:-periods_n] <-
+      B[2:periods_n, -1:-periods_n] + beta_matrix
+  }
   B
 }
 

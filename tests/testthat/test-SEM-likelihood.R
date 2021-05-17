@@ -1,5 +1,5 @@
 test_that("SEM_B_matrix computes proper matrix", {
-  B <- as.matrix(SEM_B_matrix(3:6, 3, 4))
+  B <- as.matrix(SEM_B_matrix(3, 4, 4:6))
   B_expected_data <- c(
     1, -3, rep(0, 11),
     0, 1, -3, rep(0, 10),

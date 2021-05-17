@@ -4,14 +4,14 @@
 \alias{SEM_B_matrix}
 \title{Coefficients matrix for SEM representation}
 \usage{
-SEM_B_matrix(params, regressors_n, periods_n)
+SEM_B_matrix(alpha, periods_n, beta = NULL)
 }
 \arguments{
-\item{params}{numeric vector}
-
-\item{regressors_n}{integer}
+\item{alpha}{numeric}
 
 \item{periods_n}{integer}
+
+\item{beta}{numeric vector. Default is NULL for no regressors case.}
 }
 \value{
 matrix
@@ -21,5 +21,5 @@ Create coefficients matrix for Simultaneous Equations Model (SEM)
 representation.
 }
 \examples{
-SEM_B_matrix(3:6, 3, 4)
+SEM_B_matrix(3, 4, 4:6)
 }
