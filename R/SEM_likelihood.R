@@ -30,6 +30,29 @@ SEM_B_matrix <- function(params, regressors_n, periods_n) {
   B
 }
 
+#' Coefficients matrix for initial conditions
+#'
+#' Create matrix for Simultaneous Equations Model (SEM)
+#' representation with coefficients placed next to initial values
+#' of regressors, dependent variable and country-specific time-invariant
+#' variables.
+#'
+#' @param alpha numeric
+#' @param phi_0 numeric
+#' @param periods_n numeric
+#' @param beta numeric vector. Default is NULL for no regressors case.
+#' @param phi_1 numeric vector. Default is NULL for no regressors case.
+#'
+#' @return matrix
+#' @export
+#'
+#' @examples
+#' alpha <- 9
+#' phi_0 <- 19
+#' beta <- 11:15
+#' phi_1 <- 21:25
+#' periods_n <- 4
+#' SEM_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
 SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = NULL, phi_1 = NULL) {
   C1 <- matrix(rep(phi_0, periods_n))
   C1[1, 1] <- C1[1, 1] + alpha
