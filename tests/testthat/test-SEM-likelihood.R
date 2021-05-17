@@ -18,3 +18,23 @@ test_that("SEM_B_matrix computes proper matrix", {
   B_expected <- matrix(B_expected_data, 13, 13)
   expect_equal(B, B_expected, ignore_attr = TRUE)
 })
+
+test_that("SEM_C_matrix computes proper matrix", {
+  alpha <- 9
+  phi_0 <- 19
+  beta <- 11:15
+  phi_1 <- 21:25
+  periods_n <- 4
+  C <- as.matrix(SEM_C_matrix(alpha, phi_0, periods_n, beta, phi_1))
+
+  C_expected_data <- c(
+    alpha + phi_0, rep(phi_0, periods_n-1),
+    beta[1] + phi_1[1], rep(phi_1[1], periods_n-1),
+    beta[2] + phi_1[2], rep(phi_1[2], periods_n-1),
+    beta[3] + phi_1[3], rep(phi_1[3], periods_n-1),
+    beta[4] + phi_1[4], rep(phi_1[4], periods_n-1),
+    beta[5] + phi_1[5], rep(phi_1[5], periods_n-1)
+  )
+  C_expected <- matrix(C_expected_data, periods_n, 1 + length(beta))
+  expect_equal(C, C_expected, ignore_attr = TRUE)
+})
