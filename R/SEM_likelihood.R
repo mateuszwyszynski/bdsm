@@ -66,6 +66,43 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = NULL, phi_1 = NULL) {
   C1
 }
 
+#' Covariance matrix for SEM representation
+#'
+#' Create covariance matrix for Simultaneous Equations Model (SEM)
+#' representation. Only the part necessary to compute concentrated likelihood
+#' function is computed (cf. Appendix in the Moral-Benito paper)
+#'
+#' @param err_var numeric
+#' @param dep_vars numeric vector
+#' @param phis numeric vector
+#' @param psis numeric vector
+#'
+#' @return matrix
+#' @export
+#'
+#' @examples
+#' err_var <- 1
+#' dep_vars <- c(2, 2, 2)
+#' phis <- c(1, 1, 2, 2)
+#' psis <- c(101, 102, 103, 104, 105, 106)
+#' SEM_omega_matrix(err_var, dep_vars, phis, psis)
+SEM_omega_matrix <- function(err_var, dep_vars, phis = NULL, psis = NULL) {
+  periods_n <- length(dep_vars)
+
+  O <- err_var*optimbase::ones(periods_n, periods_n) +
+    diag(dep_vars)
+
+  if (!is.null(phis)) {
+    regressors_n <- length(phis)/(periods_n - 1)
+    phi_matrix <- matrix(rep(phis, periods_n), nrow = periods_n, byrow = TRUE)
+    psi_matrix <- optimbase::zeros(periods_n, (periods_n - 1)*regressors_n)
+    psi_matrix[upper.tri(psi_matrix)] <- psis
+    O12 <- phi_matrix + psi_matrix
+    O <- cbind(O, O12)
+  }
+  O
+}
+
 lik <- function(t0in) {
   t0=t0in
   B0=diag(t+(t-1)*regressors_n)

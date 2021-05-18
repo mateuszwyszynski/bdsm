@@ -2,4 +2,5 @@
 
 export(SEM_B_matrix)
 export(SEM_C_matrix)
+export(SEM_omega_matrix)
 importFrom(magrittr,"%>%")
