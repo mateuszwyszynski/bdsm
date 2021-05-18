@@ -75,16 +75,16 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = NULL, phi_1 = NULL) {
 #' @param err_var numeric
 #' @param dep_vars numeric vector
 #' @param phis numeric vector
-#' @param psis numeric vector
+#' @param psis list of numeric vectors
 #'
 #' @return matrix
 #' @export
 #'
 #' @examples
 #' err_var <- 1
-#' dep_vars <- c(2, 2, 2)
-#' phis <- c(1, 1, 2, 2)
-#' psis <- c(101, 102, 103, 104, 105, 106)
+#' dep_vars <- c(2, 2, 2, 2)
+#' phis <- c(10, 10, 20, 20, 30, 30)
+#' psis <- list(c(101, 102), c(103, 104, 105, 106), c(107, 108, 109, 110, 111, 112))
 #' SEM_omega_matrix(err_var, dep_vars, phis, psis)
 SEM_omega_matrix <- function(err_var, dep_vars, phis = NULL, psis = NULL) {
   periods_n <- length(dep_vars)
@@ -94,9 +94,18 @@ SEM_omega_matrix <- function(err_var, dep_vars, phis = NULL, psis = NULL) {
 
   if (!is.null(phis)) {
     regressors_n <- length(phis)/(periods_n - 1)
+
     phi_matrix <- matrix(rep(phis, periods_n), nrow = periods_n, byrow = TRUE)
-    psi_matrix <- optimbase::zeros(periods_n, (periods_n - 1)*regressors_n)
-    psi_matrix[upper.tri(psi_matrix)] <- psis
+
+    time_fixed_psi_matrix <- function(psi, regressors_n) {
+      nrows <- length(psi)/regressors_n
+      t(matrix(psi, nrow = nrows, ncol = regressors_n))
+    }
+    psi_matrix <- psis %>%
+      sapply(time_fixed_psi_matrix, regressors_n = regressors_n) %>%
+      plyr::rbind.fill.matrix() %>% t() %>% tidyr::replace_na(0) %>%
+      rbind(rep(0, (periods_n - 1)*regressors_n))
+
     O12 <- phi_matrix + psi_matrix
     O <- cbind(O, O12)
   }
