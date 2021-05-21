@@ -121,8 +121,17 @@ for (regressors_subset in regressors_subsets) {
 
   n_params_to_estimate <- 2*cur_variables_n+t+1+(t^2+t-2)*regressors_n/2
 
-  # t0in is the vector of initial values for the likelihood optimization   @
-  t0in=0.5*ones(n_params_to_estimate,1)
+  # Initial parameter values for optimisation
+  alpha <- 0.5
+  phi_0 <- 0.5
+  err_var <- 0.5
+  dep_vars <- rep(0.5, periods_n)
+  beta <- rep(0.5, cur_regressors_n)
+  phi_1 <- rep(0.5, cur_regressors_n)
+  phis <- rep(0.5, regressors_n*(periods_n - 1))
+  psis <- rep(0.5, regressors_n*periods_n*(periods_n - 1)/2)
+
+  t0in <- matrix(c(alpha, beta, phi_0, phi_1, err_var, dep_vars, phis, psis))
 
   # parscale argument somehow (don't know yet how) changes step size during optimisation.
   # Most likely optimisation methods used in Gauss are scale-free and these used in R are not
