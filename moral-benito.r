@@ -121,6 +121,8 @@ for (regressors_subset in regressors_subsets) {
 
   n_params_to_estimate <- 2*cur_variables_n+t+1+(t^2+t-2)*regressors_n/2
 
+  periods_n <- t
+
   # Initial parameter values for optimisation
   alpha <- 0.5
   phi_0 <- 0.5
