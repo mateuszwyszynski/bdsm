@@ -13,7 +13,7 @@ SEM_omega_matrix(err_var, dep_vars, phis = NULL, psis = NULL)
 
 \item{phis}{numeric vector}
 
-\item{psis}{list of numeric vectors}
+\item{psis}{numeric vector}
 }
 \value{
 matrix
@@ -27,6 +27,6 @@ function is computed (cf. Appendix in the Moral-Benito paper)
 err_var <- 1
 dep_vars <- c(2, 2, 2, 2)
 phis <- c(10, 10, 20, 20, 30, 30)
-psis <- list(c(101, 102), c(103, 104, 105, 106), c(107, 108, 109, 110, 111, 112))
+psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
 SEM_omega_matrix(err_var, dep_vars, phis, psis)
 }
