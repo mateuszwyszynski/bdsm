@@ -77,7 +77,7 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = NULL, phi_1 = NULL) {
 #' @param psis numeric vector. Psis should be passed column-wise, i.e. they will
 #' be filled into Sigma12 across columns first.
 #'
-#' @return matrix
+#' @return List with two matrices Sigma11 and Sigma12
 #' @importFrom magrittr %>%
 #' @export
 #'
@@ -90,10 +90,10 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = NULL, phi_1 = NULL) {
 SEM_omega_matrix <- function(err_var, dep_vars, phis = NULL, psis = NULL) {
   periods_n <- length(dep_vars)
 
-  O <- err_var*optimbase::ones(periods_n, periods_n) +
+  O11 <- err_var*optimbase::ones(periods_n, periods_n) +
     diag(dep_vars)
 
-  if (!is.null(phis)) {
+  O12 <- if (!is.null(phis)) {
     regressors_n <- length(phis)/(periods_n - 1)
 
     phi_matrix <- matrix(rep(phis, periods_n), nrow = periods_n, byrow = TRUE)
@@ -107,10 +107,11 @@ SEM_omega_matrix <- function(err_var, dep_vars, phis = NULL, psis = NULL) {
       plyr::rbind.fill.matrix() %>% t() %>% tidyr::replace_na(0) %>%
       rbind(rep(0, (periods_n - 1)*regressors_n))
 
-    O12 <- phi_matrix + psi_matrix
-    O <- cbind(O, O12)
+    phi_matrix + psi_matrix
+  } else {
+    NULL
   }
-  O
+  list(O11, O12)
 }
 
 lik <- function(t0in) {

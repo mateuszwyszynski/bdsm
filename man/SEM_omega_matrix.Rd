@@ -17,7 +17,7 @@ SEM_omega_matrix(err_var, dep_vars, phis = NULL, psis = NULL)
 be filled into Sigma12 across columns first.}
 }
 \value{
-matrix
+List with two matrices Sigma11 and Sigma12
 }
 \description{
 Create covariance matrix for Simultaneous Equations Model (SEM)

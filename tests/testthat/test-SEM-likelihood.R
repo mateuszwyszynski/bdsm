@@ -68,8 +68,8 @@ test_that("SEM_omega_matrix computes proper matrix", {
     phis[1], phis[2], phis[3], phis[4], phis[5], phis[6]
   )
 
-  omega_11 <- matrix(omega_11_expected_data, nrow = 4, byrow = TRUE)
-  omega_12 <- matrix(omega_12_expected_data, nrow = 4, byrow = TRUE)
-  omega_expected <- cbind(omega_11, omega_12)
-  expect_equal(omega, omega_expected, ignore_attr = TRUE)
+  omega_11_expected <- matrix(omega_11_expected_data, nrow = 4, byrow = TRUE)
+  omega_12_expected <- matrix(omega_12_expected_data, nrow = 4, byrow = TRUE)
+  expect_equal(omega[[1]], omega_11_expected, ignore_attr = TRUE)
+  expect_equal(omega[[2]], omega_12_expected, ignore_attr = TRUE)
 })
