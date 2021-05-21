@@ -44,21 +44,21 @@ test_that("SEM_C_matrix computes proper matrix", {
   expect_equal(C, C_expected, ignore_attr = TRUE)
 })
 
-test_that("SEM_omega_matrix computes proper matrix", {
+test_that("SEM_sigma_matrix computes proper matrix", {
   err_var <- 1
   dep_vars <- c(2, 2, 2, 2)
   phis <- c(10, 10, 20, 20, 30, 30)
   psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
-  omega <- as.matrix(SEM_omega_matrix(err_var, dep_vars, phis, psis))
+  sigma <- as.matrix(SEM_sigma_matrix(err_var, dep_vars, phis, psis))
 
-  omega_11_expected_data <- c(
+  sigma_11_expected_data <- c(
     err_var + dep_vars[1], err_var, err_var, err_var,
     err_var, err_var + dep_vars[2], err_var, err_var,
     err_var, err_var, err_var + dep_vars[3], err_var,
     err_var, err_var, err_var, err_var + dep_vars[4]
   )
 
-  omega_12_expected_data <- c(
+  sigma_12_expected_data <- c(
     phis[1] + psis[1], phis[2] + psis[2], phis[3] + psis[3], phis[4] + psis[5],
     phis[5] + psis[7], phis[6] + psis[10],
     phis[1], phis[2], phis[3] + psis[4], phis[4] + psis[6],
@@ -68,8 +68,8 @@ test_that("SEM_omega_matrix computes proper matrix", {
     phis[1], phis[2], phis[3], phis[4], phis[5], phis[6]
   )
 
-  omega_11_expected <- matrix(omega_11_expected_data, nrow = 4, byrow = TRUE)
-  omega_12_expected <- matrix(omega_12_expected_data, nrow = 4, byrow = TRUE)
-  expect_equal(omega[[1]], omega_11_expected, ignore_attr = TRUE)
-  expect_equal(omega[[2]], omega_12_expected, ignore_attr = TRUE)
+  sigma_11_expected <- matrix(sigma_11_expected_data, nrow = 4, byrow = TRUE)
+  sigma_12_expected <- matrix(sigma_12_expected_data, nrow = 4, byrow = TRUE)
+  expect_equal(sigma[[1]], sigma_11_expected, ignore_attr = TRUE)
+  expect_equal(sigma[[2]], sigma_12_expected, ignore_attr = TRUE)
 })

@@ -86,8 +86,8 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = NULL, phi_1 = NULL) {
 #' dep_vars <- c(2, 2, 2, 2)
 #' phis <- c(10, 10, 20, 20, 30, 30)
 #' psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
-#' SEM_omega_matrix(err_var, dep_vars, phis, psis)
-SEM_omega_matrix <- function(err_var, dep_vars, phis = NULL, psis = NULL) {
+#' SEM_sigma_matrix(err_var, dep_vars, phis, psis)
+SEM_sigma_matrix <- function(err_var, dep_vars, phis = NULL, psis = NULL) {
   periods_n <- length(dep_vars)
 
   O11 <- err_var*optimbase::ones(periods_n, periods_n) +
