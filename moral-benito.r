@@ -10,7 +10,7 @@ library(nlme)
 library("parallel")
 library(rje)
 
-source('R/stat_functions.R')
+source('R/SEM_likelihood.R')
 
 no_of_cores = detectCores()
 set.seed(23)
