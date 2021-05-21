@@ -14,7 +14,7 @@ SEM_B_matrix(alpha, periods_n, beta = NULL)
 \item{beta}{numeric vector. Default is NULL for no regressors case.}
 }
 \value{
-matrix
+List with two matrices B11 and B12
 }
 \description{
 Create coefficients matrix for Simultaneous Equations Model (SEM)

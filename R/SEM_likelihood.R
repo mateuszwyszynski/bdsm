@@ -7,7 +7,7 @@
 #' @param periods_n integer
 #' @param beta numeric vector. Default is NULL for no regressors case.
 #'
-#' @return matrix
+#' @return List with two matrices B11 and B12
 #' @importFrom magrittr %>%
 #' @export
 #'
@@ -15,20 +15,19 @@
 #' SEM_B_matrix(3, 4, 4:6)
 SEM_B_matrix <- function(alpha, periods_n, beta = NULL) {
   alpha_matrix <- diag(rep(-alpha, periods_n-1))
-  B <- diag(periods_n)
-  B[2:periods_n, 1:(periods_n - 1)] <-
-    B[2:periods_n, 1:(periods_n - 1)] + alpha_matrix
+  B11 <- diag(periods_n)
+  B11[2:periods_n, 1:(periods_n - 1)] <-
+    B11[2:periods_n, 1:(periods_n - 1)] + alpha_matrix
 
-  if (!is.null(beta)) {
+  B12 <- if (!is.null(beta)) {
     regressors_n <- length(beta)
     beta <- beta %>% matrix(1)
-    beta_matrix <- Matrix::bdiag(rep(list(-beta), periods_n - 1))
-
-    B <- Matrix::bdiag(B, diag(regressors_n*(periods_n - 1)))
-    B[2:periods_n, -1:-periods_n] <-
-      B[2:periods_n, -1:-periods_n] + beta_matrix
+    rbind(optimbase::zeros(1, regressors_n*(periods_n - 1)),
+          Matrix::bdiag(rep(list(-beta), periods_n - 1)))
+  } else {
+    NULL
   }
-  B
+  list(B11, B12)
 }
 
 #' Coefficients matrix for initial conditions

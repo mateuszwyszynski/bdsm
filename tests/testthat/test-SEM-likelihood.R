@@ -1,22 +1,27 @@
 test_that("SEM_B_matrix computes proper matrix", {
-  B <- as.matrix(SEM_B_matrix(3, 4, 4:6))
-  B_expected_data <- c(
-    1, -3, rep(0, 11),
-    0, 1, -3, rep(0, 10),
-    0, 0, 1, -3, rep(0, 9),
-    rep(0, 3), 1, rep(0, 9),
-    rep(0, 1), -4, rep(0, 2), 1, rep(0, 8),
-    rep(0, 1), -5, rep(0, 3), 1, rep(0, 7),
-    rep(0, 1), -6, rep(0, 4), 1, rep(0, 6),
-    rep(0, 2), -4, rep(0, 4), 1, rep(0, 5),
-    rep(0, 2), -5, rep(0, 5), 1, rep(0, 4),
-    rep(0, 2), -6, rep(0, 6), 1, rep(0, 3),
-    rep(0, 3), -4, rep(0, 6), 1, rep(0, 2),
-    rep(0, 3), -5, rep(0, 7), 1, rep(0, 1),
-    rep(0, 3), -6, rep(0, 8), 1, rep(0, 0)
+  periods_n <- 4
+  B <- SEM_B_matrix(3, periods_n, 4:6)
+  B11_expected_data <- c(
+    1, 0, 0, 0,
+    -3, 1, 0, 0,
+    0, -3, 1, 0,
+    0, 0, -3, 1
   )
-  B_expected <- matrix(B_expected_data, 13, 13)
-  expect_equal(B, B_expected, ignore_attr = TRUE)
+  B12_expected_data <- c(
+    0, -4, 0, 0,
+    0, -5, 0, 0,
+    0, -6, 0, 0,
+    0, 0, -4, 0,
+    0, 0, -5, 0,
+    0, 0, -6, 0,
+    0, 0, 0, -4,
+    0, 0, 0, -5,
+    0, 0, 0, -6
+  )
+  B11_expected <- matrix(B11_expected_data, nrow = periods_n, byrow = TRUE)
+  B12_expected <- matrix(B12_expected_data, nrow = periods_n)
+  expect_equal(B[[1]], B11_expected, ignore_attr = TRUE)
+  expect_equal(as.matrix(B[[2]]), B12_expected, ignore_attr = TRUE)
 })
 
 test_that("SEM_C_matrix computes proper matrix", {
