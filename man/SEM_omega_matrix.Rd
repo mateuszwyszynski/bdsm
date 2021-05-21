@@ -13,7 +13,8 @@ SEM_omega_matrix(err_var, dep_vars, phis = NULL, psis = NULL)
 
 \item{phis}{numeric vector}
 
-\item{psis}{numeric vector}
+\item{psis}{numeric vector. Psis should be passed column-wise, i.e. they will
+be filled into Sigma12 across columns first.}
 }
 \value{
 matrix

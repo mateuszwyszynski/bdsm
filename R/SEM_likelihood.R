@@ -75,7 +75,8 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = NULL, phi_1 = NULL) {
 #' @param err_var numeric
 #' @param dep_vars numeric vector
 #' @param phis numeric vector
-#' @param psis numeric vector
+#' @param psis numeric vector. Psis should be passed column-wise, i.e. they will
+#' be filled into Sigma12 across columns first.
 #'
 #' @return matrix
 #' @importFrom magrittr %>%
