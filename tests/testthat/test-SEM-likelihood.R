@@ -38,3 +38,33 @@ test_that("SEM_C_matrix computes proper matrix", {
   C_expected <- matrix(C_expected_data, periods_n, 1 + length(beta))
   expect_equal(C, C_expected, ignore_attr = TRUE)
 })
+
+test_that("SEM_omega_matrix computes proper matrix", {
+  err_var <- 1
+  dep_vars <- c(2, 2, 2, 2)
+  phis <- c(10, 10, 20, 20, 30, 30)
+  psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
+  omega <- as.matrix(SEM_omega_matrix(err_var, dep_vars, phis, psis))
+
+  omega_11_expected_data <- c(
+    err_var + dep_vars[1], err_var, err_var, err_var,
+    err_var, err_var + dep_vars[2], err_var, err_var,
+    err_var, err_var, err_var + dep_vars[3], err_var,
+    err_var, err_var, err_var, err_var + dep_vars[4]
+  )
+
+  omega_12_expected_data <- c(
+    phis[1] + psis[1], phis[2] + psis[2], phis[3] + psis[3], phis[4] + psis[5],
+    phis[5] + psis[7], phis[6] + psis[10],
+    phis[1], phis[2], phis[3] + psis[4], phis[4] + psis[6],
+    phis[5] + psis[8], phis[6] + psis[11],
+    phis[1], phis[2], phis[3], phis[4],
+    phis[5] + psis[9], phis[6] + psis[12],
+    phis[1], phis[2], phis[3], phis[4], phis[5], phis[6]
+  )
+
+  omega_11 <- matrix(omega_11_expected_data, nrow = 4, byrow = TRUE)
+  omega_12 <- matrix(omega_12_expected_data, nrow = 4, byrow = TRUE)
+  omega_expected <- cbind(omega_11, omega_12)
+  expect_equal(omega, omega_expected, ignore_attr = TRUE)
+})
