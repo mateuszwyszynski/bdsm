@@ -102,7 +102,8 @@ SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(), psis = c()) {
       nrows <- length(psi)/regressors_n
       t(matrix(psi, nrow = nrows, ncol = regressors_n))
     }
-    psi_matrix <- psis %>% split(rep(1:(periods_n-1), 2*(1:(periods_n-1)))) %>%
+    psi_matrix <- psis %>%
+      split(rep(1:(periods_n-1), regressors_n*(1:(periods_n-1)))) %>%
       sapply(time_fixed_psi_matrix, regressors_n = regressors_n) %>%
       plyr::rbind.fill.matrix() %>% t() %>% tidyr::replace_na(0) %>%
       rbind(rep(0, (periods_n - 1)*regressors_n))
