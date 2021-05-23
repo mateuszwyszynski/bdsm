@@ -139,8 +139,7 @@ lik <- function(t0in) {
     for (i3 in 2:t) {
       C0[i3,1]=t0[2]
     }
-  }
-  else {
+  } else {
     C0[1,1]=t0[1]+t0[1+cur_variables_n]
     C0[1,(2:ncol(C0))]=t(t0[2:cur_variables_n])+t(t0[(cur_variables_n+2):(cur_variables_n+1+cur_regressors_n)])
     for (i4 in 2:t) {
