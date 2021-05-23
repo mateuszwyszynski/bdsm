@@ -115,6 +115,43 @@ SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(), psis = c()) {
   list(O11, O12)
 }
 
+SEM_likelihood <- function(cur_Y2, Y1, Y2,
+                           alpha, phi_0, err_var, dep_vars,
+                           beta = c(), phi_1 = c(),
+                           phis = c(), psis = c()) {
+  periods_n <- length(dep_vars)
+  cur_regressors_n <- length(beta)
+  B <- SEM_B_matrix(alpha, periods_n, beta)
+  C <- SEM_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
+  S <- SEM_sigma_matrix(err_var, dep_vars, phis, psis)
+
+  if (det(S[[1]])<=0) {
+    if (cout1==0) {
+      cout=cout+1
+    }
+    if (cout1<=250) {
+      t0i=.5*ones(nrow(t0in),1)}
+    if (cout1<=500) {
+      t0i=t0in }
+    else {
+      t0i=as.vector(runif(rows(t0in))) }
+
+    fact=1/(10^(round(log10(abs(t0i)),0)))
+    t0in=fact*t0i
+    likf=0
+    cout1=cout1+1
+  } else {
+    Ui1 <- if (cur_regressors_n == 0) {
+      t(B[[1]]%*%t(Y1)-C%*%t(Z))
+    } else {
+      t(B[[1]]%*%t(Y1)+B[[2]]%*%t(cur_Y2)-C%*%t(Z))
+    }
+    H=crossprod(Y2-Ui1%*%solve(S[[1]])%*%S[[2]],res_maker_matrix)%*%(Y2-Ui1%*%solve(S[[1]])%*%S[[2]])
+    likf=-(n/2)*log(det(S[[1]]))-(1/2)*sum(diag(solve(S[[1]])%*%t(Ui1)%*%Ui1))-(n/2)*log(det(H/n))  # concentrated log-likelihood in the appendix
+  }
+  return(-likf)
+}
+
 lik <- function(t0in) {
   t0=t0in
   B0=diag(t+(t-1)*regressors_n)
