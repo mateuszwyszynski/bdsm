@@ -4,7 +4,7 @@
 \alias{SEM_sigma_matrix}
 \title{Covariance matrix for SEM representation}
 \usage{
-SEM_sigma_matrix(err_var, dep_vars, phis = NULL, psis = NULL)
+SEM_sigma_matrix(err_var, dep_vars, phis = c(), psis = c())
 }
 \arguments{
 \item{err_var}{numeric}

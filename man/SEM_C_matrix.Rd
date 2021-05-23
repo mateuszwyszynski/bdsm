@@ -4,7 +4,7 @@
 \alias{SEM_C_matrix}
 \title{Coefficients matrix for initial conditions}
 \usage{
-SEM_C_matrix(alpha, phi_0, periods_n, beta = NULL, phi_1 = NULL)
+SEM_C_matrix(alpha, phi_0, periods_n, beta = c(), phi_1 = c())
 }
 \arguments{
 \item{alpha}{numeric}
@@ -13,9 +13,9 @@ SEM_C_matrix(alpha, phi_0, periods_n, beta = NULL, phi_1 = NULL)
 
 \item{periods_n}{numeric}
 
-\item{beta}{numeric vector. Default is NULL for no regressors case.}
+\item{beta}{numeric vector. Default is c() for no regressors case.}
 
-\item{phi_1}{numeric vector. Default is NULL for no regressors case.}
+\item{phi_1}{numeric vector. Default is c() for no regressors case.}
 }
 \value{
 matrix

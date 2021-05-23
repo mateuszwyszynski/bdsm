@@ -5,7 +5,7 @@
 #'
 #' @param alpha numeric
 #' @param periods_n integer
-#' @param beta numeric vector. Default is NULL for no regressors case.
+#' @param beta numeric vector. Default is c() for no regressors case.
 #'
 #' @return List with two matrices B11 and B12
 #' @importFrom magrittr %>%
@@ -13,13 +13,13 @@
 #'
 #' @examples
 #' SEM_B_matrix(3, 4, 4:6)
-SEM_B_matrix <- function(alpha, periods_n, beta = NULL) {
+SEM_B_matrix <- function(alpha, periods_n, beta = c()) {
   alpha_matrix <- diag(rep(-alpha, periods_n-1))
   B11 <- diag(periods_n)
   B11[2:periods_n, 1:(periods_n - 1)] <-
     B11[2:periods_n, 1:(periods_n - 1)] + alpha_matrix
 
-  B12 <- if (!is.null(beta)) {
+  B12 <- if (length(beta) != 0) {
     regressors_n <- length(beta)
     beta <- beta %>% matrix(1)
     rbind(optimbase::zeros(1, regressors_n*(periods_n - 1)),
@@ -40,8 +40,8 @@ SEM_B_matrix <- function(alpha, periods_n, beta = NULL) {
 #' @param alpha numeric
 #' @param phi_0 numeric
 #' @param periods_n numeric
-#' @param beta numeric vector. Default is NULL for no regressors case.
-#' @param phi_1 numeric vector. Default is NULL for no regressors case.
+#' @param beta numeric vector. Default is c() for no regressors case.
+#' @param phi_1 numeric vector. Default is c() for no regressors case.
 #'
 #' @return matrix
 #' @export
@@ -53,10 +53,10 @@ SEM_B_matrix <- function(alpha, periods_n, beta = NULL) {
 #' phi_1 <- 21:25
 #' periods_n <- 4
 #' SEM_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
-SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = NULL, phi_1 = NULL) {
+SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
   C1 <- matrix(rep(phi_0, periods_n))
   C1[1, 1] <- C1[1, 1] + alpha
-  if (!is.null(beta)) {
+  if (length(beta) != 0) {
     col2 <- matrix(rep(phi_1, periods_n), periods_n, byrow = TRUE)
     col2[1, 1:length(beta)] <-
       col2[1, 1:length(beta)] + beta
@@ -87,13 +87,13 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = NULL, phi_1 = NULL) {
 #' phis <- c(10, 10, 20, 20, 30, 30)
 #' psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
 #' SEM_sigma_matrix(err_var, dep_vars, phis, psis)
-SEM_sigma_matrix <- function(err_var, dep_vars, phis = NULL, psis = NULL) {
+SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(), psis = c()) {
   periods_n <- length(dep_vars)
 
   O11 <- err_var*optimbase::ones(periods_n, periods_n) +
     diag(dep_vars)
 
-  O12 <- if (!is.null(phis)) {
+  O12 <- if (length(phis) != 0) {
     regressors_n <- length(phis)/(periods_n - 1)
 
     phi_matrix <- matrix(rep(phis, periods_n), nrow = periods_n, byrow = TRUE)

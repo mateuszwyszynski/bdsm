@@ -4,14 +4,14 @@
 \alias{SEM_B_matrix}
 \title{Coefficients matrix for SEM representation}
 \usage{
-SEM_B_matrix(alpha, periods_n, beta = NULL)
+SEM_B_matrix(alpha, periods_n, beta = c())
 }
 \arguments{
 \item{alpha}{numeric}
 
 \item{periods_n}{integer}
 
-\item{beta}{numeric vector. Default is NULL for no regressors case.}
+\item{beta}{numeric vector. Default is c() for no regressors case.}
 }
 \value{
 List with two matrices B11 and B12
