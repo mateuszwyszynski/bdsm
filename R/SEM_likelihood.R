@@ -90,8 +90,8 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
 SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(), psis = c()) {
   periods_n <- length(dep_vars)
 
-  O11 <- err_var*optimbase::ones(periods_n, periods_n) +
-    diag(dep_vars)
+  O11 <- err_var^2*optimbase::ones(periods_n, periods_n) +
+    diag(dep_vars^2)
 
   O12 <- if (length(phis) != 0) {
     regressors_n <- length(phis)/(periods_n - 1)
