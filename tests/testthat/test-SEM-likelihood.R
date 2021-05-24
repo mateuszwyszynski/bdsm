@@ -49,7 +49,8 @@ test_that("SEM_sigma_matrix computes proper matrix", {
   dep_vars <- c(2, 2, 2, 2)
   phis <- c(10, 10, 20, 20, 30, 30)
   psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
-  sigma <- as.matrix(SEM_sigma_matrix(err_var, dep_vars, phis, psis))
+  sigma <- as.matrix(SEM_sigma_matrix(err_var, dep_vars, phis,
+                                      psis, psis_byrow = FALSE))
 
   err_var_sq <- err_var^2
   dep_vars_sq <- dep_vars^2

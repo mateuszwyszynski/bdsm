@@ -87,7 +87,8 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
 #' phis <- c(10, 10, 20, 20, 30, 30)
 #' psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
 #' SEM_sigma_matrix(err_var, dep_vars, phis, psis)
-SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(), psis = c()) {
+SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(),
+                             psis = c(), psis_byrow = TRUE) {
   periods_n <- length(dep_vars)
 
   O11 <- err_var^2*optimbase::ones(periods_n, periods_n) +
@@ -98,15 +99,28 @@ SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(), psis = c()) {
 
     phi_matrix <- matrix(rep(phis, periods_n), nrow = periods_n, byrow = TRUE)
 
-    time_fixed_psi_matrix <- function(psi, regressors_n) {
-      nrows <- length(psi)/regressors_n
-      t(matrix(psi, nrow = nrows, ncol = regressors_n))
+    if (psis_byrow) {
+      fill_zeros <- function(v, desired_len) {
+        zeros_n <- desired_len - length(v)
+        c(rep(0, zeros_n), v)
+      }
+
+      psi_matrix <- psis %>%
+        split(rep(1:(periods_n-1), regressors_n*((periods_n-1):1))) %>%
+        lapply(fill_zeros, desired_len = regressors_n*(periods_n-1)) %>%
+        unlist() %>% matrix(nrow = periods_n - 1, byrow = TRUE) %>%
+        rbind(rep(0, (periods_n - 1)*regressors_n))
+    } else {
+      time_fixed_psi_matrix <- function(psi, regressors_n) {
+        nrows <- length(psi)/regressors_n
+        t(matrix(psi, nrow = nrows, ncol = regressors_n))
+      }
+      psi_matrix <- psis %>%
+        split(rep(1:(periods_n-1), regressors_n*(1:(periods_n-1)))) %>%
+        sapply(time_fixed_psi_matrix, regressors_n = regressors_n) %>%
+        plyr::rbind.fill.matrix() %>% t() %>% tidyr::replace_na(0) %>%
+        rbind(rep(0, (periods_n - 1)*regressors_n))
     }
-    psi_matrix <- psis %>%
-      split(rep(1:(periods_n-1), regressors_n*(1:(periods_n-1)))) %>%
-      sapply(time_fixed_psi_matrix, regressors_n = regressors_n) %>%
-      plyr::rbind.fill.matrix() %>% t() %>% tidyr::replace_na(0) %>%
-      rbind(rep(0, (periods_n - 1)*regressors_n))
 
     phi_matrix + psi_matrix
   } else {
