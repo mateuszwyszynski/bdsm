@@ -30,6 +30,26 @@ SEM_B_matrix <- function(alpha, periods_n, beta = c()) {
   list(B11, B12)
 }
 
+orig_B_matrix <- function(alpha, periods_n, beta = c()) {
+  regressors_n <- length(beta)
+  B0 <- diag(periods_n+(periods_n-1)*regressors_n)
+  B11 <- B0[(1:periods_n),(1:periods_n)]
+  for (ii in 2:periods_n) {
+    B11[ii,(ii-1)] <- -alpha
+  }
+  if (length(beta) != 0) {
+    B12 <- B0[(1:periods_n),((periods_n+1):ncol(B0))]
+    for (row_ind in 2:periods_n) {
+      B12[row_ind,(1 + (row_ind-2)*regressors_n):((row_ind-1)*regressors_n)] <-
+        -beta
+    }
+  } else {
+    B12 <- NULL
+  }
+
+  list(B11, B12)
+}
+
 #' Coefficients matrix for initial conditions
 #'
 #' Create matrix for Simultaneous Equations Model (SEM)
@@ -168,6 +188,27 @@ SEM_likelihood <- function(cur_Y2, Y1, Y2,
 
 lik <- function(t0in) {
   t0=t0in
+
+  ##### Just to see if it affect execution time
+  params <- t0
+  alpha <- params[1]
+  if (cur_regressors_n == 0) {
+    beta <- c()
+    phi_1 <- c()
+  } else {
+    beta <- params[2:(1 + cur_regressors_n)]
+    phi_1 <- params[(3 + cur_regressors_n):(2 + 2*cur_regressors_n)]
+  }
+  phis <-
+    params[(4 + 2*cur_regressors_n + periods_n):(3 + 2*cur_regressors_n + periods_n + phis_n)]
+  psis <-
+    params[(4 + 2*cur_regressors_n + periods_n + phis_n):(3 + 2*cur_regressors_n + periods_n + phis_n + psis_n)]
+  phi_0 <- params[2 + cur_regressors_n]
+  err_var <- params[3 + 2*cur_regressors_n]
+  dep_vars <-
+    params[(4 + 2*cur_regressors_n):(3 + 2*cur_regressors_n + periods_n)]
+  #####
+
   B0=diag(t+(t-1)*regressors_n)
   C0=zeros(t,cur_variables_n)
   for (ii in 2:t) {
