@@ -137,6 +137,12 @@ for (regressors_subset in regressors_subsets) {
 
   t0in <- matrix(c(alpha, beta, phi_0, phi_1, err_var, dep_vars, phis, psis))
 
+  cur_Y2 <- R_df %>% select(year, country, regressors_subset) %>%
+    filter(year != year0) %>%
+    pivot_wider(names_from = year, values_from = !country & !year) %>%
+    select(!country) %>%
+    select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>% as.matrix()
+
   # parscale argument somehow (don't know yet how) changes step size during optimisation.
   # Most likely optimisation methods used in Gauss are scale-free and these used in R are not
   # TODO: search for methods (or implement methods) in R which are scale-free
