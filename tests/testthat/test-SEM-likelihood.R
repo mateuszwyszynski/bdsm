@@ -51,11 +51,14 @@ test_that("SEM_sigma_matrix computes proper matrix", {
   psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
   sigma <- as.matrix(SEM_sigma_matrix(err_var, dep_vars, phis, psis))
 
+  err_var_sq <- err_var^2
+  dep_vars_sq <- dep_vars^2
+
   sigma_11_expected_data <- c(
-    err_var + dep_vars[1], err_var, err_var, err_var,
-    err_var, err_var + dep_vars[2], err_var, err_var,
-    err_var, err_var, err_var + dep_vars[3], err_var,
-    err_var, err_var, err_var, err_var + dep_vars[4]
+    err_var_sq + dep_vars_sq[1], err_var_sq, err_var_sq, err_var_sq,
+    err_var_sq, err_var_sq + dep_vars_sq[2], err_var_sq, err_var_sq,
+    err_var_sq, err_var_sq, err_var_sq + dep_vars_sq[3], err_var_sq,
+    err_var_sq, err_var_sq, err_var_sq, err_var_sq + dep_vars_sq[4]
   )
 
   sigma_12_expected_data <- c(
