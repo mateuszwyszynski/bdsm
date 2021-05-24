@@ -21,9 +21,17 @@ SEM_B_matrix <- function(alpha, periods_n, beta = c()) {
 
   B12 <- if (length(beta) != 0) {
     regressors_n <- length(beta)
-    beta <- beta %>% matrix(1)
-    rbind(optimbase::zeros(1, regressors_n*(periods_n - 1)),
-          Matrix::bdiag(rep(list(-beta), periods_n - 1)))
+    n_cols <- regressors_n*(periods_n - 1)
+    beta_row <- function(row_ind, beta, n_cols, regressors_n) {
+      n_zeros_front <- (row_ind-1)*regressors_n
+      c(rep(0, n_zeros_front), -beta,
+        rep(0, n_cols - n_zeros_front - regressors_n))
+    }
+    beta_matrix <- 1:(periods_n-1) %>%
+      sapply(beta_row, beta = beta,
+             n_cols = n_cols, regressors_n = regressors_n) %>% t()
+    rbind(optimbase::zeros(1, n_cols),
+          beta_matrix)
   } else {
     NULL
   }
