@@ -143,11 +143,35 @@ for (regressors_subset in regressors_subsets) {
     select(!country) %>%
     select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>% as.matrix()
 
+  lik_concat_args <- function(params) {
+    alpha <- params[1]
+    if (cur_regressors_n == 0) {
+      beta <- c()
+      phi_1 <- c()
+    } else {
+      beta <- params[2:(1 + cur_regressors_n)]
+      phi_1 <- params[(3 + cur_regressors_n):(2 + 2*cur_regressors_n)]
+    }
+    phis <-
+      params[(4 + 2*cur_regressors_n + periods_n):(3 + 2*cur_regressors_n + periods_n + phis_n)]
+    psis <-
+      params[(4 + 2*cur_regressors_n + periods_n + phis_n):(3 + 2*cur_regressors_n + periods_n + phis_n + psis_n)]
+    phi_0 <- params[2 + cur_regressors_n]
+    err_var <- params[3 + 2*cur_regressors_n]
+    dep_vars <-
+      params[(4 + 2*cur_regressors_n):(3 + 2*cur_regressors_n + periods_n)]
+
+    SEM_likelihood(cur_Y2, Y1, Y2, alpha, phi_0, err_var, dep_vars,
+                   beta, phi_1, phis, psis)
+  }
+
   # parscale argument somehow (don't know yet how) changes step size during optimisation.
   # Most likely optimisation methods used in Gauss are scale-free and these used in R are not
   # TODO: search for methods (or implement methods) in R which are scale-free
-  optimized<-optim(t0in,lik,method="BFGS",control = list(trace=2,maxit=10000, parscale = 0.05*t0in))
-  theta<-optimized[[1]]; fout<-optimized[[2]]
+  optimized <- optim(t0in, lik_concat_args, method="BFGS",
+                     control = list(trace=2, maxit = 10000,
+                                    parscale = 0.05*t0in))
+  theta <- optimized[[1]]; fout <- optimized[[2]]
   # theta returns optimized parameters, fout is the value of the function lik at the maximum
   # we now compute model-specific standard errors @
 
