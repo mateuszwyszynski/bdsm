@@ -177,7 +177,7 @@ for (regressors_subset in regressors_subsets) {
   # theta returns optimized parameters, fout is the value of the function lik at the maximum
   # we now compute model-specific standard errors @
 
-  he=myhess(lik,theta)
+  he <- myhess(lik_concat_args, theta)
   #he=hessian(lik,theta) #alternative methods
   #hess=(fdHess(theta,lik))
   #he=as.matrix(hess[[3]])
