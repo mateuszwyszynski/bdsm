@@ -15,7 +15,7 @@ source('R/SEM_likelihood.R')
 no_of_cores = detectCores()
 set.seed(23)
 begin<-Sys.time()
-prandom=0 #prandom=1 for theta random Ley&Steel09. prandom = 0 for theta fixed
+prandom=0 #prandom=1 for optimised_params random Ley&Steel09. prandom = 0 for optimised_params fixed
 
 #---------------------------------------------------------------------------------
 #		   	                     LOADING THE DATASET
@@ -173,40 +173,39 @@ for (regressors_subset in regressors_subsets) {
   optimized <- optim(t0in, lik_concat_args, method="BFGS",
                      control = list(trace=2, maxit = 10000, fnscale = -1,
                                     parscale = 0.05*t0in))
-  theta <- optimized[[1]]; fout <- -optimized[[2]]
-  # theta returns optimized parameters, fout is the value of the function lik at the maximum
-  # we now compute model-specific standard errors @
+  optimised_params <- optimized[[1]]
+  likelihood_max <- -optimized[[2]]
 
-  he <- myhess(lik_concat_args, theta)
-  #he=hessian(lik,theta) #alternative methods
-  #hess=(fdHess(theta,lik))
+  he <- myhess(lik_concat_args, optimised_params)
+  #he=hessian(lik,optimised_params) #alternative methods
+  #hess=(fdHess(optimised_params,lik))
   #he=as.matrix(hess[[3]])
 
-  likgra_val<-likgra(theta)
+  likgra_val<-likgra(optimised_params)
 
-  Gmat=gradient(likgra,theta)
+  Gmat=gradient(likgra,optimised_params)
   Imat=crossprod(Gmat)
     stdr=sqrt(diag(solve(he)%*%(Imat)%*%solve(he)))
     stdh=sqrt(diag((solve(he)))) #sqrt of negative values(
     varr=stdr^2; varh=stdh^2
 
     # storing results for the CURRENT model #
-    logl=(-fout-(cur_variables_n/2)*(log(n*t)))/n
+    logl=(-likelihood_max-(cur_variables_n/2)*(log(n*t)))/n
     bict=exp(logl)                              # integrated likelihood approximation           #
     # prior model probability (either random -Ley&Steel09- or fixed) #
     if (prandom == 1) {
-      priorprobt=(gamma(1+cur_regressors_n))*(gamma(b+regressors_n-cur_regressors_n))    #theta random#
+      priorprobt=(gamma(1+cur_regressors_n))*(gamma(b+regressors_n-cur_regressors_n))    #optimised_params random#
       }
 
     if (prandom == 0) {
-      priorprobt=(pinc)^(cur_regressors_n)*(1-pinc)^(regressors_n-cur_regressors_n)      #theta fixed#
+      priorprobt=(pinc)^(cur_regressors_n)*(1-pinc)^(regressors_n-cur_regressors_n)      #optimised_params fixed#
     }
 
     # posterior model probability  #
       postprob=priorprobt*bict
 
     # selecting estimates of interest (i.e. alpha and betas) #
-      bt=theta[1:cur_variables_n]; stdrt=stdr[1:cur_variables_n]; stdht=stdh[1:cur_variables_n]
+      bt=optimised_params[1:cur_variables_n]; stdrt=stdr[1:cur_variables_n]; stdht=stdh[1:cur_variables_n]
     varht=varh[1:cur_variables_n]; varrt=varr[1:cur_variables_n]
 
     # constructing the full vector of estimates #
@@ -258,13 +257,13 @@ for (regressors_subset in regressors_subsets) {
 
     # here we store model-specific diagnostics and estimates (BICs, likelihoods, betas...) #
     if (row_ind==1) {
-      modprob=postprob; modelid=row_ind; modpri=priorprobt; liks=exp(-fout/n); bics=bict
-      betas=bt1; stds=stdht1; stdsr=stdrt1; foutt=-fout
+      modprob=postprob; modelid=row_ind; modpri=priorprobt; liks=exp(-likelihood_max/n); bics=bict
+      betas=bt1; stds=stdht1; stdsr=stdrt1; foutt=-likelihood_max
     }
      else {
        modprob=rbind(modprob,postprob); modelid=rbind(modelid,row_ind); modpri=rbind(modpri,priorprobt)
-       liks=rbind(liks,exp(-fout/n)); bics=rbind(bics,bict); betas=cbind(betas,bt1)
-       stds=cbind(stds,stdht1); stdsr=cbind(stdsr,stdrt1); foutt=rbind(foutt,(-fout))
+       liks=rbind(liks,exp(-likelihood_max/n)); bics=rbind(bics,bict); betas=cbind(betas,bt1)
+       stds=cbind(stds,stdht1); stdsr=cbind(stdsr,stdrt1); foutt=rbind(foutt,(-likelihood_max))
      }
 }
 
