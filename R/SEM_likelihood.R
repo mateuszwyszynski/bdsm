@@ -168,15 +168,17 @@ SEM_likelihood <- function(n_entities, cur_Y2, Y1, Y2, Z, res_maker_matrix,
   S <- SEM_sigma_matrix(err_var, dep_vars, phis, psis)
 
   Ui1 <- if (cur_regressors_n == 0) {
-    t(B[[1]]%*%t(Y1)-C%*%t(Z))
+    t(tcrossprod(B[[1]], Y1) - tcrossprod(C, Z))
   } else {
-    t(B[[1]]%*%t(Y1)+B[[2]]%*%t(cur_Y2)-C%*%t(Z))
+    t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, Z))
   }
   S11_inverse <- solve(S[[1]])
-  V <- Y2-Ui1%*%S11_inverse%*%S[[2]]
-  H <- crossprod(V, res_maker_matrix)%*%V
-  likf <- -(n_entities/2)*log(det(S[[1]]))-(1/2)*sum(diag(S11_inverse%*%t(Ui1)%*%Ui1))-(n_entities/2)*log(det(H/n_entities))
-  return(likf)
+  V <- Y2 - Ui1 %*% S11_inverse %*% S[[2]]
+  H <- crossprod(V, res_maker_matrix) %*% V
+  likelihood <-
+    -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
+    1/2 * sum(diag(S11_inverse %*% crossprod(Ui1)))
+  return(likelihood)
 }
 
 lik <- function(t0in) {
