@@ -172,8 +172,10 @@ SEM_likelihood <- function(n_entities, cur_Y2, Y1, Y2, Z, res_maker_matrix,
   } else {
     t(B[[1]]%*%t(Y1)+B[[2]]%*%t(cur_Y2)-C%*%t(Z))
   }
-  H <- crossprod(Y2-Ui1%*%solve(S[[1]])%*%S[[2]],res_maker_matrix)%*%(Y2-Ui1%*%solve(S[[1]])%*%S[[2]])
-  likf <- -(n_entities/2)*log(det(S[[1]]))-(1/2)*sum(diag(solve(S[[1]])%*%t(Ui1)%*%Ui1))-(n_entities/2)*log(det(H/n_entities))
+  S11_inverse <- solve(S[[1]])
+  V <- Y2-Ui1%*%S11_inverse%*%S[[2]]
+  H <- crossprod(V, res_maker_matrix)%*%V
+  likf <- -(n_entities/2)*log(det(S[[1]]))-(1/2)*sum(diag(S11_inverse%*%t(Ui1)%*%Ui1))-(n_entities/2)*log(det(H/n_entities))
   return(-likf)
 }
 
