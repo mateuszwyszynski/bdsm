@@ -176,7 +176,7 @@ SEM_likelihood <- function(n_entities, cur_Y2, Y1, Y2, Z, res_maker_matrix,
   V <- Y2-Ui1%*%S11_inverse%*%S[[2]]
   H <- crossprod(V, res_maker_matrix)%*%V
   likf <- -(n_entities/2)*log(det(S[[1]]))-(1/2)*sum(diag(S11_inverse%*%t(Ui1)%*%Ui1))-(n_entities/2)*log(det(H/n_entities))
-  return(-likf)
+  return(likf)
 }
 
 lik <- function(t0in) {
@@ -326,7 +326,7 @@ myhess<-function(lik,theta) {
       x3[jc]=x3[jc]+h
       x4[jr]=x0[jr]-h
       x4[jc]=x4[jc]-h
-      hessi[jr,jc]=(lik(x1)-lik(x2)-lik(x3)+lik(x4))/(4*h^2) # the second symmetric derivative has different formula #
+      hessi[jr,jc]=-(lik(x1)-lik(x2)-lik(x3)+lik(x4))/(4*h^2) # the second symmetric derivative has different formula #
       hessi[jc,jr]=hessi[jr,jc]
     }
   }

@@ -171,13 +171,13 @@ for (regressors_subset in regressors_subsets) {
   # Most likely optimisation methods used in Gauss are scale-free and these used in R are not
   # TODO: search for methods (or implement methods) in R which are scale-free
   optimized <- optim(t0in, lik_concat_args, method="BFGS",
-                     control = list(trace=2, maxit = 10000,
+                     control = list(trace=2, maxit = 10000, fnscale = -1,
                                     parscale = 0.05*t0in))
-  theta <- optimized[[1]]; fout <- optimized[[2]]
+  theta <- optimized[[1]]; fout <- -optimized[[2]]
   # theta returns optimized parameters, fout is the value of the function lik at the maximum
   # we now compute model-specific standard errors @
 
-  he=myhess(lik,theta)
+  he <- myhess(lik_concat_args, theta)
   #he=hessian(lik,theta) #alternative methods
   #hess=(fdHess(theta,lik))
   #he=as.matrix(hess[[3]])
