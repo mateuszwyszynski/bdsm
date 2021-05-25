@@ -178,7 +178,7 @@ SEM_likelihood <- function(n_entities, cur_Y2, Y1, Y2, Z, res_maker_matrix,
   likelihood <-
     -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
     1/2 * sum(diag(S11_inverse %*% crossprod(Ui1)))
-  return(-likelihood)
+  return(likelihood)
 }
 
 lik <- function(t0in) {
