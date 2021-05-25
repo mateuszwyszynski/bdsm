@@ -174,7 +174,7 @@ for (regressors_subset in regressors_subsets) {
                      control = list(trace=2, maxit = 10000, fnscale = -1,
                                     parscale = 0.05*t0in))
   optimised_params <- optimized[[1]]
-  likelihood_max <- -optimized[[2]]
+  likelihood_max <- optimized[[2]]
 
   he <- myhess(lik_concat_args, optimised_params)
   #he=hessian(lik,optimised_params) #alternative methods
@@ -190,7 +190,7 @@ for (regressors_subset in regressors_subsets) {
     varr=stdr^2; varh=stdh^2
 
     # storing results for the CURRENT model #
-    logl=(-likelihood_max-(cur_variables_n/2)*(log(n*t)))/n
+    logl=(likelihood_max-(cur_variables_n/2)*(log(n*t)))/n
     bict=exp(logl)                              # integrated likelihood approximation           #
     # prior model probability (either random -Ley&Steel09- or fixed) #
     if (prandom == 1) {
@@ -257,13 +257,13 @@ for (regressors_subset in regressors_subsets) {
 
     # here we store model-specific diagnostics and estimates (BICs, likelihoods, betas...) #
     if (row_ind==1) {
-      modprob=postprob; modelid=row_ind; modpri=priorprobt; liks=exp(-likelihood_max/n); bics=bict
-      betas=bt1; stds=stdht1; stdsr=stdrt1; foutt=-likelihood_max
+      modprob=postprob; modelid=row_ind; modpri=priorprobt; liks=exp(likelihood_max/n); bics=bict
+      betas=bt1; stds=stdht1; stdsr=stdrt1; foutt=likelihood_max
     }
      else {
        modprob=rbind(modprob,postprob); modelid=rbind(modelid,row_ind); modpri=rbind(modpri,priorprobt)
-       liks=rbind(liks,exp(-likelihood_max/n)); bics=rbind(bics,bict); betas=cbind(betas,bt1)
-       stds=cbind(stds,stdht1); stdsr=cbind(stdsr,stdrt1); foutt=rbind(foutt,(-likelihood_max))
+       liks=rbind(liks,exp(likelihood_max/n)); bics=rbind(bics,bict); betas=cbind(betas,bt1)
+       stds=cbind(stds,stdht1); stdsr=cbind(stdsr,stdrt1); foutt=rbind(foutt, likelihood_max)
      }
 }
 
