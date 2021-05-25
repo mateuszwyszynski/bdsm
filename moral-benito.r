@@ -34,6 +34,7 @@ regressors <- rev(colnames(rawdata)[-1:-4])
 regressors_n <- ncol(rawdata) - 4
 variables_n <- regressors_n + 1
 variables <- rev(colnames(rawdata)[-1:-3])
+n_entities <- 73
 
 #' Prepare data for LIML estimation
 #'
@@ -161,7 +162,8 @@ for (regressors_subset in regressors_subsets) {
     dep_vars <-
       params[(4 + 2*cur_regressors_n):(3 + 2*cur_regressors_n + periods_n)]
 
-    SEM_likelihood(cur_Y2, Y1, Y2, alpha, phi_0, err_var, dep_vars,
+    SEM_likelihood(n_entities, cur_Y2, Y1, Y2, Z, res_maker_matrix,
+                   alpha, phi_0, err_var, dep_vars,
                    beta, phi_1, phis, psis)
   }
 

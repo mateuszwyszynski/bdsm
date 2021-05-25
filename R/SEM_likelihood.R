@@ -157,7 +157,7 @@ SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(),
   list(O11, O12)
 }
 
-SEM_likelihood <- function(cur_Y2, Y1, Y2,
+SEM_likelihood <- function(n_entities, cur_Y2, Y1, Y2, Z, res_maker_matrix,
                            alpha, phi_0, err_var, dep_vars,
                            beta = c(), phi_1 = c(),
                            phis = c(), psis = c()) {
@@ -172,8 +172,8 @@ SEM_likelihood <- function(cur_Y2, Y1, Y2,
   } else {
     t(B[[1]]%*%t(Y1)+B[[2]]%*%t(cur_Y2)-C%*%t(Z))
   }
-  H=crossprod(Y2-Ui1%*%solve(S[[1]])%*%S[[2]],res_maker_matrix)%*%(Y2-Ui1%*%solve(S[[1]])%*%S[[2]])
-  likf=-(n/2)*log(det(S[[1]]))-(1/2)*sum(diag(solve(S[[1]])%*%t(Ui1)%*%Ui1))-(n/2)*log(det(H/n))  # concentrated log-likelihood in the appendix
+  H <- crossprod(Y2-Ui1%*%solve(S[[1]])%*%S[[2]],res_maker_matrix)%*%(Y2-Ui1%*%solve(S[[1]])%*%S[[2]])
+  likf <- -(n_entities/2)*log(det(S[[1]]))-(1/2)*sum(diag(solve(S[[1]])%*%t(Ui1)%*%Ui1))-(n_entities/2)*log(det(H/n_entities))
   return(-likf)
 }
 
