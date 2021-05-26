@@ -3,4 +3,5 @@
 export(SEM_B_matrix)
 export(SEM_C_matrix)
 export(SEM_sigma_matrix)
+export(hessian)
 importFrom(magrittr,"%>%")

@@ -1,10 +1,15 @@
-#-----------------------------------------------------------------#
-#                        HESSIAN FUNCTION                         #
-#                        -----------------                        #
-#               this procedure takes as input a number            #
-#               computes the kxk (2-sided) hessian matrix         #
-#-----------------------------------------------------------------#
-
+#' Hessian matrix
+#'
+#' Creates the hessian matrix for a given likelihood function.
+#'
+#' @param lik function
+#' @param theta kx1 matrix
+#'
+#' @return Hessian kxk matrix where k is the number of parameters
+#' included in the theta matrix
+#' @export
+#'
+#' @examples
 hessian <- function(lik, theta) {
   k <- nrow(theta)
   hessi <- optimbase::zeros(k, k)
