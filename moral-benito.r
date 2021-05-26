@@ -149,17 +149,20 @@ for (regressors_subset in regressors_subsets) {
     params_list <- SEM_params_to_list(params, periods_n, cur_regressors_n,
                                       phis_n, psis_n)
 
-    SEM_likelihood(n_entities, cur_Y2, Y1, Y2, Z, res_maker_matrix,
-                   params_list$alpha, params_list$phi_0,
-                   params_list$err_var, params_list$dep_vars,
-                   params_list$beta, params_list$phi_1,
-                   params_list$phis, params_list$psis)
+    SEM_likelihood(params = params_list, n_entities = n_entities,
+                   cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
+                   res_maker_matrix = res_maker_matrix)
   }
 
   # parscale argument somehow (don't know yet how) changes step size during optimisation.
   # Most likely optimisation methods used in Gauss are scale-free and these used in R are not
   # TODO: search for methods (or implement methods) in R which are scale-free
-  optimized <- optim(t0in, lik_concat_args, method="BFGS",
+  optimized <- optim(t0in, SEM_likelihood, n_entities = n_entities,
+                     cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
+                     res_maker_matrix = res_maker_matrix,
+                     periods_n = periods_n, regressors_n = cur_regressors_n,
+                     phis_n = phis_n, psis_n = psis_n,
+                     method="BFGS",
                      control = list(trace=2, maxit = 10000, fnscale = -1,
                                     parscale = 0.05*t0in))
   optimised_params <- optimized[[1]]
