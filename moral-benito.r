@@ -11,6 +11,7 @@ library("parallel")
 library(rje)
 
 source('R/SEM_likelihood.R')
+source('R/hessian.R')
 
 no_of_cores = detectCores()
 set.seed(23)
