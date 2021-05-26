@@ -137,6 +137,29 @@ SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(),
   list(O11, O12)
 }
 
+SEM_params_to_list <- function(params, periods_n, regressors_n,
+                               phis_n, psis_n) {
+  alpha <- params[1]
+  if (regressors_n == 0) {
+    beta <- c()
+    phi_1 <- c()
+  } else {
+    beta <- params[2:(1 + regressors_n)]
+    phi_1 <- params[(3 + regressors_n):(2 + 2*regressors_n)]
+  }
+  phis <-
+    params[(4 + 2*regressors_n + periods_n):(3 + 2*regressors_n + periods_n + phis_n)]
+  psis <-
+    params[(4 + 2*regressors_n + periods_n + phis_n):(3 + 2*regressors_n + periods_n + phis_n + psis_n)]
+  phi_0 <- params[2 + regressors_n]
+  err_var <- params[3 + 2*regressors_n]
+  dep_vars <-
+    params[(4 + 2*regressors_n):(3 + 2*regressors_n + periods_n)]
+
+  list(alpha = alpha, phi_0 = phi_0, err_var = err_var, dep_vars = dep_vars,
+       beta = beta, phi_1 = phi_1, phis = phis, psis = psis)
+}
+
 SEM_likelihood <- function(n_entities, cur_Y2, Y1, Y2, Z, res_maker_matrix,
                            alpha, phi_0, err_var, dep_vars,
                            beta = c(), phi_1 = c(),
@@ -159,29 +182,6 @@ SEM_likelihood <- function(n_entities, cur_Y2, Y1, Y2, Z, res_maker_matrix,
     -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
     1/2 * sum(diag(S11_inverse %*% crossprod(Ui1)))
   return(likelihood)
-}
-
-SEM_params_to_list <- function(params, periods_n, regressors_n,
-                               phis_n, psis_n) {
-  alpha <- params[1]
-  if (regressors_n == 0) {
-    beta <- c()
-    phi_1 <- c()
-  } else {
-    beta <- params[2:(1 + regressors_n)]
-    phi_1 <- params[(3 + regressors_n):(2 + 2*regressors_n)]
-  }
-  phis <-
-    params[(4 + 2*regressors_n + periods_n):(3 + 2*regressors_n + periods_n + phis_n)]
-  psis <-
-    params[(4 + 2*regressors_n + periods_n + phis_n):(3 + 2*regressors_n + periods_n + phis_n + psis_n)]
-  phi_0 <- params[2 + regressors_n]
-  err_var <- params[3 + 2*regressors_n]
-  dep_vars <-
-    params[(4 + 2*regressors_n):(3 + 2*regressors_n + periods_n)]
-
-  list(alpha = alpha, phi_0 = phi_0, err_var = err_var, dep_vars = dep_vars,
-       beta = beta, phi_1 = phi_1, phis = phis, psis = psis)
 }
 
 #----------------------------------------------------------------------#
