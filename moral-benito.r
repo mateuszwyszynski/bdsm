@@ -159,7 +159,7 @@ for (regressors_subset in regressors_subsets) {
   optimised_params <- optimized[[1]]
   likelihood_max <- optimized[[2]]
 
-  he <- hessian(SEM_likelihood, theta = optimised_params,
+  hess <- hessian(SEM_likelihood, theta = optimised_params,
                 n_entities = n_entities,
                 cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
                 res_maker_matrix = res_maker_matrix,
@@ -170,8 +170,8 @@ for (regressors_subset in regressors_subsets) {
 
   Gmat=gradient(likgra,optimised_params)
   Imat=crossprod(Gmat)
-    stdr=sqrt(diag(solve(he)%*%(Imat)%*%solve(he)))
-    stdh=sqrt(diag((solve(he)))) #sqrt of negative values(
+    stdr=sqrt(diag(solve(hess)%*%(Imat)%*%solve(hess)))
+    stdh=sqrt(diag((solve(hess)))) #sqrt of negative values(
     varr=stdr^2; varh=stdh^2
 
     # storing results for the CURRENT model #
