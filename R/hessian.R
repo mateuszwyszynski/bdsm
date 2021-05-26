@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @examples
-hessian <- function(lik, theta) {
+hessian <- function(lik, theta, ...) {
   k <- nrow(theta)
   hessi <- optimbase::zeros(k, k)
   h <- 1e-3
@@ -29,7 +29,7 @@ hessian <- function(lik, theta) {
       x3[jc] <- x3[jc] + h
       x4[jr] <- theta[jr] - h
       x4[jc] <- x4[jc] - h
-      hessi[jr, jc] <- -(lik(x1) - lik(x2) - lik(x3) + lik(x4)) / (4 * h^2) # the second symmetric derivative has different formula #
+      hessi[jr, jc] <- -(lik(x1, ...) - lik(x2, ...) - lik(x3, ...) + lik(x4, ...)) / (4 * h^2) # the second symmetric derivative has different formula #
       hessi[jc, jr] <- hessi[jr, jc]
     }
   }

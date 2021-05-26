@@ -145,15 +145,6 @@ for (regressors_subset in regressors_subsets) {
     select(!country) %>%
     select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>% as.matrix()
 
-  lik_concat_args <- function(params) {
-    params_list <- SEM_params_to_list(params, periods_n, cur_regressors_n,
-                                      phis_n, psis_n)
-
-    SEM_likelihood(params = params_list, n_entities = n_entities,
-                   cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
-                   res_maker_matrix = res_maker_matrix)
-  }
-
   # parscale argument somehow (don't know yet how) changes step size during optimisation.
   # Most likely optimisation methods used in Gauss are scale-free and these used in R are not
   # TODO: search for methods (or implement methods) in R which are scale-free
@@ -168,7 +159,12 @@ for (regressors_subset in regressors_subsets) {
   optimised_params <- optimized[[1]]
   likelihood_max <- optimized[[2]]
 
-  he <- hessian(lik_concat_args, optimised_params)
+  he <- hessian(SEM_likelihood, theta = optimised_params,
+                n_entities = n_entities,
+                cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
+                res_maker_matrix = res_maker_matrix,
+                periods_n = periods_n, regressors_n = cur_regressors_n,
+                phis_n = phis_n, psis_n = psis_n)
   #he=hessian(lik,optimised_params) #alternative methods
   #hess=(fdHess(optimised_params,lik))
   #he=as.matrix(hess[[3]])
