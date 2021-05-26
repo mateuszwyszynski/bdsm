@@ -8,7 +8,7 @@
 myhess <- function(lik, theta) {
   x0 <- theta
   k <- nrow(x0) # x0 is theta, our model-specific optimized parameters #
-  hessi <- zeros(k, k)
+  hessi <- optimbase::zeros(k, k)
   h <- 1e-3
 
   for (jc in 1:k) {
