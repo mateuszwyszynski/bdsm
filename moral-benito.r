@@ -146,26 +146,14 @@ for (regressors_subset in regressors_subsets) {
     select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>% as.matrix()
 
   lik_concat_args <- function(params) {
-    alpha <- params[1]
-    if (cur_regressors_n == 0) {
-      beta <- c()
-      phi_1 <- c()
-    } else {
-      beta <- params[2:(1 + cur_regressors_n)]
-      phi_1 <- params[(3 + cur_regressors_n):(2 + 2*cur_regressors_n)]
-    }
-    phis <-
-      params[(4 + 2*cur_regressors_n + periods_n):(3 + 2*cur_regressors_n + periods_n + phis_n)]
-    psis <-
-      params[(4 + 2*cur_regressors_n + periods_n + phis_n):(3 + 2*cur_regressors_n + periods_n + phis_n + psis_n)]
-    phi_0 <- params[2 + cur_regressors_n]
-    err_var <- params[3 + 2*cur_regressors_n]
-    dep_vars <-
-      params[(4 + 2*cur_regressors_n):(3 + 2*cur_regressors_n + periods_n)]
+    params_list <- SEM_params_to_list(params, periods_n, cur_regressors_n,
+                                      phis_n, psis_n)
 
     SEM_likelihood(n_entities, cur_Y2, Y1, Y2, Z, res_maker_matrix,
-                   alpha, phi_0, err_var, dep_vars,
-                   beta, phi_1, phis, psis)
+                   params_list$alpha, params_list$phi_0,
+                   params_list$err_var, params_list$dep_vars,
+                   params_list$beta, params_list$phi_1,
+                   params_list$phis, params_list$psis)
   }
 
   # parscale argument somehow (don't know yet how) changes step size during optimisation.
