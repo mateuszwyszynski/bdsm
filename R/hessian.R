@@ -5,7 +5,7 @@
 #               computes the kxk (2-sided) hessian matrix         #
 #-----------------------------------------------------------------#
 
-myhess <- function(lik, theta) {
+hessian <- function(lik, theta) {
   k <- nrow(theta)
   hessi <- optimbase::zeros(k, k)
   h <- 1e-3

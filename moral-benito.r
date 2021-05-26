@@ -177,7 +177,7 @@ for (regressors_subset in regressors_subsets) {
   optimised_params <- optimized[[1]]
   likelihood_max <- optimized[[2]]
 
-  he <- myhess(lik_concat_args, optimised_params)
+  he <- hessian(lik_concat_args, optimised_params)
   #he=hessian(lik,optimised_params) #alternative methods
   #hess=(fdHess(optimised_params,lik))
   #he=as.matrix(hess[[3]])
