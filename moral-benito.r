@@ -165,9 +165,6 @@ for (regressors_subset in regressors_subsets) {
                 res_maker_matrix = res_maker_matrix,
                 periods_n = periods_n, regressors_n = cur_regressors_n,
                 phis_n = phis_n, psis_n = psis_n)
-  #he=hessian(lik,optimised_params) #alternative methods
-  #hess=(fdHess(optimised_params,lik))
-  #he=as.matrix(hess[[3]])
 
   likgra_val<-likgra(optimised_params)
 
