@@ -210,6 +210,8 @@ for (regressors_subset in regressors_subsets) {
                      res_maker_matrix = res_maker_matrix,
                      periods_n = periods_n, regressors_n = cur_regressors_n,
                      phis_n = phis_n, psis_n = psis_n,
+                     cur_variables_n = cur_variables_n,
+                     tot_regressors_n = regressors_n,
                      method="BFGS",
                      control = list(trace=2, maxit = 10000, fnscale = -1,
                                     parscale = 0.05*t0in))
@@ -221,7 +223,9 @@ for (regressors_subset in regressors_subsets) {
                 cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
                 res_maker_matrix = res_maker_matrix,
                 periods_n = periods_n, regressors_n = cur_regressors_n,
-                phis_n = phis_n, psis_n = psis_n)
+                phis_n = phis_n, psis_n = psis_n,
+                cur_variables_n = cur_variables_n,
+                tot_regressors_n = regressors_n)
 
   likgra_val<-likgra(optimised_params)
 

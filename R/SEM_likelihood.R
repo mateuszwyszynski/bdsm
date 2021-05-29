@@ -160,48 +160,6 @@ SEM_params_to_list <- function(params, periods_n, regressors_n,
        beta = beta, phi_1 = phi_1, phis = phis, psis = psis)
 }
 
-SEM_likelihood <- function(params, n_entities,
-                           cur_Y2, Y1, Y2, Z, res_maker_matrix,
-                           periods_n = NULL, regressors_n = NULL,
-                           phis_n = NULL, psis_n = NULL) {
-  if (is.list(params)) {
-    alpha <- params$alpha
-    phi_0 <- params$phi_0
-    err_var <- params$err_var
-    dep_vars <- params$dep_vars
-    beta <- if(is.null(params$beta)) c() else params$beta
-    phi_1 <- if(is.null(params$phi_1)) c() else params$phi_1
-    phis <- if(is.null(params$phis)) c() else params$phis
-    psis <- if(is.null(params$psis)) c() else params$psis
-
-    periods_n <- length(dep_vars)
-    cur_regressors_n <- length(beta)
-    B <- SEM_B_matrix(alpha, periods_n, beta)
-    C <- SEM_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
-    S <- SEM_sigma_matrix(err_var, dep_vars, phis, psis)
-
-    Ui1 <- if (cur_regressors_n == 0) {
-      t(tcrossprod(B[[1]], Y1) - tcrossprod(C, Z))
-    } else {
-      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, Z))
-    }
-    S11_inverse <- solve(S[[1]])
-    V <- Y2 - Ui1 %*% S11_inverse %*% S[[2]]
-    H <- crossprod(V, res_maker_matrix) %*% V
-    likelihood <-
-      -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
-      1/2 * sum(diag(S11_inverse %*% crossprod(Ui1)))
-  } else {
-    params <- SEM_params_to_list(params, periods_n = periods_n,
-                                 regressors_n = regressors_n,
-                                 phis_n = phis_n, psis_n = psis_n)
-    likelihood <- SEM_likelihood(params = params, n_entities = n_entities,
-                                 cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
-                                 res_maker_matrix = res_maker_matrix)
-  }
-  likelihood
-}
-
 orig_sigma_matrix <- function(t0, t, cur_variables_n,
                               regressors_n) {
   err_var_ind <- 2*cur_variables_n+1
@@ -247,6 +205,55 @@ orig_sigma_matrix <- function(t0, t, cur_variables_n,
   o210=t(o120)
 
   list(o110, o120)
+}
+
+SEM_likelihood <- function(params, n_entities,
+                           cur_Y2, Y1, Y2, Z, res_maker_matrix,
+                           cur_variables_n, tot_regressors_n, t0 = NULL,
+                           periods_n = NULL, regressors_n = NULL,
+                           phis_n = NULL, psis_n = NULL) {
+  if (is.list(params)) {
+    alpha <- params$alpha
+    phi_0 <- params$phi_0
+    err_var <- params$err_var
+    dep_vars <- params$dep_vars
+    beta <- if(is.null(params$beta)) c() else params$beta
+    phi_1 <- if(is.null(params$phi_1)) c() else params$phi_1
+    phis <- if(is.null(params$phis)) c() else params$phis
+    psis <- if(is.null(params$psis)) c() else params$psis
+
+    periods_n <- length(dep_vars)
+    cur_regressors_n <- length(beta)
+    B <- SEM_B_matrix(alpha, periods_n, beta)
+    C <- SEM_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
+    S <- orig_sigma_matrix(t0 = t0, t = periods_n,
+                           cur_variables_n = cur_variables_n,
+                           regressors_n = tot_regressors_n)
+
+    Ui1 <- if (cur_regressors_n == 0) {
+      t(tcrossprod(B[[1]], Y1) - tcrossprod(C, Z))
+    } else {
+      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, Z))
+    }
+    S11_inverse <- solve(S[[1]])
+    V <- Y2 - Ui1 %*% S11_inverse %*% S[[2]]
+    H <- crossprod(V, res_maker_matrix) %*% V
+    likelihood <-
+      -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
+      1/2 * sum(diag(S11_inverse %*% crossprod(Ui1)))
+  } else {
+    t0 <- params
+    params <- SEM_params_to_list(params, periods_n = periods_n,
+                                 regressors_n = regressors_n,
+                                 phis_n = phis_n, psis_n = psis_n)
+    likelihood <- SEM_likelihood(params = params, n_entities = n_entities,
+                                 cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
+                                 res_maker_matrix = res_maker_matrix,
+                                 t0 = t0, cur_variables_n = cur_variables_n,
+                                 tot_regressors_n = tot_regressors_n,
+                                 periods_n = periods_n)
+  }
+  likelihood
 }
 
 #----------------------------------------------------------------------#
