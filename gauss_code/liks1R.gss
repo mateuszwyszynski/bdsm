@@ -1,0 +1,234 @@
+@----------------------------------------------------------------------@
+@                                                                      @
+@               LIKELIHOOD PROCEDURE 1. BALIMLE.                       @
+@                                                                      @
+@----------------------------------------------------------------------@
+
+proc(1)=lik(t0in);
+local likf,ii,i1,i11,i2,i3,i4,i5,i6,i7,i8,seq,dseq,iseq,B0,B110,B120,C0,U10,H,o110,o120,o121,o210,t0,t0i,fact;
+
+t0=t0in;
+
+B0=eye(t+(t-1)*ktotx);
+C0=zeros(t,ky);
+for ii(2,t,1);
+    B0[ii,ii-1]=-t0[1];     @ SEM method B11 in paper@
+endfor;
+
+i2=1;
+for i1(1,ktotx,1);
+    if mt[i1]==0;   @ if x variable is not included @
+        B0=B0;
+    else;           @ if x variable is included     @
+        for i11(2,t,1);
+            B0[i11,t+1+(i11-2)*ktotx+(i1-1)]=-t0[1+i2];      
+        endfor;    
+        i2=i2+1;
+    endif;
+endfor;
+
+
+@ C1 matrix @
+if kx==0;   
+    C0[1,1]=t0[1]+t0[2];
+    for i3(2,t,1);
+        C0[i3,1]=t0[2];
+    endfor;
+else;
+    C0[1,1]=t0[1]+t0[1+ky];
+    C0[1,2:cols(C0)]=t0[2:ky]'+t0[ky+2:ky+1+kx]';
+    for i4(2,t,1);
+        C0[i4,.]=t0[ky+1:ky+kx+1]';
+    endfor;
+endif;
+@ C2 matrix has closed-form solutions @
+
+B110=B0[1:t,1:t];
+B120=B0[1:t,(t+1):cols(B0)];
+
+o110=zeros(t,t);
+for i5(1,t,1);
+    o110[i5,i5]=t0[2*ky+(i5+1)]^2;
+endfor;
+o110=o110+(t0[2*ky+1]^2)*(ones(t,t)); @ Sigma 11 @
+
+@ Here, I split sigma 12 in the sum of two parts, phi's matrix and psi's upper triangular matrix @
+
+@ phi's matrix @
+o120=zeros(t,(t-1)*ktotx);
+for i6(1,t,1);
+    for i7(1,t-1,1);    
+        o120[i6,1+(i7-1)*ktotx:i7*ktotx]=t0[2*ky+t+2+(i7-1)*ktotx:2*ky+t+2+i7*ktotx-1]';
+    endfor;
+endfor;
+
+@ psi's upper triangular matrix @
+o121=zeros(t,(t-1)*ktotx);
+
+@ as o121 is an upper triangular matrix, each subsequent row has @
+@ 1 element less @
+
+seq=zeros(t,1);
+dseq=0;
+for iseq(1,t,1);
+    seq[iseq]=dseq;
+    dseq=dseq+t-iseq;
+endfor;
+
+for i8(1,t,1);
+    if i8==t;
+        o121=o121;
+    else;
+        o121[i8,(i8-1)*ktotx+1:cols(o121)]=t0[2*ky+t+2+(t-1+seq[i8])*ktotx:2*ky+t+2+(t-1+seq[i8+1])*ktotx-1]';
+    endif;
+endfor;
+
+@ Sigma 12 @ 
+o120=o120+o121;
+
+o210=o120';
+
+if det(o110)<=0;
+    if cout1==0;
+        cout=cout+1;   
+    endif;
+    if cout1<=250;
+        t0i=.5*ones(rows(t0in),1);
+    elseif cout1<=500;
+        t0i=t0in;
+    elseif cout1<=750;
+        t0i=rndu(rows(t0in),1);
+    elseif cout1<=1000;
+        t0i=rndu(rows(t0in),1);
+    else;
+        cls;
+        t0i=rndn(rows(t0in),1);
+    endif;
+    fact=1./(10.^(ceil(log(abs(t0i)))));
+    t0in=fact.*t0i;
+    likf=0;
+    cout1=cout1+1;
+else;
+    U10=(B110*Y1'+B120*Y2'-C0*Z')'; @ Ui1 from the paper @
+    H=(Y2-U10*inv(o110)*o120)'Q*(Y2-U10*inv(o110)*o120);
+    likf=-(n/2)*ln(det(o110))-(1/2)*sumc(diag(inv(o110)*U10'U10))-(n/2)*ln(det(H/n)); @ concentrated log-likelihood in the appendix @
+endif;
+
+retp(-likf);
+endp;
+
+
+
+
+@----------------------------------------------------------------------@
+@                                                                      @
+@                   LIKELIHOOD PROCEDURE 1  (GRADIENT)                 @
+@                                                                      @
+@           this procedure construct the concentrated likelihood       @
+@           individual by individual and it gives the NX1 vector       @
+@           of individual log-likelihoods for the computation of       @
+@           the gradient and then the sandwich formula.                @
+@----------------------------------------------------------------------@
+
+
+proc(1)=likgra(t0in);
+local likvec,ii,i1,i11,i2,i3,i4,i5,i6,i7,i8,seq,dseq,iseq,B0,B110,B120,C0,U10,H,o110,o120,o121,o210,iter,u10i,t0;
+
+
+t0=t0in;
+
+
+likvec=zeros(n,1);
+
+B0=eye(t+(t-1)*ktotx);
+C0=zeros(t,ky);
+for ii(2,t,1);
+    B0[ii,ii-1]=-t0[1];     @ SEM method B11 in paper@
+endfor;
+
+i2=1;              
+for i1(1,ktotx,1);
+    if mt[i1]==0;   @ if x variable is not included @
+        B0=B0;
+    else;           @ if x variable is included     @
+        for i11(2,t,1);
+            B0[i11,t+1+(i11-2)*ktotx+(i1-1)]=-t0[1+i2];      
+        endfor;    
+        i2=i2+1;                                       
+    endif;
+endfor;
+
+
+@ C1 matrix@
+if kx==0;   
+    C0[1,1]=t0[1]+t0[2];
+    for i3(2,t,1);
+        C0[i3,1]=t0[2];
+    endfor;
+else;
+    C0[1,1]=t0[1]+t0[1+ky];
+    C0[1,2:cols(C0)]=t0[2:ky]'+t0[ky+2:ky+1+kx]';
+    for i4(2,t,1);
+        C0[i4,.]=t0[ky+1:ky+kx+1]';
+    endfor;
+endif;
+
+B110=B0[1:t,1:t];
+B120=B0[1:t,(t+1):cols(B0)];
+
+o110=zeros(t,t);
+for i5(1,t,1);
+    o110[i5,i5]=t0[2*ky+(i5+1)]^2;
+endfor;
+o110=o110+(t0[2*ky+1]^2)*(ones(t,t)); @ Sigma 11 @
+
+
+@ Here, I split sigma 11 in the sum of two parts, phi's matrix and psi's upper triangular matrix @
+
+@ phi's matrix @
+o120=zeros(t,(t-1)*ktotx);
+for i6(1,t,1);
+    for i7(1,t-1,1);    
+        o120[i6,1+(i7-1)*ktotx:i7*ktotx]=t0[2*ky+t+2+(i7-1)*ktotx:2*ky+t+2+i7*ktotx-1]';
+    endfor;
+endfor;
+
+@ psi's upper triangular matrix @
+o121=zeros(t,(t-1)*ktotx);
+
+@ as o121 is an upper triangular matrix, each subsequent row has @
+@ 1 element less @
+
+seq=zeros(t,1);
+dseq=0;
+for iseq(1,t,1);
+    seq[iseq]=dseq;
+    dseq=dseq+t-iseq;
+endfor;
+
+for i8(1,t,1);
+    if i8==t;
+        o121=o121;
+    else;
+        o121[i8,(i8-1)*ktotx+1:cols(o121)]=t0[2*ky+t+2+(t-1+seq[i8])*ktotx:2*ky+t+2+(t-1+seq[i8+1])*ktotx-1]';
+    endif;
+endfor;
+
+@ Sigma 12 @ 
+o120=o120+o121;
+
+o210=o120';
+
+U10=(B110*Y1'+B120*Y2'-C0*Z')';
+H=(Y2-U10*inv(o110)*o120)'Q*(Y2-U10*inv(o110)*o120);
+
+for iter(1,n,1);
+    u10i=U10[iter,.]';
+    likvec[iter]=-(1/2)*ln(det(o110))-(1/2)*ln(det(H/n))
+                 -(1/2)*(u10i'inv(o110)*u10i);
+endfor;
+
+retp(-likvec);
+endp;
+
+
