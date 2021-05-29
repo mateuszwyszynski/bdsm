@@ -6,7 +6,7 @@
 
 proc(1)=lik(t0in);
 local likf,ii,i1,i11,i2,i3,i4,i5,i6,i7,i8,seq,dseq,iseq,B0,B110,B120,C0,U10,H,o110,o120,o121,o210,t0,t0i,fact;
-local err_var_ind;
+local err_var_ind,dep_vars_last_ind;
 
 t0=t0in;
 
@@ -58,10 +58,12 @@ o110=o110+(t0[err_var_ind]^2)*(ones(t,t)); @ Sigma 11 @
 @ Here, I split sigma 12 in the sum of two parts, phi's matrix and psi's upper triangular matrix @
 
 @ phi's matrix @
+dep_vars_last_ind=2*ky+t+1;
+
 o120=zeros(t,(t-1)*ktotx);
 for i6(1,t,1);
     for i7(1,t-1,1);    
-        o120[i6,1+(i7-1)*ktotx:i7*ktotx]=t0[2*ky+t+2+(i7-1)*ktotx:2*ky+t+2+i7*ktotx-1]';
+        o120[i6,1+(i7-1)*ktotx:i7*ktotx]=t0[dep_vars_last_ind+1+(i7-1)*ktotx:2*ky+t+2+i7*ktotx-1]';
     endfor;
 endfor;
 
@@ -136,7 +138,7 @@ endp;
 
 proc(1)=likgra(t0in);
 local likvec,ii,i1,i11,i2,i3,i4,i5,i6,i7,i8,seq,dseq,iseq,B0,B110,B120,C0,U10,H,o110,o120,o121,o210,iter,u10i,t0;
-local err_var_ind;
+local err_var_ind,dep_vars_last_ind;
 
 t0=t0in;
 
@@ -191,10 +193,12 @@ o110=o110+(t0[err_var_ind]^2)*(ones(t,t)); @ Sigma 11 @
 @ Here, I split sigma 11 in the sum of two parts, phi's matrix and psi's upper triangular matrix @
 
 @ phi's matrix @
+dep_vars_last_ind=2*ky+t+1;
+
 o120=zeros(t,(t-1)*ktotx);
 for i6(1,t,1);
     for i7(1,t-1,1);    
-        o120[i6,1+(i7-1)*ktotx:i7*ktotx]=t0[2*ky+t+2+(i7-1)*ktotx:2*ky+t+2+i7*ktotx-1]';
+        o120[i6,1+(i7-1)*ktotx:i7*ktotx]=t0[dep_vars_last_ind+1+(i7-1)*ktotx:2*ky+t+2+i7*ktotx-1]';
     endfor;
 endfor;
 
