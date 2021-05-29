@@ -132,10 +132,10 @@ for (regressors_subset in regressors_subsets) {
   dep_vars <- rep(0.5, periods_n)
   beta <- rep(0.5, cur_regressors_n)
   phi_1 <- rep(0.5, cur_regressors_n)
-  phis_n <- regressors_n*(periods_n - 1)
+  phis_n <- cur_regressors_n*(periods_n - 1)
   phis <- rep(0.5, phis_n)
-  psis_n <- regressors_n*periods_n*(periods_n - 1)/2
-  psis <- rep(0.5, psis_n)
+  psis_n <- cur_regressors_n*periods_n*(periods_n - 1)/2
+  psis <- 1:psis_n
 
   t0in <- matrix(c(alpha, beta, phi_0, phi_1, err_var, dep_vars, phis, psis))
 
@@ -178,7 +178,7 @@ for (regressors_subset in regressors_subsets) {
   proj_matrix <- Z%*%solve(crossprod(Z))%*%t(Z)
   res_maker_matrix <- diag(n) - proj_matrix
 
-  n_params_to_estimate <- 2*cur_variables_n+t+1+(t^2+t-2)*regressors_n/2
+  n_params_to_estimate <- 2*cur_variables_n+t+1+(t^2+t-2)*cur_regressors_n/2
 
   periods_n <- t
 
@@ -189,9 +189,9 @@ for (regressors_subset in regressors_subsets) {
   dep_vars <- rep(0.5, periods_n)
   beta <- rep(0.5, cur_regressors_n)
   phi_1 <- rep(0.5, cur_regressors_n)
-  phis_n <- regressors_n*(periods_n - 1)
+  phis_n <- cur_regressors_n*(periods_n - 1)
   phis <- rep(0.5, phis_n)
-  psis_n <- regressors_n*periods_n*(periods_n - 1)/2
+  psis_n <- cur_regressors_n*periods_n*(periods_n - 1)/2
   psis <- rep(0.5, psis_n)
 
   t0in <- matrix(c(alpha, beta, phi_0, phi_1, err_var, dep_vars, phis, psis))

@@ -162,6 +162,7 @@ SEM_params_to_list <- function(params, periods_n, regressors_n,
 
 orig_sigma_matrix <- function(t0, t, cur_variables_n,
                               regressors_n) {
+  cur_regressors_n <- sum(mt)
   err_var_ind <- 2*cur_variables_n+1
 
   o110=zeros(t,t)
@@ -172,12 +173,20 @@ orig_sigma_matrix <- function(t0, t, cur_variables_n,
 
   # Here, I split sigma 12 in the sum of two parts, phi's matrix and psi's upper triangular matrix
 
-  phis_start_ind <- 2*cur_variables_n+t+2
+  phis_start_ind <- 2*cur_variables_n+t+1
   # phi's matrix
   o120=zeros(t,(t-1)*regressors_n)
   for (i6 in 1:t) {
     for (i7 in 1:(t-1)) {
-      o120[i6,(1+(i7-1)*regressors_n):(i7*regressors_n)]=t(t0[(phis_start_ind+(i7-1)*regressors_n):(phis_start_ind+i7*regressors_n-1)])
+      reg_params_ind <- 0
+      for (reg_ch in 1:regressors_n) {
+        if (mt[reg_ch] == 1) {
+          reg_params_ind <- reg_params_ind + 1
+          o120[i6,(reg_ch+(i7-1)*regressors_n)]=t0[phis_start_ind+(i7-1)*cur_regressors_n + reg_params_ind]
+        } else {
+          o120[i6,(reg_ch+(i7-1)*regressors_n)] = 0
+        }
+      }
     }
   }
 
@@ -192,11 +201,25 @@ orig_sigma_matrix <- function(t0, t, cur_variables_n,
     dseq=dseq+t-iseq
   }
 
-  for (i8 in 1:t) {
-    if (i8==t) {
-      o121=o121 }
-    else {
-      o121[i8,((i8-1)*regressors_n+1):(ncol(o121))]=t(t0[(phis_start_ind+(t-1+seq[i8])*regressors_n):(phis_start_ind+(t-1+seq[i8+1])*regressors_n-1)])
+  phis_n <- cur_regressors_n*(t - 1)
+  psis_start_ind <- phis_start_ind + phis_n
+  for (row_ind in 1:(t-1)) {
+    start_col_ind <- row_ind
+    for (col_ind in start_col_ind:t) {
+      if (col_ind==t) {
+        o121=o121 }
+      else {
+        reg_params_ind <- 0
+        for (reg_ch in 1:regressors_n) {
+          if (mt[reg_ch] == 1) {
+            reg_params_ind <- reg_params_ind + 1
+            o121[row_ind,(start_col_ind - 1)*regressors_n + reg_ch+(col_ind-start_col_ind)*regressors_n]=
+              t0[psis_start_ind+(col_ind-start_col_ind)*cur_regressors_n + cur_regressors_n*((row_ind-1)*(t - 1) - (row_ind - 2)*(row_ind - 1)/2) + reg_params_ind]
+          } else {
+            o121[row_ind,(start_col_ind - 1)*regressors_n + reg_ch+(col_ind-start_col_ind)*regressors_n] = 0
+          }
+        }
+      }
     }
   }
 
