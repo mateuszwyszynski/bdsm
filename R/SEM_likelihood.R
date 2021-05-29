@@ -202,6 +202,50 @@ SEM_likelihood <- function(params, n_entities,
   likelihood
 }
 
+orig_sigma_matrix <- function(t0, t, cur_variables_n,
+                              regressors_n) {
+  o110=zeros(t,t)
+  for (i5 in 1:t) {
+    o110[i5,i5]=t0[2*cur_variables_n+(i5+1)]^2
+  }
+  o110=o110+(t0[2*cur_variables_n+1]^2)*(ones(t,t))  # Sigma 11
+
+  # Here, I split sigma 12 in the sum of two parts, phi's matrix and psi's upper triangular matrix
+
+  # phi's matrix
+  o120=zeros(t,(t-1)*regressors_n)
+  for (i6 in 1:t) {
+    for (i7 in 1:(t-1)) {
+      o120[i6,(1+(i7-1)*regressors_n):(i7*regressors_n)]=t(t0[(2*cur_variables_n+t+2+(i7-1)*regressors_n):(2*cur_variables_n+t+2+i7*regressors_n-1)])
+    }
+  }
+
+  # psi's upper triangular matrix
+  o121=zeros(t,(t-1)*regressors_n)
+  # as o121 is an upper triangular matrix, each subsequent row has 1 element less
+
+  seq=zeros(t,1)
+  dseq=0
+  for (iseq in 1:t) {
+    seq[iseq]=dseq
+    dseq=dseq+t-iseq
+  }
+
+  for (i8 in 1:t) {
+    if (i8==t) {
+      o121=o121 }
+    else {
+      o121[i8,((i8-1)*regressors_n+1):(ncol(o121))]=t(t0[(2*cur_variables_n+t+2+(t-1+seq[i8])*regressors_n):(2*cur_variables_n+t+2+(t-1+seq[i8+1])*regressors_n-1)])
+    }
+  }
+
+  # Sigma 12
+  o120=o120+o121
+  o210=t(o120)
+
+  cbind(o110, o120)
+}
+
 #----------------------------------------------------------------------#
 #                                                                      #
 #                   LIKELIHOOD FUNCTION 1  (GRADIENT)                  #
@@ -254,44 +298,11 @@ likgra<-function(t0in) {
   B110=B0[(1:t),(1:t)]
   B120=B0[(1:t),((t+1):ncol(B0))]
 
-  o110=zeros(t,t)
-  for (i5 in 1:t) {
-    o110[i5,i5]=t0[2*cur_variables_n+(i5+1)]^2
-  }
-  o110=o110+(t0[2*cur_variables_n+1]^2)*(ones(t,t))  # Sigma 11
-
-  # Here, I split sigma 12 in the sum of two parts, phi's matrix and psi's upper triangular matrix
-
-  # phi's matrix
-  o120=zeros(t,(t-1)*regressors_n)
-  for (i6 in 1:t) {
-    for (i7 in 1:(t-1)) {
-      o120[i6,(1+(i7-1)*regressors_n):(i7*regressors_n)]=t(t0[(2*cur_variables_n+t+2+(i7-1)*regressors_n):(2*cur_variables_n+t+2+i7*regressors_n-1)])
-    }
-  }
-
-  # psi's upper triangular matrix
-  o121=zeros(t,(t-1)*regressors_n)
-  # as o121 is an upper triangular matrix, each subsequent row has 1 element less
-
-  seq=zeros(t,1)
-  dseq=0
-  for (iseq in 1:t) {
-    seq[iseq]=dseq
-    dseq=dseq+t-iseq
-  }
-
-  for (i8 in 1:t) {
-    if (i8==t) {
-      o121=o121 }
-    else {
-      o121[i8,((i8-1)*regressors_n+1):(ncol(o121))]=t(t0[(2*cur_variables_n+t+2+(t-1+seq[i8])*regressors_n):(2*cur_variables_n+t+2+(t-1+seq[i8+1])*regressors_n-1)])
-    }
-  }
-
-  # Sigma 12
-  o120=o120+o121
-  o210=t(o120)
+  o <- orig_sigma_matrix(t0 = t0, t = t,
+                         cur_variables_n = cur_variables_n,
+                         regressors_n = regressors_n)
+  o110 <- o[, 1:t]
+  o120 <- o[, -(1:t)]
 
   U10=t(B110%*%t(Y1)+B120%*%t(Y2)-C0%*%t(Z))  # Ui1 from the paper
   H=crossprod(Y2-U10%*%solve(o110)%*%o120,res_maker_matrix)%*%(Y2-U10%*%solve(o110)%*%o120)
