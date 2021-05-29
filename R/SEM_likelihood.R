@@ -204,11 +204,13 @@ SEM_likelihood <- function(params, n_entities,
 
 orig_sigma_matrix <- function(t0, t, cur_variables_n,
                               regressors_n) {
+  err_var_ind <- 2*cur_variables_n+1
+
   o110=zeros(t,t)
   for (i5 in 1:t) {
-    o110[i5,i5]=t0[2*cur_variables_n+(i5+1)]^2
+    o110[i5,i5]=t0[err_var_ind+i5]^2
   }
-  o110=o110+(t0[2*cur_variables_n+1]^2)*(ones(t,t))  # Sigma 11
+  o110=o110+(t0[err_var_ind]^2)*(ones(t,t))  # Sigma 11
 
   # Here, I split sigma 12 in the sum of two parts, phi's matrix and psi's upper triangular matrix
 
