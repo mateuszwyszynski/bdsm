@@ -4,7 +4,7 @@
 \alias{hessian}
 \title{Hessian matrix}
 \usage{
-hessian(lik, theta)
+hessian(lik, theta, ...)
 }
 \arguments{
 \item{lik}{function}
