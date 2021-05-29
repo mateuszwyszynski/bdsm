@@ -246,7 +246,7 @@ orig_sigma_matrix <- function(t0, t, cur_variables_n,
   o120=o120+o121
   o210=t(o120)
 
-  cbind(o110, o120)
+  list(o110, o120)
 }
 
 #----------------------------------------------------------------------#
@@ -304,8 +304,8 @@ likgra<-function(t0in) {
   o <- orig_sigma_matrix(t0 = t0, t = t,
                          cur_variables_n = cur_variables_n,
                          regressors_n = regressors_n)
-  o110 <- o[, 1:t]
-  o120 <- o[, -(1:t)]
+  o110 <- o[[1]]
+  o120 <- o[[2]]
 
   U10=t(B110%*%t(Y1)+B120%*%t(Y2)-C0%*%t(Z))  # Ui1 from the paper
   H=crossprod(Y2-U10%*%solve(o110)%*%o120,res_maker_matrix)%*%(Y2-U10%*%solve(o110)%*%o120)
