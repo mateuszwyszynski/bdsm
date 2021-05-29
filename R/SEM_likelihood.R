@@ -214,11 +214,12 @@ orig_sigma_matrix <- function(t0, t, cur_variables_n,
 
   # Here, I split sigma 12 in the sum of two parts, phi's matrix and psi's upper triangular matrix
 
+  phis_start_ind <- 2*cur_variables_n+t+2
   # phi's matrix
   o120=zeros(t,(t-1)*regressors_n)
   for (i6 in 1:t) {
     for (i7 in 1:(t-1)) {
-      o120[i6,(1+(i7-1)*regressors_n):(i7*regressors_n)]=t(t0[(2*cur_variables_n+t+2+(i7-1)*regressors_n):(2*cur_variables_n+t+2+i7*regressors_n-1)])
+      o120[i6,(1+(i7-1)*regressors_n):(i7*regressors_n)]=t(t0[(phis_start_ind+(i7-1)*regressors_n):(phis_start_ind+i7*regressors_n-1)])
     }
   }
 
@@ -237,7 +238,7 @@ orig_sigma_matrix <- function(t0, t, cur_variables_n,
     if (i8==t) {
       o121=o121 }
     else {
-      o121[i8,((i8-1)*regressors_n+1):(ncol(o121))]=t(t0[(2*cur_variables_n+t+2+(t-1+seq[i8])*regressors_n):(2*cur_variables_n+t+2+(t-1+seq[i8+1])*regressors_n-1)])
+      o121[i8,((i8-1)*regressors_n+1):(ncol(o121))]=t(t0[(phis_start_ind+(t-1+seq[i8])*regressors_n):(phis_start_ind+(t-1+seq[i8+1])*regressors_n-1)])
     }
   }
 
