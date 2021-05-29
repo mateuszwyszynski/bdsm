@@ -145,6 +145,63 @@ for (regressors_subset in regressors_subsets) {
     select(!country) %>%
     select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>% as.matrix()
 
+  o <- orig_sigma_matrix(t0 = t0in, t = t,
+                         cur_variables_n = cur_variables_n,
+                         regressors_n = regressors_n)
+
+  print(o)
+}
+
+#---------------------------------------------------------------------------------
+#  		               LOOP COVERING FULL MODEL SPACE
+#---------------------------------------------------------------------------------
+
+regressors_subsets <- powerSet(regressors)
+which_regs_bin_vectors <- replicate(regressors_n, 0:1, simplify = FALSE) %>%
+  expand.grid()
+which_regs_bin_vectors <-
+  which_regs_bin_vectors[,order(ncol(which_regs_bin_vectors):1)]
+
+row_ind <- 0
+for (regressors_subset in regressors_subsets) {
+  regressors_subset <- rev(regressors_subset)
+  row_ind <- row_ind + 1
+  mt <- as.matrix(t(which_regs_bin_vectors[row_ind, ]))
+  out = (mt == 0)       # regressors out of the current model
+  cur_regressors_n <- sum(mt)
+  cur_variables_n <- cur_regressors_n+1
+
+  #Z includes y0 and x0 as strictly exogenous variables
+  Z <- R_df %>% filter(year == year0) %>%
+    select(lag_gdp, regressors_subset) %>% as.matrix()
+
+  proj_matrix <- Z%*%solve(crossprod(Z))%*%t(Z)
+  res_maker_matrix <- diag(n) - proj_matrix
+
+  n_params_to_estimate <- 2*cur_variables_n+t+1+(t^2+t-2)*regressors_n/2
+
+  periods_n <- t
+
+  # Initial parameter values for optimisation
+  alpha <- 0.5
+  phi_0 <- 0.5
+  err_var <- 0.5
+  dep_vars <- rep(0.5, periods_n)
+  beta <- rep(0.5, cur_regressors_n)
+  phi_1 <- rep(0.5, cur_regressors_n)
+  phis_n <- regressors_n*(periods_n - 1)
+  phis <- rep(0.5, phis_n)
+  psis_n <- regressors_n*periods_n*(periods_n - 1)/2
+  psis <- rep(0.5, psis_n)
+
+  t0in <- matrix(c(alpha, beta, phi_0, phi_1, err_var, dep_vars, phis, psis))
+
+  cur_Y2 <- R_df %>% select(year, country, regressors_subset) %>%
+    filter(year != year0) %>%
+    pivot_wider(names_from = year, values_from = !country & !year) %>%
+    select(!country) %>%
+    select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>% as.matrix()
+
   # parscale argument somehow (don't know yet how) changes step size during optimisation.
   # Most likely optimisation methods used in Gauss are scale-free and these used in R are not
   # TODO: search for methods (or implement methods) in R which are scale-free
