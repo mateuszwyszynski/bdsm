@@ -59,6 +59,8 @@ liml_data_prep <- function(df){
 
 R_df <- liml_data_prep(rawdata)
 
+corr_matrix <- R_df %>% select(regressors) %>%  cor()
+
 # Dependent variables for the t periods - matrix of size N x t
 Y1 <- R_df %>% select(year, country, gdp) %>%
   pivot_wider(names_from = year, values_from = gdp) %>%
@@ -244,7 +246,14 @@ for (regressors_subset in regressors_subsets) {
       }
 
     if (prandom == 0) {
-      priorprobt=(pinc)^(cur_regressors_n)*(1-pinc)^(regressors_n-cur_regressors_n)      #optimised_params fixed#
+      cur_corr_m <- as.matrix(corr_matrix[regressors_subset, regressors_subset])
+      corr_det <- if(ncol(cur_corr_m) < 2) {
+        1
+      } else {
+        det(cur_corr_m)
+      }
+
+      priorprobt=sqrt(corr_det)*(pinc)^(cur_regressors_n)*(1-pinc)^(regressors_n-cur_regressors_n)      #optimised_params fixed#
     }
 
     # posterior model probability  #
