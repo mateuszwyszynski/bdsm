@@ -44,6 +44,8 @@ endfor;
 X0=R[.,3:2+ktotx];
 //X0 is for the first year, while Y2 for the 2:t//
 
+corr_matrix=Corrx(data[.,3:6]);
+
 
 
 @---------------------------------------------------------------------------------@
@@ -121,7 +123,19 @@ for turu(1, tot, 1);
     if prandom == 1;
         priorprobt=(gamma(1+kx))*(gamma(b+ktotx-kx));    @theta random@
     elseif prandom == 0;
-        priorprobt=(pinc)^(kx)*(1-pinc)^(ktotx-kx);      @theta fixed@ 
+        x={};
+        for i(1,ktotx,1);
+            if mt[i]==1;
+                x=x~i;
+            endif;
+        endfor;
+        if cols(x)<=1;
+            corr_det=1;
+        else;
+            cur_corr_matrix=corr_matrix[x,x];
+            corr_det=det(cur_corr_matrix);
+        endif;
+        priorprobt=corr_det^(1/2)*(pinc)^(kx)*(1-pinc)^(ktotx-kx);      @theta fixed@ 
     endif;
 
     @ posterior model probability  @
