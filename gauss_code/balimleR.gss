@@ -46,7 +46,7 @@ endfor;
 X0=R[.,3:2+ktotx];
 //X0 is for the first year, while Y2 for the 2:t//
 
-corr_matrix=Corrx(data[.,3:6]);
+corr_matrix=Corrx(data[.,3:2+ktotx]);
 
 
 
