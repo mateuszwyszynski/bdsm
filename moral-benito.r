@@ -17,6 +17,8 @@ no_of_cores = detectCores()
 set.seed(23)
 begin<-Sys.time()
 prandom=0 #prandom=1 for optimised_params random Ley&Steel09. prandom = 0 for optimised_params fixed
+dilution <- 1
+dil_power <- 1/2
 
 #---------------------------------------------------------------------------------
 #		   	                     LOADING THE DATASET
@@ -58,6 +60,8 @@ liml_data_prep <- function(df){
 }
 
 R_df <- liml_data_prep(rawdata)
+
+corr_matrix <- R_df %>% select(regressors) %>%  cor()
 
 # Dependent variables for the t periods - matrix of size N x t
 Y1 <- R_df %>% select(year, country, gdp) %>%
@@ -245,6 +249,17 @@ for (regressors_subset in regressors_subsets) {
 
     if (prandom == 0) {
       priorprobt=(pinc)^(cur_regressors_n)*(1-pinc)^(regressors_n-cur_regressors_n)      #optimised_params fixed#
+    }
+
+    if (dilution == 1) {
+      cur_corr_m <- as.matrix(corr_matrix[regressors_subset, regressors_subset])
+      corr_det <- if(ncol(cur_corr_m) < 2) {
+        1
+      } else {
+        det(cur_corr_m)
+      }
+
+      priorprobt <- corr_det^dil_power * priorprobt
     }
 
     # posterior model probability  #
