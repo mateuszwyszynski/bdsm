@@ -244,5 +244,5 @@ SEM_lik_grad <- function(params, n_entities,
                                cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
                                res_maker_matrix = res_maker_matrix)
   }
-  -lik_vec
+  lik_vec
 }
