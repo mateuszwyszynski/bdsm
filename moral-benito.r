@@ -166,9 +166,18 @@ for (regressors_subset in regressors_subsets) {
                 periods_n = periods_n, regressors_n = cur_regressors_n,
                 phis_n = phis_n, psis_n = psis_n)
 
-  likgra_val<-likgra(optimised_params)
+  likgra_val <- SEM_lik_grad(optimised_params, n_entities = n_entities,
+                             cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
+                             res_maker_matrix = res_maker_matrix,
+                             periods_n = periods_n,
+                             regressors_n = cur_regressors_n,
+                             phis_n = phis_n, psis_n = psis_n)
 
-  Gmat=gradient(likgra,optimised_params)
+  Gmat <- gradient(SEM_lik_grad, optimised_params, n_entities = n_entities,
+                   cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
+                   res_maker_matrix = res_maker_matrix,
+                   periods_n = periods_n, regressors_n = cur_regressors_n,
+                   phis_n = phis_n, psis_n = psis_n)
   Imat=crossprod(Gmat)
     stdr=sqrt(diag(solve(hess)%*%(Imat)%*%solve(hess)))
     stdh=sqrt(diag((solve(hess)))) #sqrt of negative values(
