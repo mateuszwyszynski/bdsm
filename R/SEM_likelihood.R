@@ -173,59 +173,53 @@ orig_sigma_matrix <- function(t0, t, cur_variables_n,
 
   # Here, I split sigma 12 in the sum of two parts, phi's matrix and psi's upper triangular matrix
 
-  dep_vars_last_ind <- 2*cur_variables_n+t+1
-  # phi's matrix
-  o120=zeros(t,(t-1)*regressors_n)
-  for (i6 in 1:t) {
-    for (i7 in 1:(t-1)) {
-      reg_params_ind <- 0
-      for (reg_ch in 1:regressors_n) {
-        if (mt[reg_ch] == 1) {
-          reg_params_ind <- reg_params_ind + 1
-          o120[i6,(reg_ch+(i7-1)*regressors_n)]=t0[dep_vars_last_ind+(i7-1)*cur_regressors_n + reg_params_ind]
-        } else {
-          o120[i6,(reg_ch+(i7-1)*regressors_n)] = 0
+  if (cur_regressors_n != 0) {
+    dep_vars_last_ind <- 2*cur_variables_n+t+1
+    # phi's matrix
+    o120=zeros(t,(t-1)*cur_regressors_n)
+    for (i6 in 1:t) {
+      for (i7 in 1:(t-1)) {
+        reg_params_ind <- 0
+        for (reg_ind in 1:cur_regressors_n) {
+          o120[i6,(reg_ind+(i7-1)*cur_regressors_n)]=t0[dep_vars_last_ind+(i7-1)*cur_regressors_n + reg_ind]
         }
       }
     }
-  }
 
-  # psi's upper triangular matrix
-  o121=zeros(t,(t-1)*regressors_n)
-  # as o121 is an upper triangular matrix, each subsequent row has 1 element less
+    # psi's upper triangular matrix
+    o121=zeros(t,(t-1)*cur_regressors_n)
+    # as o121 is an upper triangular matrix, each subsequent row has 1 element less
 
-  seq=zeros(t,1)
-  dseq=0
-  for (iseq in 1:t) {
-    seq[iseq]=dseq
-    dseq=dseq+t-iseq
-  }
+    seq=zeros(t,1)
+    dseq=0
+    for (iseq in 1:t) {
+      seq[iseq]=dseq
+      dseq=dseq+t-iseq
+    }
 
-  phis_n <- cur_regressors_n*(t - 1)
-  phis_last_ind <- dep_vars_last_ind + phis_n
-  for (row_ind in 1:(t-1)) {
-    start_col_ind <- row_ind
-    for (col_ind in start_col_ind:t) {
-      if (col_ind==t) {
-        o121=o121 }
-      else {
-        reg_params_ind <- 0
-        for (reg_ch in 1:regressors_n) {
-          if (mt[reg_ch] == 1) {
-            reg_params_ind <- reg_params_ind + 1
-            o121[row_ind,(start_col_ind - 1)*regressors_n + reg_ch+(col_ind-start_col_ind)*regressors_n]=
-              t0[phis_last_ind+(col_ind-start_col_ind)*cur_regressors_n + cur_regressors_n*((row_ind-1)*(t - 1) - (row_ind - 2)*(row_ind - 1)/2) + reg_params_ind]
-          } else {
-            o121[row_ind,(start_col_ind - 1)*regressors_n + reg_ch+(col_ind-start_col_ind)*regressors_n] = 0
+    phis_n <- cur_regressors_n*(t - 1)
+    phis_last_ind <- dep_vars_last_ind + phis_n
+    for (row_ind in 1:(t-1)) {
+      start_col_ind <- row_ind
+      for (col_ind in start_col_ind:t) {
+        if (col_ind==t) {
+          o121=o121 }
+        else {
+          reg_params_ind <- 0
+          for (reg_ind in 1:cur_regressors_n) {
+            o121[row_ind,(start_col_ind - 1)*cur_regressors_n + reg_ind+(col_ind-start_col_ind)*cur_regressors_n]=
+              t0[phis_last_ind+(col_ind-start_col_ind)*cur_regressors_n + cur_regressors_n*((row_ind-1)*(t - 1) - (row_ind - 2)*(row_ind - 1)/2) + reg_ind]
           }
         }
       }
     }
-  }
 
-  # Sigma 12
-  o120=o120+o121
-  o210=t(o120)
+    # Sigma 12
+    o120=o120+o121
+    o210=t(o120)
+  } else {
+    o120 = NULL
+  }
 
   list(o110, o120)
 }
@@ -259,7 +253,11 @@ SEM_likelihood <- function(params, n_entities,
       t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, Z))
     }
     S11_inverse <- solve(S[[1]])
-    V <- Y2 - Ui1 %*% S11_inverse %*% S[[2]]
+    V <- if (cur_regressors_n == 0) {
+      cur_Y2
+    } else {
+      cur_Y2 - Ui1 %*% S11_inverse %*% S[[2]]
+    }
     H <- crossprod(V, res_maker_matrix) %*% V
     likelihood <-
       -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
@@ -338,7 +336,13 @@ likgra<-function(t0in) {
   o120 <- o[[2]]
 
   U10=t(B110%*%t(Y1)+B120%*%t(Y2)-C0%*%t(Z))  # Ui1 from the paper
-  H=crossprod(Y2-U10%*%solve(o110)%*%o120,res_maker_matrix)%*%(Y2-U10%*%solve(o110)%*%o120)
+  S11_inverse <- solve(o110)
+  V <- if (cur_regressors_n == 0) {
+    cur_Y2
+  } else {
+    cur_Y2 - U10 %*% S11_inverse %*% o[[2]]
+  }
+  H=crossprod(V,res_maker_matrix)%*%(V)
   for (iter in 1:n) {
     u10i=as.matrix(U10[iter,])
     likvec[iter]=-(1/2)*log(det(o110))-(1/2)*log(det(H/n))-(1/2)*(t(u10i)%*%solve(o110)%*%u10i)
