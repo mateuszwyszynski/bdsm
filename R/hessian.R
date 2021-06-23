@@ -4,6 +4,7 @@
 #'
 #' @param lik function
 #' @param theta kx1 matrix
+#' @param ... other parametrs passed to \code{lik} function.
 #'
 #' @return Hessian kxk matrix where k is the number of parameters
 #' included in the theta matrix
