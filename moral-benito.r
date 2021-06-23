@@ -64,10 +64,6 @@ Y1 <- R_df %>% select(year, country, gdp) %>%
   pivot_wider(names_from = year, values_from = gdp) %>%
   select(!country) %>% as.matrix()
 
-# Regressors for the first year
-X0 <- R_df %>% filter(year == year0) %>%
-  select(!(year:lag_gdp)) %>% as.matrix()
-
 # ---------------------------------------------------------------------------------
 # 		               SOME PRELIMINAR OBJECTS BALIMLE APPROACH
 # ---------------------------------------------------------------------------------
