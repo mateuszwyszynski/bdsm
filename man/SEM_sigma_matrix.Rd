@@ -13,8 +13,11 @@ SEM_sigma_matrix(err_var, dep_vars, phis = c(), psis = c(), psis_byrow = TRUE)
 
 \item{phis}{numeric vector}
 
-\item{psis}{numeric vector. Psis should be passed column-wise, i.e. they will
-be filled into Sigma12 across columns first.}
+\item{psis}{numeric vector}
+
+\item{psis_byrow}{boolean. Whether psis should be passed row-wise (i.e. they
+will be filled into Sigma12 across rows first) or column-wise. Default is
+TRUE i.e. row-wise.}
 }
 \value{
 List with two matrices Sigma11 and Sigma12

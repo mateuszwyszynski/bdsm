@@ -82,8 +82,10 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
 #' @param err_var numeric
 #' @param dep_vars numeric vector
 #' @param phis numeric vector
-#' @param psis numeric vector. Psis should be passed column-wise, i.e. they will
-#' be filled into Sigma12 across columns first.
+#' @param psis numeric vector
+#' @param psis_byrow boolean. Whether psis should be passed row-wise (i.e. they
+#' will be filled into Sigma12 across rows first) or column-wise. Default is
+#' TRUE i.e. row-wise.
 #'
 #' @return List with two matrices Sigma11 and Sigma12
 #' @importFrom magrittr %>%
