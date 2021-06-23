@@ -103,6 +103,23 @@ for turu(1, tot, 1);
     exceeds _opditer or when the function fails to change by _opdfct percent, the algorithm
     switches to _opmdmth.@
     
+    @ predetermined variables for the t-1 periods @
+    if kx!=0;
+        cur_Y2=zeros(n,kx*(t-1));
+        for j(0, t-2, 1);
+            reg_ind=0;
+            for reg_ch(1, ktotx, 1);
+                if mt[reg_ch]==1;   @ if x variable is included @
+                    reg_ind=reg_ind+1;
+                    cur_Y2[., j*kx+reg_ind]=R[.,3+j+(j+1)*ktotx+reg_ch];
+                endif;
+            endfor;
+        endfor;
+    else;
+        cur_Y2=0;
+    endif;
+    X0=R[.,3:2+ktotx];
+    
     {theta,fout,grad,ret}=optmum(&lik,t0in); 
     @ theta returns optimized parameters, fout 
     is the value of the function lik at the maximum, grad is gradient vector at the minimum,

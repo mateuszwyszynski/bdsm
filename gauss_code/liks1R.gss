@@ -16,7 +16,7 @@ Precisely in lines where variable 'kx' is used (and not ktotx):
 
 proc(1)=lik(t0in);
 local likf,ii,i1,i11,i2,i3,i4,i5,i6,i7,seq,dseq,iseq,B0,B110,B120,C0,U10,H,o110,o120,o121,o210,t0,t0i,fact;
-local err_var_ind,dep_vars_last_ind,phis_n,phis_last_ind,row_ind,start_col_ind,col_ind,reg_params_ind,reg_ch;
+local err_var_ind,dep_vars_last_ind,phis_n,phis_last_ind,row_ind,start_col_ind,col_ind,V;
 
 t0=t0in;
 
@@ -55,7 +55,11 @@ endif;
 @ C2 matrix has closed-form solutions @
 
 B110=B0[1:t,1:t];
-B120=B0[1:t,(t+1):cols(B0)];
+if kx==0;
+    B120=0;
+else;
+    B120=B0[1:t,(t+1):cols(B0)];
+endif;
 
 err_var_ind=2*ky+1;
 
@@ -67,62 +71,54 @@ o110=o110+(t0[err_var_ind]^2)*(ones(t,t)); @ Sigma 11 @
 
 @ Here, I split sigma 12 in the sum of two parts, phi's matrix and psi's upper triangular matrix @
 
-@ phi's matrix @
-dep_vars_last_ind=2*ky+t+1;
+if kx!=0;
+    @ phi's matrix @
+    dep_vars_last_ind=2*ky+t+1;
+    
+    o120=zeros(t,(t-1)*kx);
+    for i6(1,t,1);
+        for i7(1,t-1,1);
+            for reg_ind(1,kx,1); 
+                o120[i6,(reg_ind+(i7-1)*kx)]=t0[dep_vars_last_ind+(i7-1)*kx+reg_ind];
+            endfor;
+        endfor;
+    endfor;
 
-o120=zeros(t,(t-1)*ktotx);
-for i6(1,t,1);
-    for i7(1,t-1,1);    
-        reg_params_ind=0;
-        for reg_ch(1,ktotx,1); 
-            if mt[reg_ch]==1;
-                reg_params_ind=reg_params_ind+1;
-                o120[i6,(reg_ch+(i7-1)*ktotx)]=t0[dep_vars_last_ind+(i7-1)*kx+reg_params_ind];
+    @ psi's upper triangular matrix @
+    o121=zeros(t,(t-1)*kx);
+
+    @ as o121 is an upper triangular matrix, each subsequent row has @
+    @ 1 element less @
+
+    seq=zeros(t,1);
+    dseq=0;
+    for iseq(1,t,1);
+        seq[iseq]=dseq;
+        dseq=dseq+t-iseq;
+    endfor;
+
+    phis_n=kx*(t-1);
+    phis_last_ind=dep_vars_last_ind+phis_n;
+
+    for row_ind(1,t-1,1);
+        start_col_ind=row_ind;
+        for col_ind(start_col_ind,t,1);
+            if col_ind==t;
+                o121=o121;
             else;
-                o120[i6,(reg_ch+(i7-1)*ktotx)]=0;
+                for reg_ind(1,kx,1);
+                    o121[row_ind,(start_col_ind-1)*kx+reg_ind+(col_ind-start_col_ind)*kx]=t0[phis_last_ind+(col_ind-start_col_ind)*kx+kx*((row_ind-1)*(t-1)-(row_ind-2)*(row_ind-1)/2)+reg_ind];
+                endfor;
             endif;
         endfor;
     endfor;
-endfor;
+    @ Sigma 12 @ 
+    o120=o120+o121;
 
-@ psi's upper triangular matrix @
-o121=zeros(t,(t-1)*ktotx);
-
-@ as o121 is an upper triangular matrix, each subsequent row has @
-@ 1 element less @
-
-seq=zeros(t,1);
-dseq=0;
-for iseq(1,t,1);
-    seq[iseq]=dseq;
-    dseq=dseq+t-iseq;
-endfor;
-
-phis_n=kx*(t-1);
-phis_last_ind=dep_vars_last_ind+phis_n;
-
-for row_ind(1,t-1,1);
-    start_col_ind=row_ind;
-    for col_ind(start_col_ind,t,1);
-        if col_ind==t;
-            o121=o121;
-        else;
-            reg_params_ind=0;
-            for reg_ch(1,ktotx,1);
-                if mt[reg_ch]==1;
-                    reg_params_ind=reg_params_ind+1;
-                    o121[row_ind,(start_col_ind-1)*ktotx+reg_ch+(col_ind-start_col_ind)*ktotx]=t0[phis_last_ind+(col_ind-start_col_ind)*kx+kx*((row_ind-1)*(t-1)-(row_ind-2)*(row_ind-1)/2)+reg_params_ind];
-                else;
-                    o121[row_ind,(start_col_ind-1)*ktotx+reg_ch+(col_ind-start_col_ind)*ktotx]=0;
-                endif;
-            endfor;
-        endif;
-    endfor;
-endfor;
-@ Sigma 12 @ 
-o120=o120+o121;
-
-o210=o120';
+    o210=o120';
+else;
+    o120=0;
+endif;
 
 if det(o110)<=0;
     if cout1==0;
@@ -145,9 +141,21 @@ if det(o110)<=0;
     likf=0;
     cout1=cout1+1;
 else;
-    U10=(B110*Y1'+B120*Y2'-C0*Z')'; @ Ui1 from the paper @
-    H=(Y2-U10*inv(o110)*o120)'Q*(Y2-U10*inv(o110)*o120);
-    likf=-(n/2)*ln(det(o110))-(1/2)*sumc(diag(inv(o110)*U10'U10))-(n/2)*ln(det(H/n)); @ concentrated log-likelihood in the appendix @
+    if kx==0;
+        U10=(B110*Y1'-C0*Z')';
+    else;
+        U10=(B110*Y1'+B120*Y2'-C0*Z')';
+    endif;
+
+    if kx!=0;
+        V=cur_Y2-U10*inv(o110)*o120;
+        H=V'Q*V;
+    endif;
+    
+    likf=-(n/2)*ln(det(o110))-(1/2)*sumc(diag(inv(o110)*U10'U10)); @ concentrated log-likelihood in the appendix @
+    if kx!=0;
+        likf=likf-(n/2)*ln(det(H/n));
+    endif;
 endif;
 
 retp(-likf);
@@ -169,7 +177,7 @@ endp;
 
 proc(1)=likgra(t0in);
 local likvec,ii,i1,i11,i2,i3,i4,i5,i6,i7,seq,dseq,iseq,B0,B110,B120,C0,U10,H,o110,o120,o121,o210,iter,u10i,t0;
-local err_var_ind,dep_vars_last_ind,phis_n,phis_last_ind,row_ind,start_col_ind,col_ind,reg_params_ind,reg_ch;
+local err_var_ind,dep_vars_last_ind,phis_n,phis_last_ind,row_ind,start_col_ind,col_ind,V;
 
 t0=t0in;
 
@@ -210,7 +218,11 @@ else;
 endif;
 
 B110=B0[1:t,1:t];
-B120=B0[1:t,(t+1):cols(B0)];
+if kx==0;
+    B120=0;
+else;
+    B120=B0[1:t,(t+1):cols(B0)];
+endif;
 
 err_var_ind=2*ky+1;
 
@@ -223,70 +235,72 @@ o110=o110+(t0[err_var_ind]^2)*(ones(t,t)); @ Sigma 11 @
 
 @ Here, I split sigma 11 in the sum of two parts, phi's matrix and psi's upper triangular matrix @
 
-@ phi's matrix @
-dep_vars_last_ind=2*ky+t+1;
+if kx!=0;
+    @ phi's matrix @
+    dep_vars_last_ind=2*ky+t+1;
+    
+    o120=zeros(t,(t-1)*kx);
+    for i6(1,t,1);
+        for i7(1,t-1,1);
+            for reg_ind(1,kx,1); 
+                o120[i6,(reg_ind+(i7-1)*kx)]=t0[dep_vars_last_ind+(i7-1)*kx+reg_ind];
+            endfor;
+        endfor;
+    endfor;
 
-o120=zeros(t,(t-1)*ktotx);
-for i6(1,t,1);
-    for i7(1,t-1,1);    
-        reg_params_ind=0;
-        for reg_ch(1,ktotx,1); 
-            if mt[reg_ch]==1;
-                reg_params_ind=reg_params_ind+1;
-                o120[i6,(reg_ch+(i7-1)*ktotx)]=t0[dep_vars_last_ind+(i7-1)*kx+reg_params_ind];
+    @ psi's upper triangular matrix @
+    o121=zeros(t,(t-1)*kx);
+
+    @ as o121 is an upper triangular matrix, each subsequent row has @
+    @ 1 element less @
+
+    seq=zeros(t,1);
+    dseq=0;
+    for iseq(1,t,1);
+        seq[iseq]=dseq;
+        dseq=dseq+t-iseq;
+    endfor;
+
+    phis_n=kx*(t-1);
+    phis_last_ind=dep_vars_last_ind+phis_n;
+
+    for row_ind(1,t-1,1);
+        start_col_ind=row_ind;
+        for col_ind(start_col_ind,t,1);
+            if col_ind==t;
+                o121=o121;
             else;
-                o120[i6,(reg_ch+(i7-1)*ktotx)]=0;
+                for reg_ind(1,kx,1);
+                    o121[row_ind,(start_col_ind-1)*kx+reg_ind+(col_ind-start_col_ind)*kx]=t0[phis_last_ind+(col_ind-start_col_ind)*kx+kx*((row_ind-1)*(t-1)-(row_ind-2)*(row_ind-1)/2)+reg_ind];
+                endfor;
             endif;
         endfor;
     endfor;
-endfor;
+    @ Sigma 12 @ 
+    o120=o120+o121;
 
-@ psi's upper triangular matrix @
-o121=zeros(t,(t-1)*ktotx);
+    o210=o120';
+else;
+    o120=0;
+endif;
 
-@ as o121 is an upper triangular matrix, each subsequent row has @
-@ 1 element less @
+if kx==0;
+    U10=(B110*Y1'-C0*Z')';
+else;
+    U10=(B110*Y1'+B120*Y2'-C0*Z')';
+endif;
 
-seq=zeros(t,1);
-dseq=0;
-for iseq(1,t,1);
-    seq[iseq]=dseq;
-    dseq=dseq+t-iseq;
-endfor;
-
-phis_n=kx*(t-1);
-phis_last_ind=dep_vars_last_ind+phis_n;
-
-for row_ind(1,t-1,1);
-    start_col_ind=row_ind;
-    for col_ind(start_col_ind,t,1);
-        if col_ind==t;
-            o121=o121;
-        else;
-            reg_params_ind=0;
-            for reg_ch(1,ktotx,1);
-                if mt[reg_ch]==1;
-                    reg_params_ind=reg_params_ind+1;
-                    o121[row_ind,(start_col_ind-1)*ktotx+reg_ch+(col_ind-start_col_ind)*ktotx]=t0[phis_last_ind+(col_ind-start_col_ind)*kx+kx*((row_ind-1)*(t-1)-(row_ind-2)*(row_ind-1)/2)+reg_params_ind];
-                else;
-                    o121[row_ind,(start_col_ind-1)*ktotx+reg_ch+(col_ind-start_col_ind)*ktotx]=0;
-                endif;
-            endfor;
-        endif;
-    endfor;
-endfor;
-@ Sigma 12 @ 
-o120=o120+o121;
-
-o210=o120';
-
-U10=(B110*Y1'+B120*Y2'-C0*Z')';
-H=(Y2-U10*inv(o110)*o120)'Q*(Y2-U10*inv(o110)*o120);
+if kx!=0;
+    V=cur_Y2-U10*inv(o110)*o120;
+    H=V'Q*V;
+endif;
 
 for iter(1,n,1);
     u10i=U10[iter,.]';
-    likvec[iter]=-(1/2)*ln(det(o110))-(1/2)*ln(det(H/n))
-                 -(1/2)*(u10i'inv(o110)*u10i);
+    likvec[iter]=-(1/2)*ln(det(o110))-(1/2)*(u10i'inv(o110)*u10i);
+    if kx!=0;
+        likvec[iter]=likvec[iter]-(1/2)*ln(det(H/n));
+    endif;
 endfor;
 
 retp(-likvec);
