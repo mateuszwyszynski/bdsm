@@ -165,7 +165,7 @@ SEM_params_to_list <- function(params, periods_n, regressors_n,
 }
 
 SEM_likelihood <- function(params, n_entities,
-                           cur_Y2, Y1, Y2, Z, res_maker_matrix,
+                           cur_Y2, Y1, Z, res_maker_matrix,
                            periods_n = NULL, regressors_n = NULL,
                            phis_n = NULL, psis_n = NULL) {
   if (is.list(params)) {
@@ -204,14 +204,14 @@ SEM_likelihood <- function(params, n_entities,
                                  regressors_n = regressors_n,
                                  phis_n = phis_n, psis_n = psis_n)
     likelihood <- SEM_likelihood(params = params, n_entities = n_entities,
-                                 cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
+                                 cur_Y2 = cur_Y2, Y1 = Y1, Z = Z,
                                  res_maker_matrix = res_maker_matrix)
   }
   likelihood
 }
 
 SEM_lik_grad <- function(params, n_entities,
-                         cur_Y2, Y1, Y2, Z, res_maker_matrix,
+                         cur_Y2, Y1, Z, res_maker_matrix,
                          periods_n = NULL, regressors_n = NULL,
                          phis_n = NULL, psis_n = NULL) {
   if (is.list(params)) {
@@ -253,7 +253,7 @@ SEM_lik_grad <- function(params, n_entities,
                                  regressors_n = regressors_n,
                                  phis_n = phis_n, psis_n = psis_n)
     lik_vec <- SEM_lik_grad(params = params, n_entities = n_entities,
-                               cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
+                               cur_Y2 = cur_Y2, Y1 = Y1, Z = Z,
                                res_maker_matrix = res_maker_matrix)
   }
   lik_vec

@@ -64,14 +64,7 @@ Y1 <- R_df %>% select(year, country, gdp) %>%
   pivot_wider(names_from = year, values_from = gdp) %>%
   select(!country) %>% as.matrix()
 
-# Regressors for the t periods:
-# X0 - for the first year
-# Y2 - for the remaining years
-Y2 <- R_df %>% select(!gdp & !lag_gdp) %>% filter(year != year0) %>%
-  pivot_wider(names_from = year, values_from = !country & !year) %>%
-  select(!country) %>%
-  select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>% as.matrix()
-
+# Regressors for the first year
 X0 <- R_df %>% filter(year == year0) %>%
   select(!(year:lag_gdp)) %>% as.matrix()
 
@@ -149,7 +142,7 @@ for (regressors_subset in regressors_subsets) {
   # Most likely optimisation methods used in Gauss are scale-free and these used in R are not
   # TODO: search for methods (or implement methods) in R which are scale-free
   optimized <- optim(t0in, SEM_likelihood, n_entities = n_entities,
-                     cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
+                     cur_Y2 = cur_Y2, Y1 = Y1, Z = Z,
                      res_maker_matrix = res_maker_matrix,
                      periods_n = periods_n, regressors_n = cur_regressors_n,
                      phis_n = phis_n, psis_n = psis_n,
@@ -161,20 +154,20 @@ for (regressors_subset in regressors_subsets) {
 
   hess <- hessian(SEM_likelihood, theta = optimised_params,
                 n_entities = n_entities,
-                cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
+                cur_Y2 = cur_Y2, Y1 = Y1, Z = Z,
                 res_maker_matrix = res_maker_matrix,
                 periods_n = periods_n, regressors_n = cur_regressors_n,
                 phis_n = phis_n, psis_n = psis_n)
 
   likgra_val <- SEM_lik_grad(optimised_params, n_entities = n_entities,
-                             cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
+                             cur_Y2 = cur_Y2, Y1 = Y1, Z = Z,
                              res_maker_matrix = res_maker_matrix,
                              periods_n = periods_n,
                              regressors_n = cur_regressors_n,
                              phis_n = phis_n, psis_n = psis_n)
 
   Gmat <- gradient(SEM_lik_grad, optimised_params, n_entities = n_entities,
-                   cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
+                   cur_Y2 = cur_Y2, Y1 = Y1, Z = Z,
                    res_maker_matrix = res_maker_matrix,
                    periods_n = periods_n, regressors_n = cur_regressors_n,
                    phis_n = phis_n, psis_n = psis_n)
