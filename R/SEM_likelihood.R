@@ -243,7 +243,7 @@ SEM_lik_grad <- function(params, n_entities,
     }
     H <- crossprod(V, res_maker_matrix) %*% V
 
-    lik_vec <- zeros(n_entities, 1)
+    lik_vec <- optimbase::zeros(n_entities, 1)
     for (iter in 1:n_entities) {
       u10i=as.matrix(Ui1[iter,])
       lik_vec[iter]=-(1/2)*log(det(S[[1]]))-(1/2)*log(det(H/n_entities))-(1/2)*(t(u10i)%*%solve(S[[1]])%*%u10i)
