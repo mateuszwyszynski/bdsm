@@ -1,3 +1,12 @@
+SEM_regressors_matrix <- function(df, timestamp_col) {
+  df %>% select({{ timestamp_col }}, country, regressors_subset) %>%
+    filter({{ timestamp_col }} != year0) %>%
+    pivot_wider(names_from = {{ timestamp_col }},
+                values_from = !country & !{{ timestamp_col }}) %>%
+    select(!country) %>%
+    select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>% as.matrix()
+}
+
 #' Coefficients matrix for SEM representation
 #'
 #' Create coefficients matrix for Simultaneous Equations Model (SEM)
