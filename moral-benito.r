@@ -128,7 +128,8 @@ for (regressors_subset in regressors_subsets) {
 
   t0in <- matrix(c(alpha, beta, phi_0, phi_1, err_var, dep_vars, phis, psis))
 
-  cur_Y2 <- R_df %>% SEM_regressors_matrix(timestamp_col = year)
+  cur_Y2 <- R_df %>%
+    SEM_regressors_matrix(timestamp_col = year, entity_col = country)
 
   # parscale argument somehow (don't know yet how) changes step size during optimisation.
   # Most likely optimisation methods used in Gauss are scale-free and these used in R are not

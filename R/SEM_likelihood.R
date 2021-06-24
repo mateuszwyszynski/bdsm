@@ -1,9 +1,9 @@
-SEM_regressors_matrix <- function(df, timestamp_col) {
-  df %>% select({{ timestamp_col }}, country, regressors_subset) %>%
+SEM_regressors_matrix <- function(df, timestamp_col, entity_col) {
+  df %>% select({{ timestamp_col }}, {{ entity_col }}, regressors_subset) %>%
     filter({{ timestamp_col }} != year0) %>%
     pivot_wider(names_from = {{ timestamp_col }},
-                values_from = !country & !{{ timestamp_col }}) %>%
-    select(!country) %>%
+                values_from = !{{ entity_col }} & !{{ timestamp_col }}) %>%
+    select(!{{ entity_col }}) %>%
     select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>% as.matrix()
 }
 
