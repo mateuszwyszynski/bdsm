@@ -1,6 +1,6 @@
-SEM_regressors_matrix <- function(df, timestamp_col, entity_col) {
+SEM_regressors_matrix <- function(df, timestamp_col, entity_col, start_time) {
   df %>% select({{ timestamp_col }}, {{ entity_col }}, regressors_subset) %>%
-    filter({{ timestamp_col }} != year0) %>%
+    filter({{ timestamp_col }} > start_time) %>%
     pivot_wider(names_from = {{ timestamp_col }},
                 values_from = !{{ entity_col }} & !{{ timestamp_col }}) %>%
     select(!{{ entity_col }}) %>%
