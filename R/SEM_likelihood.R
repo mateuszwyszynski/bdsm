@@ -1,3 +1,26 @@
+#' Matrix with data for regressors for SEM representation
+#'
+#' Create matrix which contains data for regressors used in the model in
+#' Simultaneous Equations Model (SEM) representation. This matrix is then used
+#' to compute likelihood for SEM analysis.
+#'
+#' @param df Data frame with data for the SEM analysis.
+#' @param timestamp_col Column which determines time periods.
+#' @param entity_col Columns which determines entities (e.g. countires, people)
+#' @param start_time First time period. Only time periods greater than
+#' \code{start_time} will be considered in the resulting matrix
+#' @param regressors_subset Which subset of columns should be used as
+#' regressors. If \code{NULL} (default) then all remaining columns regressors
+#' will be used as regressors. For now columns have to be passed as list of
+#' strings containg column names.
+#'
+#' @return
+#' Matrix of size N x T*k where N is the number of entities considered, T is the
+#' number of periods greater than \code{start_time} and k is the number of
+#' chosen regressors
+#' @export
+#'
+#' @examples
 SEM_regressors_matrix <- function(df, timestamp_col, entity_col, start_time,
                                   regressors_subset = NULL) {
   df %>% select({{ timestamp_col }}, {{ entity_col }}, regressors_subset) %>%
