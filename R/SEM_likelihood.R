@@ -7,7 +7,8 @@
 #' analysis.
 #'
 #' @param df Data frame with data for the SEM analysis.
-#' @param timestamp_col Column which determines time periods.
+#' @param timestamp_col Column which determines time periods. For now only
+#' natural numbers can be used as timestampsg
 #' @param entity_col Columns which determines entities (e.g. countires, people)
 #' @param start_time First time period. Only time periods greater than
 #' \code{start_time} will be considered in the resulting matrix
