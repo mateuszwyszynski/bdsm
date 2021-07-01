@@ -217,7 +217,7 @@ SEM_likelihood <- function(params, n_entities,
     C <- SEM_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
     S <- SEM_sigma_matrix(err_var, dep_vars, phis, psis)
 
-    Ui1 <- if (cur_regressors_n == 0) {
+    U1 <- if (cur_regressors_n == 0) {
       t(tcrossprod(B[[1]], Y1) - tcrossprod(C, Z))
     } else {
       t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, Z))
@@ -226,12 +226,12 @@ SEM_likelihood <- function(params, n_entities,
     V <- if (is.null(S[[2]])) {
       cur_Y2
     } else {
-      cur_Y2 - Ui1 %*% S11_inverse %*% S[[2]]
+      cur_Y2 - U1 %*% S11_inverse %*% S[[2]]
     }
     H <- crossprod(V, res_maker_matrix) %*% V
     likelihood <-
       -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
-      1/2 * sum(diag(S11_inverse %*% crossprod(Ui1)))
+      1/2 * sum(diag(S11_inverse %*% crossprod(U1)))
   } else {
     params <- SEM_params_to_list(params, periods_n = periods_n,
                                  regressors_n = regressors_n,
@@ -263,7 +263,7 @@ SEM_lik_grad <- function(params, n_entities,
     C <- SEM_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
     S <- SEM_sigma_matrix(err_var, dep_vars, phis, psis)
 
-    Ui1 <- if (cur_regressors_n == 0) {
+    U1 <- if (cur_regressors_n == 0) {
       t(tcrossprod(B[[1]], Y1) - tcrossprod(C, Z))
     } else {
       t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, Z))
@@ -272,13 +272,13 @@ SEM_lik_grad <- function(params, n_entities,
     V <- if (is.null(S[[2]])) {
       cur_Y2
     } else {
-      cur_Y2 - Ui1 %*% S11_inverse %*% S[[2]]
+      cur_Y2 - U1 %*% S11_inverse %*% S[[2]]
     }
     H <- crossprod(V, res_maker_matrix) %*% V
 
     lik_vec <- optimbase::zeros(n_entities, 1)
     for (iter in 1:n_entities) {
-      u10i=as.matrix(Ui1[iter,])
+      u10i=as.matrix(U1[iter,])
       lik_vec[iter]=-(1/2)*log(det(S[[1]]))-(1/2)*log(det(H/n_entities))-(1/2)*(t(u10i)%*%solve(S[[1]])%*%u10i)
     }
   } else {
