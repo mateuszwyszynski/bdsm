@@ -39,6 +39,12 @@ SEM_regressors_matrix <- function(df, timestamp_col, entity_col, start_time,
     as.matrix()
 }
 
+SEM_exogenous_matrix <- function(df, timestamp_col, start_time, lagged_col,
+                                 regressors_subset = NULL) {
+  df %>% dplyr::filter({{ timestamp_col }} == start_time) %>%
+    dplyr::select({{ lagged_col}}, regressors_subset) %>% as.matrix()
+}
+
 #' Coefficients matrix for SEM representation
 #'
 #' Create coefficients matrix for Simultaneous Equations Model (SEM)

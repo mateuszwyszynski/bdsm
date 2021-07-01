@@ -103,9 +103,7 @@ for (regressors_subset in regressors_subsets) {
   cur_regressors_n <- sum(mt)
   cur_variables_n <- cur_regressors_n+1
 
-  #Z includes y0 and x0 as strictly exogenous variables
-  Z <- R_df %>% filter(year == year0) %>%
-    select(lag_gdp, regressors_subset) %>% as.matrix()
+  Z <- R_df %>% SEM_exogenous_matrix(year, year0, lag_gdp, regressors_subset)
 
   proj_matrix <- Z%*%solve(crossprod(Z))%*%t(Z)
   res_maker_matrix <- diag(n) - proj_matrix
