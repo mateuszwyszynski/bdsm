@@ -108,8 +108,6 @@ for (regressors_subset in regressors_subsets) {
   proj_matrix <- Z%*%solve(crossprod(Z))%*%t(Z)
   res_maker_matrix <- diag(n) - proj_matrix
 
-  n_params_to_estimate <- 2*cur_variables_n+t+1+(t^2+t-2)*regressors_n/2
-
   periods_n <- t
 
   # Initial parameter values for optimisation
