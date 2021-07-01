@@ -2,7 +2,7 @@
 % Please edit documentation in R/SEM_likelihood.R
 \name{SEM_regressors_matrix}
 \alias{SEM_regressors_matrix}
-\title{Matrix with data for regressors for SEM representation}
+\title{Matrix with regressors data for SEM representation}
 \usage{
 SEM_regressors_matrix(
   df,
@@ -23,17 +23,19 @@ SEM_regressors_matrix(
 \code{start_time} will be considered in the resulting matrix}
 
 \item{regressors_subset}{Which subset of columns should be used as
-regressors. If \code{NULL} (default) then all remaining columns regressors
-will be used as regressors. For now columns have to be passed as list of
-strings containg column names.}
+regressors. If \code{NULL} (default) then all remaining columns will be used
+as regressors. For now columns have to be passed as list of column names
+represented as strings.}
 }
 \value{
-Matrix of size N x T*k where N is the number of entities considered, T is the
-number of periods greater than \code{start_time} and k is the number of
-chosen regressors
+Matrix of size N x (T-1)*k where N is the number of entities considered, T is
+the number of periods greater than or equal to \code{start_time} and k is the
+number of chosen regressors
 }
 \description{
-Create matrix which contains data for regressors used in the model in
-Simultaneous Equations Model (SEM) representation. This matrix is then used
-to compute likelihood for SEM analysis.
+Create matrix which contains regressors data used in the Simultaneous
+Equations Model (SEM) representation on the left hand side of the equations.
+The matrix contains regressors data for time periods greater than chosen
+\code{start_time}. The matrix is then used to compute likelihood for SEM
+analysis.
 }
