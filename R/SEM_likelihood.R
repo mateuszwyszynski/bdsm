@@ -18,17 +18,22 @@
 #' Matrix of size N x T*k where N is the number of entities considered, T is the
 #' number of periods greater than \code{start_time} and k is the number of
 #' chosen regressors
+#' @importFrom rlang .data
 #' @export
 #'
 #' @examples
 SEM_regressors_matrix <- function(df, timestamp_col, entity_col, start_time,
                                   regressors_subset = NULL) {
-  df %>% select({{ timestamp_col }}, {{ entity_col }}, regressors_subset) %>%
-    filter({{ timestamp_col }} > start_time) %>%
-    pivot_wider(names_from = {{ timestamp_col }},
-                values_from = !{{ entity_col }} & !{{ timestamp_col }}) %>%
-    select(!{{ entity_col }}) %>%
-    select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>% as.matrix()
+  df %>%
+    dplyr::select({{ timestamp_col }}, {{ entity_col }}, regressors_subset) %>%
+    dplyr::filter({{ timestamp_col }} > start_time) %>%
+    tidyr::pivot_wider(
+      names_from = {{ timestamp_col }},
+      values_from = !{{ entity_col }} & !{{ timestamp_col }}
+      ) %>%
+    dplyr::select(!{{ entity_col }}) %>%
+    dplyr::select(order(as.numeric(gsub("[^0-9]+", "", colnames(.data))))) %>%
+    as.matrix()
 }
 
 #' Coefficients matrix for SEM representation
