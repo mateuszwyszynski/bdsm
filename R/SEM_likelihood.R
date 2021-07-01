@@ -70,6 +70,19 @@ SEM_exogenous_matrix <- function(df, timestamp_col, start_time, lagged_col,
     dplyr::select({{ lagged_col}}, regressors_subset) %>% as.matrix()
 }
 
+#' Residual Maker Matrix
+#'
+#' Create residual maker matrix from a given matrix \code{m}. See article about
+#' \href{https://en.wikipedia.org/wiki/Projection_matrix}{projection matrix} on
+#' the Wikipedia.
+#'
+#' @param m Matrix
+#'
+#' @return
+#' M x M matrix where M is the number of rows in the \code{m} matrix.
+#' @export
+#'
+#' @examples
 residual_maker_matrix <- function(m) {
   proj_matrix <- m%*%solve(crossprod(m))%*%t(m)
   res_maker_matrix <- diag(nrow(m)) - proj_matrix
