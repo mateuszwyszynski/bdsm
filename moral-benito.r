@@ -105,8 +105,7 @@ for (regressors_subset in regressors_subsets) {
 
   Z <- R_df %>% SEM_exogenous_matrix(year, year0, lag_gdp, regressors_subset)
 
-  proj_matrix <- Z%*%solve(crossprod(Z))%*%t(Z)
-  res_maker_matrix <- diag(n) - proj_matrix
+  res_maker_matrix <- residual_maker_matrix(Z)
 
   periods_n <- t
 

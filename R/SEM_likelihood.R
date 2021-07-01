@@ -70,6 +70,11 @@ SEM_exogenous_matrix <- function(df, timestamp_col, start_time, lagged_col,
     dplyr::select({{ lagged_col}}, regressors_subset) %>% as.matrix()
 }
 
+residual_maker_matrix <- function(m) {
+  proj_matrix <- m%*%solve(crossprod(m))%*%t(m)
+  res_maker_matrix <- diag(nrow(m)) - proj_matrix
+}
+
 #' Coefficients matrix for SEM representation
 #'
 #' Create coefficients matrix for Simultaneous Equations Model (SEM)
