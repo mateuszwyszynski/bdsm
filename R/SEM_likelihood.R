@@ -39,6 +39,31 @@ SEM_regressors_matrix <- function(df, timestamp_col, entity_col, start_time,
     as.matrix()
 }
 
+#' Matrix with exogenous variables for SEM representation
+#'
+#' Create matrix which contains exogenous variables used in the Simultaneous
+#' Equations Model (SEM) representation. Currently these are: dependent variable
+#' from the \code{start_time} period and regressors from the next period after
+#' the \code{strat_time}. The matrix is then used to compute likelihood for SEM
+#' analysis.
+#'
+#' @param df Data frame with data for the SEM analysis.
+#' @param timestamp_col Column which determines time periods. For now only
+#' natural numbers can be used as timestampsg
+#' @param start_time First time period. Only time periods greater than
+#' \code{start_time} will be considered in the resulting matrix
+#' @param lagged_col Column which contains lagged version of dependent variable
+#' @param regressors_subset Which subset of columns should be used as
+#' regressors. If \code{NULL} (default) then all remaining columns will be used
+#' as regressors. For now columns have to be passed as list of column names
+#' represented as strings.
+#'
+#' @return
+#' Matrix of size N x k+1 where N is the number of entities considered and k is
+#' the number of chosen regressors
+#' @export
+#'
+#' @examples
 SEM_exogenous_matrix <- function(df, timestamp_col, start_time, lagged_col,
                                  regressors_subset = NULL) {
   df %>% dplyr::filter({{ timestamp_col }} == start_time) %>%
