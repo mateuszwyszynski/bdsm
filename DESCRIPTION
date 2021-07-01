@@ -23,5 +23,4 @@ Imports:
     optimbase,
     Matrix,
     plyr,
-    rlang,
     tidyr

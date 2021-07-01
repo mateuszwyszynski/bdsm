@@ -20,12 +20,12 @@
 #' Matrix of size N x (T-1)*k where N is the number of entities considered, T is
 #' the number of periods greater than or equal to \code{start_time} and k is the
 #' number of chosen regressors
-#' @importFrom rlang .data
 #' @export
 #'
 #' @examples
 SEM_regressors_matrix <- function(df, timestamp_col, entity_col, start_time,
                                   regressors_subset = NULL) {
+  . <- NULL
   df %>%
     dplyr::select({{ timestamp_col }}, {{ entity_col }}, regressors_subset) %>%
     dplyr::filter({{ timestamp_col }} > start_time) %>%
@@ -34,7 +34,7 @@ SEM_regressors_matrix <- function(df, timestamp_col, entity_col, start_time,
       values_from = !{{ entity_col }} & !{{ timestamp_col }}
       ) %>%
     dplyr::select(!{{ entity_col }}) %>%
-    dplyr::select(order(as.numeric(gsub("[^0-9]+", "", colnames(.data))))) %>%
+    dplyr::select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>%
     as.matrix()
 }
 
