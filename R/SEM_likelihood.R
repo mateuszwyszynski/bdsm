@@ -258,7 +258,7 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
                            entity_col = NULL, start_time = NULL,
                            lagged_col = NULL, regressors_subset = NULL,
                            periods_n = NULL, regressors_n = NULL,
-                           phis_n = NULL, psis_n = NULL) {
+                           phis_n = NULL, psis_n = NULL, grad = FALSE) {
   if (is.list(params) && is.list(data)) {
     alpha <- params$alpha
     phi_0 <- params$phi_0
@@ -293,9 +293,17 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
       Y2 - U1 %*% S11_inverse %*% S[[2]]
     }
     H <- crossprod(V, res_maker_matrix) %*% V
-    likelihood <-
+    likelihood <- if(!grad) {
       -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
-      1/2 * sum(diag(S11_inverse %*% crossprod(U1)))
+        1/2 * sum(diag(S11_inverse %*% crossprod(U1)))
+    } else {
+      lik_vec <- optimbase::zeros(n_entities, 1)
+      for (iter in 1:n_entities) {
+        u10i=as.matrix(U1[iter,])
+        lik_vec[iter]=-(1/2)*log(det(S[[1]]))-(1/2)*log(det(H/n_entities))-(1/2)*(t(u10i)%*%solve(S[[1]])%*%u10i)
+      }
+      lik_vec
+    }
   } else {
     if (!is.list(params)) {
       params <- SEM_params_to_list(params, periods_n = periods_n,
@@ -318,78 +326,7 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
 
       data = list(Y1 = Y1, Y2 = Y2, Z = Z, res_maker_matrix = res_maker_matrix)
     }
-    likelihood <- SEM_likelihood(params = params, data = data)
+    likelihood <- SEM_likelihood(params = params, data = data, grad = grad)
   }
   likelihood
-}
-
-SEM_lik_grad <- function(params, data, timestamp_col = NULL, entity_col = NULL,
-                         start_time = NULL, lagged_col = NULL,
-                         regressors_subset = NULL, periods_n = NULL,
-                         regressors_n = NULL, phis_n = NULL, psis_n = NULL) {
-  if (is.list(params) && is.list(data)) {
-    alpha <- params$alpha
-    phi_0 <- params$phi_0
-    err_var <- params$err_var
-    dep_vars <- params$dep_vars
-    beta <- if(is.null(params$beta)) c() else params$beta
-    phi_1 <- if(is.null(params$phi_1)) c() else params$phi_1
-    phis <- if(is.null(params$phis)) c() else params$phis
-    psis <- if(is.null(params$psis)) c() else params$psis
-
-    Y1 <- data$Y1
-    Y2 <- data$Y2
-    Z <- data$Z
-    res_maker_matrix <- data$res_maker_matrix
-
-    n_entities <- nrow(Z)
-    periods_n <- length(dep_vars)
-    cur_regressors_n <- length(beta)
-    B <- SEM_B_matrix(alpha, periods_n, beta)
-    C <- SEM_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
-    S <- SEM_sigma_matrix(err_var, dep_vars, phis, psis)
-
-    U1 <- if (cur_regressors_n == 0) {
-      t(tcrossprod(B[[1]], Y1) - tcrossprod(C, Z))
-    } else {
-      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], Y2) - tcrossprod(C, Z))
-    }
-    S11_inverse <- solve(S[[1]])
-    V <- if (is.null(S[[2]])) {
-      Y2
-    } else {
-      Y2 - U1 %*% S11_inverse %*% S[[2]]
-    }
-    H <- crossprod(V, res_maker_matrix) %*% V
-
-    lik_vec <- optimbase::zeros(n_entities, 1)
-    for (iter in 1:n_entities) {
-      u10i=as.matrix(U1[iter,])
-      lik_vec[iter]=-(1/2)*log(det(S[[1]]))-(1/2)*log(det(H/n_entities))-(1/2)*(t(u10i)%*%solve(S[[1]])%*%u10i)
-    }
-  } else {
-    if (!is.list(params)) {
-      params <- SEM_params_to_list(params, periods_n = periods_n,
-                                   regressors_n = regressors_n,
-                                   phis_n = phis_n, psis_n = psis_n)
-    }
-    if (!is.list(data)) {
-      Y1 <- data %>% select(year, country, gdp) %>%
-        pivot_wider(names_from = year, values_from = gdp) %>%
-        select(!country) %>% as.matrix()
-      Y2 <- SEM_regressors_matrix(
-        df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        start_time = start_time, regressors_subset = regressors_subset
-      )
-      Z <- SEM_exogenous_matrix(
-        df = data, timestamp_col = timestamp_col, start_time = start_time,
-        lagged_col = lagged_col, regressors_subset = regressors_subset
-      )
-      res_maker_matrix <- residual_maker_matrix(Z)
-
-      data = list(Y1 = Y1, Y2 = Y2, Z = Z, res_maker_matrix = res_maker_matrix)
-    }
-    lik_vec <- SEM_lik_grad(params = params, data = data)
-  }
-  lik_vec
 }

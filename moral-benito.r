@@ -145,12 +145,12 @@ for (regressors_subset in regressors_subsets) {
                   periods_n = periods_n, regressors_n = cur_regressors_n,
                   phis_n = phis_n, psis_n = psis_n)
 
-  likgra_val <- SEM_lik_grad(optimised_params, data = data,
-                             periods_n = periods_n,
-                             regressors_n = cur_regressors_n,
-                             phis_n = phis_n, psis_n = psis_n)
+  likgra_val <- SEM_likelihood(optimised_params, data = data, grad = TRUE,
+                               periods_n = periods_n,
+                               regressors_n = cur_regressors_n,
+                               phis_n = phis_n, psis_n = psis_n)
 
-  Gmat <- gradient(SEM_lik_grad, optimised_params, data = data,
+  Gmat <- gradient(SEM_likelihood, optimised_params, data = data, grad = TRUE,
                    periods_n = periods_n, regressors_n = cur_regressors_n,
                    phis_n = phis_n, psis_n = psis_n)
   Imat=crossprod(Gmat)
