@@ -1,3 +1,12 @@
+SEM_dep_vars_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
+                                start_time) {
+  df %>% dplyr::filter({{ timestamp_col }} >= start_time) %>%
+    dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }}) %>%
+    tidyr::pivot_wider(names_from = {{ timestamp_col }},
+                       values_from = {{ dep_var_col }}) %>%
+    dplyr::select(!{{ entity_col }}) %>% as.matrix()
+}
+
 #' Matrix with regressors data for SEM representation
 #'
 #' Create matrix which contains regressors data used in the Simultaneous
@@ -256,7 +265,8 @@ SEM_params_to_list <- function(params, periods_n, regressors_n,
 
 SEM_likelihood <- function(params, data, timestamp_col = NULL,
                            entity_col = NULL, start_time = NULL,
-                           lagged_col = NULL, regressors_subset = NULL,
+                           lagged_col = NULL, dep_var_col = NULL,
+                           regressors_subset = NULL,
                            periods_n = NULL, regressors_n = NULL,
                            phis_n = NULL, psis_n = NULL, grad = FALSE) {
   if (is.list(params) && is.list(data)) {
@@ -311,9 +321,10 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
                                    phis_n = phis_n, psis_n = psis_n)
     }
     if (!is.list(data)) {
-      Y1 <- data %>% select(year, country, gdp) %>%
-        pivot_wider(names_from = year, values_from = gdp) %>%
-        select(!country) %>% as.matrix()
+      Y1 <- SEM_dep_vars_matrix(
+        df = data, timestamp_col = timestamp_col, entity_col = entity_col,
+        dep_var_col = dep_var_col, start_time = start_time
+        )
       Y2 <- SEM_regressors_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
         start_time = start_time, regressors_subset = regressors_subset

@@ -59,10 +59,10 @@ liml_data_prep <- function(df){
 
 R_df <- liml_data_prep(rawdata)
 
-# Dependent variables for the t periods - matrix of size N x t
-Y1 <- R_df %>% select(year, country, gdp) %>%
-  pivot_wider(names_from = year, values_from = gdp) %>%
-  select(!country) %>% as.matrix()
+Y1 <- SEM_dep_vars_matrix(
+  df = R_df, timestamp_col = year, entity_col = country,
+  dep_var_col = gdp, start_time = year0
+)
 
 # ---------------------------------------------------------------------------------
 # 		               SOME PRELIMINAR OBJECTS BALIMLE APPROACH
