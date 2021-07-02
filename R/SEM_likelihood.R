@@ -254,7 +254,7 @@ SEM_params_to_list <- function(params, periods_n, regressors_n,
        beta = beta, phi_1 = phi_1, phis = phis, psis = psis)
 }
 
-SEM_likelihood <- function(params, cur_Y2, Y1, Z, res_maker_matrix,
+SEM_likelihood <- function(params, Y1, Y2, Z, res_maker_matrix,
                            periods_n = NULL, regressors_n = NULL,
                            phis_n = NULL, psis_n = NULL) {
   if (is.list(params)) {
@@ -277,13 +277,13 @@ SEM_likelihood <- function(params, cur_Y2, Y1, Z, res_maker_matrix,
     U1 <- if (cur_regressors_n == 0) {
       t(tcrossprod(B[[1]], Y1) - tcrossprod(C, Z))
     } else {
-      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, Z))
+      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], Y2) - tcrossprod(C, Z))
     }
     S11_inverse <- solve(S[[1]])
     V <- if (is.null(S[[2]])) {
-      cur_Y2
+      Y2
     } else {
-      cur_Y2 - U1 %*% S11_inverse %*% S[[2]]
+      Y2 - U1 %*% S11_inverse %*% S[[2]]
     }
     H <- crossprod(V, res_maker_matrix) %*% V
     likelihood <-
@@ -293,13 +293,13 @@ SEM_likelihood <- function(params, cur_Y2, Y1, Z, res_maker_matrix,
     params <- SEM_params_to_list(params, periods_n = periods_n,
                                  regressors_n = regressors_n,
                                  phis_n = phis_n, psis_n = psis_n)
-    likelihood <- SEM_likelihood(params = params, cur_Y2 = cur_Y2, Y1 = Y1,
+    likelihood <- SEM_likelihood(params = params, Y1 = Y1, Y2 = Y2,
                                  Z = Z, res_maker_matrix = res_maker_matrix)
   }
   likelihood
 }
 
-SEM_lik_grad <- function(params, cur_Y2, Y1, Z, res_maker_matrix,
+SEM_lik_grad <- function(params, Y1, Y2, Z, res_maker_matrix,
                          periods_n = NULL, regressors_n = NULL,
                          phis_n = NULL, psis_n = NULL) {
   if (is.list(params)) {
@@ -322,13 +322,13 @@ SEM_lik_grad <- function(params, cur_Y2, Y1, Z, res_maker_matrix,
     U1 <- if (cur_regressors_n == 0) {
       t(tcrossprod(B[[1]], Y1) - tcrossprod(C, Z))
     } else {
-      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, Z))
+      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], Y2) - tcrossprod(C, Z))
     }
     S11_inverse <- solve(S[[1]])
     V <- if (is.null(S[[2]])) {
-      cur_Y2
+      Y2
     } else {
-      cur_Y2 - U1 %*% S11_inverse %*% S[[2]]
+      Y2 - U1 %*% S11_inverse %*% S[[2]]
     }
     H <- crossprod(V, res_maker_matrix) %*% V
 
@@ -341,7 +341,7 @@ SEM_lik_grad <- function(params, cur_Y2, Y1, Z, res_maker_matrix,
     params <- SEM_params_to_list(params, periods_n = periods_n,
                                  regressors_n = regressors_n,
                                  phis_n = phis_n, psis_n = psis_n)
-    lik_vec <- SEM_lik_grad(params = params, cur_Y2 = cur_Y2, Y1 = Y1, Z = Z,
+    lik_vec <- SEM_lik_grad(params = params, Y1 = Y1, Y2 = Y2, Z = Z,
                             res_maker_matrix = res_maker_matrix)
   }
   lik_vec
