@@ -128,32 +128,29 @@ for (regressors_subset in regressors_subsets) {
                           start_time = year0,
                           regressors_subset = regressors_subset)
 
+  data <- list(Y1 = Y1, Y2 = cur_Y2, Z = Z, res_maker_matrix = res_maker_matrix)
+
   # parscale argument somehow (don't know yet how) changes step size during optimisation.
   # Most likely optimisation methods used in Gauss are scale-free and these used in R are not
   # TODO: search for methods (or implement methods) in R which are scale-free
-  optimized <- optim(t0in, SEM_likelihood, Y1 = Y1, Y2 = cur_Y2, Z = Z,
-                     res_maker_matrix = res_maker_matrix,
-                     periods_n = periods_n, regressors_n = cur_regressors_n,
-                     phis_n = phis_n, psis_n = psis_n,
-                     method="BFGS",
+  optimized <- optim(t0in, SEM_likelihood, data = data, periods_n = periods_n,
+                     regressors_n = cur_regressors_n, phis_n = phis_n,
+                     psis_n = psis_n, method="BFGS",
                      control = list(trace=2, maxit = 10000, fnscale = -1,
                                     parscale = 0.05*t0in))
   optimised_params <- optimized[[1]]
   likelihood_max <- optimized[[2]]
 
-  hess <- hessian(SEM_likelihood, theta = optimised_params, Y1 = Y1,
-                  Y2 = cur_Y2, Z = Z, res_maker_matrix = res_maker_matrix,
+  hess <- hessian(SEM_likelihood, theta = optimised_params, data = data,
                   periods_n = periods_n, regressors_n = cur_regressors_n,
                   phis_n = phis_n, psis_n = psis_n)
 
-  likgra_val <- SEM_lik_grad(optimised_params, Y1 = Y1, Y2 = cur_Y2, Z = Z,
-                             res_maker_matrix = res_maker_matrix,
+  likgra_val <- SEM_lik_grad(optimised_params, data = data,
                              periods_n = periods_n,
                              regressors_n = cur_regressors_n,
                              phis_n = phis_n, psis_n = psis_n)
 
-  Gmat <- gradient(SEM_lik_grad, optimised_params, Y1 = Y1, Y2 = cur_Y2,
-                   Z = Z, res_maker_matrix = res_maker_matrix,
+  Gmat <- gradient(SEM_lik_grad, optimised_params, data = data,
                    periods_n = periods_n, regressors_n = cur_regressors_n,
                    phis_n = phis_n, psis_n = psis_n)
   Imat=crossprod(Gmat)
