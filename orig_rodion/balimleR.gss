@@ -22,7 +22,7 @@ load rawdata[row,column]=.\data.csv;
 
 rawdata=rawdata[.,1:6];   @ I select the regressors of interest @
 
-let varlist[5,1] = "FDI" "EI" "LLF" "EX" "SW" @"RES" "LOPW" "INT" "RI"@;
+let varlist[5,1] = "GDP" "ISH" "SED" "PGRW" "POP";
 
 ktotx=cols(rawdata)-2; ktoty=ktotx+1;
 {data,R}=transf1(rawdata);    @ this procedure transforms the data set:              @
