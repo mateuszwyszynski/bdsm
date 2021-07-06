@@ -20,10 +20,9 @@ load rawdata[row,column]=data.csv;
 @    1.yt  2.yt1  3.ish  4.sed  5.pgrw  6.pop  7.ipr  8.opem  9.gsh  10.lnlex  11.polity  @
 @-----------------------------------------------------------------------------------------@
 
-rawdata=rawdata[.,1:11];   @ I select the regressors of interest @
+rawdata=rawdata[.,1:6];   @ I select the regressors of interest @
 
-let varlist[10,1] = "GDP" "ISH" "SED" "PGRW" "POP" "IPR" "OPEM"
-                    "GSH" "lnLEX" "polity";
+let varlist[5,1] = "GDP" "ISH" "SED" "PGRW" "POP";
 
 ktotx=cols(rawdata)-2; ktoty=ktotx+1;
 {data,R}=transf1(rawdata);    @ this procedure transforms the data set:              @
