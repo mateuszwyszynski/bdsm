@@ -8,6 +8,8 @@ library optmum;
 #include optmum.ext;
 begin=date;
 prandom = 0;          @* prandom=1 for theta random Ley&Steel09. prandom = 0 for theta fixed *@
+dilution = 0;
+dil_power = 1/2;
 
 @---------------------------------------------------------------------------------@
 @		   	                     LOADING THE DATASET			        		  @
@@ -17,7 +19,7 @@ row=292; column=11; t=4; n=73;
 load rawdata[row,column]=.\data.csv;
 
 @    VARIABLES IN RAWDATA                                                                 @
-@    1.FDI  2.FDIlag  3.EI  4.LLF  5.EX  6.SW  7.RES  8.LOPW  9.INT  10.RI              @
+@    1.yt  2.yt1  3.ish  4.sed  5.pgrw  6.pop  7.ipr  8.opem  9.gsh  10.lnlex  11.polity  @
 @-----------------------------------------------------------------------------------------@
 
 rawdata=rawdata[.,1:6];   @ I select the regressors of interest @
@@ -43,6 +45,8 @@ for j(0, t-2, 1);
 endfor;
 X0=R[.,3:2+ktotx];
 //X0 is for the first year, while Y2 for the 2:t//
+
+corr_matrix=Corrx(data[.,3:2+ktotx]);
 
 
 
@@ -87,7 +91,7 @@ for turu(1, tot, 1);
     @ Q is the model specific annihilator (or residual maker) matrix           @
     Q=eye(n)-Z*inv(Z'Z)*Z'; 
     @ nptbe is the Number of Parameters To Be Estimated in the current model  @
-    nptbe = 2*ky+t+1+(t^2+t-2)*ktotx/2;  
+    nptbe = 2*ky+t+1+(t^2+t-2)*kx/2;  
     
     @ t0in is the vector of initial values for the likelihood optimization   @
     t0in=0.5*ones(nptbe,1);                                  
@@ -99,6 +103,23 @@ for turu(1, tot, 1);
     _opstmth is a starting method and _opmdmth is a middle method. When the number of iterations
     exceeds _opditer or when the function fails to change by _opdfct percent, the algorithm
     switches to _opmdmth.@
+    
+    @ predetermined variables for the t-1 periods @
+    if kx!=0;
+        cur_Y2=zeros(n,kx*(t-1));
+        for j(0, t-2, 1);
+            reg_ind=0;
+            for reg_ch(1, ktotx, 1);
+                if mt[reg_ch]==1;   @ if x variable is included @
+                    reg_ind=reg_ind+1;
+                    cur_Y2[., j*kx+reg_ind]=R[.,3+j+(j+1)*ktotx+reg_ch];
+                endif;
+            endfor;
+        endfor;
+    else;
+        cur_Y2=0;
+    endif;
+    X0=R[.,3:2+ktotx];
     
     {theta,fout,grad,ret}=optmum(&lik,t0in); 
     @ theta returns optimized parameters, fout 
@@ -123,6 +144,22 @@ for turu(1, tot, 1);
         priorprobt=(gamma(1+kx))*(gamma(b+ktotx-kx));    @theta random@
     elseif prandom == 0;
         priorprobt=(pinc)^(kx)*(1-pinc)^(ktotx-kx);      @theta fixed@ 
+    endif;
+    
+    if dilution == 1;
+        x={};
+        for i(1,ktotx,1);
+            if mt[i]==1;
+                x=x~i;
+            endif;
+        endfor;
+        if cols(x)<=1;
+            corr_det=1;
+        else;
+            cur_corr_matrix=corr_matrix[x,x];
+            corr_det=det(cur_corr_matrix);
+        endif;
+        priorprobt=corr_det^dil_power*priorprobt;
     endif;
 
     @ posterior model probability  @
