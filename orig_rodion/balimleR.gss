@@ -93,7 +93,7 @@ for turu(1, tot, 1);
     
     @ we now call the optimization procedure for maximizing the likelihood function @
     optset; @optset resets all the global variables to their default values @ 
-    cout1=0; _opditer=100;
+    cout1=0; opditer=100;
     _opstmth="steep one"; _opmdmth="bfgs brent"; @ we choose methods of optimisation and a step length 
     _opstmth is a starting method and _opmdmth is a middle method. When the number of iterations
     exceeds _opditer or when the function fails to change by _opdfct percent, the algorithm

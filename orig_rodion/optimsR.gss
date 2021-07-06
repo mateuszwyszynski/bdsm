@@ -9,7 +9,38 @@
 proc (4) = optmum(fnct,x0);
     local x,f0,g,retcode;
     local Lopfhess,Lopitdta,LLoutput;
-   
+    local _opalgr, _opdelta,_opdfct,_opditer,_opgdmd,_opgdprc,_opgrdh,_opgtol,_ophsprc,
+      _opkey,_opmbkst,_opmdmth,_opmiter,_opmtime,_opmxtry,_opparnm,_oprteps,_opshess,
+      _opstep,_opstmth,_opusrch,_opusrgd,_opusrhs,__title,_opitdta,_opfhess;
+
+
+    _opalgr = 2;    /* optimization algorithm */
+    _opparnm = 0;           /* parameter names */
+    _opstep = 2;            /* selects type of step length */
+    _opshess = 0;           /* selects starting hessian */
+    _opmbkst = 10;          /* # of backsteps in computing steplength  */
+    _opgtol = 1e-5;         /* convergence tolerance for gradient */
+    _ophsprc = 0;           /* procedure to compute hessian */
+    _opgdprc = 0;           /* procedure to compute gradient */
+    _opgdmd = 0;            /* numerical gradient method */
+    _opditer = 20;          /* # iters to switch algorithms for _opmdmth  */
+    _opdfct = 0.001;        /* % change in function for _opmdmth */
+    _opmiter = 1e+5;        /* maximum number of iterations */
+    _opmtime = 1e+5;
+    _opitdta = { 0,0,0 };
+    _oprteps = .01;
+    _opusrch = 0;
+    _opdelta = .1;
+    _opmxtry = 100;
+    _opfhess = 0;
+    _opusrgd = 0;
+    _opusrhs = 0;
+    _opstmth = "";
+    _opmdmth = "";
+    _opkey = 1;
+    _opgrdh = 0;
+    __title = "";
+
 #IFUNIX
     LLoutput = __output /= 0;
 #else
