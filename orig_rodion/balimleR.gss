@@ -77,7 +77,7 @@ fy=zeros(ktoty,1); fyt=0; ppmsize=0; cout=0;
 tot=2^ktotx;
 @ total number of models to be estimated @
 for turu(1, tot, 1);
-    rndseed 23;
+    @rndseed 23;@
     
     mt=msel(turu);
     out = mt.== 0;          @ regressors out of the current model         @
