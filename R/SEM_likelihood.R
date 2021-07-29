@@ -261,26 +261,31 @@ SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(),
   list(O11, O12)
 }
 
-SEM_params_to_list <- function(params, periods_n, regressors_n,
-                               phis_n, psis_n) {
+SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
+                               in_regressors_n, phis_n, psis_n) {
   alpha <- params[1]
-  if (regressors_n == 0) {
+  if (tot_regressors_n == 0) {
     beta <- c()
     phi_1 <- c()
     phis <- c()
     psis <- c()
   } else {
-    beta <- params[2:(1 + regressors_n)]
-    phi_1 <- params[(3 + regressors_n):(2 + 2*regressors_n)]
+    if (in_regressors_n == 0) {
+      beta <- c()
+      phi_1 <- c()
+    } else {
+      beta <- params[2:(1 + in_regressors_n)]
+      phi_1 <- params[(3 + in_regressors_n):(2 + 2*in_regressors_n)]
+    }
     phis <-
-      params[(4 + 2*regressors_n + periods_n):(3 + 2*regressors_n + periods_n + phis_n)]
+      params[(4 + 2*in_regressors_n + periods_n):(3 + 2*in_regressors_n + periods_n + phis_n)]
     psis <-
-      params[(4 + 2*regressors_n + periods_n + phis_n):(3 + 2*regressors_n + periods_n + phis_n + psis_n)]
+      params[(4 + 2*in_regressors_n + periods_n + phis_n):(3 + 2*in_regressors_n + periods_n + phis_n + psis_n)]
   }
-  phi_0 <- params[2 + regressors_n]
-  err_var <- params[3 + 2*regressors_n]
+  phi_0 <- params[2 + in_regressors_n]
+  err_var <- params[3 + 2*in_regressors_n]
   dep_vars <-
-    params[(4 + 2*regressors_n):(3 + 2*regressors_n + periods_n)]
+    params[(4 + 2*in_regressors_n):(3 + 2*in_regressors_n + periods_n)]
 
   list(alpha = alpha, phi_0 = phi_0, err_var = err_var, dep_vars = dep_vars,
        beta = beta, phi_1 = phi_1, phis = phis, psis = psis)
@@ -290,7 +295,8 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
                            entity_col = NULL, start_time = NULL,
                            lagged_col = NULL, dep_var_col = NULL,
                            regressors_subset = NULL,
-                           periods_n = NULL, regressors_n = NULL,
+                           periods_n = NULL, tot_regressors_n = NULL,
+                           in_regressors_n = NULL,
                            phis_n = NULL, psis_n = NULL, grad = FALSE) {
   if (is.list(params) && is.list(data)) {
     alpha <- params$alpha
@@ -304,27 +310,24 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
 
     Y1 <- data$Y1
     Y2 <- data$Y2
+    cur_Y2 <- data$cur_Y2
     Z <- data$Z
     res_maker_matrix <- data$res_maker_matrix
 
     n_entities <- nrow(Z)
     periods_n <- length(dep_vars)
-    cur_regressors_n <- length(beta)
+    in_regressors_n <- length(beta)
     B <- SEM_B_matrix(alpha, periods_n, beta)
     C <- SEM_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
     S <- SEM_sigma_matrix(err_var, dep_vars, phis, psis)
 
-    U1 <- if (cur_regressors_n == 0) {
-      t(tcrossprod(B[[1]], Y1) - tcrossprod(C, Z))
+    U1 <- if (in_regressors_n == 0) {
+      t(tcrossprod(B[[1]], Y1) - tcrossprod(C, cur_Z))
     } else {
-      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], Y2) - tcrossprod(C, Z))
+      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, cur_Z))
     }
     S11_inverse <- solve(S[[1]])
-    V <- if (is.null(S[[2]])) {
-      Y2
-    } else {
-      Y2 - U1 %*% S11_inverse %*% S[[2]]
-    }
+    V <- Y2 - U1 %*% S11_inverse %*% S[[2]]
     H <- crossprod(V, res_maker_matrix) %*% V
     likelihood <- if(!grad) {
       -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
@@ -340,7 +343,8 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
   } else {
     if (!is.list(params)) {
       params <- SEM_params_to_list(params, periods_n = periods_n,
-                                   regressors_n = regressors_n,
+                                   tot_regressors_n = tot_regressors_n,
+                                   in_regressors_n = in_regressors_n,
                                    phis_n = phis_n, psis_n = psis_n)
     }
     if (!is.list(data)) {
@@ -350,15 +354,24 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
         )
       Y2 <- SEM_regressors_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
+        start_time = start_time
+      )
+      cur_Y2 <- SEM_regressors_matrix(
+        df = data, timestamp_col = timestamp_col, entity_col = entity_col,
         start_time = start_time, regressors_subset = regressors_subset
       )
-      Z <- SEM_exogenous_matrix(
+      cur_Z <- SEM_exogenous_matrix(
         df = data, timestamp_col = timestamp_col, start_time = start_time,
         lagged_col = lagged_col, regressors_subset = regressors_subset
       )
+      Z <- SEM_exogenous_matrix(
+        df = data, timestamp_col = timestamp_col, start_time = start_time,
+        lagged_col = lagged_col
+      )
       res_maker_matrix <- residual_maker_matrix(Z)
 
-      data = list(Y1 = Y1, Y2 = Y2, Z = Z, res_maker_matrix = res_maker_matrix)
+      data = list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
+                  res_maker_matrix = res_maker_matrix)
     }
     likelihood <- SEM_likelihood(params = params, data = data, grad = grad)
   }

@@ -64,6 +64,17 @@ Y1 <- SEM_dep_var_matrix(
   dep_var_col = gdp, start_time = year0
 )
 
+Y2 <- R_df %>%
+  SEM_regressors_matrix(timestamp_col = year, entity_col = country,
+                        start_time = year0,
+                        regressors_subset = c('ish', 'sed', 'pgrw', 'pop'))
+
+Z <- R_df %>%
+  SEM_exogenous_matrix(year, year0, lag_gdp,
+                       regressors_subset = c('ish', 'sed', 'pgrw', 'pop'))
+
+res_maker_matrix <- residual_maker_matrix(Z)
+
 # ---------------------------------------------------------------------------------
 # 		               SOME PRELIMINAR OBJECTS BALIMLE APPROACH
 # ---------------------------------------------------------------------------------
@@ -103,9 +114,8 @@ for (regressors_subset in regressors_subsets) {
   cur_regressors_n <- sum(mt)
   cur_variables_n <- cur_regressors_n+1
 
-  Z <- R_df %>% SEM_exogenous_matrix(year, year0, lag_gdp, regressors_subset)
-
-  res_maker_matrix <- residual_maker_matrix(Z)
+  cur_Z <- R_df %>%
+    SEM_exogenous_matrix(year, year0, lag_gdp, regressors_subset)
 
   periods_n <- t
 
@@ -116,9 +126,9 @@ for (regressors_subset in regressors_subsets) {
   dep_vars <- rep(0.5, periods_n)
   beta <- rep(0.5, cur_regressors_n)
   phi_1 <- rep(0.5, cur_regressors_n)
-  phis_n <- cur_regressors_n*(periods_n - 1)
+  phis_n <- regressors_n*(periods_n - 1)
   phis <- rep(0.5, phis_n)
-  psis_n <- cur_regressors_n*periods_n*(periods_n - 1)/2
+  psis_n <- regressors_n*periods_n*(periods_n - 1)/2
   psis <- rep(0.5, psis_n)
 
   t0in <- matrix(c(alpha, beta, phi_0, phi_1, err_var, dep_vars, phis, psis))
@@ -128,13 +138,15 @@ for (regressors_subset in regressors_subsets) {
                           start_time = year0,
                           regressors_subset = regressors_subset)
 
-  data <- list(Y1 = Y1, Y2 = cur_Y2, Z = Z, res_maker_matrix = res_maker_matrix)
+  data <- list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
+               res_maker_matrix = res_maker_matrix)
 
   # parscale argument somehow (don't know yet how) changes step size during optimisation.
   # Most likely optimisation methods used in Gauss are scale-free and these used in R are not
   # TODO: search for methods (or implement methods) in R which are scale-free
   optimized <- optim(t0in, SEM_likelihood, data = data, periods_n = periods_n,
-                     regressors_n = cur_regressors_n, phis_n = phis_n,
+                     tot_regressors_n = regressors_n,
+                     in_regressors_n = cur_regressors_n, phis_n = phis_n,
                      psis_n = psis_n, method="BFGS",
                      control = list(trace=2, maxit = 10000, fnscale = -1,
                                     parscale = 0.05*t0in))
@@ -142,16 +154,19 @@ for (regressors_subset in regressors_subsets) {
   likelihood_max <- optimized[[2]]
 
   hess <- hessian(SEM_likelihood, theta = optimised_params, data = data,
-                  periods_n = periods_n, regressors_n = cur_regressors_n,
+                  periods_n = periods_n, tot_regressors_n = regressors_n,
+                  in_regressors_n = cur_regressors_n,
                   phis_n = phis_n, psis_n = psis_n)
 
   likgra_val <- SEM_likelihood(optimised_params, data = data, grad = TRUE,
                                periods_n = periods_n,
-                               regressors_n = cur_regressors_n,
+                               tot_regressors_n = regressors_n,
+                               in_regressors_n = cur_regressors_n,
                                phis_n = phis_n, psis_n = psis_n)
 
   Gmat <- gradient(SEM_likelihood, optimised_params, data = data, grad = TRUE,
-                   periods_n = periods_n, regressors_n = cur_regressors_n,
+                   periods_n = periods_n, tot_regressors_n = regressors_n,
+                   in_regressors_n = cur_regressors_n,
                    phis_n = phis_n, psis_n = psis_n)
   Imat=crossprod(Gmat)
     stdr=sqrt(diag(solve(hess)%*%(Imat)%*%solve(hess)))
