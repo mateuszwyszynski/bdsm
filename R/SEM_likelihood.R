@@ -1,5 +1,5 @@
-SEM_dep_vars_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
-                                start_time) {
+SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
+                               start_time) {
   df %>% dplyr::filter({{ timestamp_col }} >= start_time) %>%
     dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }}) %>%
     tidyr::pivot_wider(names_from = {{ timestamp_col }},
@@ -321,7 +321,7 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
                                    phis_n = phis_n, psis_n = psis_n)
     }
     if (!is.list(data)) {
-      Y1 <- SEM_dep_vars_matrix(
+      Y1 <- SEM_dep_var_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
         dep_var_col = dep_var_col, start_time = start_time
         )

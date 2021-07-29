@@ -59,7 +59,7 @@ liml_data_prep <- function(df){
 
 R_df <- liml_data_prep(rawdata)
 
-Y1 <- SEM_dep_vars_matrix(
+Y1 <- SEM_dep_var_matrix(
   df = R_df, timestamp_col = year, entity_col = country,
   dep_var_col = gdp, start_time = year0
 )
