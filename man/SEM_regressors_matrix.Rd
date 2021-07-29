@@ -16,7 +16,7 @@ SEM_regressors_matrix(
 \item{df}{Data frame with data for the SEM analysis.}
 
 \item{timestamp_col}{Column which determines time periods. For now only
-natural numbers can be used as timestampsg}
+natural numbers can be used as timestamps}
 
 \item{entity_col}{Columns which determines entities (e.g. countires, people)}
 

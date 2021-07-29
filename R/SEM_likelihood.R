@@ -1,3 +1,26 @@
+#' Matrix with dependent variable data for SEM representation
+#'
+#' Create matrix which contains dependent variable data used in the Simultaneous
+#' Equations Model (SEM) representation on the left hand side of the equations.
+#' The matrix contains the data for time periods greater than chosen
+#' \code{start_time}. The matrix is then used to compute likelihood for SEM
+#' analysis.
+#'
+#' @param df Data frame with data for the SEM analysis.
+#' @param timestamp_col Column which determines time periods. For now only
+#' natural numbers can be used as timestamps
+#' @param entity_col Columns which determines entities (e.g. countires, people)
+#' @param dep_var_col Column with dependent variable
+#' @param start_time First time period. Only time periods greater than
+#' \code{start_time} will be considered in the resulting matrix
+#'
+#' @return
+#' Matrix of size N x T where N is the number of entities considered and T is
+#' the number of periods greater than or equal to \code{start_time}.
+#'
+#' @export
+#'
+#' @examples
 SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
                                start_time) {
   df %>% dplyr::filter({{ timestamp_col }} >= start_time) %>%
@@ -17,7 +40,7 @@ SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
 #'
 #' @param df Data frame with data for the SEM analysis.
 #' @param timestamp_col Column which determines time periods. For now only
-#' natural numbers can be used as timestampsg
+#' natural numbers can be used as timestamps
 #' @param entity_col Columns which determines entities (e.g. countires, people)
 #' @param start_time First time period. Only time periods greater than
 #' \code{start_time} will be considered in the resulting matrix
