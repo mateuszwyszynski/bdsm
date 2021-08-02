@@ -2,8 +2,8 @@ test_df <- data.frame(
   entities = rep(1:3, 5),
   times = rep(seq(1960, 2000, 10), each = 3),
   dep_var = 101:115,
-  a = 2:16,
-  b = 3:17
+  a = 201:215,
+  b = 301:315
 )
 
 test_that(paste("SEM_dep_var_matrix uses all timestamps if start_time argument",
