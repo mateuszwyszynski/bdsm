@@ -31,7 +31,7 @@ test_that(paste("SEM_regressors_matrix uses all regressors if",
   m_expected <- matrix(m_expected_data, nrow = 3, byrow = TRUE)
 
   m <- SEM_regressors_matrix(df = test_df, timestamp_col = times,
-                             entity_col = entities, regressors_subset = c('a', 'b'))
+                             entity_col = entities, regressors = c(a, b))
 
   expect_equal(m, m_expected, ignore_attr = TRUE)
 })

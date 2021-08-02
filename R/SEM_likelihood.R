@@ -49,14 +49,11 @@ SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
 #' @param timestamp_col Column which determines time periods. For now only
 #' natural numbers can be used as timestamps
 #' @param entity_col Column which determines entities (e.g. countries, people)
+#' @param regressors Which subset of columns should be used as regressors.
 #' @param start_time First time period. Only time periods greater than
 #' \code{start_time} will be considered in the resulting matrix. For
 #' \code{start_time=NULL} second lowest value from \code{timestamp_col} is set
 #' as \code{start_time}. Default is \code{NULL}.
-#' @param regressors_subset Which subset of columns should be used as
-#' regressors. If \code{NULL} (default) then all remaining columns will be used
-#' as regressors. For now columns have to be passed as list of column names
-#' represented as strings.
 #'
 #' @return
 #' Matrix of size N x (T-1)*k where N is the number of entities considered, T is
@@ -65,8 +62,8 @@ SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
 #' @export
 #'
 #' @examples
-SEM_regressors_matrix <- function(df, timestamp_col, entity_col,
-                                  start_time = NULL, regressors_subset = NULL) {
+SEM_regressors_matrix <- function(df, timestamp_col, entity_col, regressors,
+                                  start_time = NULL) {
   if (is.null(start_time)) {
     timestamps <- dplyr::select(df, {{ timestamp_col }})
     time_zero <- min(timestamps)
@@ -74,7 +71,7 @@ SEM_regressors_matrix <- function(df, timestamp_col, entity_col,
   }
   . <- NULL
   df %>%
-    dplyr::select({{ timestamp_col }}, {{ entity_col }}, regressors_subset) %>%
+    dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ regressors }}) %>%
     dplyr::filter({{ timestamp_col }} > start_time) %>%
     tidyr::pivot_wider(
       names_from = {{ timestamp_col }},
@@ -308,7 +305,7 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 SEM_likelihood <- function(params, data, timestamp_col = NULL,
                            entity_col = NULL, start_time = NULL,
                            lagged_col = NULL, dep_var_col = NULL,
-                           regressors_subset = NULL,
+                           regressors = NULL, in_regressors = NULL,
                            periods_n = NULL, tot_regressors_n = NULL,
                            in_regressors_n = NULL,
                            phis_n = NULL, psis_n = NULL, grad = FALSE) {
@@ -368,15 +365,15 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
         )
       Y2 <- SEM_regressors_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        start_time = start_time
+        regressors = regressors, start_time = start_time
       )
       cur_Y2 <- SEM_regressors_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        start_time = start_time, regressors_subset = regressors_subset
+        regressors = in_regressors, start_time = start_time
       )
       cur_Z <- SEM_exogenous_matrix(
         df = data, timestamp_col = timestamp_col, start_time = start_time,
-        lagged_col = lagged_col, regressors_subset = regressors_subset
+        lagged_col = lagged_col, regressors_subset = in_regressors
       )
       Z <- SEM_exogenous_matrix(
         df = data, timestamp_col = timestamp_col, start_time = start_time,

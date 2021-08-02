@@ -66,8 +66,8 @@ Y1 <- SEM_dep_var_matrix(
 
 Y2 <- R_df %>%
   SEM_regressors_matrix(timestamp_col = year, entity_col = country,
-                        start_time = year0,
-                        regressors_subset = c('ish', 'sed', 'pgrw', 'pop'))
+                        regressors = c(ish, sed, pgrw, pop),
+                        start_time = year0)
 
 Z <- R_df %>%
   SEM_exogenous_matrix(year, year0, lag_gdp,
@@ -135,8 +135,7 @@ for (regressors_subset in regressors_subsets) {
 
   cur_Y2 <- R_df %>%
     SEM_regressors_matrix(timestamp_col = year, entity_col = country,
-                          start_time = year0,
-                          regressors_subset = regressors_subset)
+                          regressors = regressors_subset, start_time = year0)
 
   data <- list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
                res_maker_matrix = res_maker_matrix)
