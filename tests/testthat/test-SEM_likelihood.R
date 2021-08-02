@@ -9,9 +9,9 @@ test_df <- data.frame(
 test_that(paste("SEM_dep_var_matrix uses all timestamps if start_time argument",
                 "is not given"), {
   m_expected_data <- c(
-    101, 104, 107, 110, 113,
-    102, 105, 108, 111, 114,
-    103, 106, 109, 112, 115
+    104, 107, 110, 113,
+    105, 108, 111, 114,
+    106, 109, 112, 115
   )
   m_expected <- matrix(m_expected_data, nrow = 3, byrow = TRUE)
 
