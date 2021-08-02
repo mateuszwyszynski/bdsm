@@ -8,7 +8,7 @@ SEM_regressors_matrix(
   df,
   timestamp_col,
   entity_col,
-  start_time,
+  start_time = NULL,
   regressors_subset = NULL
 )
 }
@@ -18,10 +18,12 @@ SEM_regressors_matrix(
 \item{timestamp_col}{Column which determines time periods. For now only
 natural numbers can be used as timestamps}
 
-\item{entity_col}{Columns which determines entities (e.g. countires, people)}
+\item{entity_col}{Column which determines entities (e.g. countries, people)}
 
 \item{start_time}{First time period. Only time periods greater than
-\code{start_time} will be considered in the resulting matrix}
+\code{start_time} will be considered in the resulting matrix. For
+\code{start_time=NULL} second lowest value from \code{timestamp_col} is set
+as \code{start_time}. Default is \code{NULL}.}
 
 \item{regressors_subset}{Which subset of columns should be used as
 regressors. If \code{NULL} (default) then all remaining columns will be used

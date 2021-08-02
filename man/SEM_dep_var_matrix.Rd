@@ -18,12 +18,14 @@ SEM_dep_var_matrix(
 \item{timestamp_col}{Column which determines time periods. For now only
 natural numbers can be used as timestamps}
 
-\item{entity_col}{Columns which determines entities (e.g. countires, people)}
+\item{entity_col}{Column which determines entities (e.g. countries, people)}
 
 \item{dep_var_col}{Column with dependent variable}
 
-\item{start_time}{First time period. Only time periods greater than
-\code{start_time} will be considered in the resulting matrix}
+\item{start_time}{First time period. Only time periods greater than or equal
+to \code{start_time} will be considered in the resulting matrix. For
+\code{start_time=NULL} second lowest value from \code{timestamp_col} is set
+as \code{start_time}. Default is \code{NULL}.}
 }
 \value{
 Matrix of size N x T where N is the number of entities considered and T is

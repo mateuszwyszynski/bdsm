@@ -9,10 +9,12 @@
 #' @param df Data frame with data for the SEM analysis.
 #' @param timestamp_col Column which determines time periods. For now only
 #' natural numbers can be used as timestamps
-#' @param entity_col Columns which determines entities (e.g. countires, people)
+#' @param entity_col Column which determines entities (e.g. countries, people)
 #' @param dep_var_col Column with dependent variable
-#' @param start_time First time period. Only time periods greater than
-#' \code{start_time} will be considered in the resulting matrix
+#' @param start_time First time period. Only time periods greater than or equal
+#' to \code{start_time} will be considered in the resulting matrix. For
+#' \code{start_time=NULL} second lowest value from \code{timestamp_col} is set
+#' as \code{start_time}. Default is \code{NULL}.
 #'
 #' @return
 #' Matrix of size N x T where N is the number of entities considered and T is
@@ -46,9 +48,11 @@ SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
 #' @param df Data frame with data for the SEM analysis.
 #' @param timestamp_col Column which determines time periods. For now only
 #' natural numbers can be used as timestamps
-#' @param entity_col Columns which determines entities (e.g. countires, people)
+#' @param entity_col Column which determines entities (e.g. countries, people)
 #' @param start_time First time period. Only time periods greater than
-#' \code{start_time} will be considered in the resulting matrix
+#' \code{start_time} will be considered in the resulting matrix. For
+#' \code{start_time=NULL} second lowest value from \code{timestamp_col} is set
+#' as \code{start_time}. Default is \code{NULL}.
 #' @param regressors_subset Which subset of columns should be used as
 #' regressors. If \code{NULL} (default) then all remaining columns will be used
 #' as regressors. For now columns have to be passed as list of column names
