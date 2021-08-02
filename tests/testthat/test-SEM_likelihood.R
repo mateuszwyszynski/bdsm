@@ -15,8 +15,8 @@ test_that(paste("SEM_dep_var_matrix uses all timestamps if start_time argument",
   )
   m_expected <- matrix(m_expected_data, nrow = 3, byrow = TRUE)
 
-  m <- SEM_dep_var_matrix(df = df, timestamp_col = 'times',
-                          entity_col = 'entities', dep_var_col = 'dep_var')
+  m <- SEM_dep_var_matrix(df = df, timestamp_col = times,
+                          entity_col = entities, dep_var_col = dep_var)
 
   expect_equal(m, m_expected, ignore_attr = TRUE)
 })
