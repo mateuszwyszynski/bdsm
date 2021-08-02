@@ -49,7 +49,7 @@ n_entities <- 73
 #'
 #' @param df Dataframe with data that should be prepared for LIML estimation
 liml_data_prep <- function(df){
-  df <- df %>% mutate(across(!(year:country), scale))
+  df <- df %>% mutate(across(!(country:lag_gdp), scale))
 
   csddata_df <- df %>% group_by(year) %>%
     summarise(country = country,
