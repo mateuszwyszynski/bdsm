@@ -59,8 +59,13 @@ SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
 #' @export
 #'
 #' @examples
-SEM_regressors_matrix <- function(df, timestamp_col, entity_col, start_time,
-                                  regressors_subset = NULL) {
+SEM_regressors_matrix <- function(df, timestamp_col, entity_col,
+                                  start_time = NULL, regressors_subset = NULL) {
+  if (is.null(start_time)) {
+    timestamps <- dplyr::select(df, {{ timestamp_col }})
+    time_zero <- min(timestamps)
+    start_time <- min(timestamps[timestamps != time_zero])
+  }
   . <- NULL
   df %>%
     dplyr::select({{ timestamp_col }}, {{ entity_col }}, regressors_subset) %>%
