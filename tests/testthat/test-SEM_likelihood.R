@@ -1,3 +1,26 @@
+test_that(paste("SEM_dep_var_matrix uses all timestamps if start_time argument",
+                "is not given"), {
+  df <- tibble(
+    entities = rep(1:3, 5),
+    times = rep(seq(1960, 2000, 10), each = 3),
+    dep_var = 101:115,
+    a = 2:16,
+    b = 3:17
+  )
+
+  m_expected_data <- c(
+    101, 104, 107, 110, 113,
+    102, 105, 108, 111, 114,
+    103, 106, 109, 112, 115
+  )
+  m_expected <- matrix(m_expected_data, nrow = 3, byrow = TRUE)
+
+  m <- SEM_dep_var_matrix(df = df, timestamp_col = 'times',
+                          entity_col = 'entities', dep_var_col = 'dep_var')
+
+  expect_equal(m, m_expected, ignore_attr = TRUE)
+})
+
 test_that("SEM_B_matrix computes proper matrix", {
   periods_n <- 4
   B <- SEM_B_matrix(3, periods_n, 4:6)
