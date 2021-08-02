@@ -21,6 +21,21 @@ test_that(paste("SEM_dep_var_matrix uses all timestamps if start_time argument",
   expect_equal(m, m_expected, ignore_attr = TRUE)
 })
 
+test_that(paste("SEM_regressors_matrix uses all regressors if",
+                "regressors_subset argument is not given"), {
+  m_expected_data <- c(
+    207, 307, 210, 310, 213, 313,
+    208, 308, 211, 311, 214, 314,
+    209, 309, 212, 312, 215, 315
+  )
+  m_expected <- matrix(m_expected_data, nrow = 3, byrow = TRUE)
+
+  m <- SEM_regressors_matrix(df = test_df, timestamp_col = times,
+                             entity_col = entities, regressors_subset = c('a', 'b'))
+
+  expect_equal(m, m_expected, ignore_attr = TRUE)
+})
+
 test_that("SEM_B_matrix computes proper matrix", {
   periods_n <- 4
   B <- SEM_B_matrix(3, periods_n, 4:6)
