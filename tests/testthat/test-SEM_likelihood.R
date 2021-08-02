@@ -1,4 +1,4 @@
-test_df <- tibble(
+test_df <- data.frame(
   entities = rep(1:3, 5),
   times = rep(seq(1960, 2000, 10), each = 3),
   dep_var = 101:115,

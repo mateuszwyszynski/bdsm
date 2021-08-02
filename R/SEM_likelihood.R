@@ -24,7 +24,7 @@
 SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
                                start_time = NULL) {
   if (is.null(start_time)) {
-    start_time <- min(select(df, {{ timestamp_col }}))
+    start_time <- min(dplyr::select(df, {{ timestamp_col }}))
   }
   df %>% dplyr::filter({{ timestamp_col }} >= start_time) %>%
     dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }}) %>%
