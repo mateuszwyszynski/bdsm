@@ -85,7 +85,7 @@ if det(o110)<=0;
         likf=0;
         cout1=cout1+1;
     else;
-        U10=(B110*Y1'+B120*Y2'-C0*Z')';
+        U10=(B110*Y1'+B120*Y2'-C0*cur_Z')';
         H=(Y2-U10*inv(o110)*o120)'Q*(Y2-U10*inv(o110)*o120);
         likf=-(n/2)*ln(det(o110))-(1/2)*sumc(diag(inv(o110)*U10'U10))-(n/2)*ln(det(H/n));
     endif;
@@ -172,7 +172,7 @@ o120[4,1:ktotx]=t0[2*ky+6:2*ky+6+(ktotx-1)]';                                   
 o210=o120';
 
 
-U10=(B110*Y1'+B120*Y2'-C0*Z')';
+U10=(B110*Y1'+B120*Y2'-C0*cur_Z')';
 H=(Y2-U10*inv(o110)*o120)'Q*(Y2-U10*inv(o110)*o120);
 
 iter=1;

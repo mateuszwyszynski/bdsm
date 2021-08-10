@@ -38,6 +38,7 @@ Y1=R[.,2 2+ktoty 2+2*ktoty 2+3*ktoty];
 Y2=R[.,4+ktotx:3+2*ktotx 5+2*ktotx:4+3*ktotx 6+3*ktotx:5+4*ktotx];
 X0=R[.,3:2+ktotx];
 
+Z=R[.,1]~X0;
 
 @---------------------------------------------------------------------------------@
 @		               SOME PRELIMINAR OBJECTS BALIMLE APPROACH   			      @
@@ -72,8 +73,8 @@ do while turu<=tot;
     kx=sumc(mt); ky=kx+1;   @ number of regressors in the current model   @
     
     @ Z includes y0 and x0 as strictly exogenous variables @
-    if kx==0; Z=R[.,1];
-    else; X0j = (delif (X0',out))'; Z=R[.,1]~X0j;
+    if kx==0; cur_Z=R[.,1];
+    else; X0j = (delif (X0',out))'; cur_Z=R[.,1]~X0j;
     endif;
     
     @ Q is the model specific annihilator matrix           @
