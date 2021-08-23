@@ -333,9 +333,9 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
     S <- SEM_sigma_matrix(err_var, dep_vars, phis, psis)
 
     U1 <- if (in_regressors_n == 0) {
-      t(tcrossprod(B[[1]], Y1) - tcrossprod(C, cur_Z))
+      t(tcrossprod(B[[1]], Y1) - tcrossprod(C, Z))
     } else {
-      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, cur_Z))
+      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, Z))
     }
     S11_inverse <- solve(S[[1]])
     V <- Y2 - U1 %*% S11_inverse %*% S[[2]]
