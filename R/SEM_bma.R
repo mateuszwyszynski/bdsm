@@ -1,4 +1,6 @@
-SEM_bma <- function(regressors_subsets, R_df) {
+SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
+                    timestamp_col, year0, lagged_col, entity_col, Y1, Y2,
+                    res_maker_matrix, prandom, n_entities, b, pinc) {
   mod <- zeros(variables_n,1)
   bet <- zeros(variables_n,1)
   pvarh <- zeros(variables_n,1)
@@ -23,7 +25,8 @@ SEM_bma <- function(regressors_subsets, R_df) {
     cur_variables_n <- cur_regressors_n+1
 
     cur_Z <- R_df %>%
-      SEM_exogenous_matrix(year, year0, lag_gdp, regressors_subset)
+      SEM_exogenous_matrix({{ timestamp_col }}, year0, {{ lagged_col }},
+                           regressors_subset)
 
     periods_n <- t
 
@@ -42,7 +45,8 @@ SEM_bma <- function(regressors_subsets, R_df) {
     t0in <- matrix(c(alpha, beta, phi_0, phi_1, err_var, dep_vars, phis, psis))
 
     cur_Y2 <- R_df %>%
-      SEM_regressors_matrix(timestamp_col = year, entity_col = country,
+      SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
+                            entity_col = {{ entity_col }},
                             regressors = regressors_subset, start_time = year0)
 
     data <- list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
@@ -81,7 +85,7 @@ SEM_bma <- function(regressors_subsets, R_df) {
     varr=stdr^2; varh=stdh^2
 
     # storing results for the CURRENT model #
-    logl=(likelihood_max-(cur_variables_n/2)*(log(n*t)))/n
+    logl=(likelihood_max-(cur_variables_n/2)*(log(n_entities*t)))/n_entities
     bict=exp(logl)                              # integrated likelihood approximation           #
     # prior model probability (either random -Ley&Steel09- or fixed) #
     if (prandom == 1) {
@@ -148,12 +152,12 @@ SEM_bma <- function(regressors_subsets, R_df) {
 
     # here we store model-specific diagnostics and estimates (BICs, likelihoods, betas...) #
     if (row_ind==1) {
-      modprob=postprob; modelid=row_ind; modpri=priorprobt; liks=exp(likelihood_max/n); bics=bict
+      modprob=postprob; modelid=row_ind; modpri=priorprobt; liks=exp(likelihood_max/n_entities); bics=bict
       betas=bt1; stds=stdht1; stdsr=stdrt1; foutt=likelihood_max
     }
     else {
       modprob=rbind(modprob,postprob); modelid=rbind(modelid,row_ind); modpri=rbind(modpri,priorprobt)
-      liks=rbind(liks,exp(likelihood_max/n)); bics=rbind(bics,bict); betas=cbind(betas,bt1)
+      liks=rbind(liks,exp(likelihood_max/n_entities)); bics=rbind(bics,bict); betas=cbind(betas,bt1)
       stds=cbind(stds,stdht1); stdsr=cbind(stdsr,stdrt1); foutt=rbind(foutt, likelihood_max)
     }
   }

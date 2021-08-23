@@ -23,7 +23,7 @@ prandom=0 #prandom=1 for optimised_params random Ley&Steel09. prandom = 0 for op
 #		   	                     LOADING THE DATASET
 #---------------------------------------------------------------------------------
 
-row=292; column=11; t=4; n=73
+row=292; column=11; t=4;
 rawdata<-readxl::read_excel("balimle-dataset.xlsx")
 
 #    VARIABLES IN RAWDATA
@@ -91,7 +91,12 @@ b=(regressors_n-pmsize)/pmsize   # parameter for beta (random) distribution of t
 
 regressors_subsets <- powerSet(regressors)
 
-bma_result <- SEM_bma(regressors_subsets, R_df)
+bma_result <- SEM_bma(regressors_subsets = regressors_subsets, R_df = R_df,
+                      variables_n = variables_n, regressors_n = regressors_n,
+                      timestamp_col = year, year0, lagged_col = lag_gdp,
+                      entity_col = country, Y1 = Y1, Y2 = Y2,
+                      res_maker_matrix = res_maker_matrix, prandom = prandom,
+                      n_entities = n_entities, b = b, pinc = pinc)
 
 modprob <- bma_result$modprob
 modelid <- bma_result$modelid
