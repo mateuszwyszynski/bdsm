@@ -1,11 +1,11 @@
 SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
                     timestamp_col, year0, lagged_col, entity_col, Y1, Y2,
                     res_maker_matrix, prandom, n_entities, b, pinc) {
-  mod <- zeros(variables_n,1)
-  bet <- zeros(variables_n,1)
-  pvarh <- zeros(variables_n,1)
-  pvarr <- zeros(variables_n,1)
-  fy <- zeros(variables_n,1)
+  mod <- optimbase::zeros(variables_n,1)
+  bet <- optimbase::zeros(variables_n,1)
+  pvarh <- optimbase::zeros(variables_n,1)
+  pvarr <- optimbase::zeros(variables_n,1)
+  fy <- optimbase::zeros(variables_n,1)
   fyt <- 0
   ppmsize <- 0
   cout <- 0
@@ -55,12 +55,14 @@ SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
     # parscale argument somehow (don't know yet how) changes step size during optimisation.
     # Most likely optimisation methods used in Gauss are scale-free and these used in R are not
     # TODO: search for methods (or implement methods) in R which are scale-free
-    optimized <- optim(t0in, SEM_likelihood, data = data, periods_n = periods_n,
-                       tot_regressors_n = regressors_n,
-                       in_regressors_n = cur_regressors_n, phis_n = phis_n,
-                       psis_n = psis_n, method="BFGS",
-                       control = list(trace=2, maxit = 10000, fnscale = -1,
-                                      parscale = 0.05*t0in))
+    optimized <- stats::optim(t0in, SEM_likelihood, data = data,
+                              periods_n = periods_n,
+                              tot_regressors_n = regressors_n,
+                              in_regressors_n = cur_regressors_n,
+                              phis_n = phis_n, psis_n = psis_n, method="BFGS",
+                              control = list(trace=2, maxit = 10000,
+                                             fnscale = -1,
+                                             parscale = 0.05*t0in))
     optimised_params <- optimized[[1]]
     likelihood_max <- optimized[[2]]
 
@@ -75,10 +77,11 @@ SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
                                  in_regressors_n = cur_regressors_n,
                                  phis_n = phis_n, psis_n = psis_n)
 
-    Gmat <- gradient(SEM_likelihood, optimised_params, data = data, grad = TRUE,
-                     periods_n = periods_n, tot_regressors_n = regressors_n,
-                     in_regressors_n = cur_regressors_n,
-                     phis_n = phis_n, psis_n = psis_n)
+    Gmat <- rootSolve::gradient(SEM_likelihood, optimised_params, data = data,
+                                grad = TRUE, periods_n = periods_n,
+                                tot_regressors_n = regressors_n,
+                                in_regressors_n = cur_regressors_n,
+                                phis_n = phis_n, psis_n = psis_n)
     Imat=crossprod(Gmat)
     stdr=sqrt(diag(solve(hess)%*%(Imat)%*%solve(hess)))
     stdh=sqrt(diag((solve(hess)))) #sqrt of negative values(
@@ -105,9 +108,9 @@ SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
 
     # constructing the full vector of estimates #
     mty=rbind(1,mt)
-    bt1=zeros(variables_n,1)
-    stdrt1=zeros(variables_n,1); stdht1=zeros(variables_n,1)
-    varht1=zeros(variables_n,1); varrt1=zeros(variables_n,1)
+    bt1=optimbase::zeros(variables_n,1)
+    stdrt1=optimbase::zeros(variables_n,1); stdht1=optimbase::zeros(variables_n,1)
+    varht1=optimbase::zeros(variables_n,1); varrt1=optimbase::zeros(variables_n,1)
     it1=0
     it=1
     for (it in 1:variables_n) {
