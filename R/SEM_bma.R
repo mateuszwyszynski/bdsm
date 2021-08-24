@@ -1,6 +1,6 @@
 SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
-                    timestamp_col, year0, lagged_col, entity_col, Y1, Y2,
-                    res_maker_matrix, prandom, n_entities, b, pinc) {
+                    periods_n, timestamp_col, year0, lagged_col, entity_col, Y1,
+                    Y2, res_maker_matrix, prandom, n_entities, b, pinc) {
   mod <- optimbase::zeros(variables_n,1)
   bet <- optimbase::zeros(variables_n,1)
   pvarh <- optimbase::zeros(variables_n,1)
@@ -27,8 +27,6 @@ SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
     cur_Z <- R_df %>%
       SEM_exogenous_matrix({{ timestamp_col }}, year0, {{ lagged_col }},
                            regressors_subset)
-
-    periods_n <- t
 
     # Initial parameter values for optimisation
     alpha <- 0.5
@@ -88,7 +86,7 @@ SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
     varr=stdr^2; varh=stdh^2
 
     # storing results for the CURRENT model #
-    logl=(likelihood_max-(cur_variables_n/2)*(log(n_entities*t)))/n_entities
+    logl=(likelihood_max-(cur_variables_n/2)*(log(n_entities*periods_n)))/n_entities
     bict=exp(logl)                              # integrated likelihood approximation           #
     # prior model probability (either random -Ley&Steel09- or fixed) #
     if (prandom == 1) {
