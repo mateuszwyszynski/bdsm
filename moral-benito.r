@@ -10,9 +10,8 @@ library(nlme)
 library("parallel")
 library(rje)
 
-source('R/SEM_likelihood.R')
-source('R/hessian.R')
-source('R/SEM_bma.R')
+library(devtools)
+load_all()
 
 no_of_cores = detectCores()
 set.seed(23)
