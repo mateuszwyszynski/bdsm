@@ -82,6 +82,15 @@ SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
                                 phis_n = phis_n, psis_n = psis_n)
     Imat=crossprod(Gmat)
     stdr=sqrt(diag(solve(hess)%*%(Imat)%*%solve(hess)))
+
+    # Section 2.3.3 in Moral-Benito
+    # GROWTH EMPIRICS IN PANEL DATA UNDER MODEL UNCERTAINTY AND WEAK EXOGENEITY:
+    # "Finally, each model-specific posterior is given by a normal distribution
+    # with mean at the MLE and dispersion matrix equal to the inverse of the
+    # Fisher information."
+    # This is most likely why hessian is used to compute standard errors.
+    # TODO: Learn the Bernstein–von Mises theorem which explain in detail how
+    # all this works
     stdh=sqrt(diag((solve(hess)))) #sqrt of negative values(
     varr=stdr^2; varh=stdh^2
 
