@@ -308,7 +308,7 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
                            regressors = NULL, in_regressors = NULL,
                            periods_n = NULL, tot_regressors_n = NULL,
                            in_regressors_n = NULL,
-                           phis_n = NULL, psis_n = NULL, grad = FALSE) {
+                           phis_n = NULL, psis_n = NULL, per_entity = FALSE) {
   if (is.list(params) && is.list(data)) {
     alpha <- params$alpha
     phi_0 <- params$phi_0
@@ -340,7 +340,7 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
     S11_inverse <- solve(S[[1]])
     V <- Y2 - U1 %*% S11_inverse %*% S[[2]]
     H <- crossprod(V, res_maker_matrix) %*% V
-    likelihood <- if(!grad) {
+    likelihood <- if(!per_entity) {
       -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
         1/2 * sum(diag(S11_inverse %*% crossprod(U1)))
     } else {
@@ -384,7 +384,8 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
       data = list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
                   res_maker_matrix = res_maker_matrix)
     }
-    likelihood <- SEM_likelihood(params = params, data = data, grad = grad)
+    likelihood <- SEM_likelihood(params = params, data = data,
+                                 per_entity = per_entity)
   }
   likelihood
 }

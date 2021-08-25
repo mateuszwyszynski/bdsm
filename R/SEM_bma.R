@@ -69,14 +69,14 @@ SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
                     in_regressors_n = cur_regressors_n,
                     phis_n = phis_n, psis_n = psis_n)
 
-    likgra_val <- SEM_likelihood(optimised_params, data = data, grad = TRUE,
-                                 periods_n = periods_n,
-                                 tot_regressors_n = regressors_n,
-                                 in_regressors_n = cur_regressors_n,
-                                 phis_n = phis_n, psis_n = psis_n)
+    likelihood_per_entity <-
+      SEM_likelihood(optimised_params, data = data, per_entity = TRUE,
+                     periods_n = periods_n, tot_regressors_n = regressors_n,
+                     in_regressors_n = cur_regressors_n, phis_n = phis_n,
+                     psis_n = psis_n)
 
     Gmat <- rootSolve::gradient(SEM_likelihood, optimised_params, data = data,
-                                grad = TRUE, periods_n = periods_n,
+                                per_entity = TRUE, periods_n = periods_n,
                                 tot_regressors_n = regressors_n,
                                 in_regressors_n = cur_regressors_n,
                                 phis_n = phis_n, psis_n = psis_n)
