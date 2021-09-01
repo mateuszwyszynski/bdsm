@@ -94,9 +94,21 @@ SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
     stdh=sqrt(diag((solve(hess)))) #sqrt of negative values(
     varr=stdr^2; varh=stdh^2
 
-    # storing results for the CURRENT model #
-    logl=(likelihood_max-(cur_variables_n/2)*(log(n_entities*periods_n)))/n_entities
-    bict=exp(logl)                              # integrated likelihood approximation           #
+    # Below we have almost 1/2 * BIC_k as in Raftery's Bayesian Model Selection
+    # in Social Research eq. 19. The part with reference model M_1 is skipped,
+    # because we use this formula to compute exp(logl) which is in turn used to
+    # compute posterior probabilities using eqs. 34/35. Since the part connected
+    # with M_1 model would be present in all posteriors it cancels out. Hence
+    # the important part is the one computed below.
+    #
+    # TODO: Why everything is divided by n_entities?
+
+    # Eq. 19
+    logl <- (likelihood_max-(cur_variables_n/2)*(log(n_entities*periods_n)))/n_entities
+
+    # Eq. 35
+    bict <- exp(logl)
+
     # prior model probability (either random -Ley&Steel09- or fixed) #
     if (prandom == 1) {
       priorprobt=(gamma(1+cur_regressors_n))*(gamma(b+regressors_n-cur_regressors_n))    #optimised_params random#
