@@ -5,7 +5,7 @@
 @----------------------------------------------------------------------@
 
 proc(1)=lik(t0in);
-local likf,ii,i1,i2,B0,B110,B120,C0,U10,H,o110,o120,o210,t0,t0i,fact;
+local likf,ii,i1,i2,B0,B110,B120,C0,U10,H,o110,o120,o210,t0,t0i,fact,S11_inv,L,M,G22_inverse,G22;
 
 t0=t0in;
 
@@ -86,8 +86,13 @@ if det(o110)<=0;
         cout1=cout1+1;
     else;
         U10=(B110*Y1'+B120*Y2'-C0*cur_Z')';
-        H=(Y2-U10*inv(o110)*o120)'Q*(Y2-U10*inv(o110)*o120);
-        likf=-(n/2)*ln(det(o110))-(1/2)*sumc(diag(inv(o110)*U10'U10))-(n/2)*ln(det(H/n));
+        S11_inv = inv(o110);
+        L = S11_inv * o120;
+        M = Y2 - U10 * L;
+        H = M'Q*M;
+        G22_inverse = L' * o110 * L + 1/n * (M' * Q * (Y2 + U10 * L) + L' * U10' * U10 * L);
+        G22 = inv(G22_inverse);
+        likf=-(n/2)*ln(det(o110))-(1/2)*sumc(diag(inv(o110)*U10'U10))+(n/2)*ln(det(G22)) - 1/2 * sumc(diag(H*G22));
     endif;
 
 retp(-likf);
