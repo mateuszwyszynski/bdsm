@@ -192,7 +192,7 @@ endp;
 
 proc(1)=likgra(t0in);
 local likvec,ii,i1,i11,i2,i3,i4,i5,i6,i7,seq,dseq,iseq,B0,B110,B120,C0,U10,H,o110,o120,o121,o210,iter,u10i,t0;
-local err_var_ind,dep_vars_last_ind,phis_n,phis_last_ind,row_ind,start_col_ind,col_ind,V;
+local err_var_ind,dep_vars_last_ind,phis_n,phis_last_ind,row_ind,start_col_ind,col_ind,M,S11_inv,L,G22,G22_inverse;
 
 t0=t0in;
 
@@ -305,17 +305,23 @@ else;
     U10=(B110*Y1'+B120*Y2'-C0*Z')'; @ Here we can still use Y2, because B120 contains zeros for regressors out of the current model @
 endif;
 
+S11_inv = inv(o110);
+L = S11_inv * o120;
+
 if kx!=0;
-    V=cur_Y2-U10*inv(o110)*o120;
-    H=V'Q*V;
+    M = cur_Y2 - U10 * L;
+    H = M'Q*M;
+    G22_inverse = L' * o110 * L + 1/n * (M' * Q * (cur_Y2 + U10 * L) + L' * U10' * U10 * L);
+    G22 = inv(G22_inverse);
 endif;
 
 for iter(1,n,1);
     u10i=U10[iter,.]';
     likvec[iter]=-(1/2)*ln(det(o110))-(1/2)*(u10i'inv(o110)*u10i);
     if kx!=0;
-        likvec[iter]=likvec[iter]-(1/2)*ln(det(H/n));
+        likvec[iter]=likvec[iter]+(1/2)*ln(det(G22)) - 1/(2*n) * sumc(diag(H*G22));
     endif;
+    likvec[iter] = likvec[iter] - (t + (t - 1) * kx) * ln(2 * pi) / 2;
 endfor;
 
 retp(-likvec);
