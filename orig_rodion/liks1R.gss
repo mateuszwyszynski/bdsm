@@ -162,13 +162,13 @@ else;
     if kx!=0;
         M = cur_Y2 - U10 * L;
         H = M'Q*M;
-        G22_inverse = (1/n) * H;
+        G22_inverse = L' * o110 * L + 1/n * (M' * Q * (cur_Y2 + U10 * L) + L' * U10' * U10 * L);
         G22 = inv(G22_inverse);
     endif;
     
     likf=-(n/2)*ln(det(o110))-(1/2)*sumc(diag(inv(o110)*U10'U10)); @ concentrated log-likelihood in the appendix @
     if kx!=0;
-        likf=likf-(n/2)*ln(det(H/n));
+        likf=likf+(n/2)*ln(det(G22)) - 1/2 * sumc(diag(H*G22));
     endif;
 endif;
 
