@@ -170,6 +170,7 @@ else;
     if kx!=0;
         likf=likf+(n/2)*ln(det(G22)) - 1/2 * sumc(diag(H*G22));
     endif;
+    likf = likf - (n * (t + (t - 1) * kx)) * ln(2 * pi) / 2;
 endif;
 
 retp(-likf);
