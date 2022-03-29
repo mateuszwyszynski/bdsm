@@ -59,6 +59,11 @@ b=(ktotx-pmsize)/pmsize;      @ parameter for beta (random) distribution of the 
 mod=zeros(ktoty,1); bet=zeros(ktoty,1); 
 pvarh=zeros(ktoty,1); pvarr=zeros(ktoty,1);
 fy=zeros(ktoty,1); fyt=0; ppmsize=0; cout=0;
+err_var = 0;
+dep_vars = zeros(t, 1);
+phi_1 = zeros(ktoty, 1); @ includes phi_0 @
+phis = zeros(ktotx * (t - 1), 1);
+psis = zeros(ktotx * t * (t - 1) / 2, 1);
 
 @---------------------------------------------------------------------------------@
 @		               LOOP COVERING FULL MODEL SPACE           			      @
@@ -117,10 +122,16 @@ do while turu<=tot;
     @ selecting estimates of interest (i.e. alpha and betas) @
     bt=theta[1:ky]; stdrt=stdr[1:ky]; stdht=stdh[1:ky];
     varht=varh[1:ky]; varrt=varr[1:ky];
+    cur_phi_1 = theta[(ky+1):2*ky];
+    cur_err_var = theta[2*ky+1:2*ky+1];
+    cur_dep_vars = theta[2*ky+2:2*ky+5];
+    cur_phis = theta[2*ky+6:2*ky+6+3*ktotx-1];
+    cur_psis = theta[2*ky+6+3*ktotx:2*ky+6+3*ktotx+ktotx*t*(t - 1)/2-1];
     
     @ constructing the full vector of estimates @
     mty=1|mt; 
     bt1=zeros(ktoty,1);
+    cur_phi_1_full = zeros(ktoty, 1); @ includes phi_0 @
     stdrt1=zeros(ktoty,1); stdht1=zeros(ktoty,1);
     varht1=zeros(ktoty,1); varrt1=zeros(ktoty,1);
     it1=0;
@@ -129,6 +140,7 @@ do while turu<=tot;
         if mty[it]==1;
             it1=1+it1;
             bt1[it]=bt[it1];
+            cur_phi_1_full[it] = cur_phi_1[it1];
             stdrt1[it]=stdrt[it1];
             stdht1[it]=stdht[it1];
             varht1[it]=varht[it1];
@@ -162,17 +174,32 @@ do while turu<=tot;
     ppmsize=ppmsize+postprob*(sumc(mty));
     
     @ storing estimates conditional on inclusion @
-    bet=bet+postprob*bt1;   
+    bet=bet+postprob*bt1;
     pvarr=pvarr+(postprob*varrt1+postprob*(bt1.*bt1));         @ as in Leamer (1978) @
     pvarh=pvarh+(postprob*varht1+postprob*(bt1.*bt1));         @ as in Leamer (1978) @
+    phi_1 = phi_1 + postprob * cur_phi_1_full;
+    err_var = err_var + postprob * cur_err_var;
+    dep_vars = dep_vars + postprob * cur_dep_vars;
+    phis = phis + postprob * cur_phis;
+    psis = psis + postprob * cur_psis;
     
     @ here we store model-specific diagnostics and estimates (BICs, likelihoods, betas...) @   
     if turu==1;
         modprob=postprob; modelid=turu; modpri=priorprobt; liks=exp(-fout/n); bics=bict;
         betas=bt1; stds=stdht1; stdsr=stdrt1; foutt=-fout;
+        phi_1s = phi_1;
+        err_vars = err_var;
+        dep_varss = dep_vars;
+        phiss = phis;
+        psiss = psis;
     else;
         modprob=modprob|postprob; modelid=modelid|turu; modpri=modpri|priorprobt; liks=liks|exp(-fout/n); bics=bics|bict;
         betas=betas~bt1; stds=stds~stdht1; stdsr=stdsr~stdrt1; foutt=foutt|(-fout);
+        phi_1s = phi_1s ~ phi_1;
+        err_vars = err_vars ~ err_var;
+        dep_varss = dep_varss ~ dep_vars;
+        phiss = phiss ~ phis;
+        psiss = psiss ~ psis;
     endif; 
     cls;
     
@@ -261,6 +288,56 @@ print;
 print " 5.- MODELS INFO ";
 print " model -- postprob -- priorprob -- bics";
 print idprob;
+print;
+print "----------------------------------------------------------------------";
+print;
+print " 6.- MEAN PHI_1 ";
+print phi_1';
+print;
+print "----------------------------------------------------------------------";
+print;
+print " 7.- MEAN ERR VARS ";
+print err_var';
+print;
+print "----------------------------------------------------------------------";
+print;
+print " 8.- MEAN DEP VARS ";
+print dep_vars';
+print;
+print "----------------------------------------------------------------------";
+print;
+print " 9.- MEAN PHIS ";
+print phis';
+print;
+print "----------------------------------------------------------------------";
+print;
+print " 10.- MEAN PSIS ";
+print psis';
+print;
+print "----------------------------------------------------------------------";
+print;
+print " 11.- ALL PHI_1S ";
+print phi_1s';
+print;
+print "----------------------------------------------------------------------";
+print;
+print " 12.- ALL ERR VARS ";
+print err_vars';
+print;
+print "----------------------------------------------------------------------";
+print;
+print " 13.- ALL DEP VARS ";
+print dep_varss';
+print;
+print "----------------------------------------------------------------------";
+print;
+print " 14.- ALL PHIS ";
+print phiss';
+print;
+print "----------------------------------------------------------------------";
+print;
+print " 15.- ALL PSIS ";
+print psiss';
 output off;
 
 #include liks1.prg;
