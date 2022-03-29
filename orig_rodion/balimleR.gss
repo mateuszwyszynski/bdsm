@@ -135,8 +135,9 @@ for turu(1, tot, 1);
     stdh=sqrt(diag((inv(he))));
     varr=stdr.^2; varh=stdh.^2;
     
-    @ storing results for the CURRENT model @    
-    logl=(-fout-(ky/2)*(ln(n*t)))/n;
+    @ storing results for the CURRENT model @
+    df = 3 + t + 2*kx + kx * (t - 1) + kx * t * (t - 1)/2;
+    logl=(-fout-(df/2)*(ln(n*t)))/n;
     bict=exp(logl);                              @ integrated likelihood approximation           @
     
     @ prior model probability (either random -Ley&Steel09- or fixed) @
