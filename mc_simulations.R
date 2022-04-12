@@ -38,6 +38,9 @@ variables <- rev(colnames(rawdata)[-1:-3])
 n_entities <- 73
 periods_n <- 4
 
+B <- SEM_B_matrix(alpha = 0.6, periods_n = periods_n,
+                 beta = c(0.1, 0.2, 0.3, 0.25, 0.2, 0, -0.1, 0))
+
 #' Prepare data for LIML estimation
 #'
 #' @description
