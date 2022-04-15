@@ -38,8 +38,29 @@ variables <- rev(colnames(rawdata)[-1:-3])
 n_entities <- 73
 periods_n <- 4
 
-B <- SEM_B_matrix(alpha = 0.6, periods_n = periods_n,
-                 beta = c(0.1, 0.2, 0.3, 0.25, 0.2, 0, -0.1, 0))
+alpha <- 0.6
+beta <- c(0.1, 0.2, 0, 0, 0.2, 0, -0.1, 0)
+phi_0 <- 0.9
+phi_1 <- c(0.3, -0.2, 0, 0, 0.2, -0, -0.1, 0)
+err_var <- 1
+dep_vars <- c(2, 2, 2, 2)
+phis <- c(21, 22, 23, 24, 25, 26, 27, 28,
+          31, 32, 33, 34, 35, 36, 37, 38,
+          41, 42, 43, 44, 45, 46, 47, 48)
+psis <- c(21100, 21200, 21300, 21400, 21500, 21600, 21700, 21800,
+          31100, 31200, 31300, 31400, 31500, 31600, 31700, 31800,
+          41100, 41200, 41300, 41400, 41500, 41600, 41700, 41800,
+          32100, 32200, 32300, 32400, 32500, 32600, 32700, 32800,
+          42100, 42200, 42300, 42400, 42500, 42600, 42700, 42800,
+          43100, 43200, 43300, 43400, 43500, 43600, 43700, 43800)
+
+B <- SEM_B_matrix(alpha = alpha, periods_n = periods_n, beta = beta)
+
+C <- SEM_C_matrix(alpha = alpha, phi_0 = phi_0, periods_n = periods_n,
+                  beta = beta, phi_1 = phi_1)
+
+S <- SEM_sigma_matrix(err_var = err_var, dep_vars = dep_vars, phis = phis,
+                      psis = psis)
 
 #' Prepare data for LIML estimation
 #'
