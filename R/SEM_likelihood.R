@@ -231,7 +231,8 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
 #' psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
 #' SEM_sigma_matrix(err_var, dep_vars, phis, psis)
 SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(),
-                             psis = c(), psis_byrow = TRUE) {
+                             psis = c(), psis_byrow = TRUE,
+                             mle_simplified = TRUE, covariances = list()) {
   periods_n <- length(dep_vars)
 
   O11 <- err_var^2*optimbase::ones(periods_n, periods_n) +
@@ -269,7 +270,31 @@ SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(),
   } else {
     NULL
   }
-  list(O11, O12)
+  S22 <- if (!mle_simplified & length(phis) != 0) {
+    regressors_n <- length(phis)/(periods_n - 1)
+
+    create_row <- function(n, periods_n, regessors_n, covariances) {
+      ind_limit <- (periods_n-1)*(periods_n)/2
+      start_index <-
+        1 + ind_limit - (periods_n-n)*(periods_n-n+1)/2
+      end_index <- start_index+periods_n-n-1
+      front_empty_matrix <-
+        matrix(nrow = regressors_n, ncol = (n-1)*regressors_n)
+      do.call(cbind,
+              c(list(front_empty_matrix), covariances[start_index:end_index]))
+    }
+
+    rows <-
+      lapply(1:(periods_n-1),
+             function(x) {create_row(x, periods_n, regressors_n, covariances)})
+
+    m <- do.call(plyr::rbind.fill.matrix, rows)
+    m[lower.tri(m)] <- t(m)[lower.tri(m)]
+    m
+  } else {
+    NULL
+  }
+  list(O11, O12, S22)
 }
 
 SEM_params_to_list <- function(params, periods_n, tot_regressors_n,

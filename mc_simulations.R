@@ -59,8 +59,17 @@ B <- SEM_B_matrix(alpha = alpha, periods_n = periods_n, beta = beta)
 C <- SEM_C_matrix(alpha = alpha, phi_0 = phi_0, periods_n = periods_n,
                   beta = beta, phi_1 = phi_1)
 
+cov_matrix <- matrix(nrow = regressors_n, ncol = regressors_n)
+i.upr <- which(upper.tri(cov_matrix, diag = TRUE), arr.ind=TRUE)
+cov_matrix[i.upr] <- seq(0.01, 0.36, 0.01)
+cov_matrix[lower.tri(cov_matrix)] <- t(cov_matrix)[lower.tri(cov_matrix)]
+
+covariances <- lapply(1:(regressors_n*(regressors_n+1)/2),
+                      function(x) {cov_matrix})
+
 S <- SEM_sigma_matrix(err_var = err_var, dep_vars = dep_vars, phis = phis,
-                      psis = psis)
+                      psis = psis, mle_simplified = FALSE,
+                      covariances = covariances)
 
 #' Prepare data for LIML estimation
 #'
