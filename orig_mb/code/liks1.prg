@@ -5,7 +5,7 @@
 @----------------------------------------------------------------------@
 
 proc(1)=lik(t0in);
-local likf,ii,i1,i2,B0,B110,B120,C0,U10,H,o110,o120,o210,t0,t0i,fact,S11_inv,F12,M,G22_inverse,G22;
+local likf,ii,i1,i2,B0,B110,B120,C0,U10,H,o110,o120,o210,t0,t0i,fact,S11_inv,F12,M,G22_inverse,G22, likelihood_constant;
 
 t0=t0in;
 
@@ -92,7 +92,8 @@ if det(o110)<=0;
         H = M'Q*M;
         G22_inverse = 1/n * H;
         G22 = inv(G22_inverse);
-        likf = -(1/2)*(n*ln(det(o110)/det(G22)) + sumc(diag(inv(o110)*U10'U10)) + n^2);
+        likelihood_constant = -(n/2) * (n + (t + (t - 1)*ktotx)*ln(2*pi));
+        likf = -(1/2)*(n*ln(det(o110)/det(G22)) + sumc(diag(inv(o110)*U10'U10))) + likelihood_constant;
     endif;
 
 retp(-likf);
@@ -184,7 +185,7 @@ iter=1;
 do while iter <= n;
     u10i=U10[iter,.]';
     likvec[iter]=-(1/2)*ln(det(o110))-(1/2)*ln(det(H/n))
-                 -(1/2)*(u10i'inv(o110)*u10i);
+                 -(1/2)*(u10i'inv(o110)*u10i)- (1/2) * (n + (t + (t - 1)*ktotx)*ln(2*pi));
     iter=iter+1;
 endo;
 
