@@ -99,6 +99,87 @@ if det(o110)<=0;
 retp(-likf);
 endp;
 
+proc(1) = sigmaConstraint(t0in);
+local ii,i1,i2,B0,B110,B120,C0,U10,H,o110,o120,o210,t0,S11_inv,F12,L,G22_inverse,G22,S22, sigma;
+    
+t0=t0in;
+
+B0=eye(t+(t-1)*ktotx);
+C0=zeros(t,ky);
+ii=2;
+do while ii<=t;
+    B0[ii,ii-1]=-t0[1];
+    ii=ii+1;
+endo;
+
+i1=1;
+i2=1;               @ georg correction for the proper ordering of variables @
+do while i1<=ktotx;
+    if mt[i1]==0;
+        B0[2,5+(i1-1):4+i1]=0;
+        B0[3,5+ktotx+(i1-1):4+ktotx+i1]=0;
+        B0[4,5+2*ktotx+(i1-1):4+2*ktotx+i1]=0;
+    elseif mt[i1]==1;
+        B0[2,5+(i1-1):4+i1]=-t0[1+i2];                  @ georg @
+        B0[3,5+ktotx+(i1-1):4+ktotx+i1]=-t0[1+i2];      @ georg @
+        B0[4,5+2*ktotx+(i1-1):4+2*ktotx+i1]=-t0[1+i2];  @ georg @
+        i2=i2+1;                                        @ georg @
+    endif;
+i1=i1+1;
+endo;
+
+
+
+if kx==0;
+    C0[1,1]=t0[1]+t0[2];
+    C0[2,1]=t0[2];
+    C0[3,1]=t0[2];
+    C0[4,1]=t0[2];
+else;
+    C0[1,1]=t0[1]+t0[1+ky];
+    C0[1,2:cols(C0)]=t0[2:ky]'+t0[ky+2:ky+1+kx]';
+    C0[2,.]=t0[ky+1:ky+kx+1]';
+    C0[3,.]=t0[ky+1:ky+kx+1]';
+    C0[4,.]=t0[ky+1:ky+kx+1]';
+endif;
+
+B110=B0[1:4,1:4];
+B120=B0[1:4,5:cols(B0)];
+
+o110=zeros(4,4);
+o110[1,1]=t0[2*ky+2]^2; o110[2,2]=t0[2*ky+3]^2; o110[3,3]=t0[2*ky+4]^2; o110[4,4]=t0[2*ky+5]^2;
+o110=o110+(t0[2*ky+1]^2)*(ones(4,1)*ones(4,1)');
+
+o120=zeros(t,3*ktotx);
+
+o120[1,1:ktotx]=t0[2*ky+6:2*ky+6+(ktotx-1)]'+t0[2*ky+6+3*ktotx:2*ky+6+3*ktotx+(ktotx-1)]';   o120[1,ktotx+1:2*ktotx]=t0[2*ky+6+ktotx:2*ky+6+ktotx+(ktotx-1)]'+t0[2*ky+6+4*ktotx:2*ky+6+4*ktotx+(ktotx-1)]';   o120[1,2*ktotx+1:3*ktotx]=t0[2*ky+6+2*ktotx:2*ky+6+2*ktotx+(ktotx-1)]'+t0[2*ky+6+5*ktotx:2*ky+6+5*ktotx+(ktotx-1)]';
+o120[2,1:ktotx]=t0[2*ky+6:2*ky+6+(ktotx-1)]';                                                o120[2,ktotx+1:2*ktotx]=t0[2*ky+6+ktotx:2*ky+6+ktotx+(ktotx-1)]'+t0[2*ky+6+6*ktotx:2*ky+6+6*ktotx+(ktotx-1)]';   o120[2,2*ktotx+1:3*ktotx]=t0[2*ky+6+2*ktotx:2*ky+6+2*ktotx+(ktotx-1)]'+t0[2*ky+6+7*ktotx:2*ky+6+7*ktotx+(ktotx-1)]';
+o120[3,1:ktotx]=t0[2*ky+6:2*ky+6+(ktotx-1)]';                                                o120[3,ktotx+1:2*ktotx]=t0[2*ky+6+ktotx:2*ky+6+ktotx+(ktotx-1)]';                                                o120[3,2*ktotx+1:3*ktotx]=t0[2*ky+6+2*ktotx:2*ky+6+2*ktotx+(ktotx-1)]'+t0[2*ky+6+8*ktotx:2*ky+6+8*ktotx+(ktotx-1)]';
+o120[4,1:ktotx]=t0[2*ky+6:2*ky+6+(ktotx-1)]';                                                o120[4,ktotx+1:2*ktotx]=t0[2*ky+6+ktotx:2*ky+6+ktotx+(ktotx-1)]';                                                o120[4,2*ktotx+1:3*ktotx]=t0[2*ky+6+2*ktotx:2*ky+6+2*ktotx+(ktotx-1)]';                          
+ 
+o210=o120';
+
+U10=(B110*Y1'+B120*Y2'-C0*cur_Z')';
+S11_inv = inv(o110);
+F12 = - S11_inv * o120;
+L = Y2 + U10 * F12;
+H = L' * Q * L;
+G22_inverse = 1/n * H;
+S22 = G22_inverse + F12' * o110 * F12;
+G22 = inv(G22_inverse);
+
+sigma = blockDiag(o110, S22);
+sigma[1:t, (t + 1):(t + (T - 1) * ktotx)] = o120;
+sigma[(t + 1):(t + (T - 1) * ktotx), 1:t] = o120';
+
+if det(G22)/det(o110)<0;
+    print "hello there";
+endif;
+
+retp(minc(eigh(sigma)));
+
+endp;
+
 
 
 

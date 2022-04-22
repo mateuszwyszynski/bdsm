@@ -90,12 +90,15 @@ do while turu<=tot;
     nptbe = t + 1 + 1 + kx + 1 + kx + ktotx*(t-1) + psis;  
     
     @ t0in is the vector of initial values for the likelihood optimization   @
-    t0in=.5*ones(nptbe,1);                                  
+    t0in=0.5*ones(nptbe,1);                                  
     
     @ we now call the optimization procedure for maximizing the likelihood function @
     optset; cout1=0; opditer=100;
     _opstmth="steep one"; _opmdmth="bfgs brent";    
     {theta,fout,grad,ret}=optmum(&lik,t0in);
+    // If you want to manually check if the found MLE constructs positive definite covariance matrix uncomment two lines below:
+    //print sigmaConstraint(theta);
+    //wait;
     
     @ we now compute model-specific standard errors @
     he=myhess(&lik,theta);
