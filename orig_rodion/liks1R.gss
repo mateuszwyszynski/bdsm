@@ -25,7 +25,7 @@ The variable cur_Y2 is computed in the balimleR.gss file.
 
 proc(1)=lik(t0in);
 local likf,ii,i1,i11,i2,i3,i4,i5,i6,i7,seq,dseq,iseq,B0,B110,B120,C0,U10,H,o110,o120,o121,o210,t0,t0i,fact;
-local err_var_ind,dep_vars_last_ind,phis_n,phis_last_ind,row_ind,start_col_ind,col_ind,V;
+local err_var_ind,dep_vars_last_ind,phis_n,phis_last_ind,row_ind,start_col_ind,col_ind,V, likelihood_constant;
 
 t0=t0in;
 
@@ -161,7 +161,8 @@ else;
         H=V'Q*V;
     endif;
     
-    likf=-(n/2)*ln(det(o110))-(1/2)*sumc(diag(inv(o110)*U10'U10)); @ concentrated log-likelihood in the appendix @
+    likelihood_constant = -(n/2) * (n + (t + (t - 1)*kx)*ln(2*pi));
+    likf=-(n/2)*ln(det(o110))-(1/2)*sumc(diag(inv(o110)*U10'U10)) + likelihood_constant; @ concentrated log-likelihood in the appendix @
     if kx!=0;
         likf=likf-(n/2)*ln(det(H/n));
     endif;
@@ -186,7 +187,7 @@ endp;
 
 proc(1)=likgra(t0in);
 local likvec,ii,i1,i11,i2,i3,i4,i5,i6,i7,seq,dseq,iseq,B0,B110,B120,C0,U10,H,o110,o120,o121,o210,iter,u10i,t0;
-local err_var_ind,dep_vars_last_ind,phis_n,phis_last_ind,row_ind,start_col_ind,col_ind,V;
+local err_var_ind,dep_vars_last_ind,phis_n,phis_last_ind,row_ind,start_col_ind,col_ind,V, likelihood_constant;
 
 t0=t0in;
 
@@ -306,7 +307,8 @@ endif;
 
 for iter(1,n,1);
     u10i=U10[iter,.]';
-    likvec[iter]=-(1/2)*ln(det(o110))-(1/2)*(u10i'inv(o110)*u10i);
+    likelihood_constant = -(1/2) * (n + (t + (t - 1)*kx)*ln(2*pi));
+    likvec[iter]=-(1/2)*ln(det(o110))-(1/2)*(u10i'inv(o110)*u10i) + likelihood_constant;
     if kx!=0;
         likvec[iter]=likvec[iter]-(1/2)*ln(det(H/n));
     endif;
