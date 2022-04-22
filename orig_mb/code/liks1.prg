@@ -92,7 +92,7 @@ if det(o110)<=0;
         H = M'Q*M;
         G22_inverse = 1/n * H;
         G22 = inv(G22_inverse);
-        likf=-(n/2)*ln(det(o110))-(1/2)*sumc(diag(inv(o110)*U10'U10))+(n/2)*ln(det(G22)) - 1/2 * n^2;
+        likf = -(1/2)*(n*ln(det(o110)/det(G22)) + sumc(diag(inv(o110)*U10'U10)) + n^2);
     endif;
 
 retp(-likf);
