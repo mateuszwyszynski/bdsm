@@ -90,9 +90,9 @@ if det(o110)<=0;
         F12 = - S11_inv * o120;
         M = Y2 + U10 * F12;
         H = M'Q*M;
-        G22_inverse = F12' * o110 * F12 + 1/n * (M' * Q * (Y2 - U10 * F12) + F12' * U10' * U10 * F12);
+        G22_inverse = 1/n * H;
         G22 = inv(G22_inverse);
-        likf=-(n/2)*ln(det(o110))-(1/2)*sumc(diag(inv(o110)*U10'U10))+(n/2)*ln(det(G22)) - 1/2 * sumc(diag(H*G22));
+        likf=-(n/2)*ln(det(o110))-(1/2)*sumc(diag(inv(o110)*U10'U10))+(n/2)*ln(det(G22)) - 1/2 * n^2;
     endif;
 
 retp(-likf);
