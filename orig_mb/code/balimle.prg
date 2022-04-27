@@ -8,6 +8,8 @@ library optmum;
 #include optmum.ext;
 begin=date;
 prandom = 0;          @* prandom=1 for theta random Ley&Steel09. prandom = 0 for theta fixed *@
+dilution = 0;
+dil_power = 1/2;
 
 @---------------------------------------------------------------------------------@
 @		   	                     LOADING THE DATASET			        		  @
@@ -37,6 +39,8 @@ Y1=R[.,2 2+ktoty 2+2*ktoty 2+3*ktoty];
 @ predetermined variables for the three periods @
 Y2=R[.,4+ktotx:3+2*ktotx 5+2*ktotx:4+3*ktotx 6+3*ktotx:5+4*ktotx];
 X0=R[.,3:2+ktotx];
+
+corr_matrix=Corrx(data[.,3:2+ktotx]);
 
 Z=R[.,1]~X0;
 
@@ -117,6 +121,22 @@ do while turu<=tot;
         priorprobt=(gamma(1+kx))*(gamma(b+ktotx-kx));    @theta random@
     elseif prandom == 0;
         priorprobt=(pinc)^(kx)*(1-pinc)^(ktotx-kx);      @theta fixed@ 
+    endif;
+    
+    if dilution == 1;
+        x={};
+        for i(1,ktotx,1);
+            if mt[i]==1;
+                x=x~i;
+            endif;
+        endfor;
+        if cols(x)<=1;
+            corr_det=1;
+        else;
+            cur_corr_matrix=corr_matrix[x,x];
+            corr_det=det(cur_corr_matrix);
+        endif;
+        priorprobt=corr_det^dil_power*priorprobt;
     endif;
 
     @ posterior model probability  @
