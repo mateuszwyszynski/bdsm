@@ -17,23 +17,17 @@ do while ii<=t;
     ii=ii+1;
 endo;
 
-i1=1;
 i2=1;               @ georg correction for the proper ordering of variables @
-do while i1<=ktotx;
-    if mt[i1]==0;
-        B0[2,5+(i1-1):4+i1]=0;
-        B0[3,5+ktotx+(i1-1):4+ktotx+i1]=0;
-        B0[4,5+2*ktotx+(i1-1):4+2*ktotx+i1]=0;
-    elseif mt[i1]==1;
-        B0[2,5+(i1-1):4+i1]=-t0[1+i2];                  @ georg @
-        B0[3,5+ktotx+(i1-1):4+ktotx+i1]=-t0[1+i2];      @ georg @
-        B0[4,5+2*ktotx+(i1-1):4+2*ktotx+i1]=-t0[1+i2];  @ georg @
-        i2=i2+1;                                        @ georg @
+for i1(1,ktotx,1);
+    if mt[i1]==0;   @ if x variable is not included @
+        B0=B0;
+    else;           @ if x variable is included     @
+        for i11(2,t,1);
+            B0[i11,t+1+(i11-2)*ktotx+(i1-1)]=-t0[1+i2];
+        endfor;
+        i2=i2+1;
     endif;
-i1=i1+1;
-endo;
-
-
+endfor;
 
 if kx==0;
     C0[1,1]=t0[1]+t0[2];
