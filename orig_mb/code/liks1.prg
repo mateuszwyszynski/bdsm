@@ -5,7 +5,7 @@
 @----------------------------------------------------------------------@
 
 proc(1)=lik(t0in);
-local likf,ii,i1,i2,B0,B110,B120,C0,U10,H,o110,o120,o210,t0,t0i,fact,S11_inv,F12,M,G22_inverse,G22, likelihood_constant;
+local likf,ii,i1,i2,B0,B110,B120,C0,U10,H,o110,o120,o210,t0,t0i,fact,S11_inv,F12,M,G22_inverse,G22, likelihood_constant, err_var_ind;
 
 t0=t0in;
 
@@ -45,9 +45,13 @@ endif;
 B110=B0[1:t,1:t];
 B120=B0[1:t,(t+1):cols(B0)];
 
-o110=zeros(4,4);
-o110[1,1]=t0[2*ky+2]^2; o110[2,2]=t0[2*ky+3]^2; o110[3,3]=t0[2*ky+4]^2; o110[4,4]=t0[2*ky+5]^2;
-o110=o110+(t0[2*ky+1]^2)*(ones(4,1)*ones(4,1)');
+err_var_ind=2*ky+1;
+
+o110=zeros(t,t);
+for i5(1,t,1);
+    o110[i5,i5]=t0[err_var_ind+i5]^2;
+endfor;
+o110=o110+(t0[err_var_ind]^2)*(ones(t,t));
 
 o120=zeros(t,3*ktotx);
 
