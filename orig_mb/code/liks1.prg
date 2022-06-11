@@ -31,15 +31,15 @@ endfor;
 
 if kx==0;
     C0[1,1]=t0[1]+t0[2];
-    C0[2,1]=t0[2];
-    C0[3,1]=t0[2];
-    C0[4,1]=t0[2];
+    for i3(2,t,1);
+        C0[i3,1]=t0[2];
+    endfor;
 else;
     C0[1,1]=t0[1]+t0[1+ky];
     C0[1,2:cols(C0)]=t0[2:ky]'+t0[ky+2:ky+1+kx]';
-    C0[2,.]=t0[ky+1:ky+kx+1]';
-    C0[3,.]=t0[ky+1:ky+kx+1]';
-    C0[4,.]=t0[ky+1:ky+kx+1]';
+    for i4(2,t,1);
+        C0[i4,.]=t0[ky+1:ky+kx+1]';
+    endfor;
 endif;
 
 B110=B0[1:4,1:4];
