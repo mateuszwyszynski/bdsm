@@ -137,6 +137,7 @@ endp;
 
 proc(1) = sigmaConstraint(t0in);
 local ii,i1,i2,B0,B110,B120,C0,U10,H,o110,o120,o210,t0,S11_inv,F12,L,G22_inverse,G22,S22, sigma;
+local err_var_ind, dep_vars_last_ind, o121, seq, dseq, phis_n, phis_last_ind, start_col_ind;
     
 t0=t0in;
 
@@ -148,51 +149,86 @@ do while ii<=t;
     ii=ii+1;
 endo;
 
-i1=1;
 i2=1;               @ georg correction for the proper ordering of variables @
-do while i1<=ktotx;
-    if mt[i1]==0;
-        B0[2,5+(i1-1):4+i1]=0;
-        B0[3,5+ktotx+(i1-1):4+ktotx+i1]=0;
-        B0[4,5+2*ktotx+(i1-1):4+2*ktotx+i1]=0;
-    elseif mt[i1]==1;
-        B0[2,5+(i1-1):4+i1]=-t0[1+i2];                  @ georg @
-        B0[3,5+ktotx+(i1-1):4+ktotx+i1]=-t0[1+i2];      @ georg @
-        B0[4,5+2*ktotx+(i1-1):4+2*ktotx+i1]=-t0[1+i2];  @ georg @
-        i2=i2+1;                                        @ georg @
+for i1(1,ktotx,1);
+    if mt[i1]==0;   @ if x variable is not included @
+        B0=B0;
+    else;           @ if x variable is included     @
+        for i11(2,t,1);
+            B0[i11,t+1+(i11-2)*ktotx+(i1-1)]=-t0[1+i2];
+        endfor;
+        i2=i2+1;
     endif;
-i1=i1+1;
-endo;
-
-
+endfor;
 
 if kx==0;
     C0[1,1]=t0[1]+t0[2];
-    C0[2,1]=t0[2];
-    C0[3,1]=t0[2];
-    C0[4,1]=t0[2];
+    for i3(2,t,1);
+        C0[i3,1]=t0[2];
+    endfor;
 else;
     C0[1,1]=t0[1]+t0[1+ky];
     C0[1,2:cols(C0)]=t0[2:ky]'+t0[ky+2:ky+1+kx]';
-    C0[2,.]=t0[ky+1:ky+kx+1]';
-    C0[3,.]=t0[ky+1:ky+kx+1]';
-    C0[4,.]=t0[ky+1:ky+kx+1]';
+    for i4(2,t,1);
+        C0[i4,.]=t0[ky+1:ky+kx+1]';
+    endfor;
 endif;
 
-B110=B0[1:4,1:4];
-B120=B0[1:4,5:cols(B0)];
+B110=B0[1:t,1:t];
+B120=B0[1:t,(t+1):cols(B0)];
 
-o110=zeros(4,4);
-o110[1,1]=t0[2*ky+2]^2; o110[2,2]=t0[2*ky+3]^2; o110[3,3]=t0[2*ky+4]^2; o110[4,4]=t0[2*ky+5]^2;
-o110=o110+(t0[2*ky+1]^2)*(ones(4,1)*ones(4,1)');
+err_var_ind=2*ky+1;
 
-o120=zeros(t,3*ktotx);
+o110=zeros(t,t);
+for i5(1,t,1);
+    o110[i5,i5]=t0[err_var_ind+i5]^2;
+endfor;
+o110=o110+(t0[err_var_ind]^2)*(ones(t,t));
 
-o120[1,1:ktotx]=t0[2*ky+6:2*ky+6+(ktotx-1)]'+t0[2*ky+6+3*ktotx:2*ky+6+3*ktotx+(ktotx-1)]';   o120[1,ktotx+1:2*ktotx]=t0[2*ky+6+ktotx:2*ky+6+ktotx+(ktotx-1)]'+t0[2*ky+6+4*ktotx:2*ky+6+4*ktotx+(ktotx-1)]';   o120[1,2*ktotx+1:3*ktotx]=t0[2*ky+6+2*ktotx:2*ky+6+2*ktotx+(ktotx-1)]'+t0[2*ky+6+5*ktotx:2*ky+6+5*ktotx+(ktotx-1)]';
-o120[2,1:ktotx]=t0[2*ky+6:2*ky+6+(ktotx-1)]';                                                o120[2,ktotx+1:2*ktotx]=t0[2*ky+6+ktotx:2*ky+6+ktotx+(ktotx-1)]'+t0[2*ky+6+6*ktotx:2*ky+6+6*ktotx+(ktotx-1)]';   o120[2,2*ktotx+1:3*ktotx]=t0[2*ky+6+2*ktotx:2*ky+6+2*ktotx+(ktotx-1)]'+t0[2*ky+6+7*ktotx:2*ky+6+7*ktotx+(ktotx-1)]';
-o120[3,1:ktotx]=t0[2*ky+6:2*ky+6+(ktotx-1)]';                                                o120[3,ktotx+1:2*ktotx]=t0[2*ky+6+ktotx:2*ky+6+ktotx+(ktotx-1)]';                                                o120[3,2*ktotx+1:3*ktotx]=t0[2*ky+6+2*ktotx:2*ky+6+2*ktotx+(ktotx-1)]'+t0[2*ky+6+8*ktotx:2*ky+6+8*ktotx+(ktotx-1)]';
-o120[4,1:ktotx]=t0[2*ky+6:2*ky+6+(ktotx-1)]';                                                o120[4,ktotx+1:2*ktotx]=t0[2*ky+6+ktotx:2*ky+6+ktotx+(ktotx-1)]';                                                o120[4,2*ktotx+1:3*ktotx]=t0[2*ky+6+2*ktotx:2*ky+6+2*ktotx+(ktotx-1)]';                          
- 
+
+@ phi's matrix @
+dep_vars_last_ind=2*ky+t+1;
+
+o120=zeros(t,(t-1)*ktotx);
+for i6(1,t,1);
+    for i7(1,t-1,1);
+        for reg_ind(1,ktotx,1);
+            o120[i6,(reg_ind+(i7-1)*ktotx)]=t0[dep_vars_last_ind+(i7-1)*ktotx+reg_ind];
+        endfor;
+    endfor;
+endfor;
+
+@ psi's upper triangular matrix @
+o121=zeros(t,(t-1)*ktotx);
+
+@ as o121 is an upper triangular matrix, each subsequent row has @
+@ 1 element less @
+
+seq=zeros(t,1);
+dseq=0;
+for iseq(1,t,1);
+    seq[iseq]=dseq;
+    dseq=dseq+t-iseq;
+endfor;
+
+phis_n=ktotx*(t-1);
+phis_last_ind=dep_vars_last_ind+phis_n;
+
+for row_ind(1,t-1,1);
+    start_col_ind=row_ind;
+    for col_ind(start_col_ind,t,1);
+        if col_ind==t;
+            o121=o121;
+        else;
+            for reg_ind(1,ktotx,1);
+                o121[row_ind,(start_col_ind-1)*ktotx+reg_ind+(col_ind-start_col_ind)*ktotx]=t0[phis_last_ind+(col_ind-start_col_ind)*ktotx+ktotx*((row_ind-1)*(t-1)-(row_ind-2)*(row_ind-1)/2)+reg_ind];
+            endfor;
+        endif;
+    endfor;
+endfor;
+@ Sigma 12 @
+o120=o120+o121;
+
 o210=o120';
 
 U10=(B110*Y1'+B120*Y2'-C0*cur_Z')';
@@ -232,6 +268,7 @@ endp;
 
 proc(1)=likgra(t0in);
 local likvec,ii,i1,i2,B0,B110,B120,C0,U10,H,o110,o120,o210,iter,u10i,t0;
+local err_var_ind, dep_vars_last_ind, o121, seq, dseq, phis_n, phis_last_ind, start_col_ind;
 
 
 t0=t0in;
@@ -248,50 +285,86 @@ do while ii<=t;
 endo;
 
 
-i1=1;
 i2=1;               @ georg correction for the proper ordering of variables @
-do while i1<=ktotx;
-    if mt[i1]==0;
-        B0[2,5+(i1-1):4+i1]=0;
-        B0[3,5+ktotx+(i1-1):4+ktotx+i1]=0;
-        B0[4,5+2*ktotx+(i1-1):4+2*ktotx+i1]=0;
-    elseif mt[i1]==1;
-        B0[2,5+(i1-1):4+i1]=-t0[1+i2];                  @ georg @
-        B0[3,5+ktotx+(i1-1):4+ktotx+i1]=-t0[1+i2];      @ georg @
-        B0[4,5+2*ktotx+(i1-1):4+2*ktotx+i1]=-t0[1+i2];  @ georg @
-        i2=i2+1;                                        @ georg @
+for i1(1,ktotx,1);
+    if mt[i1]==0;   @ if x variable is not included @
+        B0=B0;
+    else;           @ if x variable is included     @
+        for i11(2,t,1);
+            B0[i11,t+1+(i11-2)*ktotx+(i1-1)]=-t0[1+i2];
+        endfor;
+        i2=i2+1;
     endif;
-i1=i1+1;
-endo;
-
+endfor;
 
 if kx==0;
     C0[1,1]=t0[1]+t0[2];
-    C0[2,1]=t0[2];
-    C0[3,1]=t0[2];
-    C0[4,1]=t0[2];
+    for i3(2,t,1);
+        C0[i3,1]=t0[2];
+    endfor;
 else;
     C0[1,1]=t0[1]+t0[1+ky];
     C0[1,2:cols(C0)]=t0[2:ky]'+t0[ky+2:ky+1+kx]';
-    C0[2,.]=t0[ky+1:ky+kx+1]';
-    C0[3,.]=t0[ky+1:ky+kx+1]';
-    C0[4,.]=t0[ky+1:ky+kx+1]';
+    for i4(2,t,1);
+        C0[i4,.]=t0[ky+1:ky+kx+1]';
+    endfor;
 endif;
 
-B110=B0[1:4,1:4];
-B120=B0[1:4,5:cols(B0)];
+B110=B0[1:t,1:t];
+B120=B0[1:t,(t+1):cols(B0)];
 
-o110=zeros(4,4);
-o110[1,1]=t0[2*ky+2]^2; o110[2,2]=t0[2*ky+3]^2; o110[3,3]=t0[2*ky+4]^2; o110[4,4]=t0[2*ky+5]^2;
-o110=o110+(t0[2*ky+1]^2)*(ones(4,1)*ones(4,1)');
+err_var_ind=2*ky+1;
 
-o120=zeros(t,3*ktotx);
+o110=zeros(t,t);
+for i5(1,t,1);
+    o110[i5,i5]=t0[err_var_ind+i5]^2;
+endfor;
+o110=o110+(t0[err_var_ind]^2)*(ones(t,t));
 
-o120[1,1:ktotx]=t0[2*ky+6:2*ky+6+(ktotx-1)]'+t0[2*ky+6+3*ktotx:2*ky+6+3*ktotx+(ktotx-1)]';   o120[1,ktotx+1:2*ktotx]=t0[2*ky+6+ktotx:2*ky+6+ktotx+(ktotx-1)]'+t0[2*ky+6+4*ktotx:2*ky+6+4*ktotx+(ktotx-1)]';   o120[1,2*ktotx+1:3*ktotx]=t0[2*ky+6+2*ktotx:2*ky+6+2*ktotx+(ktotx-1)]'+t0[2*ky+6+5*ktotx:2*ky+6+5*ktotx+(ktotx-1)]';
-o120[2,1:ktotx]=t0[2*ky+6:2*ky+6+(ktotx-1)]';                                                o120[2,ktotx+1:2*ktotx]=t0[2*ky+6+ktotx:2*ky+6+ktotx+(ktotx-1)]'+t0[2*ky+6+6*ktotx:2*ky+6+6*ktotx+(ktotx-1)]';   o120[2,2*ktotx+1:3*ktotx]=t0[2*ky+6+2*ktotx:2*ky+6+2*ktotx+(ktotx-1)]'+t0[2*ky+6+7*ktotx:2*ky+6+7*ktotx+(ktotx-1)]';
-o120[3,1:ktotx]=t0[2*ky+6:2*ky+6+(ktotx-1)]';                                                o120[3,ktotx+1:2*ktotx]=t0[2*ky+6+ktotx:2*ky+6+ktotx+(ktotx-1)]';                                                o120[3,2*ktotx+1:3*ktotx]=t0[2*ky+6+2*ktotx:2*ky+6+2*ktotx+(ktotx-1)]'+t0[2*ky+6+8*ktotx:2*ky+6+8*ktotx+(ktotx-1)]';
-o120[4,1:ktotx]=t0[2*ky+6:2*ky+6+(ktotx-1)]';                                                o120[4,ktotx+1:2*ktotx]=t0[2*ky+6+ktotx:2*ky+6+ktotx+(ktotx-1)]';                                                o120[4,2*ktotx+1:3*ktotx]=t0[2*ky+6+2*ktotx:2*ky+6+2*ktotx+(ktotx-1)]';                          
- 
+
+@ phi's matrix @
+dep_vars_last_ind=2*ky+t+1;
+
+o120=zeros(t,(t-1)*ktotx);
+for i6(1,t,1);
+    for i7(1,t-1,1);
+        for reg_ind(1,ktotx,1);
+            o120[i6,(reg_ind+(i7-1)*ktotx)]=t0[dep_vars_last_ind+(i7-1)*ktotx+reg_ind];
+        endfor;
+    endfor;
+endfor;
+
+@ psi's upper triangular matrix @
+o121=zeros(t,(t-1)*ktotx);
+
+@ as o121 is an upper triangular matrix, each subsequent row has @
+@ 1 element less @
+
+seq=zeros(t,1);
+dseq=0;
+for iseq(1,t,1);
+    seq[iseq]=dseq;
+    dseq=dseq+t-iseq;
+endfor;
+
+phis_n=ktotx*(t-1);
+phis_last_ind=dep_vars_last_ind+phis_n;
+
+for row_ind(1,t-1,1);
+    start_col_ind=row_ind;
+    for col_ind(start_col_ind,t,1);
+        if col_ind==t;
+            o121=o121;
+        else;
+            for reg_ind(1,ktotx,1);
+                o121[row_ind,(start_col_ind-1)*ktotx+reg_ind+(col_ind-start_col_ind)*ktotx]=t0[phis_last_ind+(col_ind-start_col_ind)*ktotx+ktotx*((row_ind-1)*(t-1)-(row_ind-2)*(row_ind-1)/2)+reg_ind];
+            endfor;
+        endif;
+    endfor;
+endfor;
+@ Sigma 12 @
+o120=o120+o121;
+
 o210=o120';
 
 
