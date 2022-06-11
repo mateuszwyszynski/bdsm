@@ -11,8 +11,7 @@
 
 proc(2)=transf1(rawdata);
 local xdata, xmean, xstd, xdatas,
-      dmtx, csddata, j,
-      limldata0, limldata1, limldata2, limldata3, limldata4;
+      dmtx, csddata, row_inds, limldata;
 
 @ we first standarize the Xs regressors to facilitate convergence @
 xdata = rawdata[.,3:cols(rawdata)];
@@ -29,23 +28,15 @@ csddata=dmtx*rawdata;
 
 
 @ now I organize the data for the LIML parametrization @
-limldata0=zeros(n,1);
-limldata1=zeros(n,ktoty);
-limldata2=zeros(n,ktoty);
-limldata3=zeros(n,ktoty);
-limldata4=zeros(n,ktoty);
+row_inds = seqa(1, t, n);
+limldata = csddata[row_inds, 2];
 
-j=1;
-do while j<=n;
-    limldata0[j,.]=csddata[(j-1)*t+1,2];
-    limldata1[j,.]=csddata[(j-1)*t+1,1 3:cols(csddata)];
-    limldata2[j,.]=csddata[(j-1)*t+2,1 3:cols(csddata)];
-    limldata3[j,.]=csddata[(j-1)*t+3,1 3:cols(csddata)];
-    limldata4[j,.]=csddata[(j-1)*t+4,1 3:cols(csddata)];
-    j=j+1;
-endo;
+for period(1, t, 1);
+    row_inds = seqa(period, t, n);
+    limldata = limldata~csddata[row_inds, 1 3:cols(csddata)];
+endfor;
 
-retp (csddata,limldata0~limldata1~limldata2~limldata3~limldata4);
+retp (csddata,limldata);
 endp;
 
 
