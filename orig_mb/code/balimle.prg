@@ -34,10 +34,16 @@ ktotx=cols(rawdata)-2; ktoty=ktotx+1;
 
 
 @ dependent variable for the five periods NX4 (matrix) @
-Y1=R[.,2 2+ktoty 2+2*ktoty 2+3*ktoty];
+Y1=zeros(n, t);
+for i(0, t-1, 1);
+    Y1[.,i+1]=R[.,2+ktoty*i];
+endfor;
 
 @ predetermined variables for the three periods @
-Y2=R[.,4+ktotx:3+2*ktotx 5+2*ktotx:4+3*ktotx 6+3*ktotx:5+4*ktotx];
+Y2=zeros(n, ktotx*(t-1));
+for j(0, t-2, 1);
+    Y2[.,1+j*ktotx:(1+j)*ktotx]=R[.,3+(j+1)*ktoty:3+j+(j+2)*ktotx];
+endfor;
 X0=R[.,3:2+ktotx];
 
 corr_matrix=Corrx(data[.,3:2+ktotx]);
