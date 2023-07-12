@@ -1,3 +1,125 @@
+#' Matrix with dependent variable data for SEM representation
+#'
+#' Create matrix which contains dependent variable data used in the Simultaneous
+#' Equations Model (SEM) representation on the left hand side of the equations.
+#' The matrix contains the data for time periods greater than chosen
+#' \code{start_time}. The matrix is then used to compute likelihood for SEM
+#' analysis.
+#'
+#' @param df Data frame with data for the SEM analysis.
+#' @param timestamp_col Column which determines time periods. For now only
+#' natural numbers can be used as timestamps
+#' @param entity_col Columns which determines entities (e.g. countires, people)
+#' @param dep_var_col Column with dependent variable
+#' @param start_time First time period. Only time periods greater than
+#' \code{start_time} will be considered in the resulting matrix
+#'
+#' @return
+#' Matrix of size N x T where N is the number of entities considered and T is
+#' the number of periods greater than or equal to \code{start_time}.
+#'
+#' @export
+#'
+#' @examples
+SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
+                               start_time) {
+  df %>% dplyr::filter({{ timestamp_col }} >= start_time) %>%
+    dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }}) %>%
+    tidyr::pivot_wider(names_from = {{ timestamp_col }},
+                       values_from = {{ dep_var_col }}) %>%
+    dplyr::select(!{{ entity_col }}) %>% as.matrix()
+}
+
+#' Matrix with regressors data for SEM representation
+#'
+#' Create matrix which contains regressors data used in the Simultaneous
+#' Equations Model (SEM) representation on the left hand side of the equations.
+#' The matrix contains regressors data for time periods greater than chosen
+#' \code{start_time}. The matrix is then used to compute likelihood for SEM
+#' analysis.
+#'
+#' @param df Data frame with data for the SEM analysis.
+#' @param timestamp_col Column which determines time periods. For now only
+#' natural numbers can be used as timestamps
+#' @param entity_col Columns which determines entities (e.g. countires, people)
+#' @param start_time First time period. Only time periods greater than
+#' \code{start_time} will be considered in the resulting matrix
+#' @param regressors_subset Which subset of columns should be used as
+#' regressors. If \code{NULL} (default) then all remaining columns will be used
+#' as regressors. For now columns have to be passed as list of column names
+#' represented as strings.
+#'
+#' @return
+#' Matrix of size N x (T-1)*k where N is the number of entities considered, T is
+#' the number of periods greater than or equal to \code{start_time} and k is the
+#' number of chosen regressors
+#' @export
+#'
+#' @examples
+SEM_regressors_matrix <- function(df, timestamp_col, entity_col, start_time,
+                                  regressors_subset = NULL) {
+  . <- NULL
+  df %>%
+    dplyr::select({{ timestamp_col }}, {{ entity_col }}, regressors_subset) %>%
+    dplyr::filter({{ timestamp_col }} > start_time) %>%
+    tidyr::pivot_wider(
+      names_from = {{ timestamp_col }},
+      values_from = !{{ entity_col }} & !{{ timestamp_col }}
+      ) %>%
+    dplyr::select(!{{ entity_col }}) %>%
+    dplyr::select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>%
+    as.matrix()
+}
+
+#' Matrix with exogenous variables for SEM representation
+#'
+#' Create matrix which contains exogenous variables used in the Simultaneous
+#' Equations Model (SEM) representation. Currently these are: dependent variable
+#' from the \code{start_time} period and regressors from the next period after
+#' the \code{strat_time}. The matrix is then used to compute likelihood for SEM
+#' analysis.
+#'
+#' @param df Data frame with data for the SEM analysis.
+#' @param timestamp_col Column which determines time periods. For now only
+#' natural numbers can be used as timestampsg
+#' @param start_time First time period. Only time periods greater than
+#' \code{start_time} will be considered in the resulting matrix
+#' @param lagged_col Column which contains lagged version of dependent variable
+#' @param regressors_subset Which subset of columns should be used as
+#' regressors. If \code{NULL} (default) then all remaining columns will be used
+#' as regressors. For now columns have to be passed as list of column names
+#' represented as strings.
+#'
+#' @return
+#' Matrix of size N x k+1 where N is the number of entities considered and k is
+#' the number of chosen regressors
+#' @export
+#'
+#' @examples
+SEM_exogenous_matrix <- function(df, timestamp_col, start_time, lagged_col,
+                                 regressors_subset = NULL) {
+  df %>% dplyr::filter({{ timestamp_col }} == start_time) %>%
+    dplyr::select({{ lagged_col}}, regressors_subset) %>% as.matrix()
+}
+
+#' Residual Maker Matrix
+#'
+#' Create residual maker matrix from a given matrix \code{m}. See article about
+#' \href{https://en.wikipedia.org/wiki/Projection_matrix}{projection matrix} on
+#' the Wikipedia.
+#'
+#' @param m Matrix
+#'
+#' @return
+#' M x M matrix where M is the number of rows in the \code{m} matrix.
+#' @export
+#'
+#' @examples
+residual_maker_matrix <- function(m) {
+  proj_matrix <- m%*%solve(crossprod(m))%*%t(m)
+  res_maker_matrix <- diag(nrow(m)) - proj_matrix
+}
+
 #' Coefficients matrix for SEM representation
 #'
 #' Create coefficients matrix for Simultaneous Equations Model (SEM)
@@ -82,8 +204,10 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
 #' @param err_var numeric
 #' @param dep_vars numeric vector
 #' @param phis numeric vector
-#' @param psis numeric vector. Psis should be passed column-wise, i.e. they will
-#' be filled into Sigma12 across columns first.
+#' @param psis numeric vector
+#' @param psis_byrow boolean. Whether psis should be passed row-wise (i.e. they
+#' will be filled into Sigma12 across rows first) or column-wise. Default is
+#' TRUE i.e. row-wise.
 #'
 #' @return List with two matrices Sigma11 and Sigma12
 #' @importFrom magrittr %>%
@@ -143,14 +267,16 @@ SEM_params_to_list <- function(params, periods_n, regressors_n,
   if (regressors_n == 0) {
     beta <- c()
     phi_1 <- c()
+    phis <- c()
+    psis <- c()
   } else {
     beta <- params[2:(1 + regressors_n)]
     phi_1 <- params[(3 + regressors_n):(2 + 2*regressors_n)]
+    phis <-
+      params[(4 + 2*regressors_n + periods_n):(3 + 2*regressors_n + periods_n + phis_n)]
+    psis <-
+      params[(4 + 2*regressors_n + periods_n + phis_n):(3 + 2*regressors_n + periods_n + phis_n + psis_n)]
   }
-  phis <-
-    params[(4 + 2*regressors_n + periods_n):(3 + 2*regressors_n + periods_n + phis_n)]
-  psis <-
-    params[(4 + 2*regressors_n + periods_n + phis_n):(3 + 2*regressors_n + periods_n + phis_n + psis_n)]
   phi_0 <- params[2 + regressors_n]
   err_var <- params[3 + 2*regressors_n]
   dep_vars <-
@@ -160,76 +286,13 @@ SEM_params_to_list <- function(params, periods_n, regressors_n,
        beta = beta, phi_1 = phi_1, phis = phis, psis = psis)
 }
 
-orig_sigma_matrix <- function(t0, t, cur_variables_n,
-                              regressors_n) {
-  cur_regressors_n <- sum(mt)
-  err_var_ind <- 2*cur_variables_n+1
-
-  o110=zeros(t,t)
-  for (i5 in 1:t) {
-    o110[i5,i5]=t0[err_var_ind+i5]^2
-  }
-  o110=o110+(t0[err_var_ind]^2)*(ones(t,t))  # Sigma 11
-
-  # Here, I split sigma 12 in the sum of two parts, phi's matrix and psi's upper triangular matrix
-
-  if (cur_regressors_n != 0) {
-    dep_vars_last_ind <- 2*cur_variables_n+t+1
-    # phi's matrix
-    o120=zeros(t,(t-1)*cur_regressors_n)
-    for (i6 in 1:t) {
-      for (i7 in 1:(t-1)) {
-        reg_params_ind <- 0
-        for (reg_ind in 1:cur_regressors_n) {
-          o120[i6,(reg_ind+(i7-1)*cur_regressors_n)]=t0[dep_vars_last_ind+(i7-1)*cur_regressors_n + reg_ind]
-        }
-      }
-    }
-
-    # psi's upper triangular matrix
-    o121=zeros(t,(t-1)*cur_regressors_n)
-    # as o121 is an upper triangular matrix, each subsequent row has 1 element less
-
-    seq=zeros(t,1)
-    dseq=0
-    for (iseq in 1:t) {
-      seq[iseq]=dseq
-      dseq=dseq+t-iseq
-    }
-
-    phis_n <- cur_regressors_n*(t - 1)
-    phis_last_ind <- dep_vars_last_ind + phis_n
-    for (row_ind in 1:(t-1)) {
-      start_col_ind <- row_ind
-      for (col_ind in start_col_ind:t) {
-        if (col_ind==t) {
-          o121=o121 }
-        else {
-          reg_params_ind <- 0
-          for (reg_ind in 1:cur_regressors_n) {
-            o121[row_ind,(start_col_ind - 1)*cur_regressors_n + reg_ind+(col_ind-start_col_ind)*cur_regressors_n]=
-              t0[phis_last_ind+(col_ind-start_col_ind)*cur_regressors_n + cur_regressors_n*((row_ind-1)*(t - 1) - (row_ind - 2)*(row_ind - 1)/2) + reg_ind]
-          }
-        }
-      }
-    }
-
-    # Sigma 12
-    o120=o120+o121
-    o210=t(o120)
-  } else {
-    o120 = NULL
-  }
-
-  list(o110, o120)
-}
-
-SEM_likelihood <- function(params, n_entities,
-                           cur_Y2, Y1, Y2, Z, res_maker_matrix,
-                           cur_variables_n, tot_regressors_n, t0 = NULL,
+SEM_likelihood <- function(params, data, timestamp_col = NULL,
+                           entity_col = NULL, start_time = NULL,
+                           lagged_col = NULL, dep_var_col = NULL,
+                           regressors_subset = NULL,
                            periods_n = NULL, regressors_n = NULL,
-                           phis_n = NULL, psis_n = NULL) {
-  if (is.list(params)) {
+                           phis_n = NULL, psis_n = NULL, grad = FALSE) {
+  if (is.list(params) && is.list(data)) {
     alpha <- params$alpha
     phi_0 <- params$phi_0
     err_var <- params$err_var
@@ -239,6 +302,12 @@ SEM_likelihood <- function(params, n_entities,
     phis <- if(is.null(params$phis)) c() else params$phis
     psis <- if(is.null(params$psis)) c() else params$psis
 
+    Y1 <- data$Y1
+    Y2 <- data$Y2
+    Z <- data$Z
+    res_maker_matrix <- data$res_maker_matrix
+
+    n_entities <- nrow(Z)
     periods_n <- length(dep_vars)
     cur_regressors_n <- length(beta)
     B <- SEM_B_matrix(alpha, periods_n, beta)
@@ -247,106 +316,53 @@ SEM_likelihood <- function(params, n_entities,
                            cur_variables_n = cur_variables_n,
                            regressors_n = tot_regressors_n)
 
-    Ui1 <- if (cur_regressors_n == 0) {
+    U1 <- if (cur_regressors_n == 0) {
       t(tcrossprod(B[[1]], Y1) - tcrossprod(C, Z))
     } else {
-      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, Z))
+      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], Y2) - tcrossprod(C, Z))
     }
     S11_inverse <- solve(S[[1]])
-    V <- if (cur_regressors_n == 0) {
-      cur_Y2
+    V <- if (is.null(S[[2]])) {
+      Y2
     } else {
-      cur_Y2 - Ui1 %*% S11_inverse %*% S[[2]]
+      Y2 - U1 %*% S11_inverse %*% S[[2]]
     }
     H <- crossprod(V, res_maker_matrix) %*% V
-    likelihood <-
+    likelihood <- if(!grad) {
       -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
-      1/2 * sum(diag(S11_inverse %*% crossprod(Ui1)))
+        1/2 * sum(diag(S11_inverse %*% crossprod(U1)))
+    } else {
+      lik_vec <- optimbase::zeros(n_entities, 1)
+      for (iter in 1:n_entities) {
+        u10i=as.matrix(U1[iter,])
+        lik_vec[iter]=-(1/2)*log(det(S[[1]]))-(1/2)*log(det(H/n_entities))-(1/2)*(t(u10i)%*%solve(S[[1]])%*%u10i)
+      }
+      lik_vec
+    }
   } else {
-    t0 <- params
-    params <- SEM_params_to_list(params, periods_n = periods_n,
-                                 regressors_n = regressors_n,
-                                 phis_n = phis_n, psis_n = psis_n)
-    likelihood <- SEM_likelihood(params = params, n_entities = n_entities,
-                                 cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
-                                 res_maker_matrix = res_maker_matrix,
-                                 t0 = t0, cur_variables_n = cur_variables_n,
-                                 tot_regressors_n = tot_regressors_n,
-                                 periods_n = periods_n)
+    if (!is.list(params)) {
+      params <- SEM_params_to_list(params, periods_n = periods_n,
+                                   regressors_n = regressors_n,
+                                   phis_n = phis_n, psis_n = psis_n)
+    }
+    if (!is.list(data)) {
+      Y1 <- SEM_dep_var_matrix(
+        df = data, timestamp_col = timestamp_col, entity_col = entity_col,
+        dep_var_col = dep_var_col, start_time = start_time
+        )
+      Y2 <- SEM_regressors_matrix(
+        df = data, timestamp_col = timestamp_col, entity_col = entity_col,
+        start_time = start_time, regressors_subset = regressors_subset
+      )
+      Z <- SEM_exogenous_matrix(
+        df = data, timestamp_col = timestamp_col, start_time = start_time,
+        lagged_col = lagged_col, regressors_subset = regressors_subset
+      )
+      res_maker_matrix <- residual_maker_matrix(Z)
+
+      data = list(Y1 = Y1, Y2 = Y2, Z = Z, res_maker_matrix = res_maker_matrix)
+    }
+    likelihood <- SEM_likelihood(params = params, data = data, grad = grad)
   }
   likelihood
-}
-
-#----------------------------------------------------------------------#
-#                                                                      #
-#                   LIKELIHOOD FUNCTION 1  (GRADIENT)                  #
-#                                                                      #
-#           this function construct the concentrated likelihood        #
-#           individual by individual and it gives the NX1 vector       #
-#           of individual log-likelihoods for the computation of       #
-#           the gradient and then the sandwich formula.                #
-#----------------------------------------------------------------------#
-
-
-likgra<-function(t0in) {
-  t0=t0in
-  likvec=zeros(n,1)
-
-  B0=diag(t+(t-1)*regressors_n)
-  C0=zeros(t,cur_variables_n)
-  for (ii in 2:t) {
-    B0[ii,(ii-1)]=-t0[1]      # SEM method B11 in paper
-  }
-
-  i2=1
-  for (i1 in 1:regressors_n) {
-    if (mt[i1]==0) {    # if x variable is not included
-      B0=B0 }
-    else {              # if x variable is included
-      for (i11 in 2:t) {
-        B0[i11,(t+1+(i11-2)*regressors_n+(i1-1))]=-t0[1+i2]
-      }
-      i2=i2+1
-    }
-  }
-
-  # C1 matrix
-  if (cur_regressors_n==0) {
-    C0[1,1]=t0[1]+t0[2]
-    for (i3 in 2:t) {
-      C0[i3,1]=t0[2]
-    }
-  }
-  else {
-    C0[1,1]=t0[1]+t0[1+cur_variables_n]
-    C0[1,(2:ncol(C0))]=t(t0[2:cur_variables_n])+t(t0[(cur_variables_n+2):(cur_variables_n+1+cur_regressors_n)])
-    for (i4 in 2:t) {
-      C0[i4,]=t(t0[(cur_variables_n+1):(cur_variables_n+cur_regressors_n+1)])
-    }
-  }
-  # C2 matrix has closed-form solutions
-
-  B110=B0[(1:t),(1:t)]
-  B120=B0[(1:t),((t+1):ncol(B0))]
-
-  o <- orig_sigma_matrix(t0 = t0, t = t,
-                         cur_variables_n = cur_variables_n,
-                         regressors_n = regressors_n)
-  o110 <- o[[1]]
-  o120 <- o[[2]]
-
-  U10=t(B110%*%t(Y1)+B120%*%t(Y2)-C0%*%t(Z))  # Ui1 from the paper
-  S11_inverse <- solve(o110)
-  V <- if (cur_regressors_n == 0) {
-    cur_Y2
-  } else {
-    cur_Y2 - U10 %*% S11_inverse %*% o[[2]]
-  }
-  H=crossprod(V,res_maker_matrix)%*%(V)
-  for (iter in 1:n) {
-    u10i=as.matrix(U10[iter,])
-    likvec[iter]=-(1/2)*log(det(o110))-(1/2)*log(det(H/n))-(1/2)*(t(u10i)%*%solve(o110)%*%u10i)
-  }
-
-  return(-likvec)
 }

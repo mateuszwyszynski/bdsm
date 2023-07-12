@@ -10,6 +10,8 @@ hessian(lik, theta, ...)
 \item{lik}{function}
 
 \item{theta}{kx1 matrix}
+
+\item{...}{other parametrs passed to \code{lik} function.}
 }
 \value{
 Hessian kxk matrix where k is the number of parameters

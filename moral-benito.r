@@ -61,23 +61,10 @@ liml_data_prep <- function(df){
 
 R_df <- liml_data_prep(rawdata)
 
-corr_matrix <- R_df %>% select(regressors) %>%  cor()
-
-# Dependent variables for the t periods - matrix of size N x t
-Y1 <- R_df %>% select(year, country, gdp) %>%
-  pivot_wider(names_from = year, values_from = gdp) %>%
-  select(!country) %>% as.matrix()
-
-# Regressors for the t periods:
-# X0 - for the first year
-# Y2 - for the remaining years
-Y2 <- R_df %>% select(!gdp & !lag_gdp) %>% filter(year != year0) %>%
-  pivot_wider(names_from = year, values_from = !country & !year) %>%
-  select(!country) %>%
-  select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>% as.matrix()
-
-X0 <- R_df %>% filter(year == year0) %>%
-  select(!(year:lag_gdp)) %>% as.matrix()
+Y1 <- SEM_dep_var_matrix(
+  df = R_df, timestamp_col = year, entity_col = country,
+  dep_var_col = gdp, start_time = year0
+)
 
 # ---------------------------------------------------------------------------------
 # 		               SOME PRELIMINAR OBJECTS BALIMLE APPROACH
@@ -118,71 +105,9 @@ for (regressors_subset in regressors_subsets) {
   cur_regressors_n <- sum(mt)
   cur_variables_n <- cur_regressors_n+1
 
-  #Z includes y0 and x0 as strictly exogenous variables
-  Z <- R_df %>% filter(year == year0) %>%
-    select(lag_gdp, regressors_subset) %>% as.matrix()
+  Z <- R_df %>% SEM_exogenous_matrix(year, year0, lag_gdp, regressors_subset)
 
-  proj_matrix <- Z%*%solve(crossprod(Z))%*%t(Z)
-  res_maker_matrix <- diag(n) - proj_matrix
-
-  n_params_to_estimate <- 2*cur_variables_n+t+1+(t^2+t-2)*regressors_n/2
-
-  periods_n <- t
-
-  # Initial parameter values for optimisation
-  alpha <- 0.5
-  phi_0 <- 0.5
-  err_var <- 0.5
-  dep_vars <- rep(0.5, periods_n)
-  beta <- rep(0.5, cur_regressors_n)
-  phi_1 <- rep(0.5, cur_regressors_n)
-  phis_n <- cur_regressors_n*(periods_n - 1)
-  phis <- rep(0.5, phis_n)
-  psis_n <- cur_regressors_n*periods_n*(periods_n - 1)/2
-  psis <- 1:psis_n
-
-  t0in <- matrix(c(alpha, beta, phi_0, phi_1, err_var, dep_vars, phis, psis))
-
-  cur_Y2 <- R_df %>% select(year, country, regressors_subset) %>%
-    filter(year != year0) %>%
-    pivot_wider(names_from = year, values_from = !country & !year) %>%
-    select(!country) %>%
-    select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>% as.matrix()
-
-  o <- orig_sigma_matrix(t0 = t0in, t = t,
-                         cur_variables_n = cur_variables_n,
-                         regressors_n = regressors_n)
-
-  print(o)
-}
-
-#---------------------------------------------------------------------------------
-#  		               LOOP COVERING FULL MODEL SPACE
-#---------------------------------------------------------------------------------
-
-regressors_subsets <- powerSet(regressors)
-which_regs_bin_vectors <- replicate(regressors_n, 0:1, simplify = FALSE) %>%
-  expand.grid()
-which_regs_bin_vectors <-
-  which_regs_bin_vectors[,order(ncol(which_regs_bin_vectors):1)]
-
-row_ind <- 0
-for (regressors_subset in regressors_subsets) {
-  regressors_subset <- rev(regressors_subset)
-  row_ind <- row_ind + 1
-  mt <- as.matrix(t(which_regs_bin_vectors[row_ind, ]))
-  out = (mt == 0)       # regressors out of the current model
-  cur_regressors_n <- sum(mt)
-  cur_variables_n <- cur_regressors_n+1
-
-  #Z includes y0 and x0 as strictly exogenous variables
-  Z <- R_df %>% filter(year == year0) %>%
-    select(lag_gdp, regressors_subset) %>% as.matrix()
-
-  proj_matrix <- Z%*%solve(crossprod(Z))%*%t(Z)
-  res_maker_matrix <- diag(n) - proj_matrix
-
-  n_params_to_estimate <- 2*cur_variables_n+t+1+(t^2+t-2)*cur_regressors_n/2
+  res_maker_matrix <- residual_maker_matrix(Z)
 
   periods_n <- t
 
@@ -200,40 +125,36 @@ for (regressors_subset in regressors_subsets) {
 
   t0in <- matrix(c(alpha, beta, phi_0, phi_1, err_var, dep_vars, phis, psis))
 
-  cur_Y2 <- R_df %>% select(year, country, regressors_subset) %>%
-    filter(year != year0) %>%
-    pivot_wider(names_from = year, values_from = !country & !year) %>%
-    select(!country) %>%
-    select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>% as.matrix()
+  cur_Y2 <- R_df %>%
+    SEM_regressors_matrix(timestamp_col = year, entity_col = country,
+                          start_time = year0,
+                          regressors_subset = regressors_subset)
+
+  data <- list(Y1 = Y1, Y2 = cur_Y2, Z = Z, res_maker_matrix = res_maker_matrix)
 
   # parscale argument somehow (don't know yet how) changes step size during optimisation.
   # Most likely optimisation methods used in Gauss are scale-free and these used in R are not
   # TODO: search for methods (or implement methods) in R which are scale-free
-  optimized <- optim(t0in, SEM_likelihood, n_entities = n_entities,
-                     cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
-                     res_maker_matrix = res_maker_matrix,
-                     periods_n = periods_n, regressors_n = cur_regressors_n,
-                     phis_n = phis_n, psis_n = psis_n,
-                     cur_variables_n = cur_variables_n,
-                     tot_regressors_n = regressors_n,
-                     method="BFGS",
+  optimized <- optim(t0in, SEM_likelihood, data = data, periods_n = periods_n,
+                     regressors_n = cur_regressors_n, phis_n = phis_n,
+                     psis_n = psis_n, method="BFGS",
                      control = list(trace=2, maxit = 10000, fnscale = -1,
                                     parscale = 0.05*t0in))
   optimised_params <- optimized[[1]]
   likelihood_max <- optimized[[2]]
 
-  hess <- hessian(SEM_likelihood, theta = optimised_params,
-                n_entities = n_entities,
-                cur_Y2 = cur_Y2, Y1 = Y1, Y2 = Y2, Z = Z,
-                res_maker_matrix = res_maker_matrix,
-                periods_n = periods_n, regressors_n = cur_regressors_n,
-                phis_n = phis_n, psis_n = psis_n,
-                cur_variables_n = cur_variables_n,
-                tot_regressors_n = regressors_n)
+  hess <- hessian(SEM_likelihood, theta = optimised_params, data = data,
+                  periods_n = periods_n, regressors_n = cur_regressors_n,
+                  phis_n = phis_n, psis_n = psis_n)
 
-  likgra_val<-likgra(optimised_params)
+  likgra_val <- SEM_likelihood(optimised_params, data = data, grad = TRUE,
+                               periods_n = periods_n,
+                               regressors_n = cur_regressors_n,
+                               phis_n = phis_n, psis_n = psis_n)
 
-  Gmat=gradient(likgra,optimised_params)
+  Gmat <- gradient(SEM_likelihood, optimised_params, data = data, grad = TRUE,
+                   periods_n = periods_n, regressors_n = cur_regressors_n,
+                   phis_n = phis_n, psis_n = psis_n)
   Imat=crossprod(Gmat)
     stdr=sqrt(diag(solve(hess)%*%(Imat)%*%solve(hess)))
     stdh=sqrt(diag((solve(hess)))) #sqrt of negative values(

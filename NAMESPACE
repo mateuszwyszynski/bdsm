@@ -2,6 +2,10 @@
 
 export(SEM_B_matrix)
 export(SEM_C_matrix)
+export(SEM_dep_var_matrix)
+export(SEM_exogenous_matrix)
+export(SEM_regressors_matrix)
 export(SEM_sigma_matrix)
 export(hessian)
+export(residual_maker_matrix)
 importFrom(magrittr,"%>%")
