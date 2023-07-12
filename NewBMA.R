@@ -95,7 +95,7 @@ dil.Par<-dil.Par
     MS=MS+c} # this sum adds up all the models for each possible model size 
   
   # we bild a table for all ols statistics
-  ols_results=zeros(MS,M+2*K+4+2*const)
+  ols_results=zeros(MS,M+2*K+4+2*const) #THIS NEEDS TO BE FIXED
   
   # ms - model index
   ms=0 #starting value for counting the numbe of the model
