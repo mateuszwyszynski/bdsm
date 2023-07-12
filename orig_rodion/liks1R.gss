@@ -1,0 +1,330 @@
+@----------------------------------------------------------------------@
+@                                                                      @
+@               LIKELIHOOD PROCEDURE 1. BALIMLE.                       @
+@                                                                      @
+@----------------------------------------------------------------------@
+
+@ 
+The code which corrects sigma matrix computation can be found in lines:
+~ 81 - 130
+~ 245 - 294
+
+Precisely in lines where variable 'kx' is used (and not ktotx):
+~ 87-94, 97 and 109-123
+~ 251-258, 261 and 273-287
+
+The code which corrects R vector, which in the code is split in two parts: Y1 (the part with dependent variables) 
+and Y2 (the part with regressors) can be found in lines:
+~ 152 - 168
+~ 296 - 313
+Precisely in the line where variable cur_Y2 is used (and not Y2 which always contains all regressors):
+~ 160
+~ 303
+The variable cur_Y2 is computed in the balimleR.gss file.
+@
+
+proc(1)=lik(t0in);
+local likf,ii,i1,i11,i2,i3,i4,i5,i6,i7,seq,dseq,iseq,B0,B110,B120,C0,U10,H,o110,o120,o121,o210,t0,t0i,fact;
+local err_var_ind,dep_vars_last_ind,phis_n,phis_last_ind,row_ind,start_col_ind,col_ind,M,S11_inv,L,G22,G22_inverse;
+
+t0=t0in;
+
+B0=eye(t+(t-1)*ktotx);
+C0=zeros(t,ky);
+for ii(2,t,1);
+    B0[ii,ii-1]=-t0[1];     @ SEM method B11 in paper@
+endfor;
+
+i2=1;
+for i1(1,ktotx,1);
+    if mt[i1]==0;   @ if x variable is not included @
+        B0=B0;
+    else;           @ if x variable is included     @
+        for i11(2,t,1);
+            B0[i11,t+1+(i11-2)*ktotx+(i1-1)]=-t0[1+i2];      
+        endfor;    
+        i2=i2+1;
+    endif;
+endfor;
+
+
+@ C1 matrix @
+if kx==0;   
+    C0[1,1]=t0[1]+t0[2];
+    for i3(2,t,1);
+        C0[i3,1]=t0[2];
+    endfor;
+else;
+    C0[1,1]=t0[1]+t0[1+ky];
+    C0[1,2:cols(C0)]=t0[2:ky]'+t0[ky+2:ky+1+kx]';
+    for i4(2,t,1);
+        C0[i4,.]=t0[ky+1:ky+kx+1]';
+    endfor;
+endif;
+@ C2 matrix has closed-form solutions @
+
+B110=B0[1:t,1:t];
+if kx==0;
+    B120=0;
+else;
+    B120=B0[1:t,(t+1):cols(B0)];
+endif;
+
+err_var_ind=2*ky+1;
+
+o110=zeros(t,t);
+for i5(1,t,1);
+    o110[i5,i5]=t0[err_var_ind+i5]^2;
+endfor;
+o110=o110+(t0[err_var_ind]^2)*(ones(t,t)); @ Sigma 11 @
+
+@ Here, I split sigma 12 in the sum of two parts, phi's matrix and psi's upper triangular matrix @
+
+if kx!=0;
+    @ phi's matrix @
+    dep_vars_last_ind=2*ky+t+1;
+    
+    o120=zeros(t,(t-1)*kx);
+    for i6(1,t,1);
+        for i7(1,t-1,1);
+            for reg_ind(1,kx,1); 
+                o120[i6,(reg_ind+(i7-1)*kx)]=t0[dep_vars_last_ind+(i7-1)*kx+reg_ind];
+            endfor;
+        endfor;
+    endfor;
+
+    @ psi's upper triangular matrix @
+    o121=zeros(t,(t-1)*kx);
+
+    @ as o121 is an upper triangular matrix, each subsequent row has @
+    @ 1 element less @
+
+    seq=zeros(t,1);
+    dseq=0;
+    for iseq(1,t,1);
+        seq[iseq]=dseq;
+        dseq=dseq+t-iseq;
+    endfor;
+
+    phis_n=kx*(t-1);
+    phis_last_ind=dep_vars_last_ind+phis_n;
+
+    for row_ind(1,t-1,1);
+        start_col_ind=row_ind;
+        for col_ind(start_col_ind,t,1);
+            if col_ind==t;
+                o121=o121;
+            else;
+                for reg_ind(1,kx,1);
+                    o121[row_ind,(start_col_ind-1)*kx+reg_ind+(col_ind-start_col_ind)*kx]=t0[phis_last_ind+(col_ind-start_col_ind)*kx+kx*((row_ind-1)*(t-1)-(row_ind-2)*(row_ind-1)/2)+reg_ind];
+                endfor;
+            endif;
+        endfor;
+    endfor;
+    @ Sigma 12 @ 
+    o120=o120+o121;
+
+    o210=o120';
+else;
+    o120=0;
+endif;
+
+if det(o110)<=0;
+    if cout1==0;
+        cout=cout+1;   
+    endif;
+    if cout1<=250;
+        t0i=.5*ones(rows(t0in),1);
+    elseif cout1<=500;
+        t0i=t0in;
+    elseif cout1<=750;
+        t0i=rndu(rows(t0in),1);
+    elseif cout1<=1000;
+        t0i=rndu(rows(t0in),1);
+    else;
+        cls;
+        t0i=rndn(rows(t0in),1);
+    endif;
+    fact=1./(10.^(ceil(log(abs(t0i)))));
+    t0in=fact.*t0i;
+    likf=0;
+    cout1=cout1+1;
+else;
+    if kx==0;
+        U10=(B110*Y1'-C0*Z')';
+    else;
+        U10=(B110*Y1'+B120*Y2'-C0*Z')'; @ Here we can still use Y2, because B120 contains zeros for regressors out of the current model @
+    endif;
+    
+    S11_inv = inv(o110);
+    L = S11_inv * o120;
+
+    if kx!=0;
+        M = cur_Y2 - U10 * L;
+        H = M'Q*M;
+        G22_inverse = L' * o110 * L + 1/n * (M' * Q * (cur_Y2 + U10 * L) + L' * U10' * U10 * L);
+        G22 = inv(G22_inverse);
+    endif;
+    
+    likf=-(n/2)*ln(det(o110))-(1/2)*sumc(diag(inv(o110)*U10'U10)); @ concentrated log-likelihood in the appendix @
+    if kx!=0;
+        likf=likf+(n/2)*ln(det(G22)) - 1/2 * sumc(diag(H*G22));
+    endif;
+    likf = likf - (n * (t + (t - 1) * kx)) * ln(2 * pi) / 2;
+endif;
+
+retp(-likf);
+endp;
+
+
+
+
+@----------------------------------------------------------------------@
+@                                                                      @
+@                   LIKELIHOOD PROCEDURE 1  (GRADIENT)                 @
+@                                                                      @
+@           this procedure construct the concentrated likelihood       @
+@           individual by individual and it gives the NX1 vector       @
+@           of individual log-likelihoods for the computation of       @
+@           the gradient and then the sandwich formula.                @
+@----------------------------------------------------------------------@
+
+
+proc(1)=likgra(t0in);
+local likvec,ii,i1,i11,i2,i3,i4,i5,i6,i7,seq,dseq,iseq,B0,B110,B120,C0,U10,H,o110,o120,o121,o210,iter,u10i,t0;
+local err_var_ind,dep_vars_last_ind,phis_n,phis_last_ind,row_ind,start_col_ind,col_ind,M,S11_inv,L,G22,G22_inverse;
+
+t0=t0in;
+
+
+likvec=zeros(n,1);
+
+B0=eye(t+(t-1)*ktotx);
+C0=zeros(t,ky);
+for ii(2,t,1);
+    B0[ii,ii-1]=-t0[1];     @ SEM method B11 in paper@
+endfor;
+
+i2=1;              
+for i1(1,ktotx,1);
+    if mt[i1]==0;   @ if x variable is not included @
+        B0=B0;
+    else;           @ if x variable is included     @
+        for i11(2,t,1);
+            B0[i11,t+1+(i11-2)*ktotx+(i1-1)]=-t0[1+i2];      
+        endfor;    
+        i2=i2+1;                                       
+    endif;
+endfor;
+
+
+@ C1 matrix@
+if kx==0;   
+    C0[1,1]=t0[1]+t0[2];
+    for i3(2,t,1);
+        C0[i3,1]=t0[2];
+    endfor;
+else;
+    C0[1,1]=t0[1]+t0[1+ky];
+    C0[1,2:cols(C0)]=t0[2:ky]'+t0[ky+2:ky+1+kx]';
+    for i4(2,t,1);
+        C0[i4,.]=t0[ky+1:ky+kx+1]';
+    endfor;
+endif;
+
+B110=B0[1:t,1:t];
+if kx==0;
+    B120=0;
+else;
+    B120=B0[1:t,(t+1):cols(B0)];
+endif;
+
+err_var_ind=2*ky+1;
+
+o110=zeros(t,t);
+for i5(1,t,1);
+    o110[i5,i5]=t0[err_var_ind+i5]^2;
+endfor;
+o110=o110+(t0[err_var_ind]^2)*(ones(t,t)); @ Sigma 11 @
+
+
+@ Here, I split sigma 11 in the sum of two parts, phi's matrix and psi's upper triangular matrix @
+
+if kx!=0;
+    @ phi's matrix @
+    dep_vars_last_ind=2*ky+t+1;
+    
+    o120=zeros(t,(t-1)*kx);
+    for i6(1,t,1);
+        for i7(1,t-1,1);
+            for reg_ind(1,kx,1); 
+                o120[i6,(reg_ind+(i7-1)*kx)]=t0[dep_vars_last_ind+(i7-1)*kx+reg_ind];
+            endfor;
+        endfor;
+    endfor;
+
+    @ psi's upper triangular matrix @
+    o121=zeros(t,(t-1)*kx);
+
+    @ as o121 is an upper triangular matrix, each subsequent row has @
+    @ 1 element less @
+
+    seq=zeros(t,1);
+    dseq=0;
+    for iseq(1,t,1);
+        seq[iseq]=dseq;
+        dseq=dseq+t-iseq;
+    endfor;
+
+    phis_n=kx*(t-1);
+    phis_last_ind=dep_vars_last_ind+phis_n;
+
+    for row_ind(1,t-1,1);
+        start_col_ind=row_ind;
+        for col_ind(start_col_ind,t,1);
+            if col_ind==t;
+                o121=o121;
+            else;
+                for reg_ind(1,kx,1);
+                    o121[row_ind,(start_col_ind-1)*kx+reg_ind+(col_ind-start_col_ind)*kx]=t0[phis_last_ind+(col_ind-start_col_ind)*kx+kx*((row_ind-1)*(t-1)-(row_ind-2)*(row_ind-1)/2)+reg_ind];
+                endfor;
+            endif;
+        endfor;
+    endfor;
+    @ Sigma 12 @ 
+    o120=o120+o121;
+
+    o210=o120';
+else;
+    o120=0;
+endif;
+
+if kx==0;
+    U10=(B110*Y1'-C0*Z')';
+else;
+    U10=(B110*Y1'+B120*Y2'-C0*Z')'; @ Here we can still use Y2, because B120 contains zeros for regressors out of the current model @
+endif;
+
+S11_inv = inv(o110);
+L = S11_inv * o120;
+
+if kx!=0;
+    M = cur_Y2 - U10 * L;
+    H = M'Q*M;
+    G22_inverse = L' * o110 * L + 1/n * (M' * Q * (cur_Y2 + U10 * L) + L' * U10' * U10 * L);
+    G22 = inv(G22_inverse);
+endif;
+
+for iter(1,n,1);
+    u10i=U10[iter,.]';
+    likvec[iter]=-(1/2)*ln(det(o110))-(1/2)*(u10i'inv(o110)*u10i);
+    if kx!=0;
+        likvec[iter]=likvec[iter]+(1/2)*ln(det(G22)) - 1/(2*n) * sumc(diag(H*G22));
+    endif;
+    likvec[iter] = likvec[iter] - (t + (t - 1) * kx) * ln(2 * pi) / 2;
+endfor;
+
+retp(-likvec);
+endp;
+
+
