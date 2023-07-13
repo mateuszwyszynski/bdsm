@@ -187,5 +187,5 @@ SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
   list(modprob = modprob, modelid = modelid, modpri = modpri, liks = liks,
        bics = bics, betas = betas, stds = stds, stdsr = stdsr, foutt = foutt,
        bet = bet, mod = mod, pvarh = pvarh, pvarr = pvarr, fy = fy, fyt = fyt,
-       ppmsize = ppmsize, cout = 0)
+       ppmsize = ppmsize, cout = 0, nts = nts, pts = pts)
 }

@@ -118,6 +118,8 @@ fy <- bma_result$fy
 fyt <- bma_result$fyt
 ppmsize <- bma_result$ppmsize
 cout <- bma_result$cout
+nts <- bma_result$nts
+pts <- bma_result$pts
 
 popmsize=ppmsize/fyt
 modprob1=modprob/sum(modprob)
