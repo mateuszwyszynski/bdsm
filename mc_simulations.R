@@ -17,8 +17,6 @@ no_of_cores = detectCores()
 set.seed(23)
 begin<-Sys.time()
 prandom=0 #prandom=1 for optimised_params random Ley&Steel09. prandom = 0 for optimised_params fixed
-dilution <- 1
-dil_power <- 1/2
 
 #---------------------------------------------------------------------------------
 #		   	                     LOADING THE DATASET
@@ -39,6 +37,39 @@ variables_n <- regressors_n + 1
 variables <- rev(colnames(rawdata)[-1:-3])
 n_entities <- 73
 periods_n <- 4
+
+alpha <- 0.6
+beta <- c(0.1, 0.2, 0, 0, 0.2, 0, -0.1, 0)
+phi_0 <- 0.9
+phi_1 <- c(0.3, -0.2, 0, 0, 0.2, -0, -0.1, 0)
+err_var <- 1
+dep_vars <- c(2, 2, 2, 2)
+phis <- c(21, 22, 23, 24, 25, 26, 27, 28,
+          31, 32, 33, 34, 35, 36, 37, 38,
+          41, 42, 43, 44, 45, 46, 47, 48)
+psis <- c(21100, 21200, 21300, 21400, 21500, 21600, 21700, 21800,
+          31100, 31200, 31300, 31400, 31500, 31600, 31700, 31800,
+          41100, 41200, 41300, 41400, 41500, 41600, 41700, 41800,
+          32100, 32200, 32300, 32400, 32500, 32600, 32700, 32800,
+          42100, 42200, 42300, 42400, 42500, 42600, 42700, 42800,
+          43100, 43200, 43300, 43400, 43500, 43600, 43700, 43800)
+
+B <- SEM_B_matrix(alpha = alpha, periods_n = periods_n, beta = beta)
+
+C <- SEM_C_matrix(alpha = alpha, phi_0 = phi_0, periods_n = periods_n,
+                  beta = beta, phi_1 = phi_1)
+
+cov_matrix <- matrix(nrow = regressors_n, ncol = regressors_n)
+i.upr <- which(upper.tri(cov_matrix, diag = TRUE), arr.ind=TRUE)
+cov_matrix[i.upr] <- seq(0.01, 0.36, 0.01)
+cov_matrix[lower.tri(cov_matrix)] <- t(cov_matrix)[lower.tri(cov_matrix)]
+
+covariances <- lapply(1:(regressors_n*(regressors_n+1)/2),
+                      function(x) {cov_matrix})
+
+S <- SEM_sigma_matrix(err_var = err_var, dep_vars = dep_vars, phis = phis,
+                      psis = psis, mle_simplified = FALSE,
+                      covariances = covariances)
 
 #' Prepare data for LIML estimation
 #'
@@ -86,8 +117,8 @@ res_maker_matrix <- residual_maker_matrix(Z)
 # ---------------------------------------------------------------------------------
 
 pmsize=regressors_n/2           # prior expected model size, options:
-    # 1. for "SDM" priors pmsize=3
-    # 2. for "FLS" priors pmsize=regressors_n/2
+# 1. for "SDM" priors pmsize=3
+# 2. for "FLS" priors pmsize=regressors_n/2
 pinc=pmsize/regressors_n
 b=(regressors_n-pmsize)/pmsize   # parameter for beta (random) distribution of the prior inclusion probability
 
@@ -163,9 +194,9 @@ names(result)<-c("varname","postprob","pmean","std","stdR","unc_pmean","unc_std"
 the_end=Sys.time()
 
 final<-list(result, rbind(paste("Prior Mean Model Size=",pmsize),paste("Prior Inclusion Probability=",pinc),
-     paste("Posterior Mean Model Size=", popmsize)),(the_end-begin),
-     t(betas),t(stds),
-     t(stdsr),idprob)
+                          paste("Posterior Mean Model Size=", popmsize)),(the_end-begin),
+            t(betas),t(stds),
+            t(stdsr),idprob)
 names(final)<-c(" 1.- RESULTS "," 2.- FURTHER INFORMATION "," 3.- COMPUTATION TIME"," 4.- ALL BETAS (each row is a different model)",
                 " 5.- ALL STD. ERRORS (each row is a different model)"," 6.- ALL ROBUST STD. ERRORS (each row is a different model)",
                 " 7.- MODELS INFO ")

@@ -231,7 +231,8 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
 #' psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
 #' SEM_sigma_matrix(err_var, dep_vars, phis, psis)
 SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(),
-                             psis = c(), psis_byrow = TRUE) {
+                             psis = c(), psis_byrow = TRUE,
+                             mle_simplified = TRUE, covariances = list()) {
   periods_n <- length(dep_vars)
 
   O11 <- err_var^2*optimbase::ones(periods_n, periods_n) +
@@ -269,7 +270,31 @@ SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(),
   } else {
     NULL
   }
-  list(O11, O12)
+  S22 <- if (!mle_simplified & length(phis) != 0) {
+    regressors_n <- length(phis)/(periods_n - 1)
+
+    create_row <- function(n, periods_n, regessors_n, covariances) {
+      ind_limit <- (periods_n-1)*(periods_n)/2
+      start_index <-
+        1 + ind_limit - (periods_n-n)*(periods_n-n+1)/2
+      end_index <- start_index+periods_n-n-1
+      front_empty_matrix <-
+        matrix(nrow = regressors_n, ncol = (n-1)*regressors_n)
+      do.call(cbind,
+              c(list(front_empty_matrix), covariances[start_index:end_index]))
+    }
+
+    rows <-
+      lapply(1:(periods_n-1),
+             function(x) {create_row(x, periods_n, regressors_n, covariances)})
+
+    m <- do.call(plyr::rbind.fill.matrix, rows)
+    m[lower.tri(m)] <- t(m)[lower.tri(m)]
+    m
+  } else {
+    NULL
+  }
+  list(O11, O12, S22)
 }
 
 SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
@@ -308,7 +333,7 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
                            regressors = NULL, in_regressors = NULL,
                            periods_n = NULL, tot_regressors_n = NULL,
                            in_regressors_n = NULL,
-                           phis_n = NULL, psis_n = NULL, grad = FALSE) {
+                           phis_n = NULL, psis_n = NULL, per_entity = FALSE) {
   if (is.list(params) && is.list(data)) {
     alpha <- params$alpha
     phi_0 <- params$phi_0
@@ -340,11 +365,16 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
       t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, Z))
     }
     S11_inverse <- solve(S[[1]])
-    V <- Y2 - U1 %*% S11_inverse %*% S[[2]]
-    H <- crossprod(V, res_maker_matrix) %*% V
-    likelihood <- if(!grad) {
-      -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
-        1/2 * sum(diag(S11_inverse %*% crossprod(U1)))
+    L <- S11_inverse %*% S[[2]]
+    M <- Y2 - U1 %*% L
+    H <- crossprod(M, res_maker_matrix) %*% M
+    G22_inverse <- crossprod(L, S[[1]]) %*% L +
+      1/n_entities * (crossprod(M, res_maker_matrix) %*% (Y2 + U1 %*% L) +
+               crossprod(U1 %*% L))
+    G22 <- solve(G22_inverse)
+    likelihood <- if(!per_entity) {
+      -n_entities/2 * log(det(S[[1]]) * det(G22_inverse)) -
+        1/2 * (sum(diag(S11_inverse %*% crossprod(U1))) + sum(diag(H %*% G22)))
     } else {
       lik_vec <- optimbase::zeros(n_entities, 1)
       for (iter in 1:n_entities) {
@@ -386,7 +416,8 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
       data = list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
                   res_maker_matrix = res_maker_matrix)
     }
-    likelihood <- SEM_likelihood(params = params, data = data, grad = grad)
+    likelihood <- SEM_likelihood(params = params, data = data,
+                                 per_entity = per_entity)
   }
   likelihood
 }

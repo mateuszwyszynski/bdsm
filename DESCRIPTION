@@ -23,4 +23,5 @@ Imports:
     optimbase,
     Matrix,
     plyr,
+    rootSolve,
     tidyr
