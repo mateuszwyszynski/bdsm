@@ -9,10 +9,12 @@
 #' @param df Data frame with data for the SEM analysis.
 #' @param timestamp_col Column which determines time periods. For now only
 #' natural numbers can be used as timestamps
-#' @param entity_col Columns which determines entities (e.g. countires, people)
+#' @param entity_col Column which determines entities (e.g. countries, people)
 #' @param dep_var_col Column with dependent variable
-#' @param start_time First time period. Only time periods greater than
-#' \code{start_time} will be considered in the resulting matrix
+#' @param start_time First time period. Only time periods greater than or equal
+#' to \code{start_time} will be considered in the resulting matrix. For
+#' \code{start_time=NULL} second lowest value from \code{timestamp_col} is set
+#' as \code{start_time}. Default is \code{NULL}.
 #'
 #' @return
 #' Matrix of size N x T where N is the number of entities considered and T is
@@ -22,7 +24,12 @@
 #'
 #' @examples
 SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
-                               start_time) {
+                               start_time = NULL) {
+  if (is.null(start_time)) {
+    timestamps <- dplyr::select(df, {{ timestamp_col }})
+    time_zero <- min(timestamps)
+    start_time <- min(timestamps[timestamps != time_zero])
+  }
   df %>% dplyr::filter({{ timestamp_col }} >= start_time) %>%
     dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }}) %>%
     tidyr::pivot_wider(names_from = {{ timestamp_col }},
@@ -41,13 +48,12 @@ SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
 #' @param df Data frame with data for the SEM analysis.
 #' @param timestamp_col Column which determines time periods. For now only
 #' natural numbers can be used as timestamps
-#' @param entity_col Columns which determines entities (e.g. countires, people)
+#' @param entity_col Column which determines entities (e.g. countries, people)
+#' @param regressors Which subset of columns should be used as regressors.
 #' @param start_time First time period. Only time periods greater than
-#' \code{start_time} will be considered in the resulting matrix
-#' @param regressors_subset Which subset of columns should be used as
-#' regressors. If \code{NULL} (default) then all remaining columns will be used
-#' as regressors. For now columns have to be passed as list of column names
-#' represented as strings.
+#' \code{start_time} will be considered in the resulting matrix. For
+#' \code{start_time=NULL} second lowest value from \code{timestamp_col} is set
+#' as \code{start_time}. Default is \code{NULL}.
 #'
 #' @return
 #' Matrix of size N x (T-1)*k where N is the number of entities considered, T is
@@ -56,11 +62,16 @@ SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
 #' @export
 #'
 #' @examples
-SEM_regressors_matrix <- function(df, timestamp_col, entity_col, start_time,
-                                  regressors_subset = NULL) {
+SEM_regressors_matrix <- function(df, timestamp_col, entity_col, regressors,
+                                  start_time = NULL) {
+  if (is.null(start_time)) {
+    timestamps <- dplyr::select(df, {{ timestamp_col }})
+    time_zero <- min(timestamps)
+    start_time <- min(timestamps[timestamps != time_zero])
+  }
   . <- NULL
   df %>%
-    dplyr::select({{ timestamp_col }}, {{ entity_col }}, regressors_subset) %>%
+    dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ regressors }}) %>%
     dplyr::filter({{ timestamp_col }} > start_time) %>%
     tidyr::pivot_wider(
       names_from = {{ timestamp_col }},
@@ -261,26 +272,31 @@ SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(),
   list(O11, O12)
 }
 
-SEM_params_to_list <- function(params, periods_n, regressors_n,
-                               phis_n, psis_n) {
+SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
+                               in_regressors_n, phis_n, psis_n) {
   alpha <- params[1]
-  if (regressors_n == 0) {
+  if (tot_regressors_n == 0) {
     beta <- c()
     phi_1 <- c()
     phis <- c()
     psis <- c()
   } else {
-    beta <- params[2:(1 + regressors_n)]
-    phi_1 <- params[(3 + regressors_n):(2 + 2*regressors_n)]
+    if (in_regressors_n == 0) {
+      beta <- c()
+      phi_1 <- c()
+    } else {
+      beta <- params[2:(1 + in_regressors_n)]
+      phi_1 <- params[(3 + in_regressors_n):(2 + 2*in_regressors_n)]
+    }
     phis <-
-      params[(4 + 2*regressors_n + periods_n):(3 + 2*regressors_n + periods_n + phis_n)]
+      params[(4 + 2*in_regressors_n + periods_n):(3 + 2*in_regressors_n + periods_n + phis_n)]
     psis <-
-      params[(4 + 2*regressors_n + periods_n + phis_n):(3 + 2*regressors_n + periods_n + phis_n + psis_n)]
+      params[(4 + 2*in_regressors_n + periods_n + phis_n):(3 + 2*in_regressors_n + periods_n + phis_n + psis_n)]
   }
-  phi_0 <- params[2 + regressors_n]
-  err_var <- params[3 + 2*regressors_n]
+  phi_0 <- params[2 + in_regressors_n]
+  err_var <- params[3 + 2*in_regressors_n]
   dep_vars <-
-    params[(4 + 2*regressors_n):(3 + 2*regressors_n + periods_n)]
+    params[(4 + 2*in_regressors_n):(3 + 2*in_regressors_n + periods_n)]
 
   list(alpha = alpha, phi_0 = phi_0, err_var = err_var, dep_vars = dep_vars,
        beta = beta, phi_1 = phi_1, phis = phis, psis = psis)
@@ -289,8 +305,9 @@ SEM_params_to_list <- function(params, periods_n, regressors_n,
 SEM_likelihood <- function(params, data, timestamp_col = NULL,
                            entity_col = NULL, start_time = NULL,
                            lagged_col = NULL, dep_var_col = NULL,
-                           regressors_subset = NULL,
-                           periods_n = NULL, regressors_n = NULL,
+                           regressors = NULL, in_regressors = NULL,
+                           periods_n = NULL, tot_regressors_n = NULL,
+                           in_regressors_n = NULL,
                            phis_n = NULL, psis_n = NULL, grad = FALSE) {
   if (is.list(params) && is.list(data)) {
     alpha <- params$alpha
@@ -304,29 +321,26 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
 
     Y1 <- data$Y1
     Y2 <- data$Y2
+    cur_Y2 <- data$cur_Y2
     Z <- data$Z
     res_maker_matrix <- data$res_maker_matrix
 
     n_entities <- nrow(Z)
     periods_n <- length(dep_vars)
-    cur_regressors_n <- length(beta)
+    in_regressors_n <- length(beta)
     B <- SEM_B_matrix(alpha, periods_n, beta)
     C <- SEM_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
     S <- orig_sigma_matrix(t0 = t0, t = periods_n,
                            cur_variables_n = cur_variables_n,
                            regressors_n = tot_regressors_n)
 
-    U1 <- if (cur_regressors_n == 0) {
+    U1 <- if (in_regressors_n == 0) {
       t(tcrossprod(B[[1]], Y1) - tcrossprod(C, Z))
     } else {
-      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], Y2) - tcrossprod(C, Z))
+      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, Z))
     }
     S11_inverse <- solve(S[[1]])
-    V <- if (is.null(S[[2]])) {
-      Y2
-    } else {
-      Y2 - U1 %*% S11_inverse %*% S[[2]]
-    }
+    V <- Y2 - U1 %*% S11_inverse %*% S[[2]]
     H <- crossprod(V, res_maker_matrix) %*% V
     likelihood <- if(!grad) {
       -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
@@ -342,7 +356,8 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
   } else {
     if (!is.list(params)) {
       params <- SEM_params_to_list(params, periods_n = periods_n,
-                                   regressors_n = regressors_n,
+                                   tot_regressors_n = tot_regressors_n,
+                                   in_regressors_n = in_regressors_n,
                                    phis_n = phis_n, psis_n = psis_n)
     }
     if (!is.list(data)) {
@@ -352,15 +367,24 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
         )
       Y2 <- SEM_regressors_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        start_time = start_time, regressors_subset = regressors_subset
+        regressors = regressors, start_time = start_time
+      )
+      cur_Y2 <- SEM_regressors_matrix(
+        df = data, timestamp_col = timestamp_col, entity_col = entity_col,
+        regressors = in_regressors, start_time = start_time
+      )
+      cur_Z <- SEM_exogenous_matrix(
+        df = data, timestamp_col = timestamp_col, start_time = start_time,
+        lagged_col = lagged_col, regressors_subset = in_regressors
       )
       Z <- SEM_exogenous_matrix(
         df = data, timestamp_col = timestamp_col, start_time = start_time,
-        lagged_col = lagged_col, regressors_subset = regressors_subset
+        lagged_col = lagged_col
       )
       res_maker_matrix <- residual_maker_matrix(Z)
 
-      data = list(Y1 = Y1, Y2 = Y2, Z = Z, res_maker_matrix = res_maker_matrix)
+      data = list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
+                  res_maker_matrix = res_maker_matrix)
     }
     likelihood <- SEM_likelihood(params = params, data = data, grad = grad)
   }

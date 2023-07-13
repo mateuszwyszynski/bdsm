@@ -1,3 +1,41 @@
+test_df <- data.frame(
+  entities = rep(1:3, 5),
+  times = rep(seq(1960, 2000, 10), each = 3),
+  dep_var = 101:115,
+  a = 201:215,
+  b = 301:315
+)
+
+test_that(paste("SEM_dep_var_matrix uses all timestamps if start_time argument",
+                "is not given"), {
+  m_expected_data <- c(
+    104, 107, 110, 113,
+    105, 108, 111, 114,
+    106, 109, 112, 115
+  )
+  m_expected <- matrix(m_expected_data, nrow = 3, byrow = TRUE)
+
+  m <- SEM_dep_var_matrix(df = test_df, timestamp_col = times,
+                          entity_col = entities, dep_var_col = dep_var)
+
+  expect_equal(m, m_expected, ignore_attr = TRUE)
+})
+
+test_that(paste("SEM_regressors_matrix uses all regressors if",
+                "regressors_subset argument is not given"), {
+  m_expected_data <- c(
+    207, 307, 210, 310, 213, 313,
+    208, 308, 211, 311, 214, 314,
+    209, 309, 212, 312, 215, 315
+  )
+  m_expected <- matrix(m_expected_data, nrow = 3, byrow = TRUE)
+
+  m <- SEM_regressors_matrix(df = test_df, timestamp_col = times,
+                             entity_col = entities, regressors = c(a, b))
+
+  expect_equal(m, m_expected, ignore_attr = TRUE)
+})
+
 test_that("SEM_B_matrix computes proper matrix", {
   periods_n <- 4
   B <- SEM_B_matrix(3, periods_n, 4:6)
