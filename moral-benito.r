@@ -17,6 +17,8 @@ no_of_cores = detectCores()
 set.seed(23)
 begin<-Sys.time()
 prandom=0 #prandom=1 for optimised_params random Ley&Steel09. prandom = 0 for optimised_params fixed
+dilution <- 1
+dil_power <- 1/2
 
 #---------------------------------------------------------------------------------
 #		   	                     LOADING THE DATASET

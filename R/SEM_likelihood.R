@@ -355,7 +355,9 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
     in_regressors_n <- length(beta)
     B <- SEM_B_matrix(alpha, periods_n, beta)
     C <- SEM_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
-    S <- SEM_sigma_matrix(err_var, dep_vars, phis, psis)
+    S <- orig_sigma_matrix(t0 = t0, t = periods_n,
+                           cur_variables_n = cur_variables_n,
+                           regressors_n = tot_regressors_n)
 
     U1 <- if (in_regressors_n == 0) {
       t(tcrossprod(B[[1]], Y1) - tcrossprod(C, Z))
