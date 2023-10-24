@@ -363,8 +363,7 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
       t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, Z))
     }
     S11_inverse <- solve(S[[1]])
-    L <- S11_inverse %*% S[[2]]
-    M <- Y2 - U1 %*% L
+    M <- Y2 - U1 %*% S11_inverse %*% S[[2]]
     H <- crossprod(M, res_maker_matrix) %*% M
     likelihood <- if(!per_entity) {
       -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
