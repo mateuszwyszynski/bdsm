@@ -366,13 +366,9 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
     L <- S11_inverse %*% S[[2]]
     M <- Y2 - U1 %*% L
     H <- crossprod(M, res_maker_matrix) %*% M
-    G22_inverse <- crossprod(L, S[[1]]) %*% L +
-      1/n_entities * (crossprod(M, res_maker_matrix) %*% (Y2 + U1 %*% L) +
-               crossprod(U1 %*% L))
-    G22 <- solve(G22_inverse)
     likelihood <- if(!per_entity) {
-      -n_entities/2 * log(det(S[[1]]) * det(G22_inverse)) -
-        1/2 * (sum(diag(S11_inverse %*% crossprod(U1))) + sum(diag(H %*% G22)))
+      -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
+        1/2 * sum(diag(S11_inverse %*% crossprod(U1)))
     } else {
       lik_vec <- optimbase::zeros(n_entities, 1)
       for (iter in 1:n_entities) {
