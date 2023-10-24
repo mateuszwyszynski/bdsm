@@ -52,7 +52,7 @@ periods_n <- 4
 #'
 #' @param df Dataframe with data that should be prepared for LIML estimation
 liml_data_prep <- function(df){
-  df <- df %>% mutate(across(!(country:lag_gdp), scale))
+  df <- df %>% mutate(across(!(year:country), scale))
 
   csddata_df <- df %>% group_by(year) %>%
     summarise(country = country,
