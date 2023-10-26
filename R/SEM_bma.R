@@ -18,8 +18,9 @@ SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
 
   row_ind <- 0
   for (regressors_subset in regressors_subsets) {
-    regressors_subset <- rev(regressors_subset)
     row_ind <- row_ind + 1
+    print(paste('Progress:', row_ind, 'out of', length(regressors_subsets)))
+    regressors_subset <- rev(regressors_subset)
     mt <- as.matrix(t(which_regs_bin_vectors[row_ind, ]))
     out = (mt == 0)       # regressors out of the current model
     cur_regressors_n <- sum(mt)
