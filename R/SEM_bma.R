@@ -1,6 +1,7 @@
 SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
                     periods_n, timestamp_col, year0, lagged_col, entity_col, Y1,
-                    Y2, res_maker_matrix, prandom, n_entities, b, pinc) {
+                    Y2, res_maker_matrix, prandom, n_entities, b, pinc,
+                    projection_matrix_const) {
   mod <- optimbase::zeros(variables_n,1)
   bet <- optimbase::zeros(variables_n,1)
   pvarh <- optimbase::zeros(variables_n,1)
@@ -57,7 +58,9 @@ SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
                               periods_n = periods_n,
                               tot_regressors_n = regressors_n,
                               in_regressors_n = cur_regressors_n,
-                              phis_n = phis_n, psis_n = psis_n, method="BFGS",
+                              phis_n = phis_n, psis_n = psis_n,
+                              projection_matrix_const = projection_matrix_const,
+                              method="BFGS",
                               control = list(trace=2, maxit = 10000,
                                              fnscale = -1,
                                              parscale = 0.05*t0in))

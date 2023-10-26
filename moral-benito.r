@@ -99,7 +99,8 @@ bma_result <- SEM_bma(regressors_subsets = regressors_subsets, R_df = R_df,
                       year0 = year0, lagged_col = lag_gdp, entity_col = country,
                       Y1 = Y1, Y2 = Y2, res_maker_matrix = res_maker_matrix,
                       prandom = prandom, n_entities = n_entities, b = b,
-                      pinc = pinc)
+                      pinc = pinc,
+                      projection_matrix_const = TRUE)
 
 modprob <- bma_result$modprob
 modelid <- bma_result$modelid
