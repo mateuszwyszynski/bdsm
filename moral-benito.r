@@ -1,13 +1,6 @@
 # this program runs BALIMLE approach
 # It estimates all possible models.
 library(tidyverse)
-library(optimbase) #used for zeros and ones
-library(rootSolve) #used for gradient function
-library(numDeriv)  #used for hessian?
-library(mcmc)
-library(matlib)   #used for inverse
-library(nlme)
-library(rje)
 
 library(devtools)
 load_all()
@@ -89,7 +82,7 @@ pmsize=regressors_n/2           # prior expected model size, options:
 pinc=pmsize/regressors_n
 b=(regressors_n-pmsize)/pmsize   # parameter for beta (random) distribution of the prior inclusion probability
 
-regressors_subsets <- powerSet(regressors)
+regressors_subsets <- rje::powerSet(regressors)
 
 bma_result <- SEM_bma(regressors_subsets = regressors_subsets, R_df = R_df,
                       variables_n = variables_n, regressors_n = regressors_n,
