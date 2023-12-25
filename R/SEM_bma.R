@@ -18,8 +18,8 @@
 #' @param prandom prandom = 1 for optimised_params random Ley&Steel09.
 #' prandom = 0 for optimised_params fixed
 #' @param n_entities Number of entities
-#' @param b
-#' @param pinc
+#' @param b Not sure.
+#' @param pinc Not sure. Increment for BMA
 #' @param projection_matrix_const Wheter the residual maker matrix (and so
 #' the projection matrix) should be computed for each model separately.
 #' \code{TRUE} means that the matrix will be the same for all models
@@ -28,8 +28,6 @@
 #' List of parameters describing analysed models
 #'
 #' @export
-#'
-#' @examples
 SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
                     periods_n, timestamp_col, year0, lagged_col, entity_col, Y1,
                     Y2, res_maker_matrix, prandom, n_entities, b, pinc,

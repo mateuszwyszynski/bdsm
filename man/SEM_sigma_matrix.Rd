@@ -4,7 +4,15 @@
 \alias{SEM_sigma_matrix}
 \title{Covariance matrix for SEM representation}
 \usage{
-SEM_sigma_matrix(err_var, dep_vars, phis = c(), psis = c(), psis_byrow = TRUE)
+SEM_sigma_matrix(
+  err_var,
+  dep_vars,
+  phis = c(),
+  psis = c(),
+  psis_byrow = TRUE,
+  mle_simplified = TRUE,
+  covariances = list()
+)
 }
 \arguments{
 \item{err_var}{numeric}
