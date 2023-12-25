@@ -7,13 +7,11 @@ library(numDeriv)  #used for hessian?
 library(mcmc)
 library(matlib)   #used for inverse
 library(nlme)
-library("parallel")
 library(rje)
 
 library(devtools)
 load_all()
 
-no_of_cores = detectCores()
 set.seed(23)
 begin<-Sys.time()
 prandom=0 #prandom=1 for optimised_params random Ley&Steel09. prandom = 0 for optimised_params fixed
