@@ -333,7 +333,8 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
                            regressors = NULL, in_regressors = NULL,
                            periods_n = NULL, tot_regressors_n = NULL,
                            in_regressors_n = NULL,
-                           phis_n = NULL, psis_n = NULL, per_entity = FALSE) {
+                           phis_n = NULL, psis_n = NULL, per_entity = FALSE,
+                           projection_matrix_const = TRUE) {
   if (is.list(params) && is.list(data)) {
     alpha <- params$alpha
     phi_0 <- params$phi_0
@@ -348,7 +349,11 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
     Y2 <- data$Y2
     cur_Y2 <- data$cur_Y2
     Z <- data$Z
-    res_maker_matrix <- data$res_maker_matrix
+    res_maker_matrix <- if (projection_matrix_const) {
+      data$res_maker_matrix
+    } else {
+      residual_maker_matrix(Z)
+    }
 
     n_entities <- nrow(Z)
     periods_n <- length(dep_vars)
@@ -410,7 +415,8 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
                   res_maker_matrix = res_maker_matrix)
     }
     likelihood <- SEM_likelihood(params = params, data = data,
-                                 per_entity = per_entity)
+                                 per_entity = per_entity,
+                                 projection_matrix_const = projection_matrix_const)
   }
   likelihood
 }

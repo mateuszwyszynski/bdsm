@@ -1,6 +1,39 @@
+#' BMA for SEM representation
+#'
+#' Perform Bayesian Model Averaging for Simultaneous Equations Model.
+#'
+#' @param regressors_subsets set of regressors set. Each regressor set will be
+#' used to construct a model.
+#' @param R_df Data frame with data for the SEM analysis.
+#' @param variables_n Number of variables
+#' @param regressors_n Number of regressors
+#' @param periods_n Number of timestamps
+#' @param timestamp_col The name of the column with timestamps
+#' @param year0 First timestamp
+#' @param lagged_col Column with the lagged dependent variable
+#' @param entity_col Coliumn with entities (e.g. countries)
+#' @param Y1 Matrix with dependent variables
+#' @param Y2 Matrix with regressors
+#' @param res_maker_matrix Residual maker matrix
+#' @param prandom prandom = 1 for optimised_params random Ley&Steel09.
+#' prandom = 0 for optimised_params fixed
+#' @param n_entities Number of entities
+#' @param b
+#' @param pinc
+#' @param projection_matrix_const Wheter the residual maker matrix (and so
+#' the projection matrix) should be computed for each model separately.
+#' \code{TRUE} means that the matrix will be the same for all models
+#'
+#' @return
+#' List of parameters describing analysed models
+#'
+#' @export
+#'
+#' @examples
 SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
                     periods_n, timestamp_col, year0, lagged_col, entity_col, Y1,
-                    Y2, res_maker_matrix, prandom, n_entities, b, pinc) {
+                    Y2, res_maker_matrix, prandom, n_entities, b, pinc,
+                    projection_matrix_const) {
   mod <- optimbase::zeros(variables_n,1)
   bet <- optimbase::zeros(variables_n,1)
   pvarh <- optimbase::zeros(variables_n,1)
@@ -17,8 +50,9 @@ SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
 
   row_ind <- 0
   for (regressors_subset in regressors_subsets) {
-    regressors_subset <- rev(regressors_subset)
     row_ind <- row_ind + 1
+    print(paste('Progress:', row_ind, 'out of', length(regressors_subsets)))
+    regressors_subset <- rev(regressors_subset)
     mt <- as.matrix(t(which_regs_bin_vectors[row_ind, ]))
     out = (mt == 0)       # regressors out of the current model
     cur_regressors_n <- sum(mt)
@@ -57,7 +91,9 @@ SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
                               periods_n = periods_n,
                               tot_regressors_n = regressors_n,
                               in_regressors_n = cur_regressors_n,
-                              phis_n = phis_n, psis_n = psis_n, method="BFGS",
+                              phis_n = phis_n, psis_n = psis_n,
+                              projection_matrix_const = projection_matrix_const,
+                              method="BFGS",
                               control = list(trace=2, maxit = 10000,
                                              fnscale = -1,
                                              parscale = 0.05*t0in))
