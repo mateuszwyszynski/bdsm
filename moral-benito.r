@@ -1,7 +1,17 @@
 # this program runs BALIMLE approach
 # It estimates all possible models.
 library(tidyverse)
+
+# To install the development version of the package run:
+# devtools::install()
+# Then you should be able to load the package as any other package.
+# More details on how to develop packages can be found here: https://r-pkgs.org
 library(panels)
+
+# Run:
+# renv::restore()
+# if there are any problems.
+# This should recreate the most recent working environment.
 
 set.seed(23)
 begin<-Sys.time()
