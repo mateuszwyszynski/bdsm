@@ -60,3 +60,21 @@ You can also embed plots, for example:
 
 In that case, don’t forget to commit and push the resulting figure
 files, so they display on GitHub and CRAN.
+
+## Troubleshooting
+
+1. Cannot install required packages / setup renv environment
+
+Make sure to go through the displayed errors.
+The problem might be connected to your OS environment.
+E.g. you might see an information like the following:
+
+```
+Configuration failed to find one of freetype2 libpng libtiff-4 libjpeg. Try installing:
+ * deb: libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev (Debian, Ubuntu, etc)
+ * rpm: freetype-devel libpng-devel libtiff-devel libjpeg-devel (Fedora, CentOS, RHEL)
+ * csw: libfreetype_dev libpng16_dev libtiff_dev libjpeg_dev (Solaris)
+```
+
+In such case you should first try is installing the recommended packages.
+With properly configured system environment everything should work fine.
