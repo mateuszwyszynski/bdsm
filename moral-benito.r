@@ -1,9 +1,7 @@
 # this program runs BALIMLE approach
 # It estimates all possible models.
 library(tidyverse)
-
-library(devtools)
-load_all()
+library(panels)
 
 set.seed(23)
 begin<-Sys.time()
