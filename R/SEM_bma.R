@@ -47,8 +47,7 @@ SEM_bma <- function(R_df, dep_var_col, variables_n, regressors_n,
     regressors <- R_df %>%
       dplyr::select(
         ! c({{ timestamp_col }}, {{ entity_col }}, {{ lagged_col }}, {{ dep_var_col }})
-        ) %>%
-      colnames() %>% rev()
+        ) %>% colnames()
     regressors_subsets <- rje::powerSet(regressors)
   }
 
