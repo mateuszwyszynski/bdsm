@@ -25,5 +25,5 @@ Imports:
     plyr,
     rje,
     rootSolve,
-    tidyr,
-    stats
+    stats,
+    tidyr

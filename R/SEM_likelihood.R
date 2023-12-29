@@ -69,12 +69,12 @@ SEM_regressors_matrix <- function(df, timestamp_col, entity_col, regressors,
     time_zero <- min(timestamps)
     start_time <- min(timestamps[timestamps != time_zero])
   }
-  . <- NULL
 
   df <- df %>%
     dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ regressors }})
 
   if (length(colnames(df)) == 2) NULL else {
+    . <- NULL
     df %>% dplyr::filter({{ timestamp_col }} > start_time) %>%
       tidyr::pivot_wider(
         names_from = {{ timestamp_col }},
@@ -262,10 +262,11 @@ SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(),
         nrows <- length(psi)/regressors_n
         t(matrix(psi, nrow = nrows, ncol = regressors_n))
       }
+      . <- NULL
       psi_matrix <- psis %>%
         split(rep(1:(periods_n-1), regressors_n*(1:(periods_n-1)))) %>%
         sapply(time_fixed_psi_matrix, regressors_n = regressors_n) %>%
-        plyr::rbind.fill.matrix() %>% t() %>% tidyr::replace_na(0) %>%
+        plyr::rbind.fill.matrix() %>% t() %>% replace(is.na(.), 0) %>%
         rbind(rep(0, (periods_n - 1)*regressors_n))
     }
 
