@@ -12,8 +12,8 @@
 #' @param Y1 Matrix with dependent variables
 #' @param Y2 Matrix with regressors
 #' @param res_maker_matrix Residual maker matrix
-#' @param prandom prandom = 1 for optimised_params random Ley&Steel09.
-#' prandom = 0 for optimised_params fixed
+#' @param model_prior Which model prior to use. For now there are two options:
+#' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
 #' @param n_entities Number of entities
 #' @param projection_matrix_const Wheter the residual maker matrix (and so
 #' the projection matrix) should be computed for each model separately.
@@ -34,9 +34,9 @@
 #'
 #' @export
 SEM_bma <- function(R_df, dep_var_col, periods_n, timestamp_col, year0,
-                    lagged_col, entity_col, Y1, Y2, res_maker_matrix, prandom,
+                    lagged_col, entity_col, Y1, Y2, res_maker_matrix,
                     n_entities, projection_matrix_const,
-                    regressors_subsets = NULL,
+                    model_prior = 'uniform', regressors_subsets = NULL,
                     control = list(trace = 2, maxit = 10000, fnscale = -1,
                                    REPORT = 100)) {
   regressors <- R_df %>%
@@ -167,17 +167,19 @@ SEM_bma <- function(R_df, dep_var_col, periods_n, timestamp_col, year0,
     # Eq. 35
     bict <- exp(logl)
 
-    # prior model probability (either random -Ley&Steel09- or fixed) #
-    if (prandom == 1) {
-      priorprobt=(gamma(1+cur_regressors_n))*(gamma(b+regressors_n-cur_regressors_n))    #optimised_params random#
-    }
-
-    if (prandom == 0) {
-      priorprobt=(prior_inc_prob)^(cur_regressors_n)*(1-prior_inc_prob)^(regressors_n-cur_regressors_n)      #optimised_params fixed#
+    if (model_prior == 'binomial-beta') {
+      prior_model_prob <-
+        gamma(1 + cur_regressors_n) * gamma(b + regressors_n - cur_regressors_n)
+    } else if (model_prior == 'uniform') {
+      prior_model_prob <-
+        prior_inc_prob^cur_regressors_n *
+        (1-prior_inc_prob)^(regressors_n - cur_regressors_n)
+    } else {
+      stop("Please specify a correct model prior!")
     }
 
     # posterior model probability  #
-    postprob=priorprobt*bict
+    postprob=prior_model_prob*bict
 
     # selecting estimates of interest (i.e. alpha and betas) #
     bt=optimised_params[1:cur_variables_n]; stdrt=stdr[1:cur_variables_n]; stdht=stdh[1:cur_variables_n]
@@ -232,11 +234,11 @@ SEM_bma <- function(R_df, dep_var_col, periods_n, timestamp_col, year0,
 
     # here we store model-specific diagnostics and estimates (BICs, likelihoods, betas...) #
     if (row_ind==1) {
-      modprob=postprob; modelid=row_ind; modpri=priorprobt; liks=exp(likelihood_max/n_entities); bics=bict
+      modprob=postprob; modelid=row_ind; modpri=prior_model_prob; liks=exp(likelihood_max/n_entities); bics=bict
       betas=bt1; stds=stdht1; stdsr=stdrt1; foutt=likelihood_max
     }
     else {
-      modprob=rbind(modprob,postprob); modelid=rbind(modelid,row_ind); modpri=rbind(modpri,priorprobt)
+      modprob=rbind(modprob,postprob); modelid=rbind(modelid,row_ind); modpri=rbind(modpri,prior_model_prob)
       liks=rbind(liks,exp(likelihood_max/n_entities)); bics=rbind(bics,bict); betas=cbind(betas,bt1)
       stds=cbind(stds,stdht1); stdsr=cbind(stdsr,stdrt1); foutt=rbind(foutt, likelihood_max)
     }

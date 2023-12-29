@@ -7,7 +7,6 @@ devtools::load_all()
 
 set.seed(23)
 begin<-Sys.time()
-prandom=0 #prandom=1 for optimised_params random Ley&Steel09. prandom = 0 for optimised_params fixed
 dilution <- 1
 dil_power <- 1/2
 
@@ -68,7 +67,7 @@ res_maker_matrix <- residual_maker_matrix(Z)
 bma_result <- SEM_bma(R_df = R_df, dep_var_col = gdp, periods_n = periods_n,
                       timestamp_col = year, year0 = year0, lagged_col = lag_gdp,
                       entity_col = country, Y1 = Y1, Y2 = Y2,
-                      res_maker_matrix = res_maker_matrix, prandom = prandom,
+                      res_maker_matrix = res_maker_matrix,
                       n_entities = n_entities, projection_matrix_const = TRUE)
 
 modprob <- bma_result$modprob

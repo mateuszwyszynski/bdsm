@@ -15,9 +15,9 @@ SEM_bma(
   Y1,
   Y2,
   res_maker_matrix,
-  prandom,
   n_entities,
   projection_matrix_const,
+  model_prior = "uniform",
   regressors_subsets = NULL,
   control = list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100)
 )
@@ -43,14 +43,14 @@ SEM_bma(
 
 \item{res_maker_matrix}{Residual maker matrix}
 
-\item{prandom}{prandom = 1 for optimised_params random Ley&Steel09.
-prandom = 0 for optimised_params fixed}
-
 \item{n_entities}{Number of entities}
 
 \item{projection_matrix_const}{Wheter the residual maker matrix (and so
 the projection matrix) should be computed for each model separately.
 \code{TRUE} means that the matrix will be the same for all models}
+
+\item{model_prior}{Which model prior to use. For now there are two options:
+\code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.}
 
 \item{regressors_subsets}{a set of regressor subsets. For each subset a model
 will be optimized. Default is \code{NULL} in which case all possible subsets
