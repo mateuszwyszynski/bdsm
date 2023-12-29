@@ -1,7 +1,8 @@
-# tidyverse and devtools are not installed automatically by renv,
-# because the panels package does not depend on them. You should install them
-# before running this script.
+# The following packages are not installed automatically by renv,
+# because the panels package does not depend on them.
+# You should install them before running this script.
 library(tidyverse)
+library(readxl)
 devtools::load_all()
 
 set.seed(23)
@@ -15,7 +16,7 @@ dil_power <- 1/2
 #---------------------------------------------------------------------------------
 
 row=292; column=11;
-rawdata<-readxl::read_excel("balimle-dataset.xlsx")
+rawdata <- readxl::read_excel("balimle-dataset.xlsx")
 
 #    VARIABLES IN RAWDATA
 #    1.FDI  2.FDIlag  3.EI  4.LLF  5.EX  6.SW  7.RES  8.LOPW  9.INT  10.RI
