@@ -1,17 +1,8 @@
-# this program runs BALIMLE approach
-# It estimates all possible models.
+# tidyverse and devtools are not installed automatically by renv,
+# because the panels package does not depend on them. You should install them
+# before running this script.
 library(tidyverse)
-
-# To install the development version of the package run:
-# devtools::install()
-# Then you should be able to load the package as any other package.
-# More details on how to develop packages can be found here: https://r-pkgs.org
-library(panels)
-
-# Run:
-# renv::restore()
-# if there are any problems.
-# This should recreate the most recent working environment.
+devtools::load_all()
 
 set.seed(23)
 begin<-Sys.time()
