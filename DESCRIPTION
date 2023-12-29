@@ -24,4 +24,5 @@ Imports:
     Matrix,
     plyr,
     rootSolve,
-    tidyr
+    tidyr,
+    stats

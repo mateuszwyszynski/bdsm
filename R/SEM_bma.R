@@ -23,6 +23,11 @@
 #' @param projection_matrix_const Wheter the residual maker matrix (and so
 #' the projection matrix) should be computed for each model separately.
 #' \code{TRUE} means that the matrix will be the same for all models
+#' @param control a list of control parameters for the optimization which are
+#' passed to \link[stats]{optim}. Default is
+#' \code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100)}, but note
+#' that a \code{parscale} element is also added later in the function code.
+#' For now it is hardcoded with no control on the user side.
 #'
 #' @return
 #' List of parameters describing analysed models
@@ -31,7 +36,9 @@
 SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
                     periods_n, timestamp_col, year0, lagged_col, entity_col, Y1,
                     Y2, res_maker_matrix, prandom, n_entities, b, pinc,
-                    projection_matrix_const) {
+                    projection_matrix_const,
+                    control = list(trace = 2, maxit = 10000, fnscale = -1,
+                                   REPORT = 100)) {
   mod <- optimbase::zeros(variables_n,1)
   bet <- optimbase::zeros(variables_n,1)
   pvarh <- optimbase::zeros(variables_n,1)
@@ -85,6 +92,8 @@ SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
     # parscale argument somehow (don't know yet how) changes step size during optimisation.
     # Most likely optimisation methods used in Gauss are scale-free and these used in R are not
     # TODO: search for methods (or implement methods) in R which are scale-free
+    control$parscale = 0.05*t0in
+
     optimized <- stats::optim(t0in, SEM_likelihood, data = data,
                               periods_n = periods_n,
                               tot_regressors_n = regressors_n,
@@ -92,9 +101,7 @@ SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
                               phis_n = phis_n, psis_n = psis_n,
                               projection_matrix_const = projection_matrix_const,
                               method="BFGS",
-                              control = list(trace=2, maxit = 10000,
-                                             fnscale = -1,
-                                             parscale = 0.05*t0in))
+                              control = control)
     optimised_params <- optimized[[1]]
     likelihood_max <- optimized[[2]]
 

@@ -21,7 +21,8 @@ SEM_bma(
   n_entities,
   b,
   pinc,
-  projection_matrix_const
+  projection_matrix_const,
+  control = list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100)
 )
 }
 \arguments{
@@ -62,6 +63,12 @@ prandom = 0 for optimised_params fixed}
 \item{projection_matrix_const}{Wheter the residual maker matrix (and so
 the projection matrix) should be computed for each model separately.
 \code{TRUE} means that the matrix will be the same for all models}
+
+\item{control}{a list of control parameters for the optimization which are
+passed to \link[stats]{optim}. Default is
+\code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100)}, but note
+that a \code{parscale} element is also added later in the function code.
+For now it is hardcoded with no control on the user side.}
 }
 \value{
 List of parameters describing analysed models
