@@ -32,7 +32,6 @@ rawdata<-readxl::read_excel("balimle-dataset.xlsx")
 rawdata=rawdata[,1:8]   #I select the regressors of interest @
 year0 <- min(rawdata$year)
 varlist<- c("FDI","EI","LLF","EX", "SW")
-regressors <- rev(colnames(rawdata)[-1:-4])
 regressors_n <- ncol(rawdata) - 4
 variables_n <- regressors_n + 1
 variables <- rev(colnames(rawdata)[-1:-3])
