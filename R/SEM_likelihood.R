@@ -58,7 +58,7 @@ SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
 #' @return
 #' Matrix of size N x (T-1)*k where N is the number of entities considered, T is
 #' the number of periods greater than or equal to \code{start_time} and k is the
-#' number of chosen regressors
+#' number of chosen regressors. If there are no regressors returns \code{NULL}.
 #' @export
 #'
 #' @examples
@@ -70,16 +70,20 @@ SEM_regressors_matrix <- function(df, timestamp_col, entity_col, regressors,
     start_time <- min(timestamps[timestamps != time_zero])
   }
   . <- NULL
-  df %>%
-    dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ regressors }}) %>%
-    dplyr::filter({{ timestamp_col }} > start_time) %>%
-    tidyr::pivot_wider(
-      names_from = {{ timestamp_col }},
-      values_from = !{{ entity_col }} & !{{ timestamp_col }}
+
+  df <- df %>%
+    dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ regressors }})
+
+  if (length(colnames(df)) == 2) NULL else {
+    df %>% dplyr::filter({{ timestamp_col }} > start_time) %>%
+      tidyr::pivot_wider(
+        names_from = {{ timestamp_col }},
+        values_from = !{{ entity_col }} & !{{ timestamp_col }}
       ) %>%
-    dplyr::select(!{{ entity_col }}) %>%
-    dplyr::select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>%
-    as.matrix()
+      dplyr::select(!{{ entity_col }}) %>%
+      dplyr::select(order(as.numeric(gsub("[^0-9]+", "", colnames(.))))) %>%
+      as.matrix()
+  }
 }
 
 #' Matrix with exogenous variables for SEM representation

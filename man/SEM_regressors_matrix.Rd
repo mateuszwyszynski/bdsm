@@ -30,7 +30,7 @@ as \code{start_time}. Default is \code{NULL}.}
 \value{
 Matrix of size N x (T-1)*k where N is the number of entities considered, T is
 the number of periods greater than or equal to \code{start_time} and k is the
-number of chosen regressors
+number of chosen regressors. If there are no regressors returns \code{NULL}.
 }
 \description{
 Create matrix which contains regressors data used in the Simultaneous
