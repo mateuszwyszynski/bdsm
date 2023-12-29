@@ -7,8 +7,6 @@
 SEM_bma(
   R_df,
   dep_var_col,
-  variables_n,
-  regressors_n,
   periods_n,
   timestamp_col,
   year0,
@@ -19,8 +17,6 @@ SEM_bma(
   res_maker_matrix,
   prandom,
   n_entities,
-  b,
-  pinc,
   projection_matrix_const,
   regressors_subsets = NULL,
   control = list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100)
@@ -29,9 +25,7 @@ SEM_bma(
 \arguments{
 \item{R_df}{Data frame with data for the SEM analysis.}
 
-\item{variables_n}{Number of variables}
-
-\item{regressors_n}{Number of regressors}
+\item{dep_var_col}{Column with the dependent variable}
 
 \item{periods_n}{Number of timestamps}
 
@@ -53,10 +47,6 @@ SEM_bma(
 prandom = 0 for optimised_params fixed}
 
 \item{n_entities}{Number of entities}
-
-\item{b}{Not sure.}
-
-\item{pinc}{Not sure. Increment for BMA}
 
 \item{projection_matrix_const}{Wheter the residual maker matrix (and so
 the projection matrix) should be computed for each model separately.

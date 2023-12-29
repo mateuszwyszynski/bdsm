@@ -3,8 +3,7 @@
 #' Perform Bayesian Model Averaging for Simultaneous Equations Model.
 #'
 #' @param R_df Data frame with data for the SEM analysis.
-#' @param variables_n Number of variables
-#' @param regressors_n Number of regressors
+#' @param dep_var_col Column with the dependent variable
 #' @param periods_n Number of timestamps
 #' @param timestamp_col The name of the column with timestamps
 #' @param year0 First timestamp
@@ -16,8 +15,6 @@
 #' @param prandom prandom = 1 for optimised_params random Ley&Steel09.
 #' prandom = 0 for optimised_params fixed
 #' @param n_entities Number of entities
-#' @param b Not sure.
-#' @param pinc Not sure. Increment for BMA
 #' @param projection_matrix_const Wheter the residual maker matrix (and so
 #' the projection matrix) should be computed for each model separately.
 #' \code{TRUE} means that the matrix will be the same for all models
@@ -36,18 +33,26 @@
 #' List of parameters describing analysed models
 #'
 #' @export
-SEM_bma <- function(R_df, dep_var_col, variables_n, regressors_n,
-                    periods_n, timestamp_col, year0, lagged_col, entity_col, Y1,
-                    Y2, res_maker_matrix, prandom, n_entities, b, pinc,
-                    projection_matrix_const,
+SEM_bma <- function(R_df, dep_var_col, periods_n, timestamp_col, year0,
+                    lagged_col, entity_col, Y1, Y2, res_maker_matrix, prandom,
+                    n_entities, projection_matrix_const,
                     regressors_subsets = NULL,
                     control = list(trace = 2, maxit = 10000, fnscale = -1,
                                    REPORT = 100)) {
+  regressors <- R_df %>%
+    dplyr::select(
+      ! c({{ timestamp_col }}, {{ entity_col }}, {{ lagged_col }}, {{ dep_var_col }})
+    ) %>% colnames()
+  regressors_n <- length(regressors)
+  variables_n <- regressors_n + 1
+
+  prior_exp_model_size <- regressors_n / 2
+  prior_inc_prob <- prior_exp_model_size / regressors_n
+
+  # parameter for beta (random) distribution of the prior inclusion probability
+  b <- (regressors_n - prior_exp_model_size) / prior_exp_model_size
+
   if(is.null(regressors_subsets)) {
-    regressors <- R_df %>%
-      dplyr::select(
-        ! c({{ timestamp_col }}, {{ entity_col }}, {{ lagged_col }}, {{ dep_var_col }})
-        ) %>% colnames()
     regressors_subsets <- rje::powerSet(regressors)
   }
 
@@ -168,7 +173,7 @@ SEM_bma <- function(R_df, dep_var_col, variables_n, regressors_n,
     }
 
     if (prandom == 0) {
-      priorprobt=(pinc)^(cur_regressors_n)*(1-pinc)^(regressors_n-cur_regressors_n)      #optimised_params fixed#
+      priorprobt=(prior_inc_prob)^(cur_regressors_n)*(1-prior_inc_prob)^(regressors_n-cur_regressors_n)      #optimised_params fixed#
     }
 
     # posterior model probability  #
@@ -237,7 +242,9 @@ SEM_bma <- function(R_df, dep_var_col, variables_n, regressors_n,
     }
   }
 
-  list(modprob = modprob, modelid = modelid, modpri = modpri, liks = liks,
+  list(prior_exp_model_size = prior_exp_model_size,
+       prior_inc_prob = prior_inc_prob, variables_n = variables_n,
+       modprob = modprob, modelid = modelid, modpri = modpri, liks = liks,
        bics = bics, betas = betas, stds = stds, stdsr = stdsr, foutt = foutt,
        bet = bet, mod = mod, pvarh = pvarh, pvarr = pvarr, fy = fy, fyt = fyt,
        ppmsize = ppmsize, cout = 0, nts = nts, pts = pts)

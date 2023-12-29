@@ -23,9 +23,6 @@ rawdata<-readxl::read_excel("balimle-dataset.xlsx")
 rawdata=rawdata[,1:8]   #I select the regressors of interest @
 year0 <- min(rawdata$year)
 varlist<- c("FDI","EI","LLF","EX", "SW")
-regressors_n <- ncol(rawdata) - 4
-variables_n <- regressors_n + 1
-variables <- rev(colnames(rawdata)[-1:-3])
 n_entities <- 73
 periods_n <- 4
 
@@ -67,27 +64,11 @@ Z <- R_df %>%
 
 res_maker_matrix <- residual_maker_matrix(Z)
 
-# ---------------------------------------------------------------------------------
-# 		               SOME PRELIMINAR OBJECTS BALIMLE APPROACH
-# ---------------------------------------------------------------------------------
-#
-#***                 PRIOR STRUCTURES for THE PRIOR MODEL SIZE                  ***
-# ---------------------------------------------------------------------------------
-
-pmsize=regressors_n/2           # prior expected model size, options:
-    # 1. for "SDM" priors pmsize=3
-    # 2. for "FLS" priors pmsize=regressors_n/2
-pinc=pmsize/regressors_n
-b=(regressors_n-pmsize)/pmsize   # parameter for beta (random) distribution of the prior inclusion probability
-
-bma_result <- SEM_bma(R_df = R_df, dep_var_col = gdp,
-                      variables_n = variables_n, regressors_n = regressors_n,
-                      periods_n = periods_n, timestamp_col = year,
-                      year0 = year0, lagged_col = lag_gdp, entity_col = country,
-                      Y1 = Y1, Y2 = Y2, res_maker_matrix = res_maker_matrix,
-                      prandom = prandom, n_entities = n_entities, b = b,
-                      pinc = pinc,
-                      projection_matrix_const = TRUE)
+bma_result <- SEM_bma(R_df = R_df, dep_var_col = gdp, periods_n = periods_n,
+                      timestamp_col = year, year0 = year0, lagged_col = lag_gdp,
+                      entity_col = country, Y1 = Y1, Y2 = Y2,
+                      res_maker_matrix = res_maker_matrix, prandom = prandom,
+                      n_entities = n_entities, projection_matrix_const = TRUE)
 
 modprob <- bma_result$modprob
 modelid <- bma_result$modelid
@@ -136,7 +117,7 @@ upoststdh=sqrt(uvarhleamer)
 # computing percentage of significant coeff estimates
 nts=t(nts)
 pts=t(pts)
-for (jt in 1:variables_n) {
+for (jt in 1:bma_result$variables_n) {
   ntss=na.omit(nts[,jt]); ptss=na.omit(pts[,jt]); nsig=ntss<(-1.96); psig=ptss>1.96
   if (jt==1) {
     negper=mean(nsig); posper=mean(psig)
@@ -152,10 +133,13 @@ result=as.data.frame(cbind(varlist,postprobinc,postmean,poststdh,poststdr,upostm
 names(result)<-c("varname","postprob","pmean","std","stdR","unc_pmean","unc_std","unc_stdR")
 the_end=Sys.time()
 
-final<-list(result, rbind(paste("Prior Mean Model Size=",pmsize),paste("Prior Inclusion Probability=",pinc),
-     paste("Posterior Mean Model Size=", popmsize)),(the_end-begin),
-     t(betas),t(stds),
-     t(stdsr),idprob)
+final<-list(
+  result, rbind(
+    paste("Prior Mean Model Size=", bma_result$prior_exp_model_size),
+    paste("Prior Inclusion Probability=", bma_result$prior_inc_prob),
+    paste("Posterior Mean Model Size=", popmsize)
+    ), (the_end-begin), t(betas), t(stds), t(stdsr), idprob
+  )
 names(final)<-c(" 1.- RESULTS "," 2.- FURTHER INFORMATION "," 3.- COMPUTATION TIME"," 4.- ALL BETAS (each row is a different model)",
                 " 5.- ALL STD. ERRORS (each row is a different model)"," 6.- ALL ROBUST STD. ERRORS (each row is a different model)",
                 " 7.- MODELS INFO ")
