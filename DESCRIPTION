@@ -21,7 +21,6 @@ Imports:
     dplyr,
     magrittr,
     optimbase,
-    Matrix,
     plyr,
     rje,
     rootSolve,
