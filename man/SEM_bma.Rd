@@ -5,8 +5,8 @@
 \title{BMA for SEM representation}
 \usage{
 SEM_bma(
-  regressors_subsets,
   R_df,
+  dep_var_col,
   variables_n,
   regressors_n,
   periods_n,
@@ -22,13 +22,11 @@ SEM_bma(
   b,
   pinc,
   projection_matrix_const,
+  regressors_subsets = NULL,
   control = list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100)
 )
 }
 \arguments{
-\item{regressors_subsets}{set of regressors set. Each regressor set will be
-used to construct a model.}
-
 \item{R_df}{Data frame with data for the SEM analysis.}
 
 \item{variables_n}{Number of variables}
@@ -63,6 +61,12 @@ prandom = 0 for optimised_params fixed}
 \item{projection_matrix_const}{Wheter the residual maker matrix (and so
 the projection matrix) should be computed for each model separately.
 \code{TRUE} means that the matrix will be the same for all models}
+
+\item{regressors_subsets}{a set of regressor subsets. For each subset a model
+will be optimized. Default is \code{NULL} in which case all possible subsets
+of regressors are considered, i.e. the power set of a set of regressors is
+used. Note that therefore by default 2^k models are analysed where k is the
+number of regressors.}
 
 \item{control}{a list of control parameters for the optimization which are
 passed to \link[stats]{optim}. Default is

@@ -90,9 +90,7 @@ pmsize=regressors_n/2           # prior expected model size, options:
 pinc=pmsize/regressors_n
 b=(regressors_n-pmsize)/pmsize   # parameter for beta (random) distribution of the prior inclusion probability
 
-regressors_subsets <- rje::powerSet(regressors)
-
-bma_result <- SEM_bma(regressors_subsets = regressors_subsets, R_df = R_df,
+bma_result <- SEM_bma(R_df = R_df, dep_var_col = gdp,
                       variables_n = variables_n, regressors_n = regressors_n,
                       periods_n = periods_n, timestamp_col = year,
                       year0 = year0, lagged_col = lag_gdp, entity_col = country,

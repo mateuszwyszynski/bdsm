@@ -23,6 +23,7 @@ Imports:
     optimbase,
     Matrix,
     plyr,
+    rje,
     rootSolve,
     tidyr,
     stats

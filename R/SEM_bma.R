@@ -2,8 +2,6 @@
 #'
 #' Perform Bayesian Model Averaging for Simultaneous Equations Model.
 #'
-#' @param regressors_subsets set of regressors set. Each regressor set will be
-#' used to construct a model.
 #' @param R_df Data frame with data for the SEM analysis.
 #' @param variables_n Number of variables
 #' @param regressors_n Number of regressors
@@ -23,6 +21,11 @@
 #' @param projection_matrix_const Wheter the residual maker matrix (and so
 #' the projection matrix) should be computed for each model separately.
 #' \code{TRUE} means that the matrix will be the same for all models
+#' @param regressors_subsets a set of regressor subsets. For each subset a model
+#' will be optimized. Default is \code{NULL} in which case all possible subsets
+#' of regressors are considered, i.e. the power set of a set of regressors is
+#' used. Note that therefore by default 2^k models are analysed where k is the
+#' number of regressors.
 #' @param control a list of control parameters for the optimization which are
 #' passed to \link[stats]{optim}. Default is
 #' \code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100)}, but note
@@ -33,12 +36,22 @@
 #' List of parameters describing analysed models
 #'
 #' @export
-SEM_bma <- function(regressors_subsets, R_df, variables_n, regressors_n,
+SEM_bma <- function(R_df, dep_var_col, variables_n, regressors_n,
                     periods_n, timestamp_col, year0, lagged_col, entity_col, Y1,
                     Y2, res_maker_matrix, prandom, n_entities, b, pinc,
                     projection_matrix_const,
+                    regressors_subsets = NULL,
                     control = list(trace = 2, maxit = 10000, fnscale = -1,
                                    REPORT = 100)) {
+  if(is.null(regressors_subsets)) {
+    regressors <- R_df %>%
+      dplyr::select(
+        ! c({{ timestamp_col }}, {{ entity_col }}, {{ lagged_col }}, {{ dep_var_col }})
+        ) %>%
+      colnames() %>% rev()
+    regressors_subsets <- rje::powerSet(regressors)
+  }
+
   mod <- optimbase::zeros(variables_n,1)
   bet <- optimbase::zeros(variables_n,1)
   pvarh <- optimbase::zeros(variables_n,1)
