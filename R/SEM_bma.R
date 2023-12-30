@@ -15,7 +15,7 @@
 #' @param model_prior Which model prior to use. For now there are two options:
 #' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
 #' @param n_entities Number of entities
-#' @param projection_matrix_const Wheter the residual maker matrix (and so
+#' @param projection_matrix_const Whether the residual maker matrix (and so
 #' the projection matrix) should be computed for each model separately.
 #' \code{TRUE} means that the matrix will be the same for all models
 #' @param exact_value Whether the exact value of the likelihood should be

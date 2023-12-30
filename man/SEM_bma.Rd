@@ -46,7 +46,7 @@ SEM_bma(
 
 \item{n_entities}{Number of entities}
 
-\item{projection_matrix_const}{Wheter the residual maker matrix (and so
+\item{projection_matrix_const}{Whether the residual maker matrix (and so
 the projection matrix) should be computed for each model separately.
 \code{TRUE} means that the matrix will be the same for all models}
 
