@@ -351,9 +351,12 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
     S11_inverse <- solve(S[[1]])
     M <- Y2 - U1 %*% S11_inverse %*% S[[2]]
     H <- crossprod(M, res_maker_matrix) %*% M
+    gaussian_normalization_const <- log(2 * pi) *
+      n_entities * (periods_n + (periods_n-1) * tot_regressors_n) / 2
     likelihood <- if(!per_entity) {
       -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
-        1/2 * sum(diag(S11_inverse %*% crossprod(U1)))
+        1/2 * sum(diag(S11_inverse %*% crossprod(U1))) -
+        gaussian_normalization_const
     } else {
       lik_vec <- optimbase::zeros(n_entities, 1)
       for (iter in 1:n_entities) {
@@ -397,7 +400,8 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
     }
     likelihood <- SEM_likelihood(params = params, data = data,
                                  per_entity = per_entity,
-                                 projection_matrix_const = projection_matrix_const)
+                                 projection_matrix_const = projection_matrix_const,
+                                 tot_regressors_n = tot_regressors_n)
   }
   likelihood
 }
