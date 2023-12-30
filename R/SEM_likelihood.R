@@ -353,10 +353,13 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
     H <- crossprod(M, res_maker_matrix) %*% M
     gaussian_normalization_const <- log(2 * pi) *
       n_entities * (periods_n + (periods_n-1) * tot_regressors_n) / 2
+    trace_simplification_term <-
+      1/2 * n_entities * (periods_n - 1) * tot_regressors_n
     likelihood <- if(!per_entity) {
       -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
         1/2 * sum(diag(S11_inverse %*% crossprod(U1))) -
-        gaussian_normalization_const
+        gaussian_normalization_const -
+        trace_simplification_term
     } else {
       lik_vec <- optimbase::zeros(n_entities, 1)
       for (iter in 1:n_entities) {
