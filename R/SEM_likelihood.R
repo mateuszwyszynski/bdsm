@@ -315,7 +315,8 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
                            periods_n = NULL, tot_regressors_n = NULL,
                            in_regressors_n = NULL,
                            phis_n = NULL, psis_n = NULL, per_entity = FALSE,
-                           projection_matrix_const = TRUE) {
+                           projection_matrix_const = TRUE,
+                           exact_value = TRUE) {
   if (is.list(params) && is.list(data)) {
     alpha <- params$alpha
     phi_0 <- params$phi_0
@@ -357,9 +358,12 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
     trace_simplification_term <-
       1/2 * n_entities * (periods_n - 1) * tot_regressors_n
 
-    likelihood <- -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
-      gaussian_normalization_const -
-      trace_simplification_term
+    likelihood <- -n_entities/2 * log(det(S[[1]]) * det(H/n_entities))
+
+    if(exact_value) {
+      likelihood <- likelihood -
+        gaussian_normalization_const - trace_simplification_term
+    }
 
     likelihood <- if(!per_entity) {
       likelihood - 1/2 * sum(diag(S11_inverse %*% crossprod(U1)))
@@ -402,7 +406,8 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
     likelihood <- SEM_likelihood(params = params, data = data,
                                  per_entity = per_entity,
                                  projection_matrix_const = projection_matrix_const,
-                                 tot_regressors_n = tot_regressors_n)
+                                 tot_regressors_n = tot_regressors_n,
+                                 exact_value = exact_value)
   }
   likelihood
 }

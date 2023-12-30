@@ -18,6 +18,9 @@
 #' @param projection_matrix_const Wheter the residual maker matrix (and so
 #' the projection matrix) should be computed for each model separately.
 #' \code{TRUE} means that the matrix will be the same for all models
+#' @param exact_value Whether the exact value of the likelihood should be
+#' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
+#' \link[panels]{SEM_likelihood} for details.
 #' @param regressors_subsets a set of regressor subsets. For each subset a model
 #' will be optimized. Default is \code{NULL} in which case all possible subsets
 #' of regressors are considered, i.e. the power set of a set of regressors is
@@ -35,7 +38,7 @@
 #' @export
 SEM_bma <- function(R_df, dep_var_col, periods_n, timestamp_col, year0,
                     lagged_col, entity_col, Y1, Y2, res_maker_matrix,
-                    n_entities, projection_matrix_const,
+                    n_entities, projection_matrix_const, exact_value = TRUE,
                     model_prior = 'uniform', regressors_subsets = NULL,
                     control = list(trace = 2, maxit = 10000, fnscale = -1,
                                    REPORT = 100)) {
@@ -112,7 +115,7 @@ SEM_bma <- function(R_df, dep_var_col, periods_n, timestamp_col, year0,
     control$parscale = 0.05*t0in
 
     optimized <- stats::optim(t0in, SEM_likelihood, data = data,
-                              periods_n = periods_n,
+                              periods_n = periods_n, exact_value = exact_value,
                               tot_regressors_n = regressors_n,
                               in_regressors_n = cur_regressors_n,
                               phis_n = phis_n, psis_n = psis_n,
