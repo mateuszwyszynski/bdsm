@@ -26,7 +26,7 @@ SEM_likelihood(
 }
 \arguments{
 \item{params}{Parameters describing the model. Can be either a vector or a
-list with named parameters.}
+list with named parameters. See 'Details'}
 
 \item{data}{Data for the likelihood computations. Can be either a list of
 matrices or a dataframe. If the dataframe, additional parameters are
@@ -85,4 +85,39 @@ likelihood)
 }
 \description{
 Likelihood for the SEM model
+}
+\details{
+The \code{params} argument is a list that should contain the following
+components:
+
+\code{alpha} scalar value which determines linear dependence on lagged
+dependent variable
+
+\code{phi_0} scalar value which determines linear dependence on the value
+of dependent variable from initial timestep
+
+\code{err_var} scalar value which determines classical error component
+(Sigma11 matrix, sigma_epsilon^2)
+
+\code{dep_vars} double vector of length equal to the number of timesteps
+(i.e. timesteps  strictly bigger than \code{start_time})
+
+\code{beta} double vector which determines the linear dependence on
+regressors different than the lagged dependent variable; The vector should
+have length equal to the number of regressors.
+
+\code{phi_1} double vector which determines the linear dependence on
+initial values of regressors different than the lagged dependent variable;
+The vector should have length equal to the number of regressors.
+
+\code{phis} double vector which together with \code{psis} determines upper
+right and bottom left part of the covariance matrix; The vector should have
+length equal to the number of regressors times number of timesteps minus 1,
+i.e. \code{regressors_n * (periods_n - 1)}
+
+\code{psis} double vector which together with \code{psis} determines upper
+right and bottom left part of the covariance matrix; The vector should have
+length equal to the number of regressors times number of timesteps minus 1
+times number of timesteps divided by 2, i.e.
+\code{regressors_n * (periods_n - 1) * periods_n / 2}
 }
