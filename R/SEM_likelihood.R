@@ -96,7 +96,7 @@ SEM_regressors_matrix <- function(df, timestamp_col, entity_col, regressors,
 #'
 #' @param df Data frame with data for the SEM analysis.
 #' @param timestamp_col Column which determines time periods. For now only
-#' natural numbers can be used as timestampsg
+#' natural numbers can be used as timestamps
 #' @param start_time First time period. Only time periods greater than
 #' \code{start_time} will be considered in the resulting matrix
 #' @param lagged_col Column which contains lagged version of dependent variable
@@ -308,6 +308,53 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
        beta = beta, phi_1 = phi_1, phis = phis, psis = psis)
 }
 
+#' Likelihood for the SEM model
+#'
+#' @param params Parameters describing the model. Can be either a vector or a
+#' list with named parameters.
+#' @param data Data for the likelihood computations. Can be either a list of
+#' matrices or a dataframe. If the dataframe, additional parameters are
+#' required to build the matrices within the function.
+#' @param timestamp_col Column which determines time periods. For now only
+#' natural numbers can be used as timestampsg
+#' @param entity_col Column which determines entities (e.g. countries, people)
+#' @param start_time First time period. Only time periods greater than
+#' \code{start_time} will be considered in the resulting matrix
+#' @param lagged_col Column which contains lagged version of dependent variable
+#' @param dep_var_col Column with dependent variable
+#' @param regressors Which subset of columns should be used as regressors.
+#' @param in_regressors Which subset of columns should be used as regressors
+#' for the current model. In other words \code{regressors} are the total set of
+#' regressors and \code{in_regressors} are the ones for which linear relation
+#' is not set to zero for a given model.
+#' @param periods_n Probably can be determined from the rest
+#' @param tot_regressors_n Probably can be determined from the rest
+#' @param in_regressors_n Probably can be determined from the rest
+#' @param phis_n Probably can be determined from the rest
+#' @param psis_n Probably can be determined from the rest
+#' @param per_entity Whether to compute overall likelihood or a vector of
+#' likelihoods with per entity value
+#' @param projection_matrix_const Wheter the residual maker matrix (and so
+#' the projection matrix) should be computed for each model separately.
+#' \code{TRUE} means that the matrix will be the same for all models
+#' @param exact_value Whether the exact value of the likelihood should be
+#' computed (\code{TRUE}) or just the proportional part (\code{FALSE}).
+#' Currently \code{TRUE} adds: 1. a normalization constant coming from Gaussian
+#' distribution, 2. a term disappearing during likelihood simplification in
+#' Likelihood-based Estimation of Dynamic Panels with Predetermined Regressors
+#' by Moral-Benito (see Appendix A.1). The latter happens when transitioning
+#' from equation (47) to equation (48), in step 2: the term trace{HG_22} is
+#' dropped, because it can be assumed to be constant from Moral-Benito
+#' perspective. To get the exact value of the likelihood we have to take this
+#' term into account.
+#'
+#' @return
+#' The value of the likelihood for SEM model (or a part of interest of the
+#' likelihood)
+#'
+#' @export
+#'
+#' @examples
 SEM_likelihood <- function(params, data, timestamp_col = NULL,
                            entity_col = NULL, start_time = NULL,
                            lagged_col = NULL, dep_var_col = NULL,
@@ -315,7 +362,8 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
                            periods_n = NULL, tot_regressors_n = NULL,
                            in_regressors_n = NULL,
                            phis_n = NULL, psis_n = NULL, per_entity = FALSE,
-                           projection_matrix_const = TRUE) {
+                           projection_matrix_const = TRUE,
+                           exact_value = TRUE) {
   if (is.list(params) && is.list(data)) {
     alpha <- params$alpha
     phi_0 <- params$phi_0
@@ -351,16 +399,23 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
     S11_inverse <- solve(S[[1]])
     M <- Y2 - U1 %*% S11_inverse %*% S[[2]]
     H <- crossprod(M, res_maker_matrix) %*% M
+
+    gaussian_normalization_const <- log(2 * pi) *
+      n_entities * (periods_n + (periods_n-1) * tot_regressors_n) / 2
+    trace_simplification_term <-
+      1/2 * n_entities * (periods_n - 1) * tot_regressors_n
+
+    likelihood <- -n_entities/2 * log(det(S[[1]]) * det(H/n_entities))
+
+    if(exact_value) {
+      likelihood <- likelihood -
+        gaussian_normalization_const - trace_simplification_term
+    }
+
     likelihood <- if(!per_entity) {
-      -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
-        1/2 * sum(diag(S11_inverse %*% crossprod(U1)))
+      likelihood - 1/2 * sum(diag(S11_inverse %*% crossprod(U1)))
     } else {
-      lik_vec <- optimbase::zeros(n_entities, 1)
-      for (iter in 1:n_entities) {
-        u10i=as.matrix(U1[iter,])
-        lik_vec[iter]=-(1/2)*log(det(S[[1]]))-(1/2)*log(det(H/n_entities))-(1/2)*(t(u10i)%*%solve(S[[1]])%*%u10i)
-      }
-      lik_vec
+      likelihood / n_entities  - 1/2 * diag(U1 %*% S11_inverse %*% t(U1))
     }
   } else {
     if (!is.list(params)) {
@@ -397,7 +452,9 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
     }
     likelihood <- SEM_likelihood(params = params, data = data,
                                  per_entity = per_entity,
-                                 projection_matrix_const = projection_matrix_const)
+                                 projection_matrix_const = projection_matrix_const,
+                                 tot_regressors_n = tot_regressors_n,
+                                 exact_value = exact_value)
   }
   likelihood
 }

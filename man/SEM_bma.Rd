@@ -17,6 +17,7 @@ SEM_bma(
   res_maker_matrix,
   n_entities,
   projection_matrix_const,
+  exact_value = TRUE,
   model_prior = "uniform",
   regressors_subsets = NULL,
   control = list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100)
@@ -45,9 +46,13 @@ SEM_bma(
 
 \item{n_entities}{Number of entities}
 
-\item{projection_matrix_const}{Wheter the residual maker matrix (and so
+\item{projection_matrix_const}{Whether the residual maker matrix (and so
 the projection matrix) should be computed for each model separately.
 \code{TRUE} means that the matrix will be the same for all models}
+
+\item{exact_value}{Whether the exact value of the likelihood should be
+computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
+\link[panels]{SEM_likelihood} for details.}
 
 \item{model_prior}{Which model prior to use. For now there are two options:
 \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.}
