@@ -351,21 +351,20 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
     S11_inverse <- solve(S[[1]])
     M <- Y2 - U1 %*% S11_inverse %*% S[[2]]
     H <- crossprod(M, res_maker_matrix) %*% M
+
     gaussian_normalization_const <- log(2 * pi) *
       n_entities * (periods_n + (periods_n-1) * tot_regressors_n) / 2
     trace_simplification_term <-
       1/2 * n_entities * (periods_n - 1) * tot_regressors_n
 
+    likelihood <- -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
+      gaussian_normalization_const -
+      trace_simplification_term
+
     likelihood <- if(!per_entity) {
-      -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
-        1/2 * sum(diag(S11_inverse %*% crossprod(U1))) -
-        gaussian_normalization_const -
-        trace_simplification_term
+      likelihood - 1/2 * sum(diag(S11_inverse %*% crossprod(U1)))
     } else {
-      -1/2 * diag(U1 %*% S11_inverse %*% t(U1)) -
-        1/2 * log(det(S[[1]]) * det(H/n_entities)) -
-        gaussian_normalization_const / n_entities -
-        trace_simplification_term / n_entities
+      likelihood / n_entities  - 1/2 * diag(U1 %*% S11_inverse %*% t(U1))
     }
   } else {
     if (!is.list(params)) {
