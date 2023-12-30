@@ -355,18 +355,17 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
       n_entities * (periods_n + (periods_n-1) * tot_regressors_n) / 2
     trace_simplification_term <-
       1/2 * n_entities * (periods_n - 1) * tot_regressors_n
+
     likelihood <- if(!per_entity) {
       -n_entities/2 * log(det(S[[1]]) * det(H/n_entities)) -
         1/2 * sum(diag(S11_inverse %*% crossprod(U1))) -
         gaussian_normalization_const -
         trace_simplification_term
     } else {
-      lik_vec <- optimbase::zeros(n_entities, 1)
-      for (iter in 1:n_entities) {
-        u10i=as.matrix(U1[iter,])
-        lik_vec[iter]=-(1/2)*log(det(S[[1]]))-(1/2)*log(det(H/n_entities))-(1/2)*(t(u10i)%*%solve(S[[1]])%*%u10i)
-      }
-      lik_vec
+      -1/2 * diag(U1 %*% S11_inverse %*% t(U1)) -
+        1/2 * log(det(S[[1]]) * det(H/n_entities)) -
+        gaussian_normalization_const / n_entities -
+        trace_simplification_term / n_entities
     }
   } else {
     if (!is.list(params)) {
