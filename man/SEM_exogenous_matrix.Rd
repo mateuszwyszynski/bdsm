@@ -16,7 +16,7 @@ SEM_exogenous_matrix(
 \item{df}{Data frame with data for the SEM analysis.}
 
 \item{timestamp_col}{Column which determines time periods. For now only
-natural numbers can be used as timestampsg}
+natural numbers can be used as timestamps}
 
 \item{start_time}{First time period. Only time periods greater than
 \code{start_time} will be considered in the resulting matrix}
