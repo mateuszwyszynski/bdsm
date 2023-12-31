@@ -16,8 +16,6 @@ SEM_likelihood(
   in_regressors = NULL,
   tot_regressors_n = NULL,
   in_regressors_n = NULL,
-  phis_n = NULL,
-  psis_n = NULL,
   per_entity = FALSE,
   projection_matrix_const = TRUE,
   exact_value = TRUE
@@ -53,10 +51,6 @@ is not set to zero for a given model.}
 \item{tot_regressors_n}{Probably can be determined from the rest}
 
 \item{in_regressors_n}{Probably can be determined from the rest}
-
-\item{phis_n}{Probably can be determined from the rest}
-
-\item{psis_n}{Probably can be determined from the rest}
 
 \item{per_entity}{Whether to compute overall likelihood or a vector of
 likelihoods with per entity value}
