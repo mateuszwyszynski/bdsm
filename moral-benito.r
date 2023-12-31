@@ -20,6 +20,9 @@ rawdata=rawdata[,1:8]   #I select the regressors of interest @
 year0 <- min(rawdata$year)
 varlist<- c("FDI","EI","LLF","EX", "SW")
 
+data_with_no_lagged_col <- rawdata %>%
+  join_lagged_col(gdp, lag_gdp, year, country, 10)
+
 #' Prepare data for LIML estimation
 #'
 #' @description
@@ -41,6 +44,7 @@ liml_data_prep <- function(df){
 }
 
 R_df <- liml_data_prep(rawdata)
+data_prepared <- liml_data_prep(data_with_no_lagged_col)
 
 bma_result <- SEM_bma(R_df = R_df, dep_var_col = gdp,
                       timestamp_col = year, year0 = year0, lagged_col = lag_gdp,
