@@ -131,23 +131,19 @@ SEM_bma <- function(R_df, dep_var_col, timestamp_col, year0, lagged_col,
 
     optimized <- stats::optim(t0in, SEM_likelihood, data = data,
                               exact_value = exact_value,
-                              in_regressors_n = cur_regressors_n,
                               projection_matrix_const = projection_matrix_const,
                               method="BFGS",
                               control = control)
     optimised_params <- optimized[[1]]
     likelihood_max <- optimized[[2]]
 
-    hess <- hessian(SEM_likelihood, theta = optimised_params, data = data,
-                    in_regressors_n = cur_regressors_n)
+    hess <- hessian(SEM_likelihood, theta = optimised_params, data = data)
 
     likelihood_per_entity <-
-      SEM_likelihood(optimised_params, data = data, per_entity = TRUE,
-                     in_regressors_n = cur_regressors_n)
+      SEM_likelihood(optimised_params, data = data, per_entity = TRUE)
 
     Gmat <- rootSolve::gradient(SEM_likelihood, optimised_params, data = data,
-                                per_entity = TRUE,
-                                in_regressors_n = cur_regressors_n)
+                                per_entity = TRUE)
     Imat=crossprod(Gmat)
     stdr=sqrt(diag(solve(hess)%*%(Imat)%*%solve(hess)))
 
