@@ -57,7 +57,7 @@ SEM_bma <- function(R_df, dep_var_col, timestamp_col, year0, lagged_col,
 
   Z <- R_df %>%
     SEM_exogenous_matrix({{ timestamp_col }}, year0, {{ lagged_col }},
-                         regressors_subset = c('ish', 'sed', 'pgrw', 'pop'))
+                         regressors_subset = regressors)
 
   n_entities <- nrow(Z)
   periods_n <- nrow(R_df) / n_entities
