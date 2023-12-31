@@ -59,7 +59,7 @@ SEM_bma <- function(R_df, dep_var_col, timestamp_col, timestep,
                      timestep = timestep, regressors_subset = regressors)
 
   n_entities <- nrow(Z)
-  periods_n <- nrow(R_df) / n_entities
+  periods_n <- nrow(R_df) / n_entities - 1
 
   res_maker_matrix <- residual_maker_matrix(Z)
 
