@@ -14,7 +14,6 @@ SEM_likelihood(
   dep_var_col = NULL,
   regressors = NULL,
   in_regressors = NULL,
-  tot_regressors_n = NULL,
   in_regressors_n = NULL,
   per_entity = FALSE,
   projection_matrix_const = TRUE,
@@ -47,8 +46,6 @@ natural numbers can be used as timestampsg}
 for the current model. In other words \code{regressors} are the total set of
 regressors and \code{in_regressors} are the ones for which linear relation
 is not set to zero for a given model.}
-
-\item{tot_regressors_n}{Probably can be determined from the rest}
 
 \item{in_regressors_n}{Probably can be determined from the rest}
 
