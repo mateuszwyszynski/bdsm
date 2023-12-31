@@ -90,7 +90,9 @@ SEM_regressors_matrix <- function(df, timestamp_col, entity_col, regressors,
   }
 }
 
-#' Matrix with exogenous variables for SEM representation
+#' DEPRECATED: Matrix with exogenous variables for SEM representation
+#'
+#' Use \code{exogenous_matrix} instead
 #'
 #' Create matrix which contains exogenous variables used in the Simultaneous
 #' Equations Model (SEM) representation. Currently these are: dependent variable
@@ -116,9 +118,61 @@ SEM_regressors_matrix <- function(df, timestamp_col, entity_col, regressors,
 #'
 #' @examples
 SEM_exogenous_matrix <- function(df, timestamp_col, start_time, lagged_col,
-                                 regressors_subset = NULL) {
+                             regressors_subset = NULL) {
+  print(start_time)
   df %>% dplyr::filter({{ timestamp_col }} == start_time) %>%
     dplyr::select({{ lagged_col}}, regressors_subset) %>% as.matrix()
+}
+
+#' Matrix with exogenous variables for SEM representation
+#'
+#' Create matrix which contains exogenous variables used in the Simultaneous
+#' Equations Model (SEM) representation. Currently these are: dependent variable
+#' from the \code{start_time} period and regressors from the next period after
+#' the \code{strat_time}. The matrix is then used to compute likelihood for SEM
+#' analysis.
+#'
+#' @param df Data frame with data for the SEM analysis.
+#' @param timestamp_col Column which determines time periods. For now only
+#' natural numbers can be used as timestamps
+#' @param entity_col Column which determines entities (e.g. countries, people)
+#' @param dep_var_col Column with dependent variable
+#' @param timestep Timestep between timestamps
+#' @param start_time First time period. Only time periods greater than or equal
+#' to \code{start_time} will be considered in the resulting matrix
+#' @param regressors_subset Which subset of columns should be used as
+#' regressors. If \code{NULL} (default) then all remaining columns will be used
+#' as regressors. For now columns have to be passed as list of column names
+#' represented as strings.
+#'
+#' @return
+#' Matrix of size N x k+1 where N is the number of entities considered and k is
+#' the number of chosen regressors
+#' @export
+#'
+#' @examples
+exogenous_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
+                             timestep, start_time = NULL,
+                             regressors_subset = NULL) {
+  if (is.null(start_time)) {
+    start_time <-
+      determine_start_time(df = df, timestamp_col = {{ timestamp_col }})
+  }
+
+  df_with_lagged_col <- df %>%
+    dplyr::select({{ entity_col }}, {{ timestamp_col }}, {{ dep_var_col }}) %>%
+    dplyr::filter({{ timestamp_col }} == (start_time - timestep)) %>%
+    dplyr::mutate("{{timestamp_col}}" := {{ timestamp_col }} + timestep)
+
+  df %>%
+    dplyr::filter({{ timestamp_col }} == start_time) %>%
+    dplyr::select(!{{ dep_var_col }}) %>%
+    dplyr::left_join(df_with_lagged_col,
+              by = dplyr::join_by(
+                {{ timestamp_col }} == {{ timestamp_col }},
+                {{ entity_col }} == {{ entity_col }}
+              )) %>%
+    dplyr::select({{ dep_var_col }}, {{ regressors_subset }}) %>% as.matrix()
 }
 
 #' Residual Maker Matrix

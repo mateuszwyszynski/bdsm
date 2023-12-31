@@ -38,6 +38,7 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #' @param data Data for the likelihood computations. Can be either a list of
 #' matrices or a dataframe. If the dataframe, additional parameters are
 #' required to build the matrices within the function.
+#' @param timestep Timestep between timestamps
 #' @param timestamp_col Column which determines time periods. For now only
 #' natural numbers can be used as timestampsg
 #' @param entity_col Column which determines entities (e.g. countries, people)
@@ -109,7 +110,7 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #' @export
 #'
 #' @examples
-SEM_likelihood <- function(params, data, timestamp_col = NULL,
+SEM_likelihood <- function(params, data, timestep, timestamp_col = NULL,
                            entity_col = NULL, start_time = NULL,
                            lagged_col = NULL, dep_var_col = NULL,
                            regressors = NULL, in_regressors = NULL,
@@ -174,23 +175,25 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
     if (!is.list(data)) {
       Y1 <- SEM_dep_var_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        dep_var_col = dep_var_col, start_time = start_time
+        dep_var_col = dep_var_col
       )
       Y2 <- SEM_regressors_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        regressors = regressors, start_time = start_time
+        regressors = regressors
       )
       cur_Y2 <- SEM_regressors_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        regressors = in_regressors, start_time = start_time
+        regressors = in_regressors
       )
-      cur_Z <- SEM_exogenous_matrix(
-        df = data, timestamp_col = timestamp_col, start_time = start_time,
-        lagged_col = lagged_col, regressors_subset = in_regressors
+      cur_Z <- exogenous_matrix(
+        df = data, timestamp_col = timestamp_col, entity_col = entity_col,
+        dep_var_col = dep_var_col, timestep = timestep,
+        regressors_subset = in_regressors
       )
-      Z <- SEM_exogenous_matrix(
-        df = data, timestamp_col = timestamp_col, start_time = start_time,
-        lagged_col = lagged_col
+      Z <- exogenous_matrix(
+        df = data, timestamp_col = timestamp_col, entity_col = entity_col,
+        dep_var_col = dep_var_col, timestep = timestep,
+        regressors_subset = regressors
       )
       res_maker_matrix <- residual_maker_matrix(Z)
 
@@ -212,7 +215,7 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
     likelihood <-
       SEM_likelihood(params = params, data = data, per_entity = per_entity,
                      projection_matrix_const = projection_matrix_const,
-                     exact_value = exact_value)
+                     exact_value = exact_value, timestep = timestep)
   }
   likelihood
 }

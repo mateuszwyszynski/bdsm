@@ -7,6 +7,7 @@
 SEM_likelihood(
   params,
   data,
+  timestep,
   timestamp_col = NULL,
   entity_col = NULL,
   start_time = NULL,
@@ -26,6 +27,8 @@ list with named parameters. See 'Details'}
 \item{data}{Data for the likelihood computations. Can be either a list of
 matrices or a dataframe. If the dataframe, additional parameters are
 required to build the matrices within the function.}
+
+\item{timestep}{Timestep between timestamps}
 
 \item{timestamp_col}{Column which determines time periods. For now only
 natural numbers can be used as timestampsg}
