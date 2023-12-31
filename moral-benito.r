@@ -10,11 +10,7 @@ begin<-Sys.time()
 dilution <- 1
 dil_power <- 1/2
 
-#---------------------------------------------------------------------------------
-#		   	                     LOADING THE DATASET
-#---------------------------------------------------------------------------------
-
-row=292; column=11;
+# Load dataset
 rawdata <- readxl::read_excel("balimle-dataset.xlsx")
 
 #    VARIABLES IN RAWDATA
