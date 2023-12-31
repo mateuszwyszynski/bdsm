@@ -1,3 +1,9 @@
+determine_start_time <- function(df, timestamp_col) {
+  timestamps <- dplyr::select(df, {{ timestamp_col }})
+  time_zero <- min(timestamps)
+  start_time <- min(timestamps[timestamps != time_zero])
+}
+
 #' Matrix with dependent variable data for SEM representation
 #'
 #' Create matrix which contains dependent variable data used in the Simultaneous
@@ -26,9 +32,8 @@
 SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
                                start_time = NULL) {
   if (is.null(start_time)) {
-    timestamps <- dplyr::select(df, {{ timestamp_col }})
-    time_zero <- min(timestamps)
-    start_time <- min(timestamps[timestamps != time_zero])
+    start_time <-
+      determine_start_time(df = df, timestamp_col = {{ timestamp_col }})
   }
   df %>% dplyr::filter({{ timestamp_col }} >= start_time) %>%
     dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }}) %>%
@@ -65,9 +70,8 @@ SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
 SEM_regressors_matrix <- function(df, timestamp_col, entity_col, regressors,
                                   start_time = NULL) {
   if (is.null(start_time)) {
-    timestamps <- dplyr::select(df, {{ timestamp_col }})
-    time_zero <- min(timestamps)
-    start_time <- min(timestamps[timestamps != time_zero])
+    start_time <-
+      determine_start_time(df = df, timestamp_col = {{ timestamp_col }})
   }
 
   df <- df %>%
