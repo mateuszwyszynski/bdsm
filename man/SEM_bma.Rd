@@ -12,9 +12,6 @@ SEM_bma(
   year0,
   lagged_col,
   entity_col,
-  Y1,
-  Y2,
-  res_maker_matrix,
   n_entities,
   projection_matrix_const,
   exact_value = TRUE,
@@ -37,12 +34,6 @@ SEM_bma(
 \item{lagged_col}{Column with the lagged dependent variable}
 
 \item{entity_col}{Coliumn with entities (e.g. countries)}
-
-\item{Y1}{Matrix with dependent variables}
-
-\item{Y2}{Matrix with regressors}
-
-\item{res_maker_matrix}{Residual maker matrix}
 
 \item{n_entities}{Number of entities}
 

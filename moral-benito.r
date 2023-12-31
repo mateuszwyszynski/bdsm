@@ -48,27 +48,10 @@ liml_data_prep <- function(df){
 
 R_df <- liml_data_prep(rawdata)
 
-Y1 <- SEM_dep_var_matrix(
-  df = R_df, timestamp_col = year, entity_col = country,
-  dep_var_col = gdp, start_time = year0
-)
-
-Y2 <- R_df %>%
-  SEM_regressors_matrix(timestamp_col = year, entity_col = country,
-                        regressors = c(ish, sed, pgrw, pop),
-                        start_time = year0)
-
-Z <- R_df %>%
-  SEM_exogenous_matrix(year, year0, lag_gdp,
-                       regressors_subset = c('ish', 'sed', 'pgrw', 'pop'))
-
-res_maker_matrix <- residual_maker_matrix(Z)
-
 bma_result <- SEM_bma(R_df = R_df, dep_var_col = gdp, periods_n = periods_n,
                       timestamp_col = year, year0 = year0, lagged_col = lag_gdp,
-                      entity_col = country, Y1 = Y1, Y2 = Y2,
-                      res_maker_matrix = res_maker_matrix,
-                      n_entities = n_entities, projection_matrix_const = TRUE)
+                      entity_col = country, n_entities = n_entities,
+                      projection_matrix_const = TRUE)
 
 modprob <- bma_result$modprob
 modelid <- bma_result$modelid

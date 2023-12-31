@@ -9,9 +9,6 @@
 #' @param year0 First timestamp
 #' @param lagged_col Column with the lagged dependent variable
 #' @param entity_col Coliumn with entities (e.g. countries)
-#' @param Y1 Matrix with dependent variables
-#' @param Y2 Matrix with regressors
-#' @param res_maker_matrix Residual maker matrix
 #' @param model_prior Which model prior to use. For now there are two options:
 #' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
 #' @param n_entities Number of entities
@@ -37,8 +34,8 @@
 #'
 #' @export
 SEM_bma <- function(R_df, dep_var_col, periods_n, timestamp_col, year0,
-                    lagged_col, entity_col, Y1, Y2, res_maker_matrix,
-                    n_entities, projection_matrix_const, exact_value = TRUE,
+                    lagged_col, entity_col, n_entities,
+                    projection_matrix_const, exact_value = TRUE,
                     model_prior = 'uniform', regressors_subsets = NULL,
                     control = list(trace = 2, maxit = 10000, fnscale = -1,
                                    REPORT = 100)) {
@@ -48,6 +45,24 @@ SEM_bma <- function(R_df, dep_var_col, periods_n, timestamp_col, year0,
     ) %>% colnames()
   regressors_n <- length(regressors)
   variables_n <- regressors_n + 1
+
+  Y1 <- SEM_dep_var_matrix(
+    df = R_df, timestamp_col = {{ timestamp_col }},
+    entity_col = {{ entity_col }}, dep_var_col = {{ dep_var_col }},
+    start_time = year0
+  )
+
+  Y2 <- R_df %>%
+    SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
+                          entity_col = {{ entity_col }},
+                          regressors = regressors,
+                          start_time = year0)
+
+  Z <- R_df %>%
+    SEM_exogenous_matrix({{ timestamp_col }}, year0, {{ lagged_col }},
+                         regressors_subset = c('ish', 'sed', 'pgrw', 'pop'))
+
+  res_maker_matrix <- residual_maker_matrix(Z)
 
   prior_exp_model_size <- regressors_n / 2
   prior_inc_prob <- prior_exp_model_size / regressors_n
