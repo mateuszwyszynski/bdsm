@@ -43,22 +43,7 @@ liml_data_prep <- function(df){
     arrange(country) %>% ungroup()
 }
 
-# R_df <- liml_data_prep(rawdata)
 data_prepared <- liml_data_prep(data_with_no_lagged_col)
-
-Y1 <- SEM_dep_var_matrix(
-  df = data_prepared, timestamp_col = year,
-  entity_col = country, dep_var_col = gdp
-)
-
-Y2 <- data_prepared %>%
-  SEM_regressors_matrix(timestamp_col = year,
-                        entity_col = country,
-                        regressors = c(ish, pop, pgrw, sed))
-Z <- data_prepared %>%
-  exogenous_matrix(timestamp_col = year, entity_col = country,
-                   dep_var_col = gdp, 10,
-                   regressors_subset = c(ish, pop, pgrw, sed))
 
 bma_result <- SEM_bma(R_df = data_prepared, dep_var_col = gdp,
                       timestamp_col = year, timestep = 10,
