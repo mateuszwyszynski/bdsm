@@ -35,19 +35,33 @@ data_with_no_lagged_col <- rawdata %>%
 #'
 #' @param df Dataframe with data that should be prepared for LIML estimation
 liml_data_prep <- function(df){
-  df <- df %>% mutate(across(!(year:country), scale))
-
+  df <- df %>% mutate(across(!(year:country), ~ c(scale(.))))
+  df
   csddata_df <- df %>% group_by(year) %>%
     summarise(country = country,
-              across(!country, function(x) scale(x, scale = FALSE))) %>%
+              across(!country, function(x) c(scale(x, scale = FALSE)))) %>%
     arrange(country) %>% ungroup()
 }
 
-R_df <- liml_data_prep(rawdata)
+# R_df <- liml_data_prep(rawdata)
 data_prepared <- liml_data_prep(data_with_no_lagged_col)
 
-bma_result <- SEM_bma(R_df = R_df, dep_var_col = gdp,
-                      timestamp_col = year, year0 = year0, lagged_col = lag_gdp,
+Y1 <- SEM_dep_var_matrix(
+  df = data_prepared, timestamp_col = year,
+  entity_col = country, dep_var_col = gdp
+)
+
+Y2 <- data_prepared %>%
+  SEM_regressors_matrix(timestamp_col = year,
+                        entity_col = country,
+                        regressors = c(ish, pop, pgrw, sed))
+Z <- data_prepared %>%
+  exogenous_matrix(timestamp_col = year, entity_col = country,
+                   dep_var_col = gdp, 10,
+                   regressors_subset = c(ish, pop, pgrw, sed))
+
+bma_result <- SEM_bma(R_df = data_prepared, dep_var_col = gdp,
+                      timestamp_col = year, timestep = 10,
                       entity_col = country, projection_matrix_const = TRUE)
 
 modprob <- bma_result$modprob
