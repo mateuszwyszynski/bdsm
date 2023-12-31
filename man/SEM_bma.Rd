@@ -7,12 +7,10 @@
 SEM_bma(
   R_df,
   dep_var_col,
-  periods_n,
   timestamp_col,
   year0,
   lagged_col,
   entity_col,
-  n_entities,
   projection_matrix_const,
   exact_value = TRUE,
   model_prior = "uniform",
@@ -25,8 +23,6 @@ SEM_bma(
 
 \item{dep_var_col}{Column with the dependent variable}
 
-\item{periods_n}{Number of timestamps}
-
 \item{timestamp_col}{The name of the column with timestamps}
 
 \item{year0}{First timestamp}
@@ -34,8 +30,6 @@ SEM_bma(
 \item{lagged_col}{Column with the lagged dependent variable}
 
 \item{entity_col}{Coliumn with entities (e.g. countries)}
-
-\item{n_entities}{Number of entities}
 
 \item{projection_matrix_const}{Whether the residual maker matrix (and so
 the projection matrix) should be computed for each model separately.

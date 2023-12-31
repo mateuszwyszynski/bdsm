@@ -23,8 +23,6 @@ rawdata <- readxl::read_excel("balimle-dataset.xlsx")
 rawdata=rawdata[,1:8]   #I select the regressors of interest @
 year0 <- min(rawdata$year)
 varlist<- c("FDI","EI","LLF","EX", "SW")
-n_entities <- 73
-periods_n <- 4
 
 #' Prepare data for LIML estimation
 #'
@@ -48,10 +46,9 @@ liml_data_prep <- function(df){
 
 R_df <- liml_data_prep(rawdata)
 
-bma_result <- SEM_bma(R_df = R_df, dep_var_col = gdp, periods_n = periods_n,
+bma_result <- SEM_bma(R_df = R_df, dep_var_col = gdp,
                       timestamp_col = year, year0 = year0, lagged_col = lag_gdp,
-                      entity_col = country, n_entities = n_entities,
-                      projection_matrix_const = TRUE)
+                      entity_col = country, projection_matrix_const = TRUE)
 
 modprob <- bma_result$modprob
 modelid <- bma_result$modelid
