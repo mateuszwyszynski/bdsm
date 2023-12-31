@@ -130,7 +130,7 @@ SEM_bma <- function(R_df, dep_var_col, timestamp_col, year0, lagged_col,
     control$parscale = 0.05*t0in
 
     optimized <- stats::optim(t0in, SEM_likelihood, data = data,
-                              periods_n = periods_n, exact_value = exact_value,
+                              exact_value = exact_value,
                               tot_regressors_n = regressors_n,
                               in_regressors_n = cur_regressors_n,
                               phis_n = phis_n, psis_n = psis_n,
@@ -141,18 +141,18 @@ SEM_bma <- function(R_df, dep_var_col, timestamp_col, year0, lagged_col,
     likelihood_max <- optimized[[2]]
 
     hess <- hessian(SEM_likelihood, theta = optimised_params, data = data,
-                    periods_n = periods_n, tot_regressors_n = regressors_n,
+                    tot_regressors_n = regressors_n,
                     in_regressors_n = cur_regressors_n,
                     phis_n = phis_n, psis_n = psis_n)
 
     likelihood_per_entity <-
       SEM_likelihood(optimised_params, data = data, per_entity = TRUE,
-                     periods_n = periods_n, tot_regressors_n = regressors_n,
+                     tot_regressors_n = regressors_n,
                      in_regressors_n = cur_regressors_n, phis_n = phis_n,
                      psis_n = psis_n)
 
     Gmat <- rootSolve::gradient(SEM_likelihood, optimised_params, data = data,
-                                per_entity = TRUE, periods_n = periods_n,
+                                per_entity = TRUE,
                                 tot_regressors_n = regressors_n,
                                 in_regressors_n = cur_regressors_n,
                                 phis_n = phis_n, psis_n = psis_n)

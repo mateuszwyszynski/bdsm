@@ -47,7 +47,6 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #' for the current model. In other words \code{regressors} are the total set of
 #' regressors and \code{in_regressors} are the ones for which linear relation
 #' is not set to zero for a given model.
-#' @param periods_n Probably can be determined from the rest
 #' @param tot_regressors_n Probably can be determined from the rest
 #' @param in_regressors_n Probably can be determined from the rest
 #' @param phis_n Probably can be determined from the rest
@@ -115,8 +114,7 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
                            entity_col = NULL, start_time = NULL,
                            lagged_col = NULL, dep_var_col = NULL,
                            regressors = NULL, in_regressors = NULL,
-                           periods_n = NULL, tot_regressors_n = NULL,
-                           in_regressors_n = NULL,
+                           tot_regressors_n = NULL, in_regressors_n = NULL,
                            phis_n = NULL, psis_n = NULL, per_entity = FALSE,
                            projection_matrix_const = TRUE,
                            exact_value = TRUE) {
@@ -174,17 +172,11 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
       likelihood / n_entities  - 1/2 * diag(U1 %*% S11_inverse %*% t(U1))
     }
   } else {
-    if (!is.list(params)) {
-      params <- SEM_params_to_list(params, periods_n = periods_n,
-                                   tot_regressors_n = tot_regressors_n,
-                                   in_regressors_n = in_regressors_n,
-                                   phis_n = phis_n, psis_n = psis_n)
-    }
     if (!is.list(data)) {
       Y1 <- SEM_dep_var_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
         dep_var_col = dep_var_col, start_time = start_time
-        )
+      )
       Y2 <- SEM_regressors_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
         regressors = regressors, start_time = start_time
@@ -205,6 +197,13 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
 
       data = list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
                   res_maker_matrix = res_maker_matrix)
+    }
+    if (!is.list(params)) {
+      periods_n <- ncol(data$Y1)
+      params <- SEM_params_to_list(params, periods_n = periods_n,
+                                   tot_regressors_n = tot_regressors_n,
+                                   in_regressors_n = in_regressors_n,
+                                   phis_n = phis_n, psis_n = psis_n)
     }
     likelihood <- SEM_likelihood(params = params, data = data,
                                  per_entity = per_entity,
