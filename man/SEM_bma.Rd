@@ -8,8 +8,6 @@ SEM_bma(
   R_df,
   dep_var_col,
   timestamp_col,
-  year0,
-  lagged_col,
   entity_col,
   projection_matrix_const,
   exact_value = TRUE,
@@ -24,10 +22,6 @@ SEM_bma(
 \item{dep_var_col}{Column with the dependent variable}
 
 \item{timestamp_col}{The name of the column with timestamps}
-
-\item{year0}{First timestamp}
-
-\item{lagged_col}{Column with the lagged dependent variable}
 
 \item{entity_col}{Coliumn with entities (e.g. countries)}
 

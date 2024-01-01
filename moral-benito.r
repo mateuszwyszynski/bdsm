@@ -17,34 +17,19 @@ rawdata <- readxl::read_excel("balimle-dataset.xlsx")
 #    1.FDI  2.FDIlag  3.EI  4.LLF  5.EX  6.SW  7.RES  8.LOPW  9.INT  10.RI
 #-----------------------------------------------------------------------------------------
 rawdata=rawdata[,1:8]   #I select the regressors of interest @
-year0 <- min(rawdata$year)
 varlist<- c("FDI","EI","LLF","EX", "SW")
 
-#' Prepare data for LIML estimation
-#'
-#' @description
-#' This is a function which prepares data for Limited Information Maximum
-#' Likelihood (LIML) Estimation. Following operations are performed:
-#'
-#' 1. Data standarisation
-#' 2. Cross-sectional demeaning of variables
-#' 3. Organisation of data for the LIML estimation
-#'
-#' @param df Dataframe with data that should be prepared for LIML estimation
-liml_data_prep <- function(df){
-  df <- df %>% mutate(across(!(year:country), scale))
+data_with_no_lagged_col <- rawdata %>%
+  join_lagged_col(gdp, lag_gdp, year, country, 10)
 
-  csddata_df <- df %>% group_by(year) %>%
-    summarise(country = country,
-              across(!country, function(x) scale(x, scale = FALSE))) %>%
-    arrange(country) %>% ungroup()
-}
+data_prepared <- data_with_no_lagged_col %>%
+  feature_standardization(timestamp_col = year, entity_col = country) %>%
+  feature_standardization(timestamp_col = year, entity_col = country,
+                          cross_sectional = TRUE, scale = FALSE)
 
-R_df <- liml_data_prep(rawdata)
-
-bma_result <- SEM_bma(R_df = R_df, dep_var_col = gdp,
-                      timestamp_col = year, year0 = year0, lagged_col = lag_gdp,
-                      entity_col = country, projection_matrix_const = TRUE)
+bma_result <- SEM_bma(R_df = data_prepared, dep_var_col = gdp,
+                      timestamp_col = year, entity_col = country,
+                      projection_matrix_const = TRUE)
 
 modprob <- bma_result$modprob
 modelid <- bma_result$modelid

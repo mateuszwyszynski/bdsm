@@ -5,8 +5,6 @@
 #' @param R_df Data frame with data for the SEM analysis.
 #' @param dep_var_col Column with the dependent variable
 #' @param timestamp_col The name of the column with timestamps
-#' @param year0 First timestamp
-#' @param lagged_col Column with the lagged dependent variable
 #' @param entity_col Coliumn with entities (e.g. countries)
 #' @param model_prior Which model prior to use. For now there are two options:
 #' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
@@ -31,36 +29,36 @@
 #' List of parameters describing analysed models
 #'
 #' @export
-SEM_bma <- function(R_df, dep_var_col, timestamp_col, year0, lagged_col,
-                    entity_col, projection_matrix_const, exact_value = TRUE,
+SEM_bma <- function(R_df, dep_var_col, timestamp_col, entity_col,
+                    projection_matrix_const, exact_value = TRUE,
                     model_prior = 'uniform', regressors_subsets = NULL,
                     control = list(trace = 2, maxit = 10000, fnscale = -1,
                                    REPORT = 100)) {
   regressors <- R_df %>%
     dplyr::select(
-      ! c({{ timestamp_col }}, {{ entity_col }}, {{ lagged_col }}, {{ dep_var_col }})
+      ! c({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }})
     ) %>% colnames()
   regressors_n <- length(regressors)
   variables_n <- regressors_n + 1
 
   Y1 <- SEM_dep_var_matrix(
     df = R_df, timestamp_col = {{ timestamp_col }},
-    entity_col = {{ entity_col }}, dep_var_col = {{ dep_var_col }},
-    start_time = year0
+    entity_col = {{ entity_col }}, dep_var_col = {{ dep_var_col }}
   )
 
   Y2 <- R_df %>%
     SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
                           entity_col = {{ entity_col }},
-                          regressors = regressors,
-                          start_time = year0)
+                          regressors = regressors)
 
   Z <- R_df %>%
-    SEM_exogenous_matrix({{ timestamp_col }}, year0, {{ lagged_col }},
-                         regressors_subset = regressors)
+    exogenous_matrix(timestamp_col = {{ timestamp_col }},
+                     entity_col = {{ entity_col }},
+                     dep_var_col = {{ dep_var_col }},
+                     regressors_subset = regressors)
 
   n_entities <- nrow(Z)
-  periods_n <- nrow(R_df) / n_entities
+  periods_n <- nrow(R_df) / n_entities - 1
 
   res_maker_matrix <- residual_maker_matrix(Z)
 
@@ -99,8 +97,8 @@ SEM_bma <- function(R_df, dep_var_col, timestamp_col, year0, lagged_col,
     cur_variables_n <- cur_regressors_n+1
 
     cur_Z <- R_df %>%
-      SEM_exogenous_matrix({{ timestamp_col }}, year0, {{ lagged_col }},
-                           regressors_subset)
+      exogenous_matrix({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
+                       regressors_subset = regressors_subset)
 
     # Initial parameter values for optimisation
     alpha <- 0.5
@@ -119,7 +117,7 @@ SEM_bma <- function(R_df, dep_var_col, timestamp_col, year0, lagged_col,
     cur_Y2 <- R_df %>%
       SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
                             entity_col = {{ entity_col }},
-                            regressors = regressors_subset, start_time = year0)
+                            regressors = regressors_subset)
 
     data <- list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
                  res_maker_matrix = res_maker_matrix)

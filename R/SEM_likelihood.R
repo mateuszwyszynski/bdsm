@@ -41,9 +41,6 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #' @param timestamp_col Column which determines time periods. For now only
 #' natural numbers can be used as timestampsg
 #' @param entity_col Column which determines entities (e.g. countries, people)
-#' @param start_time First time period. Only time periods greater than
-#' \code{start_time} will be considered in the resulting matrix
-#' @param lagged_col Column which contains lagged version of dependent variable
 #' @param dep_var_col Column with dependent variable
 #' @param regressors Which subset of columns should be used as regressors.
 #' @param in_regressors Which subset of columns should be used as regressors
@@ -74,13 +71,13 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #' dependent variable
 #'
 #' \code{phi_0} scalar value which determines linear dependence on the value
-#' of dependent variable from initial timestep
+#' of dependent variable at the lowest time stamp
 #'
 #' \code{err_var} scalar value which determines classical error component
 #' (Sigma11 matrix, sigma_epsilon^2)
 #'
-#' \code{dep_vars} double vector of length equal to the number of timesteps
-#' (i.e. timesteps  strictly bigger than \code{start_time})
+#' \code{dep_vars} double vector of length equal to the number of time stamps
+#' (i.e. time stamps greater than or equal to the second lowest time stamp)
 #'
 #' \code{beta} double vector which determines the linear dependence on
 #' regressors different than the lagged dependent variable; The vector should
@@ -92,13 +89,13 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #'
 #' \code{phis} double vector which together with \code{psis} determines upper
 #' right and bottom left part of the covariance matrix; The vector should have
-#' length equal to the number of regressors times number of timesteps minus 1,
+#' length equal to the number of regressors times number of time stamps minus 1,
 #' i.e. \code{regressors_n * (periods_n - 1)}
 #'
 #' \code{psis} double vector which together with \code{psis} determines upper
 #' right and bottom left part of the covariance matrix; The vector should have
-#' length equal to the number of regressors times number of timesteps minus 1
-#' times number of timesteps divided by 2, i.e.
+#' length equal to the number of regressors times number of time stamps minus 1
+#' times number of time stamps divided by 2, i.e.
 #' \code{regressors_n * (periods_n - 1) * periods_n / 2}
 #'
 #'
@@ -110,8 +107,7 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #'
 #' @examples
 SEM_likelihood <- function(params, data, timestamp_col = NULL,
-                           entity_col = NULL, start_time = NULL,
-                           lagged_col = NULL, dep_var_col = NULL,
+                           entity_col = NULL, dep_var_col = NULL,
                            regressors = NULL, in_regressors = NULL,
                            per_entity = FALSE, projection_matrix_const = TRUE,
                            exact_value = TRUE) {
@@ -174,23 +170,23 @@ SEM_likelihood <- function(params, data, timestamp_col = NULL,
     if (!is.list(data)) {
       Y1 <- SEM_dep_var_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        dep_var_col = dep_var_col, start_time = start_time
+        dep_var_col = dep_var_col
       )
       Y2 <- SEM_regressors_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        regressors = regressors, start_time = start_time
+        regressors = regressors
       )
       cur_Y2 <- SEM_regressors_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        regressors = in_regressors, start_time = start_time
+        regressors = in_regressors
       )
-      cur_Z <- SEM_exogenous_matrix(
-        df = data, timestamp_col = timestamp_col, start_time = start_time,
-        lagged_col = lagged_col, regressors_subset = in_regressors
+      cur_Z <- exogenous_matrix(
+        df = data, timestamp_col = timestamp_col, entity_col = entity_col,
+        dep_var_col = dep_var_col, regressors_subset = in_regressors
       )
-      Z <- SEM_exogenous_matrix(
-        df = data, timestamp_col = timestamp_col, start_time = start_time,
-        lagged_col = lagged_col
+      Z <- exogenous_matrix(
+        df = data, timestamp_col = timestamp_col, entity_col = entity_col,
+        dep_var_col = dep_var_col, regressors_subset = regressors
       )
       res_maker_matrix <- residual_maker_matrix(Z)
 
