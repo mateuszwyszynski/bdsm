@@ -43,3 +43,35 @@ join_lagged_col <- function(df, col, col_lagged, timestamp_col,
                 {{ entity_col }} == {{ entity_col }}
               ))
 }
+
+#' Perform feature standarization
+#'
+#' @description
+#' This function performs
+#' \href{https://en.wikipedia.org/wiki/Feature_scaling}{feature standarization}
+#' (also known as z-score normalization), i.e. the features are centered around
+#' the mean and scaled with standard deviation.
+#'
+#' @param df Dataframe with data that should be prepared for LIML estimation
+#' @param timestamp_col Column with timestamps (e.g. years)
+#' @param entity_col Column with entities (e.g. countries)
+#' @param cross_sectional Whether to perform feature standardization within
+#' cross sections
+#'
+#' @export
+#'
+#' @examples
+feature_standardization <- function(df, timestamp_col, entity_col,
+                                    cross_sectional = FALSE) {
+  if (!cross_sectional) {
+    df %>%
+      dplyr::mutate(dplyr::across(!({{ timestamp_col }}:{{ entity_col }}),
+                                  function(x) c(scale(x))))
+  } else {
+    df %>% dplyr::group_by({{ timestamp_col }}) %>%
+      dplyr::reframe("{{entity_col}}" := {{ entity_col }},
+                     dplyr::across(!{{ entity_col }},
+                                   function(x) c(scale(x, scale = FALSE)))) %>%
+      dplyr::arrange({{ entity_col }}) %>% dplyr::ungroup()
+  }
+}

@@ -22,27 +22,10 @@ varlist<- c("FDI","EI","LLF","EX", "SW")
 data_with_no_lagged_col <- rawdata %>%
   join_lagged_col(gdp, lag_gdp, year, country, 10)
 
-#' Prepare data for LIML estimation
-#'
-#' @description
-#' This is a function which prepares data for Limited Information Maximum
-#' Likelihood (LIML) Estimation. Following operations are performed:
-#'
-#' 1. Data standarisation
-#' 2. Cross-sectional demeaning of variables
-#' 3. Organisation of data for the LIML estimation
-#'
-#' @param df Dataframe with data that should be prepared for LIML estimation
-liml_data_prep <- function(df){
-  df <- df %>% mutate(across(!(year:country), ~ c(scale(.))))
-  df
-  csddata_df <- df %>% group_by(year) %>%
-    reframe(country = country,
-              across(!country, function(x) c(scale(x, scale = FALSE)))) %>%
-    arrange(country) %>% ungroup()
-}
-
-data_prepared <- liml_data_prep(data_with_no_lagged_col)
+data_prepared <- data_with_no_lagged_col %>%
+  feature_standardization(timestamp_col = year, entity_col = country) %>%
+  feature_standardization(timestamp_col = year, entity_col = country,
+                          cross_sectional = TRUE)
 
 bma_result <- SEM_bma(R_df = data_prepared, dep_var_col = gdp,
                       timestamp_col = year, timestep = 10,
