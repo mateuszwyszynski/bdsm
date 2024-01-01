@@ -4,7 +4,7 @@
 \alias{SEM_regressors_matrix}
 \title{Matrix with regressors data for SEM representation}
 \usage{
-SEM_regressors_matrix(df, timestamp_col, entity_col, regressors)
+SEM_regressors_matrix(df, timestamp_col, entity_col, dep_var_col)
 }
 \arguments{
 \item{df}{Data frame with data for the SEM analysis.}
@@ -14,7 +14,7 @@ natural numbers can be used as timestamps}
 
 \item{entity_col}{Column which determines entities (e.g. countries, people)}
 
-\item{regressors}{Which subset of columns should be used as regressors.}
+\item{dep_var_col}{Column with dependent variable}
 }
 \value{
 Matrix of size N x (T-1)*k where N is the number of entities considered, T is

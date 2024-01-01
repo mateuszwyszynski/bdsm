@@ -35,9 +35,9 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
                     control = list(trace = 2, maxit = 10000, fnscale = -1,
                                    REPORT = 100)) {
   regressors <- df %>%
-    dplyr::select(
-      ! c({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }})
-    ) %>% colnames()
+    regressor_names(timestamp_col = {{ timestamp_col }},
+                    entity_col = {{ entity_col }},
+                    dep_var_col = {{ dep_var_col }})
   regressors_n <- length(regressors)
   variables_n <- regressors_n + 1
 
@@ -49,13 +49,12 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
   Y2 <- df %>%
     SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
                           entity_col = {{ entity_col }},
-                          regressors = regressors)
+                          dep_var_col = {{ dep_var_col }})
 
   Z <- df %>%
     exogenous_matrix(timestamp_col = {{ timestamp_col }},
                      entity_col = {{ entity_col }},
-                     dep_var_col = {{ dep_var_col }},
-                     regressors_subset = regressors)
+                     dep_var_col = {{ dep_var_col }})
 
   n_entities <- nrow(Z)
   periods_n <- nrow(df) / n_entities - 1
@@ -97,27 +96,21 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
     cur_variables_n <- cur_regressors_n+1
 
     cur_Z <- df %>%
-      exogenous_matrix({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
-                       regressors_subset = regressors_subset)
+      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
+                    regressors_subset) %>%
+      exogenous_matrix({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }})
 
-    # Initial parameter values for optimisation
-    alpha <- 0.5
-    phi_0 <- 0.5
-    err_var <- 0.5
-    dep_vars <- rep(0.5, periods_n)
-    beta <- rep(0.5, cur_regressors_n)
-    phi_1 <- rep(0.5, cur_regressors_n)
-    phis_n <- regressors_n*(periods_n - 1)
-    phis <- rep(0.5, phis_n)
-    psis_n <- regressors_n*periods_n*(periods_n - 1)/2
-    psis <- rep(0.5, psis_n)
-
-    t0in <- matrix(c(alpha, beta, phi_0, phi_1, err_var, dep_vars, phis, psis))
+    initial_params <-
+      generate_params_vector(value = 0.5, timestamps_n = periods_n,
+                             regressors_n = regressors_n,
+                             lin_related_regressors_n = cur_regressors_n)
 
     cur_Y2 <- df %>%
+      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
+                    regressors_subset) %>%
       SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
                             entity_col = {{ entity_col }},
-                            regressors = regressors_subset)
+                            dep_var_col = {{ dep_var_col }})
 
     data <- list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
                  res_maker_matrix = res_maker_matrix)
@@ -125,9 +118,9 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
     # parscale argument somehow (don't know yet how) changes step size during optimisation.
     # Most likely optimisation methods used in Gauss are scale-free and these used in R are not
     # TODO: search for methods (or implement methods) in R which are scale-free
-    control$parscale = 0.05*t0in
+    control$parscale = 0.05*initial_params
 
-    optimized <- stats::optim(t0in, SEM_likelihood, data = data,
+    optimized <- stats::optim(initial_params, SEM_likelihood, data = data,
                               exact_value = exact_value,
                               projection_matrix_const = projection_matrix_const,
                               method="BFGS",

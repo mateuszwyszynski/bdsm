@@ -4,13 +4,7 @@
 \alias{exogenous_matrix}
 \title{Matrix with exogenous variables for SEM representation}
 \usage{
-exogenous_matrix(
-  df,
-  timestamp_col,
-  entity_col,
-  dep_var_col,
-  regressors_subset = NULL
-)
+exogenous_matrix(df, timestamp_col, entity_col, dep_var_col)
 }
 \arguments{
 \item{df}{Data frame with data for the SEM analysis.}
@@ -21,11 +15,6 @@ natural numbers can be used as timestamps}
 \item{entity_col}{Column which determines entities (e.g. countries, people)}
 
 \item{dep_var_col}{Column with dependent variable}
-
-\item{regressors_subset}{Which subset of columns should be used as
-regressors. If \code{NULL} (default) then all remaining columns will be used
-as regressors. For now columns have to be passed as list of column names
-represented as strings.}
 }
 \value{
 Matrix of size N x k+1 where N is the number of entities considered and k is

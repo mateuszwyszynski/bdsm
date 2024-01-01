@@ -10,8 +10,7 @@ SEM_likelihood(
   timestamp_col,
   entity_col,
   dep_var_col,
-  regressors = NULL,
-  in_regressors = NULL,
+  lin_related_regressors = NULL,
   per_entity = FALSE,
   projection_matrix_const = TRUE,
   exact_value = TRUE
@@ -32,12 +31,10 @@ natural numbers can be used as timestampsg}
 
 \item{dep_var_col}{Column with dependent variable}
 
-\item{regressors}{Which subset of columns should be used as regressors.}
-
-\item{in_regressors}{Which subset of columns should be used as regressors
-for the current model. In other words \code{regressors} are the total set of
-regressors and \code{in_regressors} are the ones for which linear relation
-is not set to zero for a given model.}
+\item{lin_related_regressors}{Which subset of columns should be used as
+regressors for the current model. In other words \code{regressors} are the
+total set of regressors and \code{lin_related_regressors} are the ones for
+which linear relation is not set to zero for a given model.}
 
 \item{per_entity}{Whether to compute overall likelihood or a vector of
 likelihoods with per entity value}

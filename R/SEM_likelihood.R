@@ -1,5 +1,21 @@
+generate_params_vector <- function(value, timestamps_n, regressors_n,
+                                   lin_related_regressors_n) {
+  alpha <- value
+  phi_0 <- value
+  err_var <- value
+  dep_vars <- rep(value, timestamps_n)
+  beta <- rep(value, lin_related_regressors_n)
+  phi_1 <- rep(value, lin_related_regressors_n)
+  phis_n <- regressors_n*(timestamps_n - 1)
+  phis <- rep(value, phis_n)
+  psis_n <- regressors_n*timestamps_n*(timestamps_n - 1)/2
+  psis <- rep(value, psis_n)
+
+  matrix(c(alpha, beta, phi_0, phi_1, err_var, dep_vars, phis, psis))
+}
+
 SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
-                               in_regressors_n) {
+                               lin_related_regressors_n) {
   phis_n <- tot_regressors_n*(periods_n - 1)
   psis_n <- tot_regressors_n*periods_n*(periods_n - 1)/2
 
@@ -10,22 +26,23 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
     phis <- c()
     psis <- c()
   } else {
-    if (in_regressors_n == 0) {
+    if (lin_related_regressors_n == 0) {
       beta <- c()
       phi_1 <- c()
     } else {
-      beta <- params[2:(1 + in_regressors_n)]
-      phi_1 <- params[(3 + in_regressors_n):(2 + 2*in_regressors_n)]
+      beta <- params[2:(1 + lin_related_regressors_n)]
+      phi_1 <-
+        params[(3 + lin_related_regressors_n):(2 + 2*lin_related_regressors_n)]
     }
     phis <-
-      params[(4 + 2*in_regressors_n + periods_n):(3 + 2*in_regressors_n + periods_n + phis_n)]
+      params[(4 + 2*lin_related_regressors_n + periods_n):(3 + 2*lin_related_regressors_n + periods_n + phis_n)]
     psis <-
-      params[(4 + 2*in_regressors_n + periods_n + phis_n):(3 + 2*in_regressors_n + periods_n + phis_n + psis_n)]
+      params[(4 + 2*lin_related_regressors_n + periods_n + phis_n):(3 + 2*lin_related_regressors_n + periods_n + phis_n + psis_n)]
   }
-  phi_0 <- params[2 + in_regressors_n]
-  err_var <- params[3 + 2*in_regressors_n]
+  phi_0 <- params[2 + lin_related_regressors_n]
+  err_var <- params[3 + 2*lin_related_regressors_n]
   dep_vars <-
-    params[(4 + 2*in_regressors_n):(3 + 2*in_regressors_n + periods_n)]
+    params[(4 + 2*lin_related_regressors_n):(3 + 2*lin_related_regressors_n + periods_n)]
 
   list(alpha = alpha, phi_0 = phi_0, err_var = err_var, dep_vars = dep_vars,
        beta = beta, phi_1 = phi_1, phis = phis, psis = psis)
@@ -42,11 +59,10 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #' natural numbers can be used as timestampsg
 #' @param entity_col Column which determines entities (e.g. countries, people)
 #' @param dep_var_col Column with dependent variable
-#' @param regressors Which subset of columns should be used as regressors.
-#' @param in_regressors Which subset of columns should be used as regressors
-#' for the current model. In other words \code{regressors} are the total set of
-#' regressors and \code{in_regressors} are the ones for which linear relation
-#' is not set to zero for a given model.
+#' @param lin_related_regressors Which subset of columns should be used as
+#' regressors for the current model. In other words \code{regressors} are the
+#' total set of regressors and \code{lin_related_regressors} are the ones for
+#' which linear relation is not set to zero for a given model.
 #' @param per_entity Whether to compute overall likelihood or a vector of
 #' likelihoods with per entity value
 #' @param projection_matrix_const Wheter the residual maker matrix (and so
@@ -107,7 +123,7 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #'
 #' @examples
 SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
-                           regressors = NULL, in_regressors = NULL,
+                           lin_related_regressors = NULL,
                            per_entity = FALSE, projection_matrix_const = TRUE,
                            exact_value = TRUE) {
   if (is.list(params) && is.list(data)) {
@@ -133,13 +149,13 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
     n_entities <- nrow(Z)
     periods_n <- length(dep_vars)
     tot_regressors_n <- ncol(data$Y2) / (periods_n - 1)
-    in_regressors_n <- length(beta)
+    lin_related_regressors_n <- length(beta)
 
     B <- SEM_B_matrix(alpha, periods_n, beta)
     C <- SEM_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
     S <- SEM_sigma_matrix(err_var, dep_vars, phis, psis)
 
-    U1 <- if (in_regressors_n == 0) {
+    U1 <- if (lin_related_regressors_n == 0) {
       t(tcrossprod(B[[1]], Y1) - tcrossprod(C, Z))
     } else {
       t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, Z))
@@ -173,19 +189,21 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
       )
       Y2 <- SEM_regressors_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        regressors = regressors
+        dep_var_col = dep_var_col
       )
       cur_Y2 <- SEM_regressors_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        regressors = in_regressors
+        dep_var_col = dep_var_col
       )
-      cur_Z <- exogenous_matrix(
-        df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        dep_var_col = dep_var_col, regressors_subset = in_regressors
+      cur_Z <- data %>%
+        dplyr::select({{ timestamp_col }}, {{ entity_col }},
+                      lin_related_regressors) %>% exogenous_matrix(
+        timestamp_col = timestamp_col, entity_col = entity_col,
+        dep_var_col = dep_var_col
       )
       Z <- exogenous_matrix(
         df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        dep_var_col = dep_var_col, regressors_subset = regressors
+        dep_var_col = dep_var_col
       )
       res_maker_matrix <- residual_maker_matrix(Z)
 
@@ -195,14 +213,25 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
     if (!is.list(params)) {
       periods_n <- ncol(data$Y1)
       tot_regressors_n <- ncol(data$Y2) / (periods_n - 1)
-      in_regressors_n <- if(is.null(data$cur_Y2)) {
+      lin_related_regressors_n <- if (is.null(data$cur_Y2)) {
         0
       } else {
         ncol(data$cur_Y2) / (periods_n - 1)
       }
-      params <- SEM_params_to_list(params, periods_n = periods_n,
-                                   tot_regressors_n = tot_regressors_n,
-                                   in_regressors_n = in_regressors_n)
+
+      if (is.double(params)) {
+        params <-
+          generate_params_vector(
+            value = params, timestamps_n = periods_n,
+            regressors_n = tot_regressors_n,
+            lin_related_regressors_n = lin_related_regressors_n
+            )
+      }
+
+      params <-
+        SEM_params_to_list(params, periods_n = periods_n,
+                           tot_regressors_n = tot_regressors_n,
+                           lin_related_regressors_n = lin_related_regressors_n)
     }
     likelihood <-
       SEM_likelihood(params = params, data = data, per_entity = per_entity,

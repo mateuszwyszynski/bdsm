@@ -1,3 +1,10 @@
+regressor_names <- function(df, timestamp_col, entity_col, dep_var_col) {
+  df %>%
+    dplyr::select(
+      ! c({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }})
+    ) %>% colnames()
+}
+
 determine_min_timestamps <- function(df, timestamp_col) {
   timestamps <- dplyr::select(df, {{ timestamp_col }})
   timestamp_0 <- min(timestamps)
@@ -50,7 +57,7 @@ SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
 #' @param timestamp_col Column which determines time periods. For now only
 #' natural numbers can be used as timestamps
 #' @param entity_col Column which determines entities (e.g. countries, people)
-#' @param regressors Which subset of columns should be used as regressors.
+#' @param dep_var_col Column with dependent variable
 #'
 #' @return
 #' Matrix of size N x (T-1)*k where N is the number of entities considered, T is
@@ -60,7 +67,12 @@ SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
 #' @export
 #'
 #' @examples
-SEM_regressors_matrix <- function(df, timestamp_col, entity_col, regressors) {
+SEM_regressors_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
+  regressors <- df %>%
+    regressor_names(timestamp_col = {{ timestamp_col }},
+                    entity_col = {{ entity_col }},
+                    dep_var_col = {{ dep_var_col }})
+
   min_timestamps <-
     determine_min_timestamps(df = df, timestamp_col = {{ timestamp_col }})
   timestamp_1 <- min_timestamps$timestamp_1
@@ -93,10 +105,6 @@ SEM_regressors_matrix <- function(df, timestamp_col, entity_col, regressors) {
 #' natural numbers can be used as timestamps
 #' @param entity_col Column which determines entities (e.g. countries, people)
 #' @param dep_var_col Column with dependent variable
-#' @param regressors_subset Which subset of columns should be used as
-#' regressors. If \code{NULL} (default) then all remaining columns will be used
-#' as regressors. For now columns have to be passed as list of column names
-#' represented as strings.
 #'
 #' @return
 #' Matrix of size N x k+1 where N is the number of entities considered and k is
@@ -104,8 +112,12 @@ SEM_regressors_matrix <- function(df, timestamp_col, entity_col, regressors) {
 #' @export
 #'
 #' @examples
-exogenous_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
-                             regressors_subset = NULL) {
+exogenous_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
+  regressors <- df %>%
+    regressor_names(timestamp_col = {{ timestamp_col }},
+                    entity_col = {{ entity_col }},
+                    dep_var_col = {{ dep_var_col }})
+
   min_timestamps <-
     determine_min_timestamps(df = df, timestamp_col = {{ timestamp_col }})
   timestamp_1 <- min_timestamps$timestamp_1
@@ -124,7 +136,7 @@ exogenous_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
                 {{ timestamp_col }} == {{ timestamp_col }},
                 {{ entity_col }} == {{ entity_col }}
               )) %>%
-    dplyr::select({{ dep_var_col }}, {{ regressors_subset }}) %>% as.matrix()
+    dplyr::select({{ dep_var_col }}, {{ regressors }}) %>% as.matrix()
 }
 
 #' Residual Maker Matrix
