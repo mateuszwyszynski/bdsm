@@ -7,9 +7,9 @@
 SEM_likelihood(
   params,
   data,
-  timestamp_col = NULL,
-  entity_col = NULL,
-  dep_var_col = NULL,
+  timestamp_col,
+  entity_col,
+  dep_var_col,
   regressors = NULL,
   in_regressors = NULL,
   per_entity = FALSE,

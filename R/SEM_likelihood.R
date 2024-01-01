@@ -106,8 +106,7 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #' @export
 #'
 #' @examples
-SEM_likelihood <- function(params, data, timestamp_col = NULL,
-                           entity_col = NULL, dep_var_col = NULL,
+SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
                            regressors = NULL, in_regressors = NULL,
                            per_entity = FALSE, projection_matrix_const = TRUE,
                            exact_value = TRUE) {
