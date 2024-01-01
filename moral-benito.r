@@ -17,7 +17,6 @@ rawdata <- readxl::read_excel("balimle-dataset.xlsx")
 #    1.FDI  2.FDIlag  3.EI  4.LLF  5.EX  6.SW  7.RES  8.LOPW  9.INT  10.RI
 #-----------------------------------------------------------------------------------------
 rawdata=rawdata[,1:8]   #I select the regressors of interest @
-year0 <- min(rawdata$year)
 varlist<- c("FDI","EI","LLF","EX", "SW")
 
 data_with_no_lagged_col <- rawdata %>%
