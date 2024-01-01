@@ -5,9 +5,6 @@
 #' @param R_df Data frame with data for the SEM analysis.
 #' @param dep_var_col Column with the dependent variable
 #' @param timestamp_col The name of the column with timestamps
-#' @param timestep Timestep between timestamps. Default is \code{NULL} in which
-#' case the timestep is automatically determines to be the difference between
-#' the lowest and second lowest value in the \code{timestamp_col}.
 #' @param entity_col Coliumn with entities (e.g. countries)
 #' @param model_prior Which model prior to use. For now there are two options:
 #' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
@@ -33,9 +30,8 @@
 #'
 #' @export
 SEM_bma <- function(R_df, dep_var_col, timestamp_col, entity_col,
-                    projection_matrix_const, timestep = NULL,
-                    exact_value = TRUE, model_prior = 'uniform',
-                    regressors_subsets = NULL,
+                    projection_matrix_const, exact_value = TRUE,
+                    model_prior = 'uniform', regressors_subsets = NULL,
                     control = list(trace = 2, maxit = 10000, fnscale = -1,
                                    REPORT = 100)) {
   regressors <- R_df %>%
@@ -59,7 +55,7 @@ SEM_bma <- function(R_df, dep_var_col, timestamp_col, entity_col,
     exogenous_matrix(timestamp_col = {{ timestamp_col }},
                      entity_col = {{ entity_col }},
                      dep_var_col = {{ dep_var_col }},
-                     timestep = timestep, regressors_subset = regressors)
+                     regressors_subset = regressors)
 
   n_entities <- nrow(Z)
   periods_n <- nrow(R_df) / n_entities - 1
@@ -132,22 +128,20 @@ SEM_bma <- function(R_df, dep_var_col, timestamp_col, entity_col,
     control$parscale = 0.05*t0in
 
     optimized <- stats::optim(t0in, SEM_likelihood, data = data,
-                              exact_value = exact_value, timestep = timestep,
+                              exact_value = exact_value,
                               projection_matrix_const = projection_matrix_const,
                               method="BFGS",
                               control = control)
     optimised_params <- optimized[[1]]
     likelihood_max <- optimized[[2]]
 
-    hess <- hessian(SEM_likelihood, theta = optimised_params, data = data,
-                    timestep = timestep)
+    hess <- hessian(SEM_likelihood, theta = optimised_params, data = data)
 
     likelihood_per_entity <-
-      SEM_likelihood(optimised_params, data = data, per_entity = TRUE,
-                     timestep = timestep)
+      SEM_likelihood(optimised_params, data = data, per_entity = TRUE)
 
     Gmat <- rootSolve::gradient(SEM_likelihood, optimised_params, data = data,
-                                per_entity = TRUE, timestep = timestep)
+                                per_entity = TRUE)
     Imat=crossprod(Gmat)
     stdr=sqrt(diag(solve(hess)%*%(Imat)%*%solve(hess)))
 

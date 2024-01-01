@@ -9,8 +9,6 @@ exogenous_matrix(
   timestamp_col,
   entity_col,
   dep_var_col,
-  timestep = NULL,
-  start_time = NULL,
   regressors_subset = NULL
 )
 }
@@ -24,13 +22,6 @@ natural numbers can be used as timestamps}
 
 \item{dep_var_col}{Column with dependent variable}
 
-\item{timestep}{Timestep between timestamps. Default is \code{NULL} in which
-case the timestep is automatically determines to be the difference between
-the lowest and second lowest value in the \code{timestamp_col}.}
-
-\item{start_time}{First time period. Only time periods greater than or equal
-to \code{start_time} will be considered in the resulting matrix}
-
 \item{regressors_subset}{Which subset of columns should be used as
 regressors. If \code{NULL} (default) then all remaining columns will be used
 as regressors. For now columns have to be passed as list of column names
@@ -43,7 +34,6 @@ the number of chosen regressors
 \description{
 Create matrix which contains exogenous variables used in the Simultaneous
 Equations Model (SEM) representation. Currently these are: dependent variable
-from the \code{start_time} period and regressors from the next period after
-the \code{strat_time}. The matrix is then used to compute likelihood for SEM
-analysis.
+from the lowest time stamp and regressors from the second lowest time stamp.
+The matrix is then used to compute likelihood for SEM analysis.
 }
