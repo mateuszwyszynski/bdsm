@@ -2,7 +2,7 @@
 #'
 #' Perform Bayesian Model Averaging for Simultaneous Equations Model.
 #'
-#' @param R_df Data frame with data for the SEM analysis.
+#' @param df Data frame with data for the SEM analysis.
 #' @param dep_var_col Column with the dependent variable
 #' @param timestamp_col The name of the column with timestamps
 #' @param entity_col Coliumn with entities (e.g. countries)
@@ -29,12 +29,12 @@
 #' List of parameters describing analysed models
 #'
 #' @export
-SEM_bma <- function(R_df, dep_var_col, timestamp_col, entity_col,
+SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
                     projection_matrix_const, exact_value = TRUE,
                     model_prior = 'uniform', regressors_subsets = NULL,
                     control = list(trace = 2, maxit = 10000, fnscale = -1,
                                    REPORT = 100)) {
-  regressors <- R_df %>%
+  regressors <- df %>%
     dplyr::select(
       ! c({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }})
     ) %>% colnames()
@@ -42,23 +42,23 @@ SEM_bma <- function(R_df, dep_var_col, timestamp_col, entity_col,
   variables_n <- regressors_n + 1
 
   Y1 <- SEM_dep_var_matrix(
-    df = R_df, timestamp_col = {{ timestamp_col }},
+    df = df, timestamp_col = {{ timestamp_col }},
     entity_col = {{ entity_col }}, dep_var_col = {{ dep_var_col }}
   )
 
-  Y2 <- R_df %>%
+  Y2 <- df %>%
     SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
                           entity_col = {{ entity_col }},
                           regressors = regressors)
 
-  Z <- R_df %>%
+  Z <- df %>%
     exogenous_matrix(timestamp_col = {{ timestamp_col }},
                      entity_col = {{ entity_col }},
                      dep_var_col = {{ dep_var_col }},
                      regressors_subset = regressors)
 
   n_entities <- nrow(Z)
-  periods_n <- nrow(R_df) / n_entities - 1
+  periods_n <- nrow(df) / n_entities - 1
 
   res_maker_matrix <- residual_maker_matrix(Z)
 
@@ -96,7 +96,7 @@ SEM_bma <- function(R_df, dep_var_col, timestamp_col, entity_col,
     cur_regressors_n <- sum(mt)
     cur_variables_n <- cur_regressors_n+1
 
-    cur_Z <- R_df %>%
+    cur_Z <- df %>%
       exogenous_matrix({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
                        regressors_subset = regressors_subset)
 
@@ -114,7 +114,7 @@ SEM_bma <- function(R_df, dep_var_col, timestamp_col, entity_col,
 
     t0in <- matrix(c(alpha, beta, phi_0, phi_1, err_var, dep_vars, phis, psis))
 
-    cur_Y2 <- R_df %>%
+    cur_Y2 <- df %>%
       SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
                             entity_col = {{ entity_col }},
                             regressors = regressors_subset)

@@ -5,7 +5,7 @@
 \title{BMA for SEM representation}
 \usage{
 SEM_bma(
-  R_df,
+  df,
   dep_var_col,
   timestamp_col,
   entity_col,
@@ -17,7 +17,7 @@ SEM_bma(
 )
 }
 \arguments{
-\item{R_df}{Data frame with data for the SEM analysis.}
+\item{df}{Data frame with data for the SEM analysis.}
 
 \item{dep_var_col}{Column with the dependent variable}
 
