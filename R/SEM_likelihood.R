@@ -126,7 +126,7 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
                            lin_related_regressors = NULL,
                            per_entity = FALSE, projection_matrix_const = TRUE,
                            exact_value = TRUE) {
-  if (is.list(params) && is.list(data)) {
+  if (is.list(params) && !tibble::is_tibble(data)) {
     alpha <- params$alpha
     phi_0 <- params$phi_0
     err_var <- params$err_var
@@ -182,29 +182,31 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
       likelihood / n_entities  - 1/2 * diag(U1 %*% S11_inverse %*% t(U1))
     }
   } else {
-    if (!is.list(data)) {
-      Y1 <- SEM_dep_var_matrix(
-        df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        dep_var_col = dep_var_col
+    if (tibble::is_tibble(data)) {
+      Y1 <- data %>% SEM_dep_var_matrix(
+        timestamp_col = {{ timestamp_col }}, entity_col = {{ entity_col }},
+        dep_var_col = {{ dep_var_col }}
       )
-      Y2 <- SEM_regressors_matrix(
-        df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        dep_var_col = dep_var_col
+      Y2 <- data %>% SEM_regressors_matrix(
+        timestamp_col = {{ timestamp_col }}, entity_col = {{ entity_col }},
+        dep_var_col = {{ dep_var_col }}
       )
-      cur_Y2 <- SEM_regressors_matrix(
-        df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        dep_var_col = dep_var_col
-      )
+      cur_Y2 <- data %>%
+        dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
+                      lin_related_regressors) %>%
+        SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
+                              entity_col = {{ entity_col }},
+                              dep_var_col = {{ dep_var_col }})
       cur_Z <- data %>%
-        dplyr::select({{ timestamp_col }}, {{ entity_col }},
-                      lin_related_regressors) %>% exogenous_matrix(
-        timestamp_col = timestamp_col, entity_col = entity_col,
-        dep_var_col = dep_var_col
-      )
-      Z <- exogenous_matrix(
-        df = data, timestamp_col = timestamp_col, entity_col = entity_col,
-        dep_var_col = dep_var_col
-      )
+        dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
+                      lin_related_regressors) %>%
+        exogenous_matrix(timestamp_col = {{ timestamp_col }},
+                         entity_col = {{ entity_col }},
+                         dep_var_col = {{ dep_var_col }})
+      Z <- data %>%
+        exogenous_matrix(timestamp_col = {{ timestamp_col }},
+                         entity_col = {{ entity_col }},
+                         dep_var_col = {{ dep_var_col }})
       res_maker_matrix <- residual_maker_matrix(Z)
 
       data = list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
