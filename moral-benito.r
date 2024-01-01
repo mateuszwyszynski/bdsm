@@ -10,65 +10,26 @@ begin<-Sys.time()
 dilution <- 1
 dil_power <- 1/2
 
-#---------------------------------------------------------------------------------
-#		   	                     LOADING THE DATASET
-#---------------------------------------------------------------------------------
-
-row=292; column=11;
+# Load dataset
 rawdata <- readxl::read_excel("balimle-dataset.xlsx")
 
 #    VARIABLES IN RAWDATA
 #    1.FDI  2.FDIlag  3.EI  4.LLF  5.EX  6.SW  7.RES  8.LOPW  9.INT  10.RI
 #-----------------------------------------------------------------------------------------
 rawdata=rawdata[,1:8]   #I select the regressors of interest @
-year0 <- min(rawdata$year)
 varlist<- c("FDI","EI","LLF","EX", "SW")
-n_entities <- 73
-periods_n <- 4
 
-#' Prepare data for LIML estimation
-#'
-#' @description
-#' This is a function which prepares data for Limited Information Maximum
-#' Likelihood (LIML) Estimation. Following operations are performed:
-#'
-#' 1. Data standarisation
-#' 2. Cross-sectional demeaning of variables
-#' 3. Organisation of data for the LIML estimation
-#'
-#' @param df Dataframe with data that should be prepared for LIML estimation
-liml_data_prep <- function(df){
-  df <- df %>% mutate(across(!(year:country), scale))
+data_with_no_lagged_col <- rawdata %>%
+  join_lagged_col(gdp, lag_gdp, year, country, 10)
 
-  csddata_df <- df %>% group_by(year) %>%
-    summarise(country = country,
-              across(!country, function(x) scale(x, scale = FALSE))) %>%
-    arrange(country) %>% ungroup()
-}
+data_prepared <- data_with_no_lagged_col %>%
+  feature_standardization(timestamp_col = year, entity_col = country) %>%
+  feature_standardization(timestamp_col = year, entity_col = country,
+                          cross_sectional = TRUE, scale = FALSE)
 
-R_df <- liml_data_prep(rawdata)
-
-Y1 <- SEM_dep_var_matrix(
-  df = R_df, timestamp_col = year, entity_col = country,
-  dep_var_col = gdp, start_time = year0
-)
-
-Y2 <- R_df %>%
-  SEM_regressors_matrix(timestamp_col = year, entity_col = country,
-                        regressors = c(ish, sed, pgrw, pop),
-                        start_time = year0)
-
-Z <- R_df %>%
-  SEM_exogenous_matrix(year, year0, lag_gdp,
-                       regressors_subset = c('ish', 'sed', 'pgrw', 'pop'))
-
-res_maker_matrix <- residual_maker_matrix(Z)
-
-bma_result <- SEM_bma(R_df = R_df, dep_var_col = gdp, periods_n = periods_n,
-                      timestamp_col = year, year0 = year0, lagged_col = lag_gdp,
-                      entity_col = country, Y1 = Y1, Y2 = Y2,
-                      res_maker_matrix = res_maker_matrix,
-                      n_entities = n_entities, projection_matrix_const = TRUE)
+bma_result <- SEM_bma(R_df = data_prepared, dep_var_col = gdp,
+                      timestamp_col = year, entity_col = country,
+                      projection_matrix_const = TRUE)
 
 modprob <- bma_result$modprob
 modelid <- bma_result$modelid

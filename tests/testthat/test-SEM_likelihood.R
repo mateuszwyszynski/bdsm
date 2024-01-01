@@ -6,8 +6,7 @@ test_df <- data.frame(
   b = 301:315
 )
 
-test_that(paste("SEM_dep_var_matrix uses all timestamps if start_time argument",
-                "is not given"), {
+test_that(paste("SEM_dep_var_matrix creates a correct matrix"), {
   m_expected_data <- c(
     104, 107, 110, 113,
     105, 108, 111, 114,
