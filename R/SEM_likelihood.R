@@ -38,7 +38,9 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #' @param data Data for the likelihood computations. Can be either a list of
 #' matrices or a dataframe. If the dataframe, additional parameters are
 #' required to build the matrices within the function.
-#' @param timestep Timestep between timestamps
+#' @param timestep Timestep between timestamps. Default is \code{NULL} in which
+#' case the timestep is automatically determines to be the difference between
+#' the lowest and second lowest value in the \code{timestamp_col}.
 #' @param timestamp_col Column which determines time periods. For now only
 #' natural numbers can be used as timestampsg
 #' @param entity_col Column which determines entities (e.g. countries, people)
@@ -110,7 +112,7 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #' @export
 #'
 #' @examples
-SEM_likelihood <- function(params, data, timestep, timestamp_col = NULL,
+SEM_likelihood <- function(params, data, timestep = NULL, timestamp_col = NULL,
                            entity_col = NULL, start_time = NULL,
                            lagged_col = NULL, dep_var_col = NULL,
                            regressors = NULL, in_regressors = NULL,

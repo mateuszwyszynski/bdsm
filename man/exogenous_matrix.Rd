@@ -9,7 +9,7 @@ exogenous_matrix(
   timestamp_col,
   entity_col,
   dep_var_col,
-  timestep,
+  timestep = NULL,
   start_time = NULL,
   regressors_subset = NULL
 )
@@ -24,7 +24,9 @@ natural numbers can be used as timestamps}
 
 \item{dep_var_col}{Column with dependent variable}
 
-\item{timestep}{Timestep between timestamps}
+\item{timestep}{Timestep between timestamps. Default is \code{NULL} in which
+case the timestep is automatically determines to be the difference between
+the lowest and second lowest value in the \code{timestamp_col}.}
 
 \item{start_time}{First time period. Only time periods greater than or equal
 to \code{start_time} will be considered in the resulting matrix}

@@ -28,8 +28,8 @@ data_prepared <- data_with_no_lagged_col %>%
                           cross_sectional = TRUE, scale = FALSE)
 
 bma_result <- SEM_bma(R_df = data_prepared, dep_var_col = gdp,
-                      timestamp_col = year, timestep = 10,
-                      entity_col = country, projection_matrix_const = TRUE)
+                      timestamp_col = year, entity_col = country,
+                      projection_matrix_const = TRUE)
 
 modprob <- bma_result$modprob
 modelid <- bma_result$modelid

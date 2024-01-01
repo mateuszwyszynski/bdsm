@@ -8,9 +8,9 @@ SEM_bma(
   R_df,
   dep_var_col,
   timestamp_col,
-  timestep,
   entity_col,
   projection_matrix_const,
+  timestep = NULL,
   exact_value = TRUE,
   model_prior = "uniform",
   regressors_subsets = NULL,
@@ -24,13 +24,15 @@ SEM_bma(
 
 \item{timestamp_col}{The name of the column with timestamps}
 
-\item{timestep}{Timestep between timestamps}
-
 \item{entity_col}{Coliumn with entities (e.g. countries)}
 
 \item{projection_matrix_const}{Whether the residual maker matrix (and so
 the projection matrix) should be computed for each model separately.
 \code{TRUE} means that the matrix will be the same for all models}
+
+\item{timestep}{Timestep between timestamps. Default is \code{NULL} in which
+case the timestep is automatically determines to be the difference between
+the lowest and second lowest value in the \code{timestamp_col}.}
 
 \item{exact_value}{Whether the exact value of the likelihood should be
 computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check

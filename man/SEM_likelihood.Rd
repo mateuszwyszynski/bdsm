@@ -7,7 +7,7 @@
 SEM_likelihood(
   params,
   data,
-  timestep,
+  timestep = NULL,
   timestamp_col = NULL,
   entity_col = NULL,
   start_time = NULL,
@@ -28,7 +28,9 @@ list with named parameters. See 'Details'}
 matrices or a dataframe. If the dataframe, additional parameters are
 required to build the matrices within the function.}
 
-\item{timestep}{Timestep between timestamps}
+\item{timestep}{Timestep between timestamps. Default is \code{NULL} in which
+case the timestep is automatically determines to be the difference between
+the lowest and second lowest value in the \code{timestamp_col}.}
 
 \item{timestamp_col}{Column which determines time periods. For now only
 natural numbers can be used as timestampsg}

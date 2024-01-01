@@ -5,7 +5,9 @@
 #' @param R_df Data frame with data for the SEM analysis.
 #' @param dep_var_col Column with the dependent variable
 #' @param timestamp_col The name of the column with timestamps
-#' @param timestep Timestep between timestamps
+#' @param timestep Timestep between timestamps. Default is \code{NULL} in which
+#' case the timestep is automatically determines to be the difference between
+#' the lowest and second lowest value in the \code{timestamp_col}.
 #' @param entity_col Coliumn with entities (e.g. countries)
 #' @param model_prior Which model prior to use. For now there are two options:
 #' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
@@ -30,9 +32,10 @@
 #' List of parameters describing analysed models
 #'
 #' @export
-SEM_bma <- function(R_df, dep_var_col, timestamp_col, timestep,
-                    entity_col, projection_matrix_const, exact_value = TRUE,
-                    model_prior = 'uniform', regressors_subsets = NULL,
+SEM_bma <- function(R_df, dep_var_col, timestamp_col, entity_col,
+                    projection_matrix_const, timestep = NULL,
+                    exact_value = TRUE, model_prior = 'uniform',
+                    regressors_subsets = NULL,
                     control = list(trace = 2, maxit = 10000, fnscale = -1,
                                    REPORT = 100)) {
   regressors <- R_df %>%
@@ -99,7 +102,7 @@ SEM_bma <- function(R_df, dep_var_col, timestamp_col, timestep,
 
     cur_Z <- R_df %>%
       exogenous_matrix({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
-                       timestep = 10, regressors_subset = regressors_subset)
+                       regressors_subset = regressors_subset)
 
     # Initial parameter values for optimisation
     alpha <- 0.5

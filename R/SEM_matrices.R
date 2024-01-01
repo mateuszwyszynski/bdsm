@@ -1,7 +1,8 @@
-determine_start_time <- function(df, timestamp_col) {
+determine_min_timestamps <- function(df, timestamp_col) {
   timestamps <- dplyr::select(df, {{ timestamp_col }})
-  time_zero <- min(timestamps)
-  start_time <- min(timestamps[timestamps != time_zero])
+  timestamp_0 <- min(timestamps)
+  timestamp_1 <- min(timestamps[timestamps != timestamp_0])
+  list(timestamp_0 = timestamp_0, timestamp_1 = timestamp_1)
 }
 
 #' Matrix with dependent variable data for SEM representation
@@ -32,8 +33,9 @@ determine_start_time <- function(df, timestamp_col) {
 SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
                                start_time = NULL) {
   if (is.null(start_time)) {
-    start_time <-
-      determine_start_time(df = df, timestamp_col = {{ timestamp_col }})
+    min_timestamps <-
+      determine_min_timestamps(df = df, timestamp_col = {{ timestamp_col }})
+    start_time <- min_timestamps$timestamp_1
   }
   df %>% dplyr::filter({{ timestamp_col }} >= start_time) %>%
     dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }}) %>%
@@ -70,8 +72,9 @@ SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
 SEM_regressors_matrix <- function(df, timestamp_col, entity_col, regressors,
                                   start_time = NULL) {
   if (is.null(start_time)) {
-    start_time <-
-      determine_start_time(df = df, timestamp_col = {{ timestamp_col }})
+    min_timestamps <-
+      determine_min_timestamps(df = df, timestamp_col = {{ timestamp_col }})
+    start_time <- min_timestamps$timestamp_1
   }
 
   df <- df %>%
@@ -103,7 +106,9 @@ SEM_regressors_matrix <- function(df, timestamp_col, entity_col, regressors,
 #' natural numbers can be used as timestamps
 #' @param entity_col Column which determines entities (e.g. countries, people)
 #' @param dep_var_col Column with dependent variable
-#' @param timestep Timestep between timestamps
+#' @param timestep Timestep between timestamps. Default is \code{NULL} in which
+#' case the timestep is automatically determines to be the difference between
+#' the lowest and second lowest value in the \code{timestamp_col}.
 #' @param start_time First time period. Only time periods greater than or equal
 #' to \code{start_time} will be considered in the resulting matrix
 #' @param regressors_subset Which subset of columns should be used as
@@ -118,11 +123,17 @@ SEM_regressors_matrix <- function(df, timestamp_col, entity_col, regressors,
 #'
 #' @examples
 exogenous_matrix <- function(df, timestamp_col, entity_col, dep_var_col,
-                             timestep, start_time = NULL,
+                             timestep = NULL, start_time = NULL,
                              regressors_subset = NULL) {
-  if (is.null(start_time)) {
-    start_time <-
-      determine_start_time(df = df, timestamp_col = {{ timestamp_col }})
+  if (is.null(start_time) || is.null(timestep)) {
+    min_timestamps <-
+      determine_min_timestamps(df = df, timestamp_col = {{ timestamp_col }})
+    if (is.null(start_time)) {
+      start_time <- min_timestamps$timestamp_1
+    }
+    if (is.null(timestep)) {
+      timestep <- min_timestamps$timestamp_1 - min_timestamps$timestamp_0
+    }
   }
 
   df_with_lagged_col <- df %>%
