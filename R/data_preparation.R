@@ -57,21 +57,23 @@ join_lagged_col <- function(df, col, col_lagged, timestamp_col,
 #' @param entity_col Column with entities (e.g. countries)
 #' @param cross_sectional Whether to perform feature standardization within
 #' cross sections
+#' @param scale Whether to divide by the standard deviation \code{TRUE} or not
+#' \code{FALSE}. Default is \code{TRUE}.
 #'
 #' @export
 #'
 #' @examples
 feature_standardization <- function(df, timestamp_col, entity_col,
-                                    cross_sectional = FALSE) {
+                                    cross_sectional = FALSE, scale = TRUE) {
   if (!cross_sectional) {
     df %>%
       dplyr::mutate(dplyr::across(!({{ timestamp_col }}:{{ entity_col }}),
-                                  function(x) c(scale(x))))
+                                  function(x) c(scale(x, scale = scale))))
   } else {
     df %>% dplyr::group_by({{ timestamp_col }}) %>%
       dplyr::reframe("{{entity_col}}" := {{ entity_col }},
                      dplyr::across(!{{ entity_col }},
-                                   function(x) c(scale(x, scale = FALSE)))) %>%
+                                   function(x) c(scale(x, scale = scale)))) %>%
       dplyr::arrange({{ entity_col }}) %>% dplyr::ungroup()
   }
 }

@@ -25,7 +25,7 @@ data_with_no_lagged_col <- rawdata %>%
 data_prepared <- data_with_no_lagged_col %>%
   feature_standardization(timestamp_col = year, entity_col = country) %>%
   feature_standardization(timestamp_col = year, entity_col = country,
-                          cross_sectional = TRUE)
+                          cross_sectional = TRUE, scale = FALSE)
 
 bma_result <- SEM_bma(R_df = data_prepared, dep_var_col = gdp,
                       timestamp_col = year, timestep = 10,

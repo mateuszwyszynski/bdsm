@@ -4,7 +4,13 @@
 \alias{feature_standardization}
 \title{Perform feature standarization}
 \usage{
-feature_standardization(df, timestamp_col, entity_col, cross_sectional = FALSE)
+feature_standardization(
+  df,
+  timestamp_col,
+  entity_col,
+  cross_sectional = FALSE,
+  scale = TRUE
+)
 }
 \arguments{
 \item{df}{Dataframe with data that should be prepared for LIML estimation}
@@ -15,6 +21,9 @@ feature_standardization(df, timestamp_col, entity_col, cross_sectional = FALSE)
 
 \item{cross_sectional}{Whether to perform feature standardization within
 cross sections}
+
+\item{scale}{Whether to divide by the standard deviation \code{TRUE} or not
+\code{FALSE}. Default is \code{TRUE}.}
 }
 \description{
 This function performs
