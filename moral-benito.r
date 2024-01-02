@@ -10,15 +10,12 @@ begin<-Sys.time()
 dilution <- 1
 dil_power <- 1/2
 
-#    VARIABLES IN RAWDATA
-#    1.FDI  2.FDIlag  3.EI  4.LLF  5.EX  6.SW  7.RES  8.LOPW  9.INT  10.RI
-#-----------------------------------------------------------------------------
-varlist<- c("FDI","EI","LLF","EX", "SW")
-
 data_prepared <- panels::economic_growth[,1:7] %>%
   feature_standardization(timestamp_col = year, entity_col = country) %>%
   feature_standardization(timestamp_col = year, entity_col = country,
                           cross_sectional = TRUE, scale = FALSE)
+
+regressors <- regressor_names(data_prepared, year, country, gdp)
 
 bma_result <- SEM_bma(df = data_prepared, dep_var_col = gdp,
                       timestamp_col = year, entity_col = country,
@@ -83,7 +80,7 @@ for (jt in 1:bma_result$variables_n) {
 
 
 
-result=as.data.frame(cbind(varlist,postprobinc,postmean,poststdh,poststdr,upostmean,upoststdh,upoststdr))
+result=as.data.frame(cbind(regressors,postprobinc,postmean,poststdh,poststdr,upostmean,upoststdh,upoststdr))
 names(result)<-c("varname","postprob","pmean","std","stdR","unc_pmean","unc_std","unc_stdR")
 the_end=Sys.time()
 
