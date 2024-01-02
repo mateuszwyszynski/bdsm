@@ -96,3 +96,18 @@ length equal to the number of regressors times number of time stamps minus 1
 times number of time stamps divided by 2, i.e.
 \code{regressors_n * (periods_n - 1) * periods_n / 2}
 }
+\examples{
+# TODO: sometimes generates NaN and positive values - why?
+set.seed(1)
+df <- data.frame(
+  entities = rep(1:4, 5),
+  times = rep(seq(1960, 2000, 10), each = 4),
+  dep_var = stats::rnorm(20), a = stats::rnorm(20), b = stats::rnorm(20)
+)
+df <-
+  feature_standardization(df, timestamp_col = times, entity_col = entities)
+df <-
+  feature_standardization(df, timestamp_col = times, entity_col = entities,
+                          cross_sectional = TRUE, scale = FALSE)
+SEM_likelihood(0.5, df, times, entities, dep_var)
+}
