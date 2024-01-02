@@ -26,5 +26,4 @@ Imports:
     rlang,
     rootSolve,
     stats,
-    tibble,
     tidyr

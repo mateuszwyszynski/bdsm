@@ -126,7 +126,7 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
                            lin_related_regressors = NULL,
                            per_entity = FALSE, projection_matrix_const = TRUE,
                            exact_value = TRUE) {
-  if (is.list(params) && !tibble::is_tibble(data)) {
+  if (is.list(params) && !is.data.frame(data)) {
     alpha <- params$alpha
     phi_0 <- params$phi_0
     err_var <- params$err_var
@@ -182,7 +182,7 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
       likelihood / n_entities  - 1/2 * diag(U1 %*% S11_inverse %*% t(U1))
     }
   } else {
-    if (tibble::is_tibble(data)) {
+    if (is.data.frame(data)) {
       Y1 <- data %>% SEM_dep_var_matrix(
         timestamp_col = {{ timestamp_col }}, entity_col = {{ entity_col }},
         dep_var_col = {{ dep_var_col }}
