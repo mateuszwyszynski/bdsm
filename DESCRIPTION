@@ -27,3 +27,5 @@ Imports:
     rootSolve,
     stats,
     tidyr
+Depends: 
+    R (>= 2.10)
