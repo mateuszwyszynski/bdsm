@@ -62,8 +62,6 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
   # parameter for beta (random) distribution of the prior inclusion probability
   b <- (regressors_n - prior_exp_model_size) / prior_exp_model_size
 
-  regressors_subsets <- rje::powerSet(regressors)
-
   mod <- optimbase::zeros(variables_n,1)
   bet <- optimbase::zeros(variables_n,1)
   pvarh <- optimbase::zeros(variables_n,1)
@@ -73,17 +71,15 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
   ppmsize <- 0
   cout <- 0
 
-  which_regs_bin_vectors <- replicate(regressors_n, 0:1, simplify = FALSE) %>%
-    expand.grid()
-  which_regs_bin_vectors <-
-    which_regs_bin_vectors[,order(ncol(which_regs_bin_vectors):1)]
+  regressors_subsets <- rje::powerSet(regressors)
+  regressors_subsets_matrix <-
+    rje::powerSetMat(regressors_n) %>% as.data.frame()
 
   row_ind <- 0
   for (regressors_subset in regressors_subsets) {
     row_ind <- row_ind + 1
     print(paste('Progress:', row_ind, 'out of', length(regressors_subsets)))
-    regressors_subset <- rev(regressors_subset)
-    mt <- as.matrix(t(which_regs_bin_vectors[row_ind, ]))
+    mt <- as.matrix(t(regressors_subsets_matrix[row_ind, ]))
     out = (mt == 0)       # regressors out of the current model
     cur_regressors_n <- sum(mt)
     cur_variables_n <- cur_regressors_n+1
