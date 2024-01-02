@@ -10,19 +10,12 @@ begin<-Sys.time()
 dilution <- 1
 dil_power <- 1/2
 
-# Load dataset
-rawdata <- readxl::read_excel("balimle-dataset.xlsx")
-
 #    VARIABLES IN RAWDATA
 #    1.FDI  2.FDIlag  3.EI  4.LLF  5.EX  6.SW  7.RES  8.LOPW  9.INT  10.RI
-#-----------------------------------------------------------------------------------------
-rawdata=rawdata[,1:8]   #I select the regressors of interest @
+#-----------------------------------------------------------------------------
 varlist<- c("FDI","EI","LLF","EX", "SW")
 
-data_with_no_lagged_col <- rawdata %>%
-  join_lagged_col(gdp, lag_gdp, year, country, 10)
-
-data_prepared <- data_with_no_lagged_col %>%
+data_prepared <- panels::economic_growth[,1:7] %>%
   feature_standardization(timestamp_col = year, entity_col = country) %>%
   feature_standardization(timestamp_col = year, entity_col = country,
                           cross_sectional = TRUE, scale = FALSE)
