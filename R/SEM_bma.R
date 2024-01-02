@@ -2,19 +2,12 @@
 #'
 #' Perform Bayesian Model Averaging for Simultaneous Equations Model.
 #'
-#' @param R_df Data frame with data for the SEM analysis.
+#' @param df Data frame with data for the SEM analysis.
 #' @param dep_var_col Column with the dependent variable
-#' @param periods_n Number of timestamps
 #' @param timestamp_col The name of the column with timestamps
-#' @param year0 First timestamp
-#' @param lagged_col Column with the lagged dependent variable
 #' @param entity_col Coliumn with entities (e.g. countries)
-#' @param Y1 Matrix with dependent variables
-#' @param Y2 Matrix with regressors
-#' @param res_maker_matrix Residual maker matrix
 #' @param model_prior Which model prior to use. For now there are two options:
 #' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
-#' @param n_entities Number of entities
 #' @param projection_matrix_const Whether the residual maker matrix (and so
 #' the projection matrix) should be computed for each model separately.
 #' \code{TRUE} means that the matrix will be the same for all models
@@ -36,18 +29,37 @@
 #' List of parameters describing analysed models
 #'
 #' @export
-SEM_bma <- function(R_df, dep_var_col, periods_n, timestamp_col, year0,
-                    lagged_col, entity_col, Y1, Y2, res_maker_matrix,
-                    n_entities, projection_matrix_const, exact_value = TRUE,
+SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
+                    projection_matrix_const, exact_value = TRUE,
                     model_prior = 'uniform', regressors_subsets = NULL,
                     control = list(trace = 2, maxit = 10000, fnscale = -1,
                                    REPORT = 100)) {
-  regressors <- R_df %>%
-    dplyr::select(
-      ! c({{ timestamp_col }}, {{ entity_col }}, {{ lagged_col }}, {{ dep_var_col }})
-    ) %>% colnames()
+  regressors <- df %>%
+    regressor_names(timestamp_col = {{ timestamp_col }},
+                    entity_col = {{ entity_col }},
+                    dep_var_col = {{ dep_var_col }})
   regressors_n <- length(regressors)
   variables_n <- regressors_n + 1
+
+  Y1 <- SEM_dep_var_matrix(
+    df = df, timestamp_col = {{ timestamp_col }},
+    entity_col = {{ entity_col }}, dep_var_col = {{ dep_var_col }}
+  )
+
+  Y2 <- df %>%
+    SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
+                          entity_col = {{ entity_col }},
+                          dep_var_col = {{ dep_var_col }})
+
+  Z <- df %>%
+    exogenous_matrix(timestamp_col = {{ timestamp_col }},
+                     entity_col = {{ entity_col }},
+                     dep_var_col = {{ dep_var_col }})
+
+  n_entities <- nrow(Z)
+  periods_n <- nrow(df) / n_entities - 1
+
+  res_maker_matrix <- residual_maker_matrix(Z)
 
   prior_exp_model_size <- regressors_n / 2
   prior_inc_prob <- prior_exp_model_size / regressors_n
@@ -83,28 +95,22 @@ SEM_bma <- function(R_df, dep_var_col, periods_n, timestamp_col, year0,
     cur_regressors_n <- sum(mt)
     cur_variables_n <- cur_regressors_n+1
 
-    cur_Z <- R_df %>%
-      SEM_exogenous_matrix({{ timestamp_col }}, year0, {{ lagged_col }},
-                           regressors_subset)
+    cur_Z <- df %>%
+      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
+                    regressors_subset) %>%
+      exogenous_matrix({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }})
 
-    # Initial parameter values for optimisation
-    alpha <- 0.5
-    phi_0 <- 0.5
-    err_var <- 0.5
-    dep_vars <- rep(0.5, periods_n)
-    beta <- rep(0.5, cur_regressors_n)
-    phi_1 <- rep(0.5, cur_regressors_n)
-    phis_n <- regressors_n*(periods_n - 1)
-    phis <- rep(0.5, phis_n)
-    psis_n <- regressors_n*periods_n*(periods_n - 1)/2
-    psis <- rep(0.5, psis_n)
+    initial_params <-
+      generate_params_vector(value = 0.5, timestamps_n = periods_n,
+                             regressors_n = regressors_n,
+                             lin_related_regressors_n = cur_regressors_n)
 
-    t0in <- matrix(c(alpha, beta, phi_0, phi_1, err_var, dep_vars, phis, psis))
-
-    cur_Y2 <- R_df %>%
+    cur_Y2 <- df %>%
+      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
+                    regressors_subset) %>%
       SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
                             entity_col = {{ entity_col }},
-                            regressors = regressors_subset, start_time = year0)
+                            dep_var_col = {{ dep_var_col }})
 
     data <- list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
                  res_maker_matrix = res_maker_matrix)
@@ -112,35 +118,23 @@ SEM_bma <- function(R_df, dep_var_col, periods_n, timestamp_col, year0,
     # parscale argument somehow (don't know yet how) changes step size during optimisation.
     # Most likely optimisation methods used in Gauss are scale-free and these used in R are not
     # TODO: search for methods (or implement methods) in R which are scale-free
-    control$parscale = 0.05*t0in
+    control$parscale = 0.05*initial_params
 
-    optimized <- stats::optim(t0in, SEM_likelihood, data = data,
-                              periods_n = periods_n, exact_value = exact_value,
-                              tot_regressors_n = regressors_n,
-                              in_regressors_n = cur_regressors_n,
-                              phis_n = phis_n, psis_n = psis_n,
+    optimized <- stats::optim(initial_params, SEM_likelihood, data = data,
+                              exact_value = exact_value,
                               projection_matrix_const = projection_matrix_const,
                               method="BFGS",
                               control = control)
     optimised_params <- optimized[[1]]
     likelihood_max <- optimized[[2]]
 
-    hess <- hessian(SEM_likelihood, theta = optimised_params, data = data,
-                    periods_n = periods_n, tot_regressors_n = regressors_n,
-                    in_regressors_n = cur_regressors_n,
-                    phis_n = phis_n, psis_n = psis_n)
+    hess <- hessian(SEM_likelihood, theta = optimised_params, data = data)
 
     likelihood_per_entity <-
-      SEM_likelihood(optimised_params, data = data, per_entity = TRUE,
-                     periods_n = periods_n, tot_regressors_n = regressors_n,
-                     in_regressors_n = cur_regressors_n, phis_n = phis_n,
-                     psis_n = psis_n)
+      SEM_likelihood(optimised_params, data = data, per_entity = TRUE)
 
     Gmat <- rootSolve::gradient(SEM_likelihood, optimised_params, data = data,
-                                per_entity = TRUE, periods_n = periods_n,
-                                tot_regressors_n = regressors_n,
-                                in_regressors_n = cur_regressors_n,
-                                phis_n = phis_n, psis_n = psis_n)
+                                per_entity = TRUE)
     Imat=crossprod(Gmat)
     stdr=sqrt(diag(solve(hess)%*%(Imat)%*%solve(hess)))
 

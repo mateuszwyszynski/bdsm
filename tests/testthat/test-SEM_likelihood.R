@@ -6,8 +6,7 @@ test_df <- data.frame(
   b = 301:315
 )
 
-test_that(paste("SEM_dep_var_matrix uses all timestamps if start_time argument",
-                "is not given"), {
+test_that(paste("SEM_dep_var_matrix creates a correct matrix"), {
   m_expected_data <- c(
     104, 107, 110, 113,
     105, 108, 111, 114,
@@ -31,7 +30,7 @@ test_that(paste("SEM_regressors_matrix uses all regressors if",
   m_expected <- matrix(m_expected_data, nrow = 3, byrow = TRUE)
 
   m <- SEM_regressors_matrix(df = test_df, timestamp_col = times,
-                             entity_col = entities, regressors = c(a, b))
+                             entity_col = entities, dep_var_col = dep_var)
 
   expect_equal(m, m_expected, ignore_attr = TRUE)
 })

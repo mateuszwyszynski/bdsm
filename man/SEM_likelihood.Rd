@@ -7,18 +7,10 @@
 SEM_likelihood(
   params,
   data,
-  timestamp_col = NULL,
-  entity_col = NULL,
-  start_time = NULL,
-  lagged_col = NULL,
-  dep_var_col = NULL,
-  regressors = NULL,
-  in_regressors = NULL,
-  periods_n = NULL,
-  tot_regressors_n = NULL,
-  in_regressors_n = NULL,
-  phis_n = NULL,
-  psis_n = NULL,
+  timestamp_col,
+  entity_col,
+  dep_var_col,
+  lin_related_regressors = NULL,
   per_entity = FALSE,
   projection_matrix_const = TRUE,
   exact_value = TRUE
@@ -26,7 +18,7 @@ SEM_likelihood(
 }
 \arguments{
 \item{params}{Parameters describing the model. Can be either a vector or a
-list with named parameters.}
+list with named parameters. See 'Details'}
 
 \item{data}{Data for the likelihood computations. Can be either a list of
 matrices or a dataframe. If the dataframe, additional parameters are
@@ -37,29 +29,12 @@ natural numbers can be used as timestampsg}
 
 \item{entity_col}{Column which determines entities (e.g. countries, people)}
 
-\item{start_time}{First time period. Only time periods greater than
-\code{start_time} will be considered in the resulting matrix}
-
-\item{lagged_col}{Column which contains lagged version of dependent variable}
-
 \item{dep_var_col}{Column with dependent variable}
 
-\item{regressors}{Which subset of columns should be used as regressors.}
-
-\item{in_regressors}{Which subset of columns should be used as regressors
-for the current model. In other words \code{regressors} are the total set of
-regressors and \code{in_regressors} are the ones for which linear relation
-is not set to zero for a given model.}
-
-\item{periods_n}{Probably can be determined from the rest}
-
-\item{tot_regressors_n}{Probably can be determined from the rest}
-
-\item{in_regressors_n}{Probably can be determined from the rest}
-
-\item{phis_n}{Probably can be determined from the rest}
-
-\item{psis_n}{Probably can be determined from the rest}
+\item{lin_related_regressors}{Which subset of columns should be used as
+regressors for the current model. In other words \code{regressors} are the
+total set of regressors and \code{lin_related_regressors} are the ones for
+which linear relation is not set to zero for a given model.}
 
 \item{per_entity}{Whether to compute overall likelihood or a vector of
 likelihoods with per entity value}
@@ -85,4 +60,54 @@ likelihood)
 }
 \description{
 Likelihood for the SEM model
+}
+\details{
+The \code{params} argument is a list that should contain the following
+components:
+
+\code{alpha} scalar value which determines linear dependence on lagged
+dependent variable
+
+\code{phi_0} scalar value which determines linear dependence on the value
+of dependent variable at the lowest time stamp
+
+\code{err_var} scalar value which determines classical error component
+(Sigma11 matrix, sigma_epsilon^2)
+
+\code{dep_vars} double vector of length equal to the number of time stamps
+(i.e. time stamps greater than or equal to the second lowest time stamp)
+
+\code{beta} double vector which determines the linear dependence on
+regressors different than the lagged dependent variable; The vector should
+have length equal to the number of regressors.
+
+\code{phi_1} double vector which determines the linear dependence on
+initial values of regressors different than the lagged dependent variable;
+The vector should have length equal to the number of regressors.
+
+\code{phis} double vector which together with \code{psis} determines upper
+right and bottom left part of the covariance matrix; The vector should have
+length equal to the number of regressors times number of time stamps minus 1,
+i.e. \code{regressors_n * (periods_n - 1)}
+
+\code{psis} double vector which together with \code{psis} determines upper
+right and bottom left part of the covariance matrix; The vector should have
+length equal to the number of regressors times number of time stamps minus 1
+times number of time stamps divided by 2, i.e.
+\code{regressors_n * (periods_n - 1) * periods_n / 2}
+}
+\examples{
+# TODO: sometimes generates NaN and positive values - why?
+set.seed(1)
+df <- data.frame(
+  entities = rep(1:4, 5),
+  times = rep(seq(1960, 2000, 10), each = 4),
+  dep_var = stats::rnorm(20), a = stats::rnorm(20), b = stats::rnorm(20)
+)
+df <-
+  feature_standardization(df, timestamp_col = times, entity_col = entities)
+df <-
+  feature_standardization(df, timestamp_col = times, entity_col = entities,
+                          cross_sectional = TRUE, scale = FALSE)
+SEM_likelihood(0.5, df, times, entities, dep_var)
 }
