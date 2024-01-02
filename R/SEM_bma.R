@@ -14,11 +14,6 @@
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 #' \link[panels]{SEM_likelihood} for details.
-#' @param regressors_subsets a set of regressor subsets. For each subset a model
-#' will be optimized. Default is \code{NULL} in which case all possible subsets
-#' of regressors are considered, i.e. the power set of a set of regressors is
-#' used. Note that therefore by default 2^k models are analysed where k is the
-#' number of regressors.
 #' @param control a list of control parameters for the optimization which are
 #' passed to \link[stats]{optim}. Default is
 #' \code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100)}, but note
@@ -31,7 +26,7 @@
 #' @export
 SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
                     projection_matrix_const, exact_value = TRUE,
-                    model_prior = 'uniform', regressors_subsets = NULL,
+                    model_prior = 'uniform',
                     control = list(trace = 2, maxit = 10000, fnscale = -1,
                                    REPORT = 100)) {
   regressors <- df %>%
@@ -67,9 +62,7 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
   # parameter for beta (random) distribution of the prior inclusion probability
   b <- (regressors_n - prior_exp_model_size) / prior_exp_model_size
 
-  if(is.null(regressors_subsets)) {
-    regressors_subsets <- rje::powerSet(regressors)
-  }
+  regressors_subsets <- rje::powerSet(regressors)
 
   mod <- optimbase::zeros(variables_n,1)
   bet <- optimbase::zeros(variables_n,1)

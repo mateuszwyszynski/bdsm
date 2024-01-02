@@ -12,7 +12,6 @@ SEM_bma(
   projection_matrix_const,
   exact_value = TRUE,
   model_prior = "uniform",
-  regressors_subsets = NULL,
   control = list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100)
 )
 }
@@ -35,12 +34,6 @@ computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 
 \item{model_prior}{Which model prior to use. For now there are two options:
 \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.}
-
-\item{regressors_subsets}{a set of regressor subsets. For each subset a model
-will be optimized. Default is \code{NULL} in which case all possible subsets
-of regressors are considered, i.e. the power set of a set of regressors is
-used. Note that therefore by default 2^k models are analysed where k is the
-number of regressors.}
 
 \item{control}{a list of control parameters for the optimization which are
 passed to \link[stats]{optim}. Default is
