@@ -7,8 +7,6 @@ devtools::load_all()
 
 set.seed(23)
 begin<-Sys.time()
-dilution <- 1
-dil_power <- 1/2
 
 data_prepared <- panels::economic_growth[,1:7] %>%
   feature_standardization(timestamp_col = year, entity_col = country) %>%
