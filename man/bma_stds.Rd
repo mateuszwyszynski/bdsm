@@ -40,7 +40,8 @@ computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.}
 }
 \value{
-List of with two elements \code{stds} and \code{stdr}
+List with two elements \code{stds} and \code{stdr} (in the original code
+referenced to as "robust", but not sure yet why)
 }
 \description{
 Approximate standard deviations are computed for the models in the given

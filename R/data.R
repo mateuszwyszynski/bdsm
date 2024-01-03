@@ -22,3 +22,14 @@
 #' }
 #' @source <http://qed.econ.queensu.ca/jae/datasets/moral-benito001/>
 "economic_growth"
+
+#' Example Model Space
+#'
+#' A matrix representing the model space built using subset of regressors from
+#' the \code{economic_growth} dataset. The included regressors are \code{ish},
+#' \code{sed}, \code{pgrw} and \code{pop}. Therefore the model space contains
+#' \code{2^4 = 16} models (columns).
+#'
+#' @format ## `economic_growth_ms`
+#' A double matrix with 51 rows and 16 columns.
+"economic_growth_ms"

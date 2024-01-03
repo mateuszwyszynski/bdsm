@@ -5,7 +5,7 @@ library(tidyverse)
 library(readxl)
 devtools::load_all()
 
-set.seed(23)
+set.seed(20)
 begin<-Sys.time()
 
 data_prepared <- panels::economic_growth[,1:7] %>%

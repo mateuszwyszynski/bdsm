@@ -209,7 +209,8 @@ optimal_model_space <-
 #' \link[panels]{SEM_likelihood} for details.
 #'
 #' @return
-#' List of with two elements \code{stds} and \code{stdr}
+#' List with two elements \code{stds} and \code{stdr} (in the original code
+#' referenced to as "robust", but not sure yet why)
 #'
 #' @export
 bma_stds <- function(df, dep_var_col, timestamp_col, entity_col,
