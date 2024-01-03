@@ -127,7 +127,22 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
                            entity_col = {{ entity_col}},
                            dep_var_col = {{ dep_var_col }}, init_value = 0.5)
 
-  optimization_wrapper <- function(params) {
+  constant_data <- list(Y1 = Y1, Y2 = Y2, res_maker_matrix = res_maker_matrix,
+                        Z = NULL, cur_Y2 = NULL)
+
+  optimization_wrapper <- function(params, data) {
+    data$Z <- df %>%
+      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
+                    regressors_subset) %>%
+      exogenous_matrix({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }})
+
+    data$cur_Y2 <- df %>%
+      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
+                    regressors_subset) %>%
+      SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
+                            entity_col = {{ entity_col }},
+                            dep_var_col = {{ dep_var_col }})
+
     params_no_na <- params %>% stats::na.omit()
 
     optimized <- stats::optim(initial_params, SEM_likelihood, data = data,
@@ -189,7 +204,8 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
     # TODO: search for methods (or implement methods) in R which are scale-free
     control$parscale = 0.05*initial_params
 
-    optimised_params <- optimization_wrapper(model_space[, row_ind])
+    optimised_params <- optimization_wrapper(model_space[, row_ind],
+                                             data = constant_data)
     likelihood_max <-
       SEM_likelihood(params = stats::na.omit(optimised_params),
                      data = data, exact_value = exact_value,
