@@ -123,22 +123,11 @@ optimal_model_space <-
            projection_matrix_const, exact_value = TRUE,
            control = list(trace = 2, maxit = 10000, fnscale = -1,
                           REPORT = 100)) {
-  Y1 <- SEM_dep_var_matrix(
-    df = df, timestamp_col = {{ timestamp_col }},
-    entity_col = {{ entity_col }}, dep_var_col = {{ dep_var_col }}
-  )
-
-  Y2 <- df %>%
-    SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
-                          entity_col = {{ entity_col }},
-                          dep_var_col = {{ dep_var_col }})
-
-  Z <- df %>%
-    exogenous_matrix(timestamp_col = {{ timestamp_col }},
+  matrices_shared_across_models <- df %>%
+    matrices_from_df(timestamp_col = {{ timestamp_col }},
                      entity_col = {{ entity_col }},
-                     dep_var_col = {{ dep_var_col }})
-
-  res_maker_matrix <- residual_maker_matrix(Z)
+                     dep_var_col = {{ dep_var_col }},
+                     which_matrices = c("Y1", "Y2", "Z", "res_maker_matrix"))
 
   model_space <- df %>%
     initialize_model_space(timestamp_col = {{ timestamp_col }},
@@ -146,24 +135,19 @@ optimal_model_space <-
                            dep_var_col = {{ dep_var_col }},
                            init_value = init_value)
 
-  constant_data <- list(Y1 = Y1, Y2 = Y2, res_maker_matrix = res_maker_matrix,
-                        Z = NULL, cur_Y2 = NULL)
-
   optimization_wrapper <- function(params, data) {
     regressors_subset <-
       regressor_names_from_params_vector(params)
 
-    data$Z <- df %>%
-      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
-                    regressors_subset) %>%
-      exogenous_matrix({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }})
+    model_specific_matrices <- df %>%
+      matrices_from_df(timestamp_col = {{ timestamp_col }},
+                       entity_col = {{ entity_col }},
+                       dep_var_col = {{ dep_var_col }},
+                       lin_related_regressors = regressors_subset,
+                       which_matrices = c("cur_Y2", "cur_Z"))
 
-    data$cur_Y2 <- df %>%
-      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
-                    regressors_subset) %>%
-      SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
-                            entity_col = {{ entity_col }},
-                            dep_var_col = {{ dep_var_col }})
+    data$cur_Z <- model_specific_matrices$cur_Z
+    data$cur_Y2 <- model_specific_matrices$cur_Y2
 
     params_no_na <- params %>% stats::na.omit()
 
@@ -183,7 +167,8 @@ optimal_model_space <-
     params
   }
 
-  model_space <- apply(model_space, 2, optimization_wrapper, constant_data)
+  model_space <- apply(model_space, 2, optimization_wrapper,
+                       matrices_shared_across_models)
   model_space
 }
 
@@ -223,22 +208,11 @@ bma_stds <- function(df, dep_var_col, timestamp_col, entity_col,
   regressors_n <- length(regressors)
   variables_n <- regressors_n + 1
 
-  Y1 <- SEM_dep_var_matrix(
-    df = df, timestamp_col = {{ timestamp_col }},
-    entity_col = {{ entity_col }}, dep_var_col = {{ dep_var_col }}
-  )
-
-  Y2 <- df %>%
-    SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
-                          entity_col = {{ entity_col }},
-                          dep_var_col = {{ dep_var_col }})
-
-  Z <- df %>%
-    exogenous_matrix(timestamp_col = {{ timestamp_col }},
+  matrices_shared_across_models <- df %>%
+    matrices_from_df(timestamp_col = {{ timestamp_col }},
                      entity_col = {{ entity_col }},
-                     dep_var_col = {{ dep_var_col }})
-
-  res_maker_matrix <- residual_maker_matrix(Z)
+                     dep_var_col = {{ dep_var_col }},
+                     which_matrices = c("Y1", "Y2", "Z", "res_maker_matrix"))
 
   regressors_subsets <- rje::powerSet(regressors)
   regressors_subsets_matrix <-
@@ -253,20 +227,20 @@ bma_stds <- function(df, dep_var_col, timestamp_col, entity_col,
     cur_regressors_n <- sum(mt)
     cur_variables_n <- cur_regressors_n+1
 
-    cur_Z <- df %>%
-      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
-                    regressors_subset) %>%
-      exogenous_matrix({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }})
+    model_specific_matrices <- df %>%
+      matrices_from_df(timestamp_col = {{ timestamp_col }},
+                       entity_col = {{ entity_col }},
+                       dep_var_col = {{ dep_var_col }},
+                       lin_related_regressors = regressors_subset,
+                       which_matrices = c("cur_Y2", "cur_Z"))
 
-    cur_Y2 <- df %>%
-      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
-                    regressors_subset) %>%
-      SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
-                            entity_col = {{ entity_col }},
-                            dep_var_col = {{ dep_var_col }})
-
-    data <- list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
-                 res_maker_matrix = res_maker_matrix)
+    data <-
+      list(Y1 = matrices_shared_across_models$Y1,
+           Y2 = matrices_shared_across_models$Y2,
+           cur_Y2 = model_specific_matrices$cur_Y2,
+           Z = matrices_shared_across_models$Z,
+           cur_Z = model_specific_matrices$cur_Z,
+           res_maker_matrix = matrices_shared_across_models$res_maker_matrix)
 
     optimised_params <- model_space[, row_ind] %>% stats::na.omit()
 
@@ -363,25 +337,14 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
   regressors_n <- length(regressors)
   variables_n <- regressors_n + 1
 
-  Y1 <- SEM_dep_var_matrix(
-    df = df, timestamp_col = {{ timestamp_col }},
-    entity_col = {{ entity_col }}, dep_var_col = {{ dep_var_col }}
-  )
-
-  Y2 <- df %>%
-    SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
-                          entity_col = {{ entity_col }},
-                          dep_var_col = {{ dep_var_col }})
-
-  Z <- df %>%
-    exogenous_matrix(timestamp_col = {{ timestamp_col }},
+  matrices_shared_across_models <- df %>%
+    matrices_from_df(timestamp_col = {{ timestamp_col }},
                      entity_col = {{ entity_col }},
-                     dep_var_col = {{ dep_var_col }})
+                     dep_var_col = {{ dep_var_col }},
+                     which_matrices = c("Y1", "Y2", "Z", "res_maker_matrix"))
 
-  n_entities <- nrow(Z)
+  n_entities <- nrow(matrices_shared_across_models$Z)
   periods_n <- nrow(df) / n_entities - 1
-
-  res_maker_matrix <- residual_maker_matrix(Z)
 
   prior_exp_model_size <- regressors_n / 2
   prior_inc_prob <- prior_exp_model_size / regressors_n
@@ -411,20 +374,20 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     cur_regressors_n <- sum(mt)
     cur_variables_n <- cur_regressors_n+1
 
-    cur_Z <- df %>%
-      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
-                    regressors_subset) %>%
-      exogenous_matrix({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }})
+    model_specific_matrices <- df %>%
+      matrices_from_df(timestamp_col = {{ timestamp_col }},
+                       entity_col = {{ entity_col }},
+                       dep_var_col = {{ dep_var_col }},
+                       lin_related_regressors = regressors_subset,
+                       which_matrices = c("cur_Y2", "cur_Z"))
 
-    cur_Y2 <- df %>%
-      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
-                    regressors_subset) %>%
-      SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
-                            entity_col = {{ entity_col }},
-                            dep_var_col = {{ dep_var_col }})
-
-    data <- list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
-                 res_maker_matrix = res_maker_matrix)
+    data <-
+      list(Y1 = matrices_shared_across_models$Y1,
+           Y2 = matrices_shared_across_models$Y2,
+           cur_Y2 = model_specific_matrices$cur_Y2,
+           Z = matrices_shared_across_models$Z,
+           cur_Z = model_specific_matrices$cur_Z,
+           res_maker_matrix = matrices_shared_across_models$res_maker_matrix)
 
     optimised_params <- model_space[, row_ind] %>% stats::na.omit()
     likelihood_max <-
