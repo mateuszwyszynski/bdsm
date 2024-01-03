@@ -345,12 +345,11 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     postprob=prior_model_prob*bict
 
     # selecting estimates of interest (i.e. alpha and betas) #
-    bt=optimised_params[1:cur_variables_n]; stdrt=stdr[1:cur_variables_n]; stdht=stdh[1:cur_variables_n]
+    stdrt=stdr[1:cur_variables_n]; stdht=stdh[1:cur_variables_n]
     varht=varh[1:cur_variables_n]; varrt=varr[1:cur_variables_n]
 
     # constructing the full vector of estimates #
     mty=rbind(1,mt)
-    bt1=optimbase::zeros(variables_n,1)
     stdrt1=optimbase::zeros(variables_n,1); stdht1=optimbase::zeros(variables_n,1)
     varht1=optimbase::zeros(variables_n,1); varrt1=optimbase::zeros(variables_n,1)
     it1=0
@@ -358,14 +357,12 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     for (it in 1:variables_n) {
       if (mty[it]==1) {
         it1=1+it1
-        bt1[it]=bt[it1]
         stdrt1[it]=stdrt[it1]
         stdht1[it]=stdht[it1]
         varht1[it]=varht[it1]
         varrt1[it]=varrt[it1]
       }
       else {
-        bt1[it]=0         # if the regressor is not in the model, 0 #
         stdrt1[it]=0
         stdht1[it]=0
         varht1[it]=0
@@ -373,10 +370,16 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
       }
     }
 
+    . <- NULL
+    linear_params <- t(model_space[, row_ind]) %>% as.data.frame() %>%
+      dplyr::select(tidyselect::matches('alpha'),
+                    tidyselect::matches('beta')) %>% replace(is.na(.), 0) %>%
+      as.matrix() %>% t()
+
 
     # calculating the percentage of significant regressions #
-    ptr=bt1/stdht1
-    ntr=bt1/stdht1
+    ptr=linear_params/stdht1
+    ntr=linear_params/stdht1
     if (row_ind==1) {
       pts=ptr; nts=ntr
     }
@@ -391,18 +394,18 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     ppmsize=ppmsize+postprob*(sum(mty))
 
     # storing estimates conditional on inclusion #
-    bet=bet+postprob*bt1
-    pvarr=pvarr+(postprob*varrt1+postprob*(bt1*bt1))         # as in Leamer (1978) #
-    pvarh=pvarh+(postprob*varht1+postprob*(bt1*bt1))         # as in Leamer (1978) #
+    bet=bet+postprob*linear_params
+    pvarr=pvarr+(postprob*varrt1+postprob*(linear_params*linear_params))         # as in Leamer (1978) #
+    pvarh=pvarh+(postprob*varht1+postprob*(linear_params*linear_params))         # as in Leamer (1978) #
 
-    # here we store model-specific diagnostics and estimates (BICs, likelihoods, betas...) #
+    # here we store model-specific diagnostics and estimates (BICs, likelihoods...) #
     if (row_ind==1) {
       modprob=postprob; modelid=row_ind; modpri=prior_model_prob; liks=exp(likelihood_max/n_entities); bics=bict
-      betas=bt1; stds=stdht1; stdsr=stdrt1; foutt=likelihood_max
+      stds=stdht1; stdsr=stdrt1; foutt=likelihood_max
     }
     else {
       modprob=rbind(modprob,postprob); modelid=rbind(modelid,row_ind); modpri=rbind(modpri,prior_model_prob)
-      liks=rbind(liks,exp(likelihood_max/n_entities)); bics=rbind(bics,bict); betas=cbind(betas,bt1)
+      liks=rbind(liks,exp(likelihood_max/n_entities)); bics=rbind(bics,bict);
       stds=cbind(stds,stdht1); stdsr=cbind(stdsr,stdrt1); foutt=rbind(foutt, likelihood_max)
     }
   }
@@ -410,7 +413,7 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
   list(prior_exp_model_size = prior_exp_model_size,
        prior_inc_prob = prior_inc_prob, variables_n = variables_n,
        modprob = modprob, modelid = modelid, modpri = modpri, liks = liks,
-       bics = bics, betas = betas, stds = stds, stdsr = stdsr, foutt = foutt,
+       bics = bics, stds = stds, stdsr = stdsr, foutt = foutt,
        bet = bet, mod = mod, pvarh = pvarh, pvarr = pvarr, fy = fy, fyt = fyt,
        ppmsize = ppmsize, cout = 0, nts = nts, pts = pts)
 }
