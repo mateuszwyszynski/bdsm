@@ -238,9 +238,6 @@ bma_stds <- function(df, dep_var_col, timestamp_col, entity_col,
                      entity_col = {{ entity_col }},
                      dep_var_col = {{ dep_var_col }})
 
-  n_entities <- nrow(Z)
-  periods_n <- nrow(df) / n_entities - 1
-
   res_maker_matrix <- residual_maker_matrix(Z)
 
   regressors_subsets <- rje::powerSet(regressors)
