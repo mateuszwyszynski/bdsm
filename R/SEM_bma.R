@@ -243,21 +243,6 @@ bma_stds <- function(df, dep_var_col, timestamp_col, entity_col,
 
   res_maker_matrix <- residual_maker_matrix(Z)
 
-  prior_exp_model_size <- regressors_n / 2
-  prior_inc_prob <- prior_exp_model_size / regressors_n
-
-  # parameter for beta (random) distribution of the prior inclusion probability
-  b <- (regressors_n - prior_exp_model_size) / prior_exp_model_size
-
-  mod <- optimbase::zeros(variables_n,1)
-  bet <- optimbase::zeros(variables_n,1)
-  pvarh <- optimbase::zeros(variables_n,1)
-  pvarr <- optimbase::zeros(variables_n,1)
-  fy <- optimbase::zeros(variables_n,1)
-  fyt <- 0
-  ppmsize <- 0
-  cout <- 0
-
   regressors_subsets <- rje::powerSet(regressors)
   regressors_subsets_matrix <-
     rje::powerSetMat(regressors_n) %>% as.data.frame()
