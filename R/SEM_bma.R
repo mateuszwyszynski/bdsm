@@ -40,18 +40,12 @@ bma_stds <- function(df, dep_var_col, timestamp_col, entity_col,
                      dep_var_col = {{ dep_var_col }},
                      which_matrices = c("Y1", "Y2", "Z", "res_maker_matrix"))
 
-  regressors_subsets <- rje::powerSet(regressors)
-  regressors_subsets_matrix <-
-    rje::powerSetMat(regressors_n) %>% as.data.frame()
+  std_dev_from_params <- function(params, data) {
+    regressors_subset <-
+      regressor_names_from_params_vector(params)
 
-  row_ind <- 0
-  for (regressors_subset in regressors_subsets) {
-    row_ind <- row_ind + 1
-    print(paste('Progress:', row_ind, 'out of', length(regressors_subsets)))
-    mt <- as.matrix(t(regressors_subsets_matrix[row_ind, ]))
-    out = (mt == 0)       # regressors out of the current model
-    cur_regressors_n <- sum(mt)
-    cur_variables_n <- cur_regressors_n+1
+    lin_features_n <- length(regressors_subset) + 1
+    features_n <- ncol(data$Z)
 
     model_specific_matrices <- df %>%
       matrices_from_df(timestamp_col = {{ timestamp_col }},
@@ -60,26 +54,20 @@ bma_stds <- function(df, dep_var_col, timestamp_col, entity_col,
                        lin_related_regressors = regressors_subset,
                        which_matrices = c("cur_Y2", "cur_Z"))
 
-    data <-
-      list(Y1 = matrices_shared_across_models$Y1,
-           Y2 = matrices_shared_across_models$Y2,
-           cur_Y2 = model_specific_matrices$cur_Y2,
-           Z = matrices_shared_across_models$Z,
-           cur_Z = model_specific_matrices$cur_Z,
-           res_maker_matrix = matrices_shared_across_models$res_maker_matrix)
+    data$cur_Z <- model_specific_matrices$cur_Z
+    data$cur_Y2 <- model_specific_matrices$cur_Y2
 
-    optimised_params <- model_space[, row_ind] %>% stats::na.omit()
+    params_no_na <- params %>% stats::na.omit()
 
-    hess <- hessian(SEM_likelihood, theta = optimised_params, data = data)
+    hess <- hessian(SEM_likelihood, theta = params_no_na, data = data)
 
     likelihood_per_entity <-
-      SEM_likelihood(optimised_params, data = data, per_entity = TRUE)
+      SEM_likelihood(params_no_na, data = data, per_entity = TRUE)
 
     # TODO: how to interpret the Gmat and Imat
-    Gmat <- rootSolve::gradient(SEM_likelihood, optimised_params, data = data,
+    Gmat <- rootSolve::gradient(SEM_likelihood, params_no_na, data = data,
                                 per_entity = TRUE)
     Imat <- crossprod(Gmat)
-    stdr <- sqrt(diag(solve(hess) %*% Imat %*% solve(hess)))
 
     # Section 2.3.3 in Moral-Benito
     # GROWTH EMPIRICS IN PANEL DATA UNDER MODEL UNCERTAINTY AND WEAK EXOGENEITY:
@@ -89,39 +77,26 @@ bma_stds <- function(df, dep_var_col, timestamp_col, entity_col,
     # This is most likely why hessian is used to compute standard errors.
     # TODO: Learn the Bernstein–von Mises theorem which explain in detail how
     # all this works
-    stdh <- sqrt(diag(solve(hess)))
+    stdr <- rep(0, features_n)
+    stdh <- rep(0, features_n)
 
-    # selecting estimates of interest (i.e. alpha and betas) #
-    stdrt <- stdr[1:cur_variables_n]
-    stdht <- stdh[1:cur_variables_n]
+    . <- NULL
+    linear_params <- t(params) %>% as.data.frame() %>%
+      dplyr::select(tidyselect::matches('alpha'),
+                    tidyselect::matches('beta')) %>%
+      as.matrix() %>% t()
 
-    # constructing the full vector of estimates #
-    mty=rbind(1,mt)
-    stdrt1=optimbase::zeros(variables_n,1)
-    stdht1=optimbase::zeros(variables_n,1)
-    it1=0
-    it=1
-    for (it in 1:variables_n) {
-      if (mty[it]==1) {
-        it1=1+it1
-        stdrt1[it]=stdrt[it1]
-        stdht1[it]=stdht[it1]
-      }
-      else {
-        stdrt1[it]=0
-        stdht1[it]=0
-      }
-    }
+    stdr[!is.na(linear_params)] <- sqrt(diag(solve(hess) %*% Imat %*% solve(hess)))[1:lin_features_n]
+    stdh[!is.na(linear_params)] <- sqrt(diag(solve(hess)))[1:lin_features_n]
 
-    if (row_ind==1) {
-      stds <- stdht1
-      stds_robust <- stdrt1
-    }
-    else {
-      stds <- cbind(stds,stdht1)
-      stds_robust <- cbind(stds_robust, stdrt1)
-    }
+    cbind(stdh, stdr)
   }
+
+  std_deviations <- apply(model_space, 2, std_dev_from_params,
+                          matrices_shared_across_models)
+
+  stds <- std_deviations[1:variables_n,]
+  stds_robust <- std_deviations[-(1:variables_n),]
 
   list(stds = stds, stds_robust = stds_robust)
 }
