@@ -187,6 +187,12 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
   ppmsize <- 0
   cout <- 0
 
+  std_devs <- bma_stds(df, dep_var_col = {{ dep_var_col }},
+                       timestamp_col = {{ timestamp_col }},
+                       entity_col = {{ entity_col }}, model_space = model_space,
+                       projection_matrix_const = projection_matrix_const,
+                       exact_value = exact_value, model_prior = model_prior)
+
   regressors_subsets <- rje::powerSet(regressors)
   regressors_subsets_matrix <-
     rje::powerSetMat(regressors_n) %>% as.data.frame()
@@ -221,28 +227,6 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
                      exact_value = exact_value,
                      projection_matrix_const = projection_matrix_const)
 
-
-    hess <- hessian(SEM_likelihood, theta = optimised_params, data = data)
-
-    likelihood_per_entity <-
-      SEM_likelihood(optimised_params, data = data, per_entity = TRUE)
-
-    Gmat <- rootSolve::gradient(SEM_likelihood, optimised_params, data = data,
-                                per_entity = TRUE)
-    Imat=crossprod(Gmat)
-    stdr=sqrt(diag(solve(hess)%*%(Imat)%*%solve(hess)))
-
-    # Section 2.3.3 in Moral-Benito
-    # GROWTH EMPIRICS IN PANEL DATA UNDER MODEL UNCERTAINTY AND WEAK EXOGENEITY:
-    # "Finally, each model-specific posterior is given by a normal distribution
-    # with mean at the MLE and dispersion matrix equal to the inverse of the
-    # Fisher information."
-    # This is most likely why hessian is used to compute standard errors.
-    # TODO: Learn the Bernstein–von Mises theorem which explain in detail how
-    # all this works
-    stdh=sqrt(diag((solve(hess)))) #sqrt of negative values(
-    varr=stdr^2; varh=stdh^2
-
     # Below we have almost 1/2 * BIC_k as in Raftery's Bayesian Model Selection
     # in Social Research eq. 19. The part with reference model M_1 is skipped,
     # because we use this formula to compute exp(logl) which is in turn used to
@@ -272,31 +256,14 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     # posterior model probability  #
     postprob=prior_model_prob*bict
 
-    # selecting estimates of interest (i.e. alpha and betas) #
-    stdrt=stdr[1:cur_variables_n]; stdht=stdh[1:cur_variables_n]
-    varht=varh[1:cur_variables_n]; varrt=varr[1:cur_variables_n]
-
     # constructing the full vector of estimates #
     mty=rbind(1,mt)
-    stdrt1=optimbase::zeros(variables_n,1); stdht1=optimbase::zeros(variables_n,1)
-    varht1=optimbase::zeros(variables_n,1); varrt1=optimbase::zeros(variables_n,1)
-    it1=0
-    it=1
-    for (it in 1:variables_n) {
-      if (mty[it]==1) {
-        it1=1+it1
-        stdrt1[it]=stdrt[it1]
-        stdht1[it]=stdht[it1]
-        varht1[it]=varht[it1]
-        varrt1[it]=varrt[it1]
-      }
-      else {
-        stdrt1[it]=0
-        stdht1[it]=0
-        varht1[it]=0
-        varrt1[it]=0
-      }
-    }
+
+    stdrt1 <- std_devs$stds_robust[, row_ind]
+    stdht1 <- std_devs$stds[, row_ind]
+    varrt1 <- stdrt1^2
+    varht1 <- stdht1^2
+
 
     . <- NULL
     linear_params <- t(model_space[, row_ind]) %>% as.data.frame() %>%
