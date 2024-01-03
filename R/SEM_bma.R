@@ -127,6 +127,18 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
                            entity_col = {{ entity_col}},
                            dep_var_col = {{ dep_var_col }}, init_value = 0.5)
 
+  optimization_wrapper <- function(params) {
+    params_no_na <- params %>% stats::na.omit()
+
+    optimized <- stats::optim(initial_params, SEM_likelihood, data = data,
+                              exact_value = exact_value,
+                              projection_matrix_const = projection_matrix_const,
+                              method="BFGS",
+                              control = control)
+
+    params[!is.na(params)] <- optimized[[1]]
+  }
+
   prior_exp_model_size <- regressors_n / 2
   prior_inc_prob <- prior_exp_model_size / regressors_n
 
@@ -177,13 +189,11 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
     # TODO: search for methods (or implement methods) in R which are scale-free
     control$parscale = 0.05*initial_params
 
-    optimized <- stats::optim(initial_params, SEM_likelihood, data = data,
-                              exact_value = exact_value,
-                              projection_matrix_const = projection_matrix_const,
-                              method="BFGS",
-                              control = control)
-    optimised_params <- optimized[[1]]
-    likelihood_max <- optimized[[2]]
+    optimised_params <- optimization_wrapper(model_space[, row_ind])
+    likelihood_max <-
+      SEM_likelihood(params = stats::na.omit(optimised_params),
+                     data = data, exact_value = exact_value,
+                     projection_matrix_const = projection_matrix_const)
 
     hess <- hessian(SEM_likelihood, theta = optimised_params, data = data)
 
