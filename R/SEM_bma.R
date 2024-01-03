@@ -160,8 +160,7 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
                     regressors_subset) %>%
       exogenous_matrix({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }})
 
-    initial_params <- as.data.frame(model_space)[row_ind] %>%
-      tidyr::drop_na() %>% as.matrix()
+    initial_params <- model_space[, row_ind] %>% stats::na.omit()
 
     cur_Y2 <- df %>%
       dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
