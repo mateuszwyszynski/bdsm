@@ -21,7 +21,6 @@ bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                           projection_matrix_const = TRUE)
 
 modprob <- bma_result$modprob
-modelid <- bma_result$modelid
 modpri <- bma_result$modpri
 liks <- bma_result$liks
 bics <- bma_result$bics
@@ -40,8 +39,8 @@ pts <- bma_result$pts
 popmsize=ppmsize/fyt
 modprob1=modprob/sum(modprob)
 
-idprob=as.data.frame(cbind(modelid,modprob1,modpri,bics))
-names(idprob)<-c("model","postprob","riorprob","bics")
+idprob=as.data.frame(cbind(modprob1,modpri,bics))
+names(idprob)<-c("postprob", "priorprob", "bics")
 row.names(idprob)<-NULL
 
 # computing posterior moments CONDITIONAL on inclusion
