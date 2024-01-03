@@ -15,17 +15,9 @@ data_prepared <- panels::economic_growth[,1:7] %>%
 
 regressors <- regressor_names(data_prepared, year, country, gdp)
 
-std_devs <- bma_stds(df = data_prepared, dep_var_col = gdp,
-                     timestamp_col = year, entity_col = country,
-                     model_space = economic_growth_ms,
-                     projection_matrix_const = TRUE)
-
-stds <- std_devs$stds
-stdsr <- std_devs$stdsr
-
 bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                           timestamp_col = year, entity_col = country,
-                          model_space = model_space,
+                          model_space = economic_growth_ms,
                           projection_matrix_const = TRUE)
 
 modprob <- bma_result$modprob
@@ -82,8 +74,6 @@ for (jt in 1:bma_result$variables_n) {
   }
 }
 
-
-
 result=as.data.frame(cbind(regressors,postprobinc,postmean,poststdh,poststdr,upostmean,upoststdh,upoststdr))
 names(result)<-c("varname","postprob","pmean","std","stdR","unc_pmean","unc_std","unc_stdR")
 the_end=Sys.time()
@@ -93,9 +83,8 @@ final<-list(
     paste("Prior Mean Model Size=", bma_result$prior_exp_model_size),
     paste("Prior Inclusion Probability=", bma_result$prior_inc_prob),
     paste("Posterior Mean Model Size=", popmsize)
-    ), (the_end-begin), t(stds), t(stdsr), idprob
+    ), (the_end-begin), idprob
   )
 names(final)<-c(" 1.- RESULTS "," 2.- FURTHER INFORMATION "," 3.- COMPUTATION TIME",
-                " 4.- ALL STD. ERRORS (each row is a different model)"," 5.- ALL ROBUST STD. ERRORS (each row is a different model)",
-                " 6.- MODELS INFO ")
+                " 4.- MODELS INFO ")
 final
