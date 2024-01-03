@@ -209,8 +209,8 @@ optimal_model_space <-
 #' \link[panels]{SEM_likelihood} for details.
 #'
 #' @return
-#' List with two elements \code{stds} and \code{stdr} (in the original code
-#' referenced to as "robust", but not sure yet why)
+#' List with two elements \code{stds} and \code{stds_robust} (not sure yet what
+#' is meant by 'robust')
 #'
 #' @export
 bma_stds <- function(df, dep_var_col, timestamp_col, entity_col,
@@ -333,15 +333,15 @@ bma_stds <- function(df, dep_var_col, timestamp_col, entity_col,
 
     if (row_ind==1) {
       stds <- stdht1
-      stdsr <- stdrt1
+      stds_robust <- stdrt1
     }
     else {
       stds <- cbind(stds,stdht1)
-      stdsr <- cbind(stdsr,stdrt1)
+      stds_robust <- cbind(stds_robust, stdrt1)
     }
   }
 
-  list(stds = stds, stdsr = stdsr)
+  list(stds = stds, stds_robust = stds_robust)
 }
 
 #' Summary of a model space

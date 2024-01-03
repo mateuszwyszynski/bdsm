@@ -15,14 +15,9 @@ data_prepared <- panels::economic_growth[,1:7] %>%
 
 regressors <- regressor_names(data_prepared, year, country, gdp)
 
-model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
-                                   timestamp_col = year, entity_col = country,
-                                   init_value = 0.5,
-                                   projection_matrix_const = TRUE)
-
 std_devs <- bma_stds(df = data_prepared, dep_var_col = gdp,
                      timestamp_col = year, entity_col = country,
-                     model_space = model_space,
+                     model_space = economic_growth_ms,
                      projection_matrix_const = TRUE)
 
 stds <- std_devs$stds

@@ -33,3 +33,21 @@
 #' @format ## `economic_growth_ms`
 #' A double matrix with 51 rows and 16 columns.
 "economic_growth_ms"
+
+#' Example Approximate Standard Deviations based on Model Space
+#'
+#' A matrix representing the standard deviations computed with \code{bma_stds}
+#' based on the \code{economic_growth_ms} model space.
+#'
+#' @format ## `economic_growth_stds`
+#' A double matrix with 5 rows and 16 columns.
+"economic_growth_stds"
+
+#' Example Approximate Robust Standard Deviations based on Model Space
+#'
+#' A matrix representing the robust standard deviations computed with
+#' \code{bma_stds} based on the \code{economic_growth_ms} model space.
+#'
+#' @format ## `economic_growth_stds_robust`
+#' A double matrix with 5 rows and 16 columns.
+"economic_growth_stds_robust"
