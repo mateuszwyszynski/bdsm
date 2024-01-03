@@ -89,6 +89,104 @@ regressor_names_from_params_vector <- function(params) {
   names(regressors_subset)
 }
 
+#' Finds MLE parameters for each model in the given model space
+#'
+#' Given a dataset and an initial value for parameters, initializes a model
+#' space with parameters equal to initial value for each model. Then for each
+#' model performs a numerical optimization and finds parameters which maximize
+#' the likelihood.
+#'
+#' @param df Data frame with data for the SEM analysis.
+#' @param timestamp_col The name of the column with time stamps
+#' @param entity_col Column with entities (e.g. countries)
+#' @param dep_var_col Column with the dependent variable
+#' @param init_value The value with which the model space will be initialized.
+#' This will be the starting point for the numerical optimization.
+#' @param projection_matrix_const Whether the residual maker matrix (and so
+#' the projection matrix) should be computed for each model separately.
+#' \code{TRUE} means that the matrix will be the same for all models
+#' @param exact_value Whether the exact value of the likelihood should be
+#' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
+#' \link[panels]{SEM_likelihood} for details.
+#' @param control a list of control parameters for the optimization which are
+#' passed to \link[stats]{optim}. Default is
+#' \code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100)}, but note
+#' that a \code{parscale} element is also added later in the function code.
+#' For now it is hard coded with no control on the user side.
+#'
+#' @return
+#' List of parameters describing analysed models
+#'
+#' @export
+optimal_model_space <-
+  function(df, timestamp_col, entity_col, dep_var_col, init_value,
+           projection_matrix_const, exact_value = TRUE,
+           control = list(trace = 2, maxit = 10000, fnscale = -1,
+                          REPORT = 100)) {
+  Y1 <- SEM_dep_var_matrix(
+    df = df, timestamp_col = {{ timestamp_col }},
+    entity_col = {{ entity_col }}, dep_var_col = {{ dep_var_col }}
+  )
+
+  Y2 <- df %>%
+    SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
+                          entity_col = {{ entity_col }},
+                          dep_var_col = {{ dep_var_col }})
+
+  Z <- df %>%
+    exogenous_matrix(timestamp_col = {{ timestamp_col }},
+                     entity_col = {{ entity_col }},
+                     dep_var_col = {{ dep_var_col }})
+
+  res_maker_matrix <- residual_maker_matrix(Z)
+
+  model_space <- df %>%
+    initialize_model_space(timestamp_col = {{ timestamp_col }},
+                           entity_col = {{ entity_col}},
+                           dep_var_col = {{ dep_var_col }},
+                           init_value = init_value)
+
+  constant_data <- list(Y1 = Y1, Y2 = Y2, res_maker_matrix = res_maker_matrix,
+                        Z = NULL, cur_Y2 = NULL)
+
+  optimization_wrapper <- function(params, data) {
+    regressors_subset <-
+      regressor_names_from_params_vector(params)
+
+    data$Z <- df %>%
+      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
+                    regressors_subset) %>%
+      exogenous_matrix({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }})
+
+    data$cur_Y2 <- df %>%
+      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
+                    regressors_subset) %>%
+      SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
+                            entity_col = {{ entity_col }},
+                            dep_var_col = {{ dep_var_col }})
+
+    params_no_na <- params %>% stats::na.omit()
+
+    # parscale argument somehow (don't know yet how) changes step size during
+    # optimisation. Most likely optimisation methods used in Gauss are
+    # scale-free and these used in R are not
+    # TODO: search for methods (or implement methods) in R which are scale-free
+    control$parscale = 0.05*params_no_na
+
+    optimized <- stats::optim(params_no_na, SEM_likelihood, data = data,
+                              exact_value = exact_value,
+                              projection_matrix_const = projection_matrix_const,
+                              method="BFGS",
+                              control = control)
+
+    params[!is.na(params)] <- optimized[[1]]
+    params
+  }
+
+  model_space <- apply(model_space, 2, optimization_wrapper, constant_data)
+  model_space
+}
+
 #' BMA for SEM representation
 #'
 #' Perform Bayesian Model Averaging for Simultaneous Equations Model.
@@ -147,49 +245,12 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
 
   res_maker_matrix <- residual_maker_matrix(Z)
 
-  model_space <- df %>%
-    initialize_model_space(timestamp_col = {{ timestamp_col }},
-                           entity_col = {{ entity_col}},
-                           dep_var_col = {{ dep_var_col }}, init_value = 0.5)
-
-  constant_data <- list(Y1 = Y1, Y2 = Y2, res_maker_matrix = res_maker_matrix,
-                        Z = NULL, cur_Y2 = NULL)
-
-  optimization_wrapper <- function(params, data) {
-    regressors_subset <-
-      regressor_names_from_params_vector(params)
-
-    data$Z <- df %>%
-      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
-                    regressors_subset) %>%
-      exogenous_matrix({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }})
-
-    data$cur_Y2 <- df %>%
-      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
-                    regressors_subset) %>%
-      SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
-                            entity_col = {{ entity_col }},
-                            dep_var_col = {{ dep_var_col }})
-
-    params_no_na <- params %>% stats::na.omit()
-
-    # parscale argument somehow (don't know yet how) changes step size during
-    # optimisation. Most likely optimisation methods used in Gauss are
-    # scale-free and these used in R are not
-    # TODO: search for methods (or implement methods) in R which are scale-free
-    control$parscale = 0.05*params_no_na
-
-    optimized <- stats::optim(params_no_na, SEM_likelihood, data = data,
-                              exact_value = exact_value,
-                              projection_matrix_const = projection_matrix_const,
-                              method="BFGS",
-                              control = control)
-
-    params[!is.na(params)] <- optimized[[1]]
-    params
-  }
-
-  model_space <- apply(model_space, 2, optimization_wrapper, constant_data)
+  model_space <-
+    optimal_model_space(df = df, timestamp_col = {{ timestamp_col }},
+                        entity_col = {{ entity_col }},
+                        dep_var_col = {{ dep_var_col }}, init_value = 0.5,
+                        projection_matrix_const = projection_matrix_const,
+                        exact_value = exact_value, control = control)
 
   prior_exp_model_size <- regressors_n / 2
   prior_inc_prob <- prior_exp_model_size / regressors_n
