@@ -187,6 +187,162 @@ optimal_model_space <-
   model_space
 }
 
+#' Approximate standard deviations for the models
+#'
+#' Approximate standard deviations are computed for the models in the given
+#' model space. Two versions are computed.
+#'
+#' @param df Data frame with data for the SEM analysis.
+#' @param dep_var_col Column with the dependent variable
+#' @param timestamp_col The name of the column with timestamps
+#' @param entity_col Column with entities (e.g. countries)
+#' @param model_space A matrix (with named rows) with each column corresponding
+#' to a model. Each column specifies model parameters. Compare with
+#' \link[panels]{optimal_model_space}
+#' @param model_prior Which model prior to use. For now there are two options:
+#' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
+#' @param projection_matrix_const Whether the residual maker matrix (and so
+#' the projection matrix) should be computed for each model separately.
+#' \code{TRUE} means that the matrix will be the same for all models
+#' @param exact_value Whether the exact value of the likelihood should be
+#' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
+#' \link[panels]{SEM_likelihood} for details.
+#'
+#' @return
+#' List of with two elements \code{stds} and \code{stdr}
+#'
+#' @export
+bma_stds <- function(df, dep_var_col, timestamp_col, entity_col,
+                     model_space, projection_matrix_const,
+                     exact_value = TRUE, model_prior = 'uniform') {
+  regressors <- df %>%
+    regressor_names(timestamp_col = {{ timestamp_col }},
+                    entity_col = {{ entity_col }},
+                    dep_var_col = {{ dep_var_col }})
+  regressors_n <- length(regressors)
+  variables_n <- regressors_n + 1
+
+  Y1 <- SEM_dep_var_matrix(
+    df = df, timestamp_col = {{ timestamp_col }},
+    entity_col = {{ entity_col }}, dep_var_col = {{ dep_var_col }}
+  )
+
+  Y2 <- df %>%
+    SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
+                          entity_col = {{ entity_col }},
+                          dep_var_col = {{ dep_var_col }})
+
+  Z <- df %>%
+    exogenous_matrix(timestamp_col = {{ timestamp_col }},
+                     entity_col = {{ entity_col }},
+                     dep_var_col = {{ dep_var_col }})
+
+  n_entities <- nrow(Z)
+  periods_n <- nrow(df) / n_entities - 1
+
+  res_maker_matrix <- residual_maker_matrix(Z)
+
+  prior_exp_model_size <- regressors_n / 2
+  prior_inc_prob <- prior_exp_model_size / regressors_n
+
+  # parameter for beta (random) distribution of the prior inclusion probability
+  b <- (regressors_n - prior_exp_model_size) / prior_exp_model_size
+
+  mod <- optimbase::zeros(variables_n,1)
+  bet <- optimbase::zeros(variables_n,1)
+  pvarh <- optimbase::zeros(variables_n,1)
+  pvarr <- optimbase::zeros(variables_n,1)
+  fy <- optimbase::zeros(variables_n,1)
+  fyt <- 0
+  ppmsize <- 0
+  cout <- 0
+
+  regressors_subsets <- rje::powerSet(regressors)
+  regressors_subsets_matrix <-
+    rje::powerSetMat(regressors_n) %>% as.data.frame()
+
+  row_ind <- 0
+  for (regressors_subset in regressors_subsets) {
+    row_ind <- row_ind + 1
+    print(paste('Progress:', row_ind, 'out of', length(regressors_subsets)))
+    mt <- as.matrix(t(regressors_subsets_matrix[row_ind, ]))
+    out = (mt == 0)       # regressors out of the current model
+    cur_regressors_n <- sum(mt)
+    cur_variables_n <- cur_regressors_n+1
+
+    cur_Z <- df %>%
+      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
+                    regressors_subset) %>%
+      exogenous_matrix({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }})
+
+    cur_Y2 <- df %>%
+      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
+                    regressors_subset) %>%
+      SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
+                            entity_col = {{ entity_col }},
+                            dep_var_col = {{ dep_var_col }})
+
+    data <- list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
+                 res_maker_matrix = res_maker_matrix)
+
+    optimised_params <- model_space[, row_ind] %>% stats::na.omit()
+
+    hess <- hessian(SEM_likelihood, theta = optimised_params, data = data)
+
+    likelihood_per_entity <-
+      SEM_likelihood(optimised_params, data = data, per_entity = TRUE)
+
+    # TODO: how to interpret the Gmat and Imat
+    Gmat <- rootSolve::gradient(SEM_likelihood, optimised_params, data = data,
+                                per_entity = TRUE)
+    Imat <- crossprod(Gmat)
+    stdr <- sqrt(diag(solve(hess) %*% Imat %*% solve(hess)))
+
+    # Section 2.3.3 in Moral-Benito
+    # GROWTH EMPIRICS IN PANEL DATA UNDER MODEL UNCERTAINTY AND WEAK EXOGENEITY:
+    # "Finally, each model-specific posterior is given by a normal distribution
+    # with mean at the MLE and dispersion matrix equal to the inverse of the
+    # Fisher information."
+    # This is most likely why hessian is used to compute standard errors.
+    # TODO: Learn the Bernstein–von Mises theorem which explain in detail how
+    # all this works
+    stdh <- sqrt(diag(solve(hess)))
+
+    # selecting estimates of interest (i.e. alpha and betas) #
+    stdrt <- stdr[1:cur_variables_n]
+    stdht <- stdh[1:cur_variables_n]
+
+    # constructing the full vector of estimates #
+    mty=rbind(1,mt)
+    stdrt1=optimbase::zeros(variables_n,1)
+    stdht1=optimbase::zeros(variables_n,1)
+    it1=0
+    it=1
+    for (it in 1:variables_n) {
+      if (mty[it]==1) {
+        it1=1+it1
+        stdrt1[it]=stdrt[it1]
+        stdht1[it]=stdht[it1]
+      }
+      else {
+        stdrt1[it]=0
+        stdht1[it]=0
+      }
+    }
+
+    if (row_ind==1) {
+      stds <- stdht1
+      stdsr <- stdrt1
+    }
+    else {
+      stds <- cbind(stds,stdht1)
+      stdsr <- cbind(stdsr,stdrt1)
+    }
+  }
+
+  list(stds = stds, stdsr = stdsr)
+}
+
 #' Summary of a model space
 #'
 #' A summary of a given model space is prepared. This include things such as

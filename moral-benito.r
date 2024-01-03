@@ -20,6 +20,14 @@ model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
                                    init_value = 0.5,
                                    projection_matrix_const = TRUE)
 
+std_devs <- bma_stds(df = data_prepared, dep_var_col = gdp,
+                     timestamp_col = year, entity_col = country,
+                     model_space = model_space,
+                     projection_matrix_const = TRUE)
+
+stds <- std_devs$stds
+stdsr <- std_devs$stdsr
+
 bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                           timestamp_col = year, entity_col = country,
                           model_space = model_space,
@@ -30,8 +38,6 @@ modelid <- bma_result$modelid
 modpri <- bma_result$modpri
 liks <- bma_result$liks
 bics <- bma_result$bics
-stds <- bma_result$stds
-stdsr <- bma_result$stdsr
 foutt <- bma_result$foutt
 bet <- bma_result$bet
 mod <- bma_result$mod
