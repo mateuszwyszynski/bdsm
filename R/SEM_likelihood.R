@@ -56,7 +56,7 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #' matrices or a dataframe. If the dataframe, additional parameters are
 #' required to build the matrices within the function.
 #' @param timestamp_col Column which determines time periods. For now only
-#' natural numbers can be used as timestampsg
+#' natural numbers can be used as timestamps
 #' @param entity_col Column which determines entities (e.g. countries, people)
 #' @param dep_var_col Column with dependent variable
 #' @param lin_related_regressors Which subset of columns should be used as

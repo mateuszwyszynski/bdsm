@@ -1,3 +1,69 @@
+#' Initialize model space matrix
+#'
+#' This function builds a representation of the model space, by creating a
+#' dataframe where each column represents values of the parameters for a given
+#' model. Real value means that the parameter is included in the model. A
+#' parameter not present in the model is marked as \code{NA}.
+#'
+#' Currently the set of features is assumed to be all columns which remain after
+#' excluding \code{timestamp_col}, \code{entity_col} and \code{dep_var_col}.
+#'
+#' A power set of all possible exclusions of linear dependence on the given
+#' feature is created, i.e. if there are 4 features we end up with 2^4 possible
+#' models (for each model we independently decide whether to include or not a
+#' feature).
+#'
+#' @param df Data frame with data for the SEM analysis.
+#' @param timestamp_col Column which determines time periods. For now only
+#' natural numbers can be used as timestamps
+#' @param entity_col Column which determines entities (e.g. countries, people)
+#' @param dep_var_col Column with dependent variable
+#' @param init_value Initial value for parameters present in the model. Default
+#' is \code{1}.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+initialize_model_space <- function(df, timestamp_col, entity_col,
+                                   dep_var_col, init_value = 1) {
+  regressors <- df %>%
+    regressor_names(timestamp_col = {{ timestamp_col }},
+                    entity_col = {{ entity_col }},
+                    dep_var_col = {{ dep_var_col }})
+  regressors_n <- length(regressors)
+
+  counts <- df %>% dplyr::select({{ timestamp_col }}, {{ entity_col }}) %>%
+    sapply(function(x) dplyr::n_distinct(x))
+
+  timestamps_n <- counts[[1]] - 1
+  entities_n <- counts[[2]]
+
+  regressors_subsets_matrix <-
+    (rje::powerSetMat(regressors_n) * init_value)
+
+  linear_params_matrix <-
+    t(cbind(regressors_subsets_matrix, regressors_subsets_matrix))
+
+  rownames(linear_params_matrix) <-
+    c(paste('beta', regressors, sep="_"), paste('phi_1', regressors, sep="_"))
+
+  dep_var_matrix <-
+    t(matrix(init_value, nrow = 2^regressors_n, ncol = 3 + timestamps_n))
+  rownames(dep_var_matrix) <- c(c('alpha', 'phi_0', 'err_var'),
+                                paste('dep_var', 1:timestamps_n, sep = '_'))
+
+  phis_n <- regressors_n * (timestamps_n - 1)
+  psis_n <- regressors_n * (timestamps_n - 1) * timestamps_n / 2
+
+  psis_phis_matrix <-
+    matrix(init_value, nrow = phis_n + psis_n, ncol = 2^regressors_n)
+
+  . <- NULL
+  rbind(dep_var_matrix, linear_params_matrix, psis_phis_matrix) %>%
+    replace(. == 0, NA)
+}
+
 #' BMA for SEM representation
 #'
 #' Perform Bayesian Model Averaging for Simultaneous Equations Model.
@@ -56,6 +122,11 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
 
   res_maker_matrix <- residual_maker_matrix(Z)
 
+  model_space <- df %>%
+    initialize_model_space(timestamp_col = {{ timestamp_col }},
+                           entity_col = {{ entity_col}},
+                           dep_var_col = {{ dep_var_col }}, init_value = 0.5)
+
   prior_exp_model_size <- regressors_n / 2
   prior_inc_prob <- prior_exp_model_size / regressors_n
 
@@ -89,10 +160,8 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
                     regressors_subset) %>%
       exogenous_matrix({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }})
 
-    initial_params <-
-      generate_params_vector(value = 0.5, timestamps_n = periods_n,
-                             regressors_n = regressors_n,
-                             lin_related_regressors_n = cur_regressors_n)
+    initial_params <- as.data.frame(model_space)[row_ind] %>%
+      tidyr::drop_na() %>% as.matrix()
 
     cur_Y2 <- df %>%
       dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
