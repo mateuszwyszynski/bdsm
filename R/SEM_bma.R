@@ -64,6 +64,31 @@ initialize_model_space <- function(df, timestamp_col, entity_col,
     replace(. == 0, NA)
 }
 
+#' Helper function to extract names from a vector defining a model
+#'
+#' For now it is assumed that we can only exclude linear relationships between
+#' regressors and the dependent variable.
+#'
+#' The vector needs to have named rows, i.e. it is assumed it comes from a
+#' model space (see \link[panels]{initialize_model_space} for details).
+#'
+#' @param params a vector with parameters describing the model
+#'
+#' @return
+#' Names of regressors which are assumed to be linearly connected with dependent
+#' variable within the model described by the \code{params} vector.
+#' @export
+#'
+#' @examples
+regressor_names_from_params_vector <- function(params) {
+  regressors_subset <-
+    t(params %>% stats::na.omit()) %>% as.data.frame() %>%
+    dplyr::select(tidyselect::matches('beta'))
+
+  names(regressors_subset) <- gsub("beta_", "", names(regressors_subset))
+  names(regressors_subset)
+}
+
 #' BMA for SEM representation
 #'
 #' Perform Bayesian Model Averaging for Simultaneous Equations Model.
@@ -131,6 +156,9 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
                         Z = NULL, cur_Y2 = NULL)
 
   optimization_wrapper <- function(params, data) {
+    regressors_subset <-
+      regressor_names_from_params_vector(params)
+
     data$Z <- df %>%
       dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
                     regressors_subset) %>%
@@ -145,14 +173,23 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
 
     params_no_na <- params %>% stats::na.omit()
 
-    optimized <- stats::optim(initial_params, SEM_likelihood, data = data,
+    # parscale argument somehow (don't know yet how) changes step size during
+    # optimisation. Most likely optimisation methods used in Gauss are
+    # scale-free and these used in R are not
+    # TODO: search for methods (or implement methods) in R which are scale-free
+    control$parscale = 0.05*params_no_na
+
+    optimized <- stats::optim(params_no_na, SEM_likelihood, data = data,
                               exact_value = exact_value,
                               projection_matrix_const = projection_matrix_const,
                               method="BFGS",
                               control = control)
 
     params[!is.na(params)] <- optimized[[1]]
+    params
   }
+
+  model_space <- apply(model_space, 2, optimization_wrapper, constant_data)
 
   prior_exp_model_size <- regressors_n / 2
   prior_inc_prob <- prior_exp_model_size / regressors_n
@@ -187,8 +224,6 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
                     regressors_subset) %>%
       exogenous_matrix({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }})
 
-    initial_params <- model_space[, row_ind] %>% stats::na.omit()
-
     cur_Y2 <- df %>%
       dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
                     regressors_subset) %>%
@@ -199,17 +234,12 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
     data <- list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
                  res_maker_matrix = res_maker_matrix)
 
-    # parscale argument somehow (don't know yet how) changes step size during optimisation.
-    # Most likely optimisation methods used in Gauss are scale-free and these used in R are not
-    # TODO: search for methods (or implement methods) in R which are scale-free
-    control$parscale = 0.05*initial_params
-
-    optimised_params <- optimization_wrapper(model_space[, row_ind],
-                                             data = constant_data)
+    optimised_params <- model_space[, row_ind] %>% stats::na.omit()
     likelihood_max <-
-      SEM_likelihood(params = stats::na.omit(optimised_params),
-                     data = data, exact_value = exact_value,
+      SEM_likelihood(params = optimised_params, data = data,
+                     exact_value = exact_value,
                      projection_matrix_const = projection_matrix_const)
+
 
     hess <- hessian(SEM_likelihood, theta = optimised_params, data = data)
 
