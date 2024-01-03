@@ -296,19 +296,19 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     # here we store model-specific diagnostics and estimates (BICs, likelihoods...) #
     if (row_ind==1) {
       modprob=postprob; modpri=prior_model_prob; liks=exp(likelihood_max/n_entities); bics=bict
-      stds=stdht1; stdsr=stdrt1; foutt=likelihood_max
+      foutt=likelihood_max
     }
     else {
       modprob=rbind(modprob,postprob); modpri=rbind(modpri,prior_model_prob)
       liks=rbind(liks,exp(likelihood_max/n_entities)); bics=rbind(bics,bict);
-      stds=cbind(stds,stdht1); stdsr=cbind(stdsr,stdrt1); foutt=rbind(foutt, likelihood_max)
+      foutt=rbind(foutt, likelihood_max)
     }
   }
 
   list(prior_exp_model_size = prior_exp_model_size,
        prior_inc_prob = prior_inc_prob, variables_n = variables_n,
        modprob = modprob, modpri = modpri, liks = liks,
-       bics = bics, stds = stds, stdsr = stdsr, foutt = foutt,
+       bics = bics, foutt = foutt,
        bet = bet, mod = mod, pvarh = pvarh, pvarr = pvarr, fy = fy, fyt = fyt,
        ppmsize = ppmsize, cout = 0, nts = nts, pts = pts)
 }
