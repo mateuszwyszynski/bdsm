@@ -398,14 +398,14 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     pvarr=pvarr+(postprob*varrt1+postprob*(linear_params*linear_params))         # as in Leamer (1978) #
     pvarh=pvarh+(postprob*varht1+postprob*(linear_params*linear_params))         # as in Leamer (1978) #
 
-    # here we store model-specific diagnostics and estimates (BICs, likelihoods, betas...) #
+    # here we store model-specific diagnostics and estimates (BICs, likelihoods...) #
     if (row_ind==1) {
       modprob=postprob; modelid=row_ind; modpri=prior_model_prob; liks=exp(likelihood_max/n_entities); bics=bict
-      betas=linear_params; stds=stdht1; stdsr=stdrt1; foutt=likelihood_max
+      stds=stdht1; stdsr=stdrt1; foutt=likelihood_max
     }
     else {
       modprob=rbind(modprob,postprob); modelid=rbind(modelid,row_ind); modpri=rbind(modpri,prior_model_prob)
-      liks=rbind(liks,exp(likelihood_max/n_entities)); bics=rbind(bics,bict); betas=cbind(betas,linear_params)
+      liks=rbind(liks,exp(likelihood_max/n_entities)); bics=rbind(bics,bict);
       stds=cbind(stds,stdht1); stdsr=cbind(stdsr,stdrt1); foutt=rbind(foutt, likelihood_max)
     }
   }
@@ -413,7 +413,7 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
   list(prior_exp_model_size = prior_exp_model_size,
        prior_inc_prob = prior_inc_prob, variables_n = variables_n,
        modprob = modprob, modelid = modelid, modpri = modpri, liks = liks,
-       bics = bics, betas = betas, stds = stds, stdsr = stdsr, foutt = foutt,
+       bics = bics, stds = stds, stdsr = stdsr, foutt = foutt,
        bet = bet, mod = mod, pvarh = pvarh, pvarr = pvarr, fy = fy, fyt = fyt,
        ppmsize = ppmsize, cout = 0, nts = nts, pts = pts)
 }

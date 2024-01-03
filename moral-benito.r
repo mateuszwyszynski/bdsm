@@ -30,7 +30,6 @@ modelid <- bma_result$modelid
 modpri <- bma_result$modpri
 liks <- bma_result$liks
 bics <- bma_result$bics
-betas <- bma_result$betas
 stds <- bma_result$stds
 stdsr <- bma_result$stdsr
 foutt <- bma_result$foutt
@@ -93,9 +92,9 @@ final<-list(
     paste("Prior Mean Model Size=", bma_result$prior_exp_model_size),
     paste("Prior Inclusion Probability=", bma_result$prior_inc_prob),
     paste("Posterior Mean Model Size=", popmsize)
-    ), (the_end-begin), t(betas), t(stds), t(stdsr), idprob
+    ), (the_end-begin), t(stds), t(stdsr), idprob
   )
-names(final)<-c(" 1.- RESULTS "," 2.- FURTHER INFORMATION "," 3.- COMPUTATION TIME"," 4.- ALL BETAS (each row is a different model)",
-                " 5.- ALL STD. ERRORS (each row is a different model)"," 6.- ALL ROBUST STD. ERRORS (each row is a different model)",
-                " 7.- MODELS INFO ")
+names(final)<-c(" 1.- RESULTS "," 2.- FURTHER INFORMATION "," 3.- COMPUTATION TIME",
+                " 4.- ALL STD. ERRORS (each row is a different model)"," 5.- ALL ROBUST STD. ERRORS (each row is a different model)",
+                " 6.- MODELS INFO ")
 final
