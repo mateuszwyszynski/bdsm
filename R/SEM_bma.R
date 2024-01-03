@@ -187,14 +187,20 @@ optimal_model_space <-
   model_space
 }
 
-#' BMA for SEM representation
+#' Summary of a model space
 #'
-#' Perform Bayesian Model Averaging for Simultaneous Equations Model.
+#' A summary of a given model space is prepared. This include things such as
+#' posterior inclusion probability (PIP), posterior mean and so on. This is the
+#' core function of the package, because it allows to make assessments and
+#' decisions about the parameters and models.
 #'
 #' @param df Data frame with data for the SEM analysis.
 #' @param dep_var_col Column with the dependent variable
 #' @param timestamp_col The name of the column with timestamps
-#' @param entity_col Coliumn with entities (e.g. countries)
+#' @param entity_col Column with entities (e.g. countries)
+#' @param model_space A matrix (with named rows) with each column corresponding
+#' to a model. Each column specifies model parameters. Compare with
+#' \link[panels]{optimal_model_space}
 #' @param model_prior Which model prior to use. For now there are two options:
 #' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
 #' @param projection_matrix_const Whether the residual maker matrix (and so
@@ -203,21 +209,14 @@ optimal_model_space <-
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 #' \link[panels]{SEM_likelihood} for details.
-#' @param control a list of control parameters for the optimization which are
-#' passed to \link[stats]{optim}. Default is
-#' \code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100)}, but note
-#' that a \code{parscale} element is also added later in the function code.
-#' For now it is hardcoded with no control on the user side.
 #'
 #' @return
 #' List of parameters describing analysed models
 #'
 #' @export
-SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
-                    projection_matrix_const, exact_value = TRUE,
-                    model_prior = 'uniform',
-                    control = list(trace = 2, maxit = 10000, fnscale = -1,
-                                   REPORT = 100)) {
+bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
+                        model_space, projection_matrix_const,
+                        exact_value = TRUE, model_prior = 'uniform') {
   regressors <- df %>%
     regressor_names(timestamp_col = {{ timestamp_col }},
                     entity_col = {{ entity_col }},
@@ -244,13 +243,6 @@ SEM_bma <- function(df, dep_var_col, timestamp_col, entity_col,
   periods_n <- nrow(df) / n_entities - 1
 
   res_maker_matrix <- residual_maker_matrix(Z)
-
-  model_space <-
-    optimal_model_space(df = df, timestamp_col = {{ timestamp_col }},
-                        entity_col = {{ entity_col }},
-                        dep_var_col = {{ dep_var_col }}, init_value = 0.5,
-                        projection_matrix_const = projection_matrix_const,
-                        exact_value = exact_value, control = control)
 
   prior_exp_model_size <- regressors_n / 2
   prior_inc_prob <- prior_exp_model_size / regressors_n

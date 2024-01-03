@@ -2,11 +2,11 @@
 
 export(SEM_B_matrix)
 export(SEM_C_matrix)
-export(SEM_bma)
 export(SEM_dep_var_matrix)
 export(SEM_likelihood)
 export(SEM_regressors_matrix)
 export(SEM_sigma_matrix)
+export(bma_summary)
 export(exogenous_matrix)
 export(feature_standardization)
 export(hessian)

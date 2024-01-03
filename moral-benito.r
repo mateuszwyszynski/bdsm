@@ -15,9 +15,15 @@ data_prepared <- panels::economic_growth[,1:7] %>%
 
 regressors <- regressor_names(data_prepared, year, country, gdp)
 
-bma_result <- SEM_bma(df = data_prepared, dep_var_col = gdp,
-                      timestamp_col = year, entity_col = country,
-                      projection_matrix_const = TRUE)
+model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
+                                   timestamp_col = year, entity_col = country,
+                                   init_value = 0.5,
+                                   projection_matrix_const = TRUE)
+
+bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
+                          timestamp_col = year, entity_col = country,
+                          model_space = model_space,
+                          projection_matrix_const = TRUE)
 
 modprob <- bma_result$modprob
 modelid <- bma_result$modelid
