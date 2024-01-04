@@ -232,6 +232,41 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
   C1
 }
 
+#' Matrix with psi parameters for SEM representation
+#'
+#' @param psis double vector with psi parameter values
+#' @param timestamps_n number of time stamps (e.g. years)
+#' @param features_n number of features (e.g. population size, investment rate)
+#'
+#' @return
+#' A matrix with \code{timestamps_n} rows and
+#' \code{(timestamps_n - 1) * feature_n} columns. Psis are filled in row by row
+#' in a block manner, i.e. blocks of size \code{feature_n} are placed next to
+#' each other
+#'
+#' @export
+#'
+#' @examples
+#' SEM_psi_matrix(1:30, 4, 5)
+SEM_psi_matrix <- function(psis, timestamps_n, features_n) {
+  matrix_row_n <- timestamps_n
+  psi_matrix_row <- function(row_ind) {
+    psi_start_ind_in_row <- row_ind * (row_ind - 1) * features_n / 2 +
+      (row_ind - 1) * (timestamps_n - row_ind) * features_n + 1
+    psi_end_ind_in_row <- psi_start_ind_in_row +
+      (timestamps_n - row_ind) * features_n - 1
+    if(row_ind == 1) {
+      psis[psi_start_ind_in_row:psi_end_ind_in_row]
+    } else if (row_ind == matrix_row_n) {
+      optimbase::zeros(1, (row_ind - 1)*features_n)
+    } else {
+      c(optimbase::zeros(1, (row_ind - 1)*features_n),
+        psis[psi_start_ind_in_row:psi_end_ind_in_row])
+    }
+  }
+  t(sapply(1:matrix_row_n, psi_matrix_row))
+}
+
 #' Covariance matrix for SEM representation
 #'
 #' Create covariance matrix for Simultaneous Equations Model (SEM)
@@ -242,9 +277,6 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
 #' @param dep_vars numeric vector
 #' @param phis numeric vector
 #' @param psis numeric vector
-#' @param psis_byrow boolean. Whether psis should be passed row-wise (i.e. they
-#' will be filled into Sigma12 across rows first) or column-wise. Default is
-#' TRUE i.e. row-wise.
 #'
 #' @return List with two matrices Sigma11 and Sigma12
 #' @importFrom magrittr %>%
@@ -256,8 +288,7 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
 #' phis <- c(10, 10, 20, 20, 30, 30)
 #' psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
 #' SEM_sigma_matrix(err_var, dep_vars, phis, psis)
-SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(),
-                             psis = c(), psis_byrow = TRUE) {
+SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(), psis = c()) {
   periods_n <- length(dep_vars)
 
   O11 <- err_var^2*optimbase::ones(periods_n, periods_n) +
@@ -267,30 +298,8 @@ SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(),
     regressors_n <- length(phis)/(periods_n - 1)
 
     phi_matrix <- matrix(rep(phis, periods_n), nrow = periods_n, byrow = TRUE)
-
-    if (psis_byrow) {
-      fill_zeros <- function(v, desired_len) {
-        zeros_n <- desired_len - length(v)
-        c(rep(0, zeros_n), v)
-      }
-
-      psi_matrix <- psis %>%
-        split(rep(1:(periods_n-1), regressors_n*((periods_n-1):1))) %>%
-        lapply(fill_zeros, desired_len = regressors_n*(periods_n-1)) %>%
-        unlist() %>% matrix(nrow = periods_n - 1, byrow = TRUE) %>%
-        rbind(rep(0, (periods_n - 1)*regressors_n))
-    } else {
-      time_fixed_psi_matrix <- function(psi, regressors_n) {
-        nrows <- length(psi)/regressors_n
-        t(matrix(psi, nrow = nrows, ncol = regressors_n))
-      }
-      . <- NULL
-      psi_matrix <- psis %>%
-        split(rep(1:(periods_n-1), regressors_n*(1:(periods_n-1)))) %>%
-        sapply(time_fixed_psi_matrix, regressors_n = regressors_n) %>%
-        plyr::rbind.fill.matrix() %>% t() %>% replace(is.na(.), 0) %>%
-        rbind(rep(0, (periods_n - 1)*regressors_n))
-    }
+    psi_matrix <- SEM_psi_matrix(psis = psis, timestamps_n = periods_n,
+                                 features_n = regressors_n)
 
     phi_matrix + psi_matrix
   } else {
