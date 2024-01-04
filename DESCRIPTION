@@ -21,11 +21,11 @@ Imports:
     dplyr,
     magrittr,
     optimbase,
-    plyr,
     rje,
     rlang,
     rootSolve,
     stats,
-    tidyr
+    tidyr,
+    tidyselect
 Depends: 
     R (>= 2.10)

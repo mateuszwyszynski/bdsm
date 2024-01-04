@@ -12,7 +12,7 @@
 #'
 #' @examples
 hessian <- function(lik, theta, ...) {
-  k <- nrow(theta)
+  k <- length(theta)
   hessi <- optimbase::zeros(k, k)
   h <- 1e-3
 

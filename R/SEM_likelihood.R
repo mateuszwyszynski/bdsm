@@ -48,6 +48,81 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
        beta = beta, phi_1 = phi_1, phis = phis, psis = psis)
 }
 
+#' List of matrices for SEM model
+#'
+#' @param df Dataframe with data for the likelihood computations.
+#' @param timestamp_col Column which determines time stamps. For now only
+#' natural numbers can be used.
+#' @param entity_col Column which determines entities (e.g. countries, people)
+#' @param dep_var_col Column with dependent variable
+#' @param lin_related_regressors Which subset of regressors is in non trivial
+#' linear relation with the dependent variable (\code{dep_var_col}). In other
+#' words regressors with non-zero \code{beta} parameters.
+#' @param which_matrices character vector with names of matrices which should be
+#' computed. Possible matrices are
+#' \code{"Y1"}, \code{"Y2"}, \code{"Z"}, \code{"cur_Y2"}, \code{"cur_Z"},
+#' \code{"res_maker_matrix"}. Default is
+#' \code{c("Y1", "Y2", "Z", "cur_Y2","cur_Z", "res_maker_matrix")} in which case
+#' all possible matrices are generated
+#'
+#' @return
+#' Named list with matrices as its elements
+#' @export
+#'
+#' @examples
+#' matrices_from_df(economic_growth, year, country, gdp, c("pop", "sed"),
+#'                  c("Y1", "Y2"))
+matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
+                             lin_related_regressors = NULL,
+                             which_matrices = c("Y1", "Y2", "Z", "cur_Y2",
+                                                "cur_Z", "res_maker_matrix")) {
+  Y1 <- if ("Y1" %in% which_matrices) {
+    df %>% SEM_dep_var_matrix(
+      timestamp_col = {{ timestamp_col }}, entity_col = {{ entity_col }},
+      dep_var_col = {{ dep_var_col }})
+  } else NULL
+  Y2 <- if ("Y2" %in% which_matrices) {
+    df %>% SEM_regressors_matrix(
+      timestamp_col = {{ timestamp_col }}, entity_col = {{ entity_col }},
+      dep_var_col = {{ dep_var_col }})
+  } else NULL
+  cur_Y2 <- if ("cur_Y2" %in% which_matrices) {
+    df %>%
+      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
+                    lin_related_regressors) %>%
+      SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
+                            entity_col = {{ entity_col }},
+                            dep_var_col = {{ dep_var_col }})
+  } else NULL
+  cur_Z <- if ("cur_Z" %in% which_matrices) {
+    df %>%
+      dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
+                    lin_related_regressors) %>%
+      exogenous_matrix(timestamp_col = {{ timestamp_col }},
+                       entity_col = {{ entity_col }},
+                       dep_var_col = {{ dep_var_col }})
+  } else NULL
+  Z <- if ("Z" %in% which_matrices) {
+    df %>%
+      exogenous_matrix(timestamp_col = {{ timestamp_col }},
+                       entity_col = {{ entity_col }},
+                       dep_var_col = {{ dep_var_col }})
+  } else NULL
+  res_maker_matrix <- if ("res_maker_matrix" %in% which_matrices) {
+    if (!"Z" %in% which_matrices) {
+      warning('For res_maker_matrix the Z matrix has to be computed anyway')
+      Z <- df %>%
+        exogenous_matrix(timestamp_col = {{ timestamp_col }},
+                         entity_col = {{ entity_col }},
+                         dep_var_col = {{ dep_var_col }})
+    }
+    residual_maker_matrix(Z)
+  } else NULL
+
+  list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = Z, cur_Z = cur_Z,
+       res_maker_matrix = res_maker_matrix)
+}
+
 #' Likelihood for the SEM model
 #'
 #' @param params Parameters describing the model. Can be either a vector or a
@@ -55,8 +130,8 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #' @param data Data for the likelihood computations. Can be either a list of
 #' matrices or a dataframe. If the dataframe, additional parameters are
 #' required to build the matrices within the function.
-#' @param timestamp_col Column which determines time periods. For now only
-#' natural numbers can be used as timestampsg
+#' @param timestamp_col Column which determines time stamps. For now only
+#' natural numbers can be used.
 #' @param entity_col Column which determines entities (e.g. countries, people)
 #' @param dep_var_col Column with dependent variable
 #' @param lin_related_regressors Which subset of columns should be used as
@@ -152,14 +227,14 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
     Y1 <- data$Y1
     Y2 <- data$Y2
     cur_Y2 <- data$cur_Y2
-    Z <- data$Z
+    cur_Z <- data$cur_Z
     res_maker_matrix <- if (projection_matrix_const) {
       data$res_maker_matrix
     } else {
-      residual_maker_matrix(Z)
+      residual_maker_matrix(cur_Z)
     }
 
-    n_entities <- nrow(Z)
+    n_entities <- nrow(Y1)
     periods_n <- length(dep_vars)
     tot_regressors_n <- ncol(data$Y2) / (periods_n - 1)
     lin_related_regressors_n <- length(beta)
@@ -169,9 +244,10 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
     S <- SEM_sigma_matrix(err_var, dep_vars, phis, psis)
 
     U1 <- if (lin_related_regressors_n == 0) {
-      t(tcrossprod(B[[1]], Y1) - tcrossprod(C, Z))
+      t(tcrossprod(B[[1]], Y1) - tcrossprod(C, cur_Z))
     } else {
-      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) - tcrossprod(C, Z))
+      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) -
+          tcrossprod(C, cur_Z))
     }
     S11_inverse <- solve(S[[1]])
     M <- Y2 - U1 %*% S11_inverse %*% S[[2]]
@@ -196,34 +272,11 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
     }
   } else {
     if (is.data.frame(data)) {
-      Y1 <- data %>% SEM_dep_var_matrix(
-        timestamp_col = {{ timestamp_col }}, entity_col = {{ entity_col }},
-        dep_var_col = {{ dep_var_col }}
-      )
-      Y2 <- data %>% SEM_regressors_matrix(
-        timestamp_col = {{ timestamp_col }}, entity_col = {{ entity_col }},
-        dep_var_col = {{ dep_var_col }}
-      )
-      cur_Y2 <- data %>%
-        dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
-                      lin_related_regressors) %>%
-        SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
-                              entity_col = {{ entity_col }},
-                              dep_var_col = {{ dep_var_col }})
-      cur_Z <- data %>%
-        dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
-                      lin_related_regressors) %>%
-        exogenous_matrix(timestamp_col = {{ timestamp_col }},
+      data <- data %>%
+        matrices_from_df(timestamp_col = {{ timestamp_col }},
                          entity_col = {{ entity_col }},
-                         dep_var_col = {{ dep_var_col }})
-      Z <- data %>%
-        exogenous_matrix(timestamp_col = {{ timestamp_col }},
-                         entity_col = {{ entity_col }},
-                         dep_var_col = {{ dep_var_col }})
-      res_maker_matrix <- residual_maker_matrix(Z)
-
-      data = list(Y1 = Y1, Y2 = Y2, cur_Y2 = cur_Y2, Z = cur_Z,
-                  res_maker_matrix = res_maker_matrix)
+                         dep_var_col = {{ dep_var_col }},
+                         lin_related_regressors = lin_related_regressors)
     }
     if (!is.list(params)) {
       periods_n <- ncol(data$Y1)

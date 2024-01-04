@@ -5,7 +5,7 @@ library(tidyverse)
 library(readxl)
 devtools::load_all()
 
-set.seed(23)
+set.seed(20)
 begin<-Sys.time()
 
 data_prepared <- panels::economic_growth[,1:7] %>%
@@ -15,18 +15,15 @@ data_prepared <- panels::economic_growth[,1:7] %>%
 
 regressors <- regressor_names(data_prepared, year, country, gdp)
 
-bma_result <- SEM_bma(df = data_prepared, dep_var_col = gdp,
-                      timestamp_col = year, entity_col = country,
-                      projection_matrix_const = TRUE)
+bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
+                          timestamp_col = year, entity_col = country,
+                          model_space = economic_growth_ms,
+                          projection_matrix_const = TRUE)
 
 modprob <- bma_result$modprob
-modelid <- bma_result$modelid
 modpri <- bma_result$modpri
 liks <- bma_result$liks
 bics <- bma_result$bics
-betas <- bma_result$betas
-stds <- bma_result$stds
-stdsr <- bma_result$stdsr
 foutt <- bma_result$foutt
 bet <- bma_result$bet
 mod <- bma_result$mod
@@ -42,8 +39,8 @@ pts <- bma_result$pts
 popmsize=ppmsize/fyt
 modprob1=modprob/sum(modprob)
 
-idprob=as.data.frame(cbind(modelid,modprob1,modpri,bics))
-names(idprob)<-c("model","postprob","riorprob","bics")
+idprob=as.data.frame(cbind(modprob1,modpri,bics))
+names(idprob)<-c("postprob", "priorprob", "bics")
 row.names(idprob)<-NULL
 
 # computing posterior moments CONDITIONAL on inclusion
@@ -76,8 +73,6 @@ for (jt in 1:bma_result$variables_n) {
   }
 }
 
-
-
 result=as.data.frame(cbind(regressors,postprobinc,postmean,poststdh,poststdr,upostmean,upoststdh,upoststdr))
 names(result)<-c("varname","postprob","pmean","std","stdR","unc_pmean","unc_std","unc_stdR")
 the_end=Sys.time()
@@ -87,9 +82,8 @@ final<-list(
     paste("Prior Mean Model Size=", bma_result$prior_exp_model_size),
     paste("Prior Inclusion Probability=", bma_result$prior_inc_prob),
     paste("Posterior Mean Model Size=", popmsize)
-    ), (the_end-begin), t(betas), t(stds), t(stdsr), idprob
+    ), (the_end-begin), idprob
   )
-names(final)<-c(" 1.- RESULTS "," 2.- FURTHER INFORMATION "," 3.- COMPUTATION TIME"," 4.- ALL BETAS (each row is a different model)",
-                " 5.- ALL STD. ERRORS (each row is a different model)"," 6.- ALL ROBUST STD. ERRORS (each row is a different model)",
-                " 7.- MODELS INFO ")
+names(final)<-c(" 1.- RESULTS "," 2.- FURTHER INFORMATION "," 3.- COMPUTATION TIME",
+                " 4.- MODELS INFO ")
 final

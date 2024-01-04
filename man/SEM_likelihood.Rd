@@ -24,8 +24,8 @@ list with named parameters. See 'Details'}
 matrices or a dataframe. If the dataframe, additional parameters are
 required to build the matrices within the function.}
 
-\item{timestamp_col}{Column which determines time periods. For now only
-natural numbers can be used as timestampsg}
+\item{timestamp_col}{Column which determines time stamps. For now only
+natural numbers can be used.}
 
 \item{entity_col}{Column which determines entities (e.g. countries, people)}
 
