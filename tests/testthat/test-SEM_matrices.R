@@ -6,8 +6,7 @@ test_df <- data.frame(
   b = 301:315
 )
 
-test_that(paste("SEM_dep_var_matrix uses all timestamps if start_time argument",
-                "is not given"), {
+test_that(paste("SEM_dep_var_matrix creates a correct matrix"), {
   m_expected_data <- c(
     104, 107, 110, 113,
     105, 108, 111, 114,
@@ -31,7 +30,7 @@ test_that(paste("SEM_regressors_matrix uses all regressors if",
   m_expected <- matrix(m_expected_data, nrow = 3, byrow = TRUE)
 
   m <- SEM_regressors_matrix(df = test_df, timestamp_col = times,
-                             entity_col = entities, regressors = c(a, b))
+                             entity_col = entities, dep_var_col = dep_var)
 
   expect_equal(m, m_expected, ignore_attr = TRUE)
 })
@@ -82,13 +81,29 @@ test_that("SEM_C_matrix computes proper matrix", {
   expect_equal(C, C_expected, ignore_attr = TRUE)
 })
 
+test_that("SEM_psi_matrix computes proper matrix", {
+  psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
+  timestamps_n <- 3
+  feature_n <- 4
+
+  psi_m <- SEM_psi_matrix(psis = psis, timestamps_n = timestamps_n,
+                          features_n = feature_n)
+
+  psi_m_expected_data <- c(
+    psis[1], psis[2], psis[3], psis[4], psis[5], psis[6], psis[7], psis[8],
+    0, 0, 0, 0, psis[9], psis[10], psis[11], psis[12],
+    0, 0, 0, 0, 0, 0, 0, 0
+  )
+  psi_m_expected <- matrix(psi_m_expected_data, timestamps_n, byrow = TRUE)
+  expect_equal(psi_m, psi_m_expected)
+})
+
 test_that("SEM_sigma_matrix computes proper matrix", {
   err_var <- 1
   dep_vars <- c(2, 2, 2, 2)
   phis <- c(10, 10, 20, 20, 30, 30)
   psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
-  sigma <- as.matrix(SEM_sigma_matrix(err_var, dep_vars, phis,
-                                      psis, psis_byrow = FALSE))
+  sigma <- as.matrix(SEM_sigma_matrix(err_var, dep_vars, phis, psis))
 
   err_var_sq <- err_var^2
   dep_vars_sq <- dep_vars^2
@@ -101,12 +116,12 @@ test_that("SEM_sigma_matrix computes proper matrix", {
   )
 
   sigma_12_expected_data <- c(
-    phis[1] + psis[1], phis[2] + psis[2], phis[3] + psis[3], phis[4] + psis[5],
-    phis[5] + psis[7], phis[6] + psis[10],
-    phis[1], phis[2], phis[3] + psis[4], phis[4] + psis[6],
-    phis[5] + psis[8], phis[6] + psis[11],
+    phis[1] + psis[1], phis[2] + psis[2], phis[3] + psis[3], phis[4] + psis[4],
+    phis[5] + psis[5], phis[6] + psis[6],
+    phis[1], phis[2], phis[3] + psis[7], phis[4] + psis[8],
+    phis[5] + psis[9], phis[6] + psis[10],
     phis[1], phis[2], phis[3], phis[4],
-    phis[5] + psis[9], phis[6] + psis[12],
+    phis[5] + psis[11], phis[6] + psis[12],
     phis[1], phis[2], phis[3], phis[4], phis[5], phis[6]
   )
 
