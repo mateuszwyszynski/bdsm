@@ -8,8 +8,6 @@ data_prepared <- panels::economic_growth[,1:7] %>%
   feature_standardization(timestamp_col = year, entity_col = country,
                           cross_sectional = TRUE, scale = FALSE)
 
-regressors <- regressor_names(data_prepared, year, country, gdp)
-
 economic_growth_ms <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
                                    timestamp_col = year, entity_col = country,
                                    init_value = 0.5,
