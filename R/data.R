@@ -34,20 +34,18 @@
 #' A double matrix with 51 rows and 16 columns.
 "economic_growth_ms"
 
-#' Example Approximate Standard Deviations based on Model Space
+#' Example Approximate Likelihoods Summary based on Model Space
 #'
-#' A matrix representing the standard deviations computed with \code{bma_stds}
-#' based on the \code{economic_growth_ms} model space.
+#' A matrix representing the summary of likelihoods computed with
+#' \code{likelihoods_summary} based on the \code{economic_growth_ms} model
+#' space. The matrix contains likelihoods, standard deviations and robust
+#' standard deviations
 #'
 #' @format ## `economic_growth_stds`
-#' A double matrix with 5 rows and 16 columns.
-"economic_growth_stds"
-
-#' Example Approximate Robust Standard Deviations based on Model Space
-#'
-#' A matrix representing the robust standard deviations computed with
-#' \code{bma_stds} based on the \code{economic_growth_ms} model space.
-#'
-#' @format ## `economic_growth_stds_robust`
-#' A double matrix with 5 rows and 16 columns.
-"economic_growth_stds_robust"
+#' A double matrix with 11 rows and 16 columns.
+#' \describe{
+#'   \item{first row}{Likelihoods for the models}
+#'   \item{rows 2-6}{Standard deviations}
+#'   \item{rows 7-11}{Robust standard deviations}
+#' }
+"economic_growth_liks"

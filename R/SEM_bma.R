@@ -10,8 +10,6 @@
 #' @param model_space A matrix (with named rows) with each column corresponding
 #' to a model. Each column specifies model parameters. Compare with
 #' \link[panels]{optimal_model_space}
-#' @param model_prior Which model prior to use. For now there are two options:
-#' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
 #' @param projection_matrix_const Whether the residual maker matrix (and so
 #' the projection matrix) should be computed for each model separately.
 #' \code{TRUE} means that the matrix will be the same for all models
@@ -24,9 +22,9 @@
 #' is meant by 'robust')
 #'
 #' @export
-bma_stds <- function(df, dep_var_col, timestamp_col, entity_col,
-                     model_space, projection_matrix_const,
-                     exact_value = TRUE, model_prior = 'uniform') {
+likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
+                                model_space, projection_matrix_const,
+                                exact_value = TRUE) {
   regressors <- df %>%
     regressor_names(timestamp_col = {{ timestamp_col }},
                     entity_col = {{ entity_col }},
@@ -59,6 +57,11 @@ bma_stds <- function(df, dep_var_col, timestamp_col, entity_col,
 
     params_no_na <- params %>% stats::na.omit()
 
+    likelihood <-
+      SEM_likelihood(params = params_no_na, data = data,
+                     exact_value = exact_value,
+                     projection_matrix_const = projection_matrix_const)
+
     hess <- hessian(SEM_likelihood, theta = params_no_na, data = data)
 
     likelihood_per_entity <-
@@ -89,16 +92,10 @@ bma_stds <- function(df, dep_var_col, timestamp_col, entity_col,
     stdr[!is.na(linear_params)] <- sqrt(diag(solve(hess) %*% Imat %*% solve(hess)))[1:lin_features_n]
     stdh[!is.na(linear_params)] <- sqrt(diag(solve(hess)))[1:lin_features_n]
 
-    cbind(stdh, stdr)
+    c(likelihood, stdh, stdr)
   }
 
-  std_deviations <- apply(model_space, 2, std_dev_from_params,
-                          matrices_shared_across_models)
-
-  stds <- std_deviations[1:variables_n,]
-  stds_robust <- std_deviations[-(1:variables_n),]
-
-  list(stds = stds, stds_robust = stds_robust)
+  apply(model_space, 2, std_dev_from_params, matrices_shared_across_models)
 }
 
 #' Summary of a model space
@@ -162,11 +159,11 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
   ppmsize <- 0
   cout <- 0
 
-  std_devs <- bma_stds(df, dep_var_col = {{ dep_var_col }},
-                       timestamp_col = {{ timestamp_col }},
-                       entity_col = {{ entity_col }}, model_space = model_space,
-                       projection_matrix_const = projection_matrix_const,
-                       exact_value = exact_value, model_prior = model_prior)
+  likelihoods_info <- likelihoods_summary(
+    df, dep_var_col = {{ dep_var_col }}, timestamp_col = {{ timestamp_col }},
+    entity_col = {{ entity_col }}, model_space = model_space,
+    projection_matrix_const = projection_matrix_const, exact_value = exact_value
+    )
 
   regressors_subsets <- rje::powerSet(regressors)
   regressors_subsets_matrix <-
@@ -181,26 +178,7 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     cur_regressors_n <- sum(mt)
     cur_variables_n <- cur_regressors_n+1
 
-    model_specific_matrices <- df %>%
-      matrices_from_df(timestamp_col = {{ timestamp_col }},
-                       entity_col = {{ entity_col }},
-                       dep_var_col = {{ dep_var_col }},
-                       lin_related_regressors = regressors_subset,
-                       which_matrices = c("cur_Y2", "cur_Z"))
-
-    data <-
-      list(Y1 = matrices_shared_across_models$Y1,
-           Y2 = matrices_shared_across_models$Y2,
-           cur_Y2 = model_specific_matrices$cur_Y2,
-           Z = matrices_shared_across_models$Z,
-           cur_Z = model_specific_matrices$cur_Z,
-           res_maker_matrix = matrices_shared_across_models$res_maker_matrix)
-
-    optimised_params <- model_space[, row_ind] %>% stats::na.omit()
-    likelihood_max <-
-      SEM_likelihood(params = optimised_params, data = data,
-                     exact_value = exact_value,
-                     projection_matrix_const = projection_matrix_const)
+    likelihood_max <- likelihoods_info[1, row_ind]
 
     # Below we have almost 1/2 * BIC_k as in Raftery's Bayesian Model Selection
     # in Social Research eq. 19. The part with reference model M_1 is skipped,
@@ -234,8 +212,10 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     # constructing the full vector of estimates #
     mty=rbind(1,mt)
 
-    stdrt1 <- std_devs$stds_robust[, row_ind]
-    stdht1 <- std_devs$stds[, row_ind]
+    print(likelihoods_info[, row_ind])
+    stdrt1 <- likelihoods_info[-(1:(regressors_n+2)), row_ind]
+    stdht1 <- likelihoods_info[2:(regressors_n+2), row_ind]
+    print(stdrt1)
     varrt1 <- stdrt1^2
     varht1 <- stdht1^2
 
