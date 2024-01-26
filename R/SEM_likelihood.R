@@ -11,7 +11,7 @@ generate_params_vector <- function(value, timestamps_n, regressors_n,
   psis_n <- regressors_n*timestamps_n*(timestamps_n - 1)/2
   psis <- rep(value, psis_n)
 
-  matrix(c(alpha, beta, phi_0, phi_1, err_var, dep_vars, phis, psis))
+  matrix(c(alpha, phi_0, err_var, dep_vars, phi_1, beta, phis, psis))
 }
 
 SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
@@ -20,6 +20,10 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
   psis_n <- tot_regressors_n*periods_n*(periods_n - 1)/2
 
   alpha <- params[1]
+  phi_0 <- params[2]
+  err_var <- params[3]
+  dep_vars <- params[4:(4 + periods_n - 1)]
+  betas_first_ind <- 4 + periods_n
   if (tot_regressors_n == 0) {
     beta <- c()
     phi_1 <- c()
@@ -30,19 +34,17 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
       beta <- c()
       phi_1 <- c()
     } else {
-      beta <- params[2:(1 + lin_related_regressors_n)]
+      beta <-
+        params[betas_first_ind:(betas_first_ind + lin_related_regressors_n - 1)]
+      phi_1_first_ind <- betas_first_ind + lin_related_regressors_n
       phi_1 <-
-        params[(3 + lin_related_regressors_n):(2 + 2*lin_related_regressors_n)]
+        params[phi_1_first_ind:(phi_1_first_ind + lin_related_regressors_n - 1)]
     }
     phis <-
       params[(4 + 2*lin_related_regressors_n + periods_n):(3 + 2*lin_related_regressors_n + periods_n + phis_n)]
     psis <-
       params[(4 + 2*lin_related_regressors_n + periods_n + phis_n):(3 + 2*lin_related_regressors_n + periods_n + phis_n + psis_n)]
   }
-  phi_0 <- params[2 + lin_related_regressors_n]
-  err_var <- params[3 + 2*lin_related_regressors_n]
-  dep_vars <-
-    params[(4 + 2*lin_related_regressors_n):(3 + 2*lin_related_regressors_n + periods_n)]
 
   list(alpha = alpha, phi_0 = phi_0, err_var = err_var, dep_vars = dep_vars,
        beta = beta, phi_1 = phi_1, phis = phis, psis = psis)
