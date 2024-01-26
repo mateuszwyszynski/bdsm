@@ -76,3 +76,92 @@ Configuration failed to find one of freetype2 libpng libtiff-4 libjpeg. Try inst
 
 In such case you should first try is installing the recommended packages.
 With properly configured system environment everything should work fine.
+
+## Comparison of methods with different projection matrix
+
+The code snippets below show a problem we currently have with the likelihood
+optimization. Namely, that if we try to use the MLE parameters obtained for
+one of the nested models inside the full model, we do not get the same value of
+the likelihood. This is true for both the version which uses a different
+projection matrix for each model (Moral-Benito version) or the version with
+projection matrix constant (our version).
+
+When looking at the output of the snippets below, the value of
+`nested_no_ish_model_likelihood` should match one of the
+`no_ish_model_likelihood_1` or `no_ish_model_likelihood_2`. When we get such a
+result we should finally have a definite confirmation which version is correct.
+
+### Our version
+
+```{r}
+library(magrittr)
+devtools::load_all()
+
+set.seed(23)
+
+data_prepared <- panels::economic_growth[,1:7] %>%
+  feature_standardization(timestamp_col = year, entity_col = country) %>%
+  feature_standardization(timestamp_col = year, entity_col = country,
+                          cross_sectional = TRUE, scale = FALSE)
+
+nested_version_of_no_ish_model_params <- economic_growth_ms[, 15]
+no_ish_model_params <-
+  nested_version_of_no_ish_model_params %>% stats::na.omit()
+no_ish_model_likelihood_1 <-
+  SEM_likelihood(no_ish_model_params, data_prepared, year, country, gdp,
+                 lin_related_regressors = c('sed', 'pgrw', 'pop'),
+                 projection_matrix_const = FALSE)
+no_ish_model_likelihood_2 <-
+  SEM_likelihood(no_ish_model_params, data_prepared, year, country, gdp,
+                 lin_related_regressors = c('sed', 'pgrw', 'pop'),
+                 projection_matrix_const = TRUE)
+
+nested_version_of_no_ish_model_params['beta_ish'] = 0
+nested_version_of_no_ish_model_params['phi_1_ish'] = 0
+
+nested_no_ish_model_likelihood <-
+  SEM_likelihood(nested_version_of_no_ish_model_params, data_prepared, year,
+                 country, gdp,
+                 lin_related_regressors = c('ish', 'sed', 'pgrw', 'pop'),
+                 projection_matrix_const = TRUE)
+```
+
+### Moral-Benito version
+
+```{r}
+library(magrittr)
+devtools::load_all()
+
+set.seed(23)
+
+data_prepared <- panels::economic_growth[,1:7] %>%
+  feature_standardization(timestamp_col = year, entity_col = country) %>%
+  feature_standardization(timestamp_col = year, entity_col = country,
+                          cross_sectional = TRUE, scale = FALSE)
+
+economic_growth_ms_2 <-
+  optimal_model_space(df = data_prepared, dep_var_col = gdp,
+                      timestamp_col = year, entity_col = country,
+                      init_value = 0.5, projection_matrix_const = FALSE)
+
+nested_version_of_no_ish_model_params <- economic_growth_ms_2[, 15]
+no_ish_model_params <-
+  nested_version_of_no_ish_model_params %>% stats::na.omit()
+no_ish_model_likelihood_1 <-
+  SEM_likelihood(no_ish_model_params, data_prepared, year, country, gdp,
+                 lin_related_regressors = c('sed', 'pgrw', 'pop'),
+                 projection_matrix_const = FALSE)
+no_ish_model_likelihood_2 <-
+  SEM_likelihood(no_ish_model_params, data_prepared, year, country, gdp,
+                 lin_related_regressors = c('sed', 'pgrw', 'pop'),
+                 projection_matrix_const = TRUE)
+
+nested_version_of_no_ish_model_params['beta_ish'] = 0
+nested_version_of_no_ish_model_params['phi_1_ish'] = 0
+
+nested_no_ish_model_likelihood <-
+  SEM_likelihood(nested_version_of_no_ish_model_params, data_prepared, year,
+                 country, gdp,
+                 lin_related_regressors = c('ish', 'sed', 'pgrw', 'pop'),
+                 projection_matrix_const = FALSE)
+```
