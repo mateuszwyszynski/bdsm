@@ -57,7 +57,7 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #' natural numbers can be used.
 #' @param entity_col Column which determines entities (e.g. countries, people)
 #' @param dep_var_col Column with dependent variable
-#' @param lin_related_regressors Which subset of regressors is in non trivial
+#' @param lin_related_regressors Vector of strings of column names. Which subset of regressors is in non trivial
 #' linear relation with the dependent variable (\code{dep_var_col}). In other
 #' words regressors with non-zero \code{beta} parameters.
 #' @param which_matrices character vector with names of matrices which should be
@@ -66,7 +66,8 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #' \code{"res_maker_matrix"}. Default is
 #' \code{c("Y1", "Y2", "Z", "cur_Y2","cur_Z", "res_maker_matrix")} in which case
 #' all possible matrices are generated
-#'
+#' @importFrom dplyr select
+#' @importFrom magrittr "%>%"
 #' @return
 #' Named list with matrices as its elements
 #' @export
@@ -78,6 +79,13 @@ matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
                              lin_related_regressors = NULL,
                              which_matrices = c("Y1", "Y2", "Z", "cur_Y2",
                                                 "cur_Z", "res_maker_matrix")) {
+
+  stopifnot(
+    "timestamp_col does not exist in df" = deparse(substitute(timestamp_col)) %in% colnames(df),
+    "entity_col does not exist in df" = deparse(substitute(entity_col)) %in% colnames(df),
+    "dep_var_col does not exist in df" = deparse(substitute(dep_var_col)) %in% colnames(df)
+    )
+
   Y1 <- if ("Y1" %in% which_matrices) {
     df %>% SEM_dep_var_matrix(
       timestamp_col = {{ timestamp_col }}, entity_col = {{ entity_col }},
