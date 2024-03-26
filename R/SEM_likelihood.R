@@ -80,12 +80,6 @@ matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
                              which_matrices = c("Y1", "Y2", "Z", "cur_Y2",
                                                 "cur_Z", "res_maker_matrix")) {
 
-  stopifnot(
-    "timestamp_col does not exist in df" = deparse(substitute(timestamp_col)) %in% colnames(df),
-    "entity_col does not exist in df" = deparse(substitute(entity_col)) %in% colnames(df),
-    "dep_var_col does not exist in df" = deparse(substitute(dep_var_col)) %in% colnames(df)
-    )
-
   Y1 <- if ("Y1" %in% which_matrices) {
     df %>% SEM_dep_var_matrix(
       timestamp_col = {{ timestamp_col }}, entity_col = {{ entity_col }},
@@ -99,7 +93,7 @@ matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
   cur_Y2 <- if ("cur_Y2" %in% which_matrices) {
     df %>%
       dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
-                    lin_related_regressors) %>%
+                    all_of(lin_related_regressors)) %>%
       SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
                             entity_col = {{ entity_col }},
                             dep_var_col = {{ dep_var_col }})
@@ -107,7 +101,7 @@ matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
   cur_Z <- if ("cur_Z" %in% which_matrices) {
     df %>%
       dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
-                    lin_related_regressors) %>%
+                    all_of(lin_related_regressors)) %>%
       exogenous_matrix(timestamp_col = {{ timestamp_col }},
                        entity_col = {{ entity_col }},
                        dep_var_col = {{ dep_var_col }})
@@ -216,9 +210,6 @@ matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
 #' )
 #' df <-
 #'   feature_standardization(df, timestamp_col = times, entity_col = entities)
-#' df <-
-#'   feature_standardization(df, timestamp_col = times, entity_col = entities,
-#'                           cross_sectional = TRUE, scale = FALSE)
 #' SEM_likelihood(0.5, df, times, entities, dep_var)
 SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
                            lin_related_regressors = NULL,

@@ -106,8 +106,5 @@ df <- data.frame(
 )
 df <-
   feature_standardization(df, timestamp_col = times, entity_col = entities)
-df <-
-  feature_standardization(df, timestamp_col = times, entity_col = entities,
-                          cross_sectional = TRUE, scale = FALSE)
 SEM_likelihood(0.5, df, times, entities, dep_var)
 }
