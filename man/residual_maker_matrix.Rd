@@ -17,3 +17,6 @@ Create residual maker matrix from a given matrix \code{m}. See article about
 \href{https://en.wikipedia.org/wiki/Projection_matrix}{projection matrix} on
 the Wikipedia.
 }
+\examples{
+residual_maker_matrix(matrix(c(1,2,3,4), nrow = 2))
+}
