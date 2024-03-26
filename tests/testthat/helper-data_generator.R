@@ -1,5 +1,5 @@
 generate_test_data <- function() {
-  df <- data.frame(
+  data.frame(
     entities = rep(1:4, 5),
     times = rep(seq(1960, 2000, 10), each = 4),
     dep_var = stats::rnorm(20), a = stats::rnorm(20), b = stats::rnorm(20)
