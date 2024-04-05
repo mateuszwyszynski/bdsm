@@ -40,12 +40,23 @@ test_that("SEM likelihood is calculated correctly for cross_sectional TRUE and s
 })
 
 test_that("SEM likelihood is calculated correctly for cross_sectional FALSE and scale FALSE", {
-  set.seed(1)
-  # TODO: That produces always NaN
+  set.seed(2)
   sem_value <- SEM_likelihood(
     0.5,
     generate_test_feature_standard_data(cross_sectional = FALSE, scale = FALSE),
     times, entities, dep_var
   )
-  expect_equal(sem_value, NaN)
+  expect_equal(sem_value, 266.36818)
+})
+
+test_that("SEM likelihood is calculated incorrectly for specific data", {
+  set.seed(1)
+  # TODO: That produces NaN for that particular seed.
+  testthat::expect_warning(
+    sem_value <- SEM_likelihood(
+      0.5,
+      generate_test_feature_standard_data(cross_sectional = FALSE, scale = FALSE),
+      times, entities, dep_var
+    )
+  )
 })
