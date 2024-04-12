@@ -296,7 +296,7 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
 
   # STEP 2: prepare the list of params
   # check_likelihood_params: whether it is a list with expected values
-  if (!check_likelihood_params()) {
+  if (!check_likelihood_params(params)) {
     params <- SEM_params_to_list(params, data)
   }
 
