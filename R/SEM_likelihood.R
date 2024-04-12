@@ -66,7 +66,7 @@ SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
 #' \code{"res_maker_matrix"}. Default is
 #' \code{c("Y1", "Y2", "Z", "cur_Y2","cur_Z", "res_maker_matrix")} in which case
 #' all possible matrices are generated
-#' @importFrom dplyr select
+#' @importFrom dplyr select all_of
 #' @importFrom magrittr "%>%"
 #' @return
 #' Named list with matrices as its elements
