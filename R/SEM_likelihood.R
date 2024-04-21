@@ -350,6 +350,34 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
 
 #' Likelihood for the SEM model simplified with the assumption that
 #' both params and data are in correct format.
+#' #' @param params Parameters describing the model. Can be either a vector or a
+#' list with named parameters. See 'Details'
+#' @param data Data for the likelihood computations. Can be either a list of
+#' matrices or a dataframe. If the dataframe, additional parameters are
+#' required to build the matrices within the function.
+#' @param timestamp_col Column which determines time stamps. For now only
+#' natural numbers can be used.
+#' @param entity_col Column which determines entities (e.g. countries, people)
+#' @param dep_var_col Column with dependent variable
+#' @param lin_related_regressors Which subset of columns should be used as
+#' regressors for the current model. In other words \code{regressors} are the
+#' total set of regressors and \code{lin_related_regressors} are the ones for
+#' which linear relation is not set to zero for a given model.
+#' @param per_entity Whether to compute overall likelihood or a vector of
+#' likelihoods with per entity value
+#' @param projection_matrix_const Wheter the residual maker matrix (and so
+#' the projection matrix) should be computed for each model separately.
+#' \code{TRUE} means that the matrix will be the same for all models
+#' @param exact_value Whether the exact value of the likelihood should be
+#' computed (\code{TRUE}) or just the proportional part (\code{FALSE}).
+#' Currently \code{TRUE} adds: 1. a normalization constant coming from Gaussian
+#' distribution, 2. a term disappearing during likelihood simplification in
+#' Likelihood-based Estimation of Dynamic Panels with Predetermined Regressors
+#' by Moral-Benito (see Appendix A.1). The latter happens when transitioning
+#' from equation (47) to equation (48), in step 2: the term trace{HG_22} is
+#' dropped, because it can be assumed to be constant from Moral-Benito
+#' perspective. To get the exact value of the likelihood we have to take this
+#' term into account.
 #' @details
 #' Check SEM_likelihood \link[panels]{SEM_likelihood}
 SEM_likelihood_bma <- function(
