@@ -58,17 +58,17 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     params_no_na <- params %>% stats::na.omit()
 
     likelihood <-
-      SEM_likelihood(params = params_no_na, data = data,
+      SEM_likelihood_bma(params = params_no_na, data = data,
                      exact_value = exact_value,
                      projection_matrix_const = projection_matrix_const)
 
-    hess <- hessian(SEM_likelihood, theta = params_no_na, data = data)
+    hess <- hessian(SEM_likelihood_bma, theta = params_no_na, data = data)
 
     likelihood_per_entity <-
-      SEM_likelihood(params_no_na, data = data, per_entity = TRUE)
+      SEM_likelihood_bma(params_no_na, data = data, per_entity = TRUE)
 
     # TODO: how to interpret the Gmat and Imat
-    Gmat <- rootSolve::gradient(SEM_likelihood, params_no_na, data = data,
+    Gmat <- rootSolve::gradient(SEM_likelihood_bma, params_no_na, data = data,
                                 per_entity = TRUE)
     Imat <- crossprod(Gmat)
 
