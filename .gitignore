@@ -5,3 +5,6 @@
 
 # OSX Files
 .DS_Store
+
+# testthat error messages
+tests/testthat/testthat-problems.rds

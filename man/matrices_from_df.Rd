@@ -23,7 +23,7 @@ natural numbers can be used.}
 
 \item{dep_var_col}{Column with dependent variable}
 
-\item{lin_related_regressors}{Which subset of regressors is in non trivial
+\item{lin_related_regressors}{Vector of strings of column names. Which subset of regressors is in non trivial
 linear relation with the dependent variable (\code{dep_var_col}). In other
 words regressors with non-zero \code{beta} parameters.}
 

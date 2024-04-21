@@ -26,3 +26,12 @@ Equations Model (SEM) representation. Currently these are: dependent variable
 from the lowest time stamp and regressors from the second lowest time stamp.
 The matrix is then used to compute likelihood for SEM analysis.
 }
+\examples{
+set.seed(1)
+df <- data.frame(
+  entities = rep(1:4, 5),
+  times = rep(seq(1960, 2000, 10), each = 4),
+  dep_var = stats::rnorm(20), a = stats::rnorm(20), b = stats::rnorm(20)
+)
+exogenous_matrix(df, times, entities, dep_var)
+}

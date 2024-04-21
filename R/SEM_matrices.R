@@ -33,6 +33,13 @@ determine_min_timestamps <- function(df, timestamp_col) {
 #' @export
 #'
 #' @examples
+#' set.seed(1)
+#' df <- data.frame(
+#'   entities = rep(1:4, 5),
+#'   times = rep(seq(1960, 2000, 10), each = 4),
+#'   dep_var = stats::rnorm(20), a = stats::rnorm(20), b = stats::rnorm(20)
+#' )
+#' SEM_dep_var_matrix(df, times, entities, dep_var)
 SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
   min_timestamps <-
     determine_min_timestamps(df = df, timestamp_col = {{ timestamp_col }})
@@ -67,6 +74,13 @@ SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
 #' @export
 #'
 #' @examples
+#' set.seed(1)
+#' df <- data.frame(
+#'   entities = rep(1:4, 5),
+#'   times = rep(seq(1960, 2000, 10), each = 4),
+#'   dep_var = stats::rnorm(20), a = stats::rnorm(20), b = stats::rnorm(20)
+#' )
+#' SEM_regressors_matrix(df, times, entities, dep_var)
 SEM_regressors_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
   regressors <- df %>%
     regressor_names(timestamp_col = {{ timestamp_col }},
@@ -112,6 +126,13 @@ SEM_regressors_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
 #' @export
 #'
 #' @examples
+#' set.seed(1)
+#' df <- data.frame(
+#'   entities = rep(1:4, 5),
+#'   times = rep(seq(1960, 2000, 10), each = 4),
+#'   dep_var = stats::rnorm(20), a = stats::rnorm(20), b = stats::rnorm(20)
+#' )
+#' exogenous_matrix(df, times, entities, dep_var)
 exogenous_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
   regressors <- df %>%
     regressor_names(timestamp_col = {{ timestamp_col }},
@@ -152,9 +173,10 @@ exogenous_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
 #' @export
 #'
 #' @examples
+#' residual_maker_matrix(matrix(c(1,2,3,4), nrow = 2))
 residual_maker_matrix <- function(m) {
   proj_matrix <- m%*%solve(crossprod(m))%*%t(m)
-  res_maker_matrix <- diag(nrow(m)) - proj_matrix
+  diag(nrow(m)) - proj_matrix
 }
 
 #' Coefficients matrix for SEM representation
