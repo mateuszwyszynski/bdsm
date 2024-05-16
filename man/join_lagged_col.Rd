@@ -36,3 +36,12 @@ This function allows to turn data in the format with lagged values for a
 chosen column (i.e. there are two columns with the same quantity, but one
 column is lagged in time) into the format with just one column
 }
+\examples{
+df <- data.frame(
+  entities = rep(seq(1, 4), each = 5),
+  times = rep(seq(1960, 2000, 10), 4),
+  value = rep(1:20),
+  value_lag = lag(rep(1:20), default = 0)
+)
+join_lagged_col(df, value, value_lag, times, entities, timestep = 10)
+}

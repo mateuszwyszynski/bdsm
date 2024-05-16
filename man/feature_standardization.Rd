@@ -31,3 +31,11 @@ This function performs
 (also known as z-score normalization), i.e. the features are centered around
 the mean and scaled with standard deviation.
 }
+\examples{
+df <- data.frame(
+  entities = rep(seq(1, 4), each = 5),
+  times = rep(seq(1960, 2000, 10), 4),
+  value = rep(1:20)
+)
+feature_standardization(df, times, entities)
+}

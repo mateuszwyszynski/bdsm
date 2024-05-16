@@ -21,6 +21,13 @@
 #' @export
 #'
 #' @examples
+#' df <- data.frame(
+#'   entities = rep(seq(1, 4), each = 5),
+#'   times = rep(seq(1960, 2000, 10), 4),
+#'   value = rep(1:20),
+#'   value_lag = lag(rep(1:20), default = 0)
+#' )
+#' join_lagged_col(df, value, value_lag, times, entities, timestep = 10)
 join_lagged_col <- function(df, col, col_lagged, timestamp_col,
                             entity_col, timestep = NULL) {
   non_lagged_df <- df %>%
@@ -63,6 +70,12 @@ join_lagged_col <- function(df, col, col_lagged, timestamp_col,
 #' @export
 #'
 #' @examples
+#' df <- data.frame(
+#'   entities = rep(seq(1, 4), each = 5),
+#'   times = rep(seq(1960, 2000, 10), 4),
+#'   value = rep(1:20)
+#' )
+#' feature_standardization(df, times, entities)
 feature_standardization <- function(df, timestamp_col, entity_col,
                                     cross_sectional = FALSE, scale = TRUE) {
   if (!cross_sectional) {
