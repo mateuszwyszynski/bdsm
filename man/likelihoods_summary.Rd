@@ -41,10 +41,12 @@ computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 }
 \value{
 Matrix with columns describing likelihood and standard deviations for each
-model. First row is the likelihood for the model (computed using the
-parameters in the provided model space). Then there are rows with standard
-deviations for each parameter. After that we have rows with robust standard
-deviation (not sure yet what exactly "robust" means).
+model. The first row is the likelihood for the model (computed using the
+parameters in the provided model space). The second row is almost 1/2 * BIC_k
+as in Raftery's Bayesian Model Selection in Social Research eq. 19 (see TODO
+in the code below). The third row is model posterior probability. Then there
+are rows with standard deviations for each parameter. After that we have rows
+with robust standard deviation (not sure yet what exactly "robust" means).
 }
 \description{
 Approximate standard deviations are computed for the models in the given
@@ -59,10 +61,10 @@ data_cross_sectional_standarized <-
                           entity_col = country, cross_sectional = TRUE,
                           scale = FALSE)
 
-bma_result <- likelihoods_summary(df = data_cross_sectional_standarized,
-                                  dep_var_col = gdp, timestamp_col = year,
-                                  entity_col = country,
-                                  model_space = economic_growth_ms,
-                                  projection_matrix_const = TRUE)
+likelihoods_info <-
+  likelihoods_summary(df = data_cross_sectional_standarized,
+                      dep_var_col = gdp, timestamp_col = year,
+                      entity_col = country, model_space = economic_growth_ms,
+                      projection_matrix_const = TRUE)
 
 }
