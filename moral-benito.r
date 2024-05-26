@@ -64,11 +64,7 @@ for (jt in 1:bma_result$variables_n) {
 
 result=as.data.frame(cbind(regressors,postprobinc,postmean,poststdh,poststdr,upostmean,upoststdh,upoststdr))
 names(result)<-c("varname","postprob","pmean","std","stdR","unc_pmean","unc_std","unc_stdR")
-the_end=Sys.time()
 
-final<-list(result, the_end-begin)
-names(final)<-c(" 1.- RESULTS "," 2.- COMPUTATION TIME")
-
+print(paste("Computation Time:", Sys.time()-begin))
 print(paste("Posterior Mean Model Size: ", popmsize))
-
-final
+result
