@@ -51,3 +51,14 @@
 #'   \item{rows 8-12}{Robust standard deviations}
 #' }
 "economic_growth_liks"
+
+#' Example Approximate Summary of Parameters of Interest Based on Model Space
+#'
+#' A matrix representing the summary of parameters computed with
+#' \code{parameters_summary} based on the \code{economic_growth_ms} model
+#' space. TODO: descrive the matrix properly after cleaning up the code of the
+#' function \code{parameters_summary}.
+#'
+#' @format ## `economic_growth_bma_params`
+#' A double matrix with 5 rows and 8 columns
+"economic_growth_bma_params"
