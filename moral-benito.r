@@ -31,13 +31,6 @@ nts <- bma_result$nts
 pts <- bma_result$pts
 
 popmsize=ppmsize/fyt
-models_prob_normalized <-
-  bma_result$models_posterior_prob / sum(bma_result$models_posterior_prob)
-
-idprob <- as.data.frame(cbind(models_prob_normalized,
-                              bma_result$models_prior_prob, bma_result$bics))
-names(idprob)<-c("postprob", "priorprob")
-row.names(idprob)<-NULL
 
 # computing posterior moments CONDITIONAL on inclusion
 postprobinc=fy/fyt
@@ -73,13 +66,9 @@ result=as.data.frame(cbind(regressors,postprobinc,postmean,poststdh,poststdr,upo
 names(result)<-c("varname","postprob","pmean","std","stdR","unc_pmean","unc_std","unc_stdR")
 the_end=Sys.time()
 
-final<-list(
-  result, rbind(
-    paste("Prior Mean Model Size=", bma_result$prior_exp_model_size),
-    paste("Prior Inclusion Probability=", bma_result$prior_inc_prob),
-    paste("Posterior Mean Model Size=", popmsize)
-    ), (the_end-begin), idprob
-  )
-names(final)<-c(" 1.- RESULTS "," 2.- FURTHER INFORMATION "," 3.- COMPUTATION TIME",
-                " 4.- MODELS INFO ")
+final<-list(result, the_end-begin)
+names(final)<-c(" 1.- RESULTS "," 2.- COMPUTATION TIME")
+
+print(paste("Posterior Mean Model Size: ", popmsize))
+
 final

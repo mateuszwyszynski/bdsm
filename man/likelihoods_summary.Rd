@@ -11,7 +11,8 @@ likelihoods_summary(
   entity_col,
   model_space,
   projection_matrix_const,
-  exact_value = TRUE
+  exact_value = TRUE,
+  model_prior = "uniform"
 )
 }
 \arguments{
@@ -34,6 +35,9 @@ the projection matrix) should be computed for each model separately.
 \item{exact_value}{Whether the exact value of the likelihood should be
 computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 \link[panels]{SEM_likelihood} for details.}
+
+\item{model_prior}{Which model prior to use. For now there are two options:
+\code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.}
 }
 \value{
 Matrix with columns describing likelihood and standard deviations for each

@@ -10,6 +10,8 @@
 #' @param model_space A matrix (with named rows) with each column corresponding
 #' to a model. Each column specifies model parameters. Compare with
 #' \link[panels]{optimal_model_space}
+#' @param model_prior Which model prior to use. For now there are two options:
+#' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
 #' @param projection_matrix_const Whether the residual maker matrix (and so
 #' the projection matrix) should be computed for each model separately.
 #' \code{TRUE} means that the matrix will be the same for all models
@@ -43,7 +45,7 @@
 #'
 likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
                                 model_space, projection_matrix_const,
-                                exact_value = TRUE) {
+                                exact_value = TRUE, model_prior = 'uniform') {
   regressors <- df %>%
     regressor_names(timestamp_col = {{ timestamp_col }},
                     entity_col = {{ entity_col }},
@@ -59,6 +61,15 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
 
   n_entities <- nrow(matrices_shared_across_models$Z)
   periods_n <- nrow(df) / n_entities - 1
+
+  prior_exp_model_size <- regressors_n / 2
+  prior_inc_prob <- prior_exp_model_size / regressors_n
+
+  print(paste("Prior Mean Model Size:", prior_exp_model_size))
+  print(paste("Prior Inclusion Probability:", prior_inc_prob))
+
+  # parameter for beta (random) distribution of the prior inclusion probability
+  b <- (regressors_n - prior_exp_model_size) / prior_exp_model_size
 
   std_dev_from_params <- function(params, data) {
     regressors_subset <-
@@ -130,10 +141,28 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     # Eq. 35
     bic <- exp(loglikelihood)
 
-    c(likelihood, bic, stdh, stdr)
+    if (model_prior == 'binomial-beta') {
+      prior_model_prob <-
+        gamma(lin_features_n) * gamma(b + regressors_n - lin_features_n + 1)
+    } else if (model_prior == 'uniform') {
+      prior_model_prob <-
+        prior_inc_prob^(lin_features_n - 1) *
+        (1-prior_inc_prob)^(regressors_n - lin_features_n + 1)
+    } else {
+      stop("Please specify a correct model prior!")
+    }
+
+    posterior_model_prob <- prior_model_prob * bic
+
+    c(likelihood, bic, posterior_model_prob, stdh, stdr)
   }
 
-  apply(model_space, 2, std_dev_from_params, matrices_shared_across_models)
+  likelihoods_info <-
+    apply(model_space, 2, std_dev_from_params, matrices_shared_across_models)
+
+  likelihoods_info[3,] <- likelihoods_info[3,] / sum(likelihoods_info[3,])
+
+  likelihoods_info
 }
 
 #' Summary of a model space
@@ -182,12 +211,6 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
   n_entities <- nrow(matrices_shared_across_models$Z)
   periods_n <- nrow(df) / n_entities - 1
 
-  prior_exp_model_size <- regressors_n / 2
-  prior_inc_prob <- prior_exp_model_size / regressors_n
-
-  # parameter for beta (random) distribution of the prior inclusion probability
-  b <- (regressors_n - prior_exp_model_size) / prior_exp_model_size
-
   bet <- optimbase::zeros(variables_n,1)
   pvarh <- optimbase::zeros(variables_n,1)
   pvarr <- optimbase::zeros(variables_n,1)
@@ -199,7 +222,8 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
   likelihoods_info <- likelihoods_summary(
     df, dep_var_col = {{ dep_var_col }}, timestamp_col = {{ timestamp_col }},
     entity_col = {{ entity_col }}, model_space = model_space,
-    projection_matrix_const = projection_matrix_const, exact_value = exact_value
+    projection_matrix_const = projection_matrix_const,
+    exact_value = exact_value, model_prior = model_prior
     )
 
   regressors_subsets <- rje::powerSet(regressors)
@@ -212,30 +236,16 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     print(paste('Progress:', row_ind, 'out of', length(regressors_subsets)))
     mt <- as.matrix(t(regressors_subsets_matrix[row_ind, ]))
     out = (mt == 0)       # regressors out of the current model
-    cur_regressors_n <- sum(mt)
-    cur_variables_n <- cur_regressors_n+1
 
     likelihood_max <- likelihoods_info[1, row_ind]
 
-    if (model_prior == 'binomial-beta') {
-      prior_model_prob <-
-        gamma(1 + cur_regressors_n) * gamma(b + regressors_n - cur_regressors_n)
-    } else if (model_prior == 'uniform') {
-      prior_model_prob <-
-        prior_inc_prob^cur_regressors_n *
-        (1-prior_inc_prob)^(regressors_n - cur_regressors_n)
-    } else {
-      stop("Please specify a correct model prior!")
-    }
-
-    # posterior model probability  #
-    postprob <- prior_model_prob * likelihoods_info[2, row_ind]
+    postprob <- likelihoods_info[3, row_ind]
 
     # constructing the full vector of estimates #
     mty=rbind(1,mt)
 
-    stdrt1 <- likelihoods_info[-(1:(regressors_n+3)), row_ind]
-    stdht1 <- likelihoods_info[3:(regressors_n+3), row_ind]
+    stdrt1 <- likelihoods_info[-(1:(regressors_n+4)), row_ind]
+    stdht1 <- likelihoods_info[4:(regressors_n+4), row_ind]
     varrt1 <- stdrt1^2
     varht1 <- stdht1^2
 
@@ -264,22 +274,9 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     bet=bet+postprob*linear_params
     pvarr=pvarr+(postprob*varrt1+postprob*(linear_params*linear_params))         # as in Leamer (1978) #
     pvarh=pvarh+(postprob*varht1+postprob*(linear_params*linear_params))         # as in Leamer (1978) #
-
-    # here we store model-specific diagnostics and estimates (BICs, likelihoods...) #
-    if (row_ind==1) {
-      models_posterior_prob <- postprob
-      models_prior_prob <- prior_model_prob
-    }
-    else {
-      models_posterior_prob <- rbind(models_posterior_prob, postprob)
-      models_prior_prob <- rbind(models_prior_prob, prior_model_prob)
-    }
   }
 
-  list(prior_exp_model_size = prior_exp_model_size,
-       prior_inc_prob = prior_inc_prob, variables_n = variables_n,
-       models_posterior_prob = models_posterior_prob,
-       models_prior_prob = models_prior_prob, bet = bet, pvarh = pvarh,
-       pvarr = pvarr, fy = fy, fyt = fyt, ppmsize = ppmsize, cout = 0,
-       nts = nts, pts = pts)
+  list(variables_n = variables_n, models_posterior_prob = likelihoods_info[3,],
+       bet = bet, pvarh = pvarh, pvarr = pvarr, fy = fy, fyt = fyt,
+       ppmsize = ppmsize, cout = 0, nts = nts, pts = pts)
 }
