@@ -24,6 +24,84 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("mateuszwyszynski/panels")
 ```
 
+## Basic Usage
+
+``` r
+library(magrittr)
+devtools::load_all()
+#> ℹ Loading panels
+
+set.seed(20)
+
+# Prepare data
+data_prepared <- panels::economic_growth[,1:7] %>%
+  feature_standardization(timestamp_col = year, entity_col = country) %>%
+  feature_standardization(timestamp_col = year, entity_col = country,
+                          cross_sectional = TRUE, scale = FALSE)
+
+regressors <- regressor_names(data_prepared, year, country, gdp)
+
+# Track computation time
+begin<-Sys.time()
+
+# Compute intermediate BMA results
+bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
+                          timestamp_col = year, entity_col = country,
+                          model_space = economic_growth_ms,
+                          projection_matrix_const = TRUE)
+#> [1] "Prior Mean Model Size: 2"
+#> [1] "Prior Inclusion Probability: 0.5"
+#> [1] "Progress: 1 out of 16"
+#> [1] "Progress: 2 out of 16"
+#> [1] "Progress: 3 out of 16"
+#> [1] "Progress: 4 out of 16"
+#> [1] "Progress: 5 out of 16"
+#> [1] "Progress: 6 out of 16"
+#> [1] "Progress: 7 out of 16"
+#> [1] "Progress: 8 out of 16"
+#> [1] "Progress: 9 out of 16"
+#> [1] "Progress: 10 out of 16"
+#> [1] "Progress: 11 out of 16"
+#> [1] "Progress: 12 out of 16"
+#> [1] "Progress: 13 out of 16"
+#> [1] "Progress: 14 out of 16"
+#> [1] "Progress: 15 out of 16"
+#> [1] "Progress: 16 out of 16"
+
+print(paste("Computation Time:", Sys.time()-begin))
+#> [1] "Computation Time: 13.4200491905212"
+
+# Summary for parameters of interest
+bma_paarams_summary <- parameters_summary(
+  regressors = regressors, bet = bma_result$bet, pvarh = bma_result$pvarh,
+  pvarr = bma_result$pvarr, fy = bma_result$fy, fyt = bma_result$fyt,
+  ppmsize = bma_result$ppmsize, cout = bma_result$cout, nts = bma_result$nts,
+  pts = bma_result$pts, variables_n = bma_result$variables_n
+  )
+#> Warning in cbind(regressors, postprobinc, postmean, poststdh, poststdr, :
+#> number of rows of result is not a multiple of vector length (arg 1)
+#> [1] "Posterior Mean Model Size:  3.05869495570195"
+bma_paarams_summary
+#>    varname          postprob               pmean                std
+#>        ish                 1    1.04193144970432  0.101804358830184
+#> V1     sed 0.540698759499728   0.137662158474483 0.0868547375771481
+#> V2    pgrw 0.495775491935032 -0.0114541214642964 0.0716180291008528
+#> V3     pop 0.505491333084179 -0.0407496048077823 0.0663896162315334
+#> V4     ish 0.516729371183009   0.135808595502873  0.040201102608641
+#>                  stdR            unc_pmean            unc_std
+#>     0.144125225186717     1.04193144970432  0.101804358830184
+#> V1  0.153133539462144   0.0744337583172081 0.0937295111331604
+#> V2 0.0855190348011086 -0.00567867270364515 0.0507513529596844
+#> V3  0.083000439173543  -0.0205985720569394 0.0514108604088564
+#> V4 0.0471872840674506   0.0701762901554471 0.0737626792164461
+#>              unc_stdR
+#>     0.144125225186717
+#> V1  0.131854650936448
+#> V2 0.0604868049884084
+#> V3 0.0624295534630199
+#> V4 0.0758709554163802
+```
+
 ## Troubleshooting
 
 1.  Cannot install required packages / setup renv environment
