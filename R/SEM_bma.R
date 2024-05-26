@@ -188,7 +188,6 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
   # parameter for beta (random) distribution of the prior inclusion probability
   b <- (regressors_n - prior_exp_model_size) / prior_exp_model_size
 
-  mod <- optimbase::zeros(variables_n,1)
   bet <- optimbase::zeros(variables_n,1)
   pvarh <- optimbase::zeros(variables_n,1)
   pvarr <- optimbase::zeros(variables_n,1)
@@ -257,7 +256,6 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     }
 
     # accumulating estimates for posterior model probabilities #
-    mod=mod+mty
     fy=fy+postprob*mty
     fyt=fyt+postprob
     ppmsize=ppmsize+postprob*(sum(mty))
@@ -281,7 +279,7 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
   list(prior_exp_model_size = prior_exp_model_size,
        prior_inc_prob = prior_inc_prob, variables_n = variables_n,
        models_posterior_prob = models_posterior_prob,
-       models_prior_prob = models_prior_prob, bet = bet, mod = mod,
-       pvarh = pvarh, pvarr = pvarr, fy = fy, fyt = fyt, ppmsize = ppmsize,
-       cout = 0, nts = nts, pts = pts)
+       models_prior_prob = models_prior_prob, bet = bet, pvarh = pvarh,
+       pvarr = pvarr, fy = fy, fyt = fyt, ppmsize = ppmsize, cout = 0,
+       nts = nts, pts = pts)
 }

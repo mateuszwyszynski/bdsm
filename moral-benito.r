@@ -21,7 +21,6 @@ bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                           projection_matrix_const = TRUE)
 
 bet <- bma_result$bet
-mod <- bma_result$mod
 pvarh <- bma_result$pvarh
 pvarr <- bma_result$pvarr
 fy <- bma_result$fy
