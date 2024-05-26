@@ -41,8 +41,8 @@ data_prepared <- panels::economic_growth[,1:7] %>%
 
 regressors <- regressor_names(data_prepared, year, country, gdp)
 
-# Track computation time
-begin<-Sys.time()
+# If needed track computation time
+# begin<-Sys.time()
 
 # Compute intermediate BMA results
 bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
@@ -51,28 +51,11 @@ bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                           projection_matrix_const = TRUE)
 #> [1] "Prior Mean Model Size: 2"
 #> [1] "Prior Inclusion Probability: 0.5"
-#> [1] "Progress: 1 out of 16"
-#> [1] "Progress: 2 out of 16"
-#> [1] "Progress: 3 out of 16"
-#> [1] "Progress: 4 out of 16"
-#> [1] "Progress: 5 out of 16"
-#> [1] "Progress: 6 out of 16"
-#> [1] "Progress: 7 out of 16"
-#> [1] "Progress: 8 out of 16"
-#> [1] "Progress: 9 out of 16"
-#> [1] "Progress: 10 out of 16"
-#> [1] "Progress: 11 out of 16"
-#> [1] "Progress: 12 out of 16"
-#> [1] "Progress: 13 out of 16"
-#> [1] "Progress: 14 out of 16"
-#> [1] "Progress: 15 out of 16"
-#> [1] "Progress: 16 out of 16"
 
-print(paste("Computation Time:", Sys.time()-begin))
-#> [1] "Computation Time: 13.4200491905212"
+# print(paste("Computation Time:", Sys.time()-begin))
 
 # Summary for parameters of interest
-bma_paarams_summary <- parameters_summary(
+bma_params_summary <- parameters_summary(
   regressors = regressors, bet = bma_result$bet, pvarh = bma_result$pvarh,
   pvarr = bma_result$pvarr, fy = bma_result$fy, fyt = bma_result$fyt,
   ppmsize = bma_result$ppmsize, cout = bma_result$cout, nts = bma_result$nts,
@@ -81,7 +64,7 @@ bma_paarams_summary <- parameters_summary(
 #> Warning in cbind(regressors, postprobinc, postmean, poststdh, poststdr, :
 #> number of rows of result is not a multiple of vector length (arg 1)
 #> [1] "Posterior Mean Model Size:  3.05869495570195"
-bma_paarams_summary
+bma_params_summary
 #>    varname          postprob               pmean                std
 #>        ish                 1    1.04193144970432  0.101804358830184
 #> V1     sed 0.540698759499728   0.137662158474483 0.0868547375771481

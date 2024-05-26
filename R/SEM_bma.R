@@ -235,7 +235,6 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
   row_ind <- 0
   for (regressors_subset in regressors_subsets) {
     row_ind <- row_ind + 1
-    print(paste('Progress:', row_ind, 'out of', length(regressors_subsets)))
     mt <- as.matrix(t(regressors_subsets_matrix[row_ind, ]))
     out = (mt == 0)       # regressors out of the current model
 
