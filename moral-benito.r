@@ -6,7 +6,6 @@ library(readxl)
 devtools::load_all()
 
 set.seed(20)
-begin<-Sys.time()
 
 data_prepared <- panels::economic_growth[,1:7] %>%
   feature_standardization(timestamp_col = year, entity_col = country) %>%
@@ -15,56 +14,18 @@ data_prepared <- panels::economic_growth[,1:7] %>%
 
 regressors <- regressor_names(data_prepared, year, country, gdp)
 
+begin<-Sys.time()
+
 bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                           timestamp_col = year, entity_col = country,
                           model_space = economic_growth_ms,
                           projection_matrix_const = TRUE)
 
-bet <- bma_result$bet
-pvarh <- bma_result$pvarh
-pvarr <- bma_result$pvarr
-fy <- bma_result$fy
-fyt <- bma_result$fyt
-ppmsize <- bma_result$ppmsize
-cout <- bma_result$cout
-nts <- bma_result$nts
-pts <- bma_result$pts
-
-popmsize=ppmsize/fyt
-
-# computing posterior moments CONDITIONAL on inclusion
-postprobinc=fy/fyt
-postmean=bet/fy
-varrleamer=(pvarr/fy)-postmean^2
-varhleamer=(pvarh/fy)-postmean^2
-poststdr=sqrt(varrleamer)
-poststdh=sqrt(varhleamer)
-tr=postmean/poststdr
-th=postmean/poststdh
-
-# computing UNCONDITIONAL posterior moments
-upostmean = postmean * postprobinc
-uvarrleamer = (varrleamer + (postmean^2))*postprobinc - (upostmean^2)
-uvarhleamer = (varhleamer + (postmean^2))*postprobinc - (upostmean^2)
-upoststdr=sqrt(uvarrleamer)
-upoststdh=sqrt(uvarhleamer)
-
-# computing percentage of significant coeff estimates
-nts=t(nts)
-pts=t(pts)
-for (jt in 1:bma_result$variables_n) {
-  ntss=na.omit(nts[,jt]); ptss=na.omit(pts[,jt]); nsig=ntss<(-1.96); psig=ptss>1.96
-  if (jt==1) {
-    negper=mean(nsig); posper=mean(psig)
-  }
-  else {
-    negper=rbind(negper,mean(nsig)); posper=rbind(posper,mean(psig))
-  }
-}
-
-result=as.data.frame(cbind(regressors,postprobinc,postmean,poststdh,poststdr,upostmean,upoststdh,upoststdr))
-names(result)<-c("varname","postprob","pmean","std","stdR","unc_pmean","unc_std","unc_stdR")
-
 print(paste("Computation Time:", Sys.time()-begin))
-print(paste("Posterior Mean Model Size: ", popmsize))
-result
+
+parameters_summary(regressors = regressors,
+                   bet = bma_result$bet, pvarh = bma_result$pvarh,
+                   pvarr = bma_result$pvarr, fy = bma_result$fy,
+                   fyt = bma_result$fyt, ppmsize = bma_result$ppmsize,
+                   cout = bma_result$cout, nts = bma_result$nts,
+                   pts = bma_result$pts, variables_n = bma_result$variables_n)

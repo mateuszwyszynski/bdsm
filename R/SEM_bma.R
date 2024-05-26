@@ -282,3 +282,65 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
        bet = bet, pvarh = pvarh, pvarr = pvarr, fy = fy, fyt = fyt,
        ppmsize = ppmsize, cout = 0, nts = nts, pts = pts)
 }
+
+#' BMA summary for parameters of interest
+#'
+#' TODO This is just the code previously present in the morel-benito.R script
+#' wrapped as a function (to get rid of the script). Well written code and docs
+#' are still needed
+#'
+#' @param regressors TODO
+#' @param bet TODO
+#' @param pvarh TODO
+#' @param pvarr TODO
+#' @param fy TODO
+#' @param fyt TODO
+#' @param ppmsize TODO
+#' @param cout TODO
+#' @param nts TODO (negatives)
+#' @param pts TODO (positives)
+#' @param variables_n TODO
+#'
+#' @return
+#' TODO dataframe with results
+#' @export
+parameters_summary <- function(regressors, bet, pvarh, pvarr, fy, fyt, ppmsize, cout,
+                               nts, pts, variables_n) {
+  popmsize=ppmsize/fyt
+
+  # computing posterior moments CONDITIONAL on inclusion
+  postprobinc=fy/fyt
+  postmean=bet/fy
+  varrleamer=(pvarr/fy)-postmean^2
+  varhleamer=(pvarh/fy)-postmean^2
+  poststdr=sqrt(varrleamer)
+  poststdh=sqrt(varhleamer)
+  tr=postmean/poststdr
+  th=postmean/poststdh
+
+  # computing UNCONDITIONAL posterior moments
+  upostmean = postmean * postprobinc
+  uvarrleamer = (varrleamer + (postmean^2))*postprobinc - (upostmean^2)
+  uvarhleamer = (varhleamer + (postmean^2))*postprobinc - (upostmean^2)
+  upoststdr=sqrt(uvarrleamer)
+  upoststdh=sqrt(uvarhleamer)
+
+  # computing percentage of significant coeff estimates
+  nts=t(nts)
+  pts=t(pts)
+  for (jt in 1:variables_n) {
+    ntss=stats::na.omit(nts[,jt]); ptss=stats::na.omit(pts[,jt]); nsig=ntss<(-1.96); psig=ptss>1.96
+    if (jt==1) {
+      negper=mean(nsig); posper=mean(psig)
+    }
+    else {
+      negper=rbind(negper,mean(nsig)); posper=rbind(posper,mean(psig))
+    }
+  }
+
+  result=as.data.frame(cbind(regressors,postprobinc,postmean,poststdh,poststdr,upostmean,upoststdh,upoststdr))
+  names(result)<-c("varname","postprob","pmean","std","stdR","unc_pmean","unc_std","unc_stdR")
+
+  print(paste("Posterior Mean Model Size: ", popmsize))
+  result
+}
