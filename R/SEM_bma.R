@@ -271,19 +271,17 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     if (row_ind==1) {
       models_posterior_prob <- postprob
       models_prior_prob <- prior_model_prob
-      foutt <- likelihood_max
     }
     else {
       models_posterior_prob <- rbind(models_posterior_prob, postprob)
       models_prior_prob <- rbind(models_prior_prob, prior_model_prob)
-      foutt <- rbind(foutt, likelihood_max)
     }
   }
 
   list(prior_exp_model_size = prior_exp_model_size,
        prior_inc_prob = prior_inc_prob, variables_n = variables_n,
        models_posterior_prob = models_posterior_prob,
-       models_prior_prob = models_prior_prob, foutt = foutt,
-       bet = bet, mod = mod, pvarh = pvarh, pvarr = pvarr, fy = fy, fyt = fyt,
-       ppmsize = ppmsize, cout = 0, nts = nts, pts = pts)
+       models_prior_prob = models_prior_prob, bet = bet, mod = mod,
+       pvarh = pvarh, pvarr = pvarr, fy = fy, fyt = fyt, ppmsize = ppmsize,
+       cout = 0, nts = nts, pts = pts)
 }

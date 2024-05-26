@@ -20,7 +20,6 @@ bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                           model_space = economic_growth_ms,
                           projection_matrix_const = TRUE)
 
-foutt <- bma_result$foutt
 bet <- bma_result$bet
 mod <- bma_result$mod
 pvarh <- bma_result$pvarh
