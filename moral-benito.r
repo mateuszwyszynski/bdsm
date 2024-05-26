@@ -20,8 +20,6 @@ bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                           model_space = economic_growth_ms,
                           projection_matrix_const = TRUE)
 
-liks <- bma_result$liks
-bics <- bma_result$bics
 foutt <- bma_result$foutt
 bet <- bma_result$bet
 mod <- bma_result$mod
@@ -39,8 +37,8 @@ models_prob_normalized <-
   bma_result$models_posterior_prob / sum(bma_result$models_posterior_prob)
 
 idprob <- as.data.frame(cbind(models_prob_normalized,
-                              bma_result$models_prior_prob, bics))
-names(idprob)<-c("postprob", "priorprob", "bics")
+                              bma_result$models_prior_prob, bma_result$bics))
+names(idprob)<-c("postprob", "priorprob")
 row.names(idprob)<-NULL
 
 # computing posterior moments CONDITIONAL on inclusion

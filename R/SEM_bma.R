@@ -57,6 +57,9 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
                      dep_var_col = {{ dep_var_col }},
                      which_matrices = c("Y1", "Y2", "Z", "res_maker_matrix"))
 
+  n_entities <- nrow(matrices_shared_across_models$Z)
+  periods_n <- nrow(df) / n_entities - 1
+
   std_dev_from_params <- function(params, data) {
     regressors_subset <-
       regressor_names_from_params_vector(params)
@@ -111,7 +114,23 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     stdr[!is.na(linear_params)] <- sqrt(diag(solve(hess) %*% Imat %*% solve(hess)))[1:lin_features_n]
     stdh[!is.na(linear_params)] <- sqrt(diag(solve(hess)))[1:lin_features_n]
 
-    c(likelihood, stdh, stdr)
+    # Below we have almost 1/2 * BIC_k as in Raftery's Bayesian Model Selection
+    # in Social Research eq. 19. The part with reference model M_1 is skipped,
+    # because we use this formula to compute exp(logl) which is in turn used to
+    # compute posterior probabilities using eqs. 34/35. Since the part connected
+    # with M_1 model would be present in all posteriors it cancels out. Hence
+    # the important part is the one computed below.
+    #
+    # TODO: Why everything is divided by n_entities?
+
+    # Eq. 19
+    loglikelihood <-
+      (likelihood - (lin_features_n/2)*(log(n_entities*periods_n)))/n_entities
+
+    # Eq. 35
+    bic <- exp(loglikelihood)
+
+    c(likelihood, bic, stdh, stdr)
   }
 
   apply(model_space, 2, std_dev_from_params, matrices_shared_across_models)
@@ -199,21 +218,6 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
 
     likelihood_max <- likelihoods_info[1, row_ind]
 
-    # Below we have almost 1/2 * BIC_k as in Raftery's Bayesian Model Selection
-    # in Social Research eq. 19. The part with reference model M_1 is skipped,
-    # because we use this formula to compute exp(logl) which is in turn used to
-    # compute posterior probabilities using eqs. 34/35. Since the part connected
-    # with M_1 model would be present in all posteriors it cancels out. Hence
-    # the important part is the one computed below.
-    #
-    # TODO: Why everything is divided by n_entities?
-
-    # Eq. 19
-    logl <- (likelihood_max-(cur_variables_n/2)*(log(n_entities*periods_n)))/n_entities
-
-    # Eq. 35
-    bict <- exp(logl)
-
     if (model_prior == 'binomial-beta') {
       prior_model_prob <-
         gamma(1 + cur_regressors_n) * gamma(b + regressors_n - cur_regressors_n)
@@ -226,25 +230,21 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     }
 
     # posterior model probability  #
-    postprob=prior_model_prob*bict
+    postprob <- prior_model_prob * likelihoods_info[2, row_ind]
 
     # constructing the full vector of estimates #
     mty=rbind(1,mt)
 
-    print(likelihoods_info[, row_ind])
-    stdrt1 <- likelihoods_info[-(1:(regressors_n+2)), row_ind]
-    stdht1 <- likelihoods_info[2:(regressors_n+2), row_ind]
-    print(stdrt1)
+    stdrt1 <- likelihoods_info[-(1:(regressors_n+3)), row_ind]
+    stdht1 <- likelihoods_info[3:(regressors_n+3), row_ind]
     varrt1 <- stdrt1^2
     varht1 <- stdht1^2
-
 
     . <- NULL
     linear_params <- t(model_space[, row_ind]) %>% as.data.frame() %>%
       dplyr::select(tidyselect::matches('alpha'),
                     tidyselect::matches('beta')) %>% replace(is.na(.), 0) %>%
       as.matrix() %>% t()
-
 
     # calculating the percentage of significant regressions #
     ptr=linear_params/stdht1
@@ -271,15 +271,11 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     if (row_ind==1) {
       models_posterior_prob <- postprob
       models_prior_prob <- prior_model_prob
-      liks <- exp(likelihood_max/n_entities)
-      bics <- bict
       foutt <- likelihood_max
     }
     else {
       models_posterior_prob <- rbind(models_posterior_prob, postprob)
       models_prior_prob <- rbind(models_prior_prob, prior_model_prob)
-      liks <- rbind(liks, exp(likelihood_max/n_entities))
-      bics <- rbind(bics ,bict)
       foutt <- rbind(foutt, likelihood_max)
     }
   }
@@ -287,8 +283,7 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
   list(prior_exp_model_size = prior_exp_model_size,
        prior_inc_prob = prior_inc_prob, variables_n = variables_n,
        models_posterior_prob = models_posterior_prob,
-       models_prior_prob = models_prior_prob, liks = liks,
-       bics = bics, foutt = foutt,
+       models_prior_prob = models_prior_prob, foutt = foutt,
        bet = bet, mod = mod, pvarh = pvarh, pvarr = pvarr, fy = fy, fyt = fyt,
        ppmsize = ppmsize, cout = 0, nts = nts, pts = pts)
 }
