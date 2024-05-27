@@ -44,25 +44,40 @@ devtools::load_all()
 set.seed(20)
 
 # Prepare data
+#
+# Features are scaled and centralized around the mean.
+# Then they are centralized around the mean within cross-sections
 data_prepared <- panels::economic_growth[,1:7] %>%
   feature_standardization(timestamp_col = year, entity_col = country) %>%
   feature_standardization(timestamp_col = year, entity_col = country,
                           cross_sectional = TRUE, scale = FALSE)
 
-regressors <- regressor_names(data_prepared, year, country, gdp)
-
 # If needed track computation time
 # begin<-Sys.time()
+
+# Find optimal model space
+#
+# Parameters for each model are initialized with init_value. Then MLE for each
+# model is searched numerically
+model_space <-
+  optimal_model_space(df = data_prepared, dep_var_col = gdp,
+                      timestamp_col = year, entity_col = country,
+                      init_value = 0.5, projection_matrix_const = TRUE)
+
+# print(paste("Computation Time:", Sys.time()-begin))
+# begin<-Sys.time() # Reset clock
 
 # Compute intermediate BMA results
 bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                           timestamp_col = year, entity_col = country,
-                          model_space = economic_growth_ms,
+                          model_space = model_space,
                           projection_matrix_const = TRUE)
 
 # print(paste("Computation Time:", Sys.time()-begin))
 
 # Summary for parameters of interest
+regressors <- regressor_names(data_prepared, year, country, gdp)
+
 bma_params_summary <- parameters_summary(
   regressors = regressors, bet = bma_result$bet, pvarh = bma_result$pvarh,
   pvarr = bma_result$pvarr, fy = bma_result$fy, fyt = bma_result$fyt,

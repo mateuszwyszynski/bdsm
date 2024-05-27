@@ -34,20 +34,98 @@ devtools::load_all()
 set.seed(20)
 
 # Prepare data
+#
+# Features are scaled and centralized around the mean.
+# Then they are centralized around the mean within cross-sections
 data_prepared <- panels::economic_growth[,1:7] %>%
   feature_standardization(timestamp_col = year, entity_col = country) %>%
   feature_standardization(timestamp_col = year, entity_col = country,
                           cross_sectional = TRUE, scale = FALSE)
 
-regressors <- regressor_names(data_prepared, year, country, gdp)
-
 # If needed track computation time
 # begin<-Sys.time()
+
+# Find optimal model space
+#
+# Parameters for each model are initialized with init_value. Then MLE for each
+# model is searched numerically
+model_space <-
+  optimal_model_space(df = data_prepared, dep_var_col = gdp,
+                      timestamp_col = year, entity_col = country,
+                      init_value = 0.5, projection_matrix_const = TRUE)
+#> initial  value 391.724615 
+#> iter 100 value -440.576465
+#> final  value -442.511424 
+#> converged
+#> initial  value 499.196856 
+#> iter 100 value -453.243244
+#> final  value -461.726922 
+#> converged
+#> initial  value 465.522152 
+#> iter 100 value -432.427725
+#> final  value -446.215922 
+#> converged
+#> initial  value 656.459642 
+#> iter 100 value -451.634848
+#> final  value -463.221071 
+#> converged
+#> initial  value 534.179684 
+#> iter 100 value -431.328193
+#> final  value -448.917258 
+#> converged
+#> initial  value 559.238975 
+#> iter 100 value -448.140332
+#> final  value -465.886079 
+#> converged
+#> initial  value 504.517881 
+#> iter 100 value -436.837103
+#> final  value -451.364551 
+#> converged
+#> initial  value 612.978620 
+#> iter 100 value -446.697905
+#> final  value -466.614843 
+#> converged
+#> initial  value 463.517686 
+#> iter 100 value -448.667381
+#> final  value -454.200335 
+#> converged
+#> initial  value 580.058747 
+#> iter 100 value -464.834245
+#> final  value -467.292138 
+#> converged
+#> initial  value 543.422562 
+#> iter 100 value -442.500862
+#> final  value -456.263327 
+#> converged
+#> initial  value 743.365072 
+#> iter 100 value -461.298191
+#> final  value -468.678508 
+#> converged
+#> initial  value 592.805410 
+#> iter 100 value -451.477884
+#> final  value -459.119018 
+#> converged
+#> initial  value 626.869720 
+#> iter 100 value -462.423326
+#> final  value -471.739580 
+#> converged
+#> initial  value 569.187145 
+#> iter 100 value -451.771449
+#> iter 200 value -460.196545
+#> final  value -460.198591 
+#> converged
+#> initial  value 686.560634 
+#> iter 100 value -461.031414
+#> final  value -472.282811 
+#> converged
+
+# print(paste("Computation Time:", Sys.time()-begin))
+# begin<-Sys.time() # Reset clock
 
 # Compute intermediate BMA results
 bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                           timestamp_col = year, entity_col = country,
-                          model_space = economic_growth_ms,
+                          model_space = model_space,
                           projection_matrix_const = TRUE)
 #> [1] "Prior Mean Model Size: 2"
 #> [1] "Prior Inclusion Probability: 0.5"
@@ -55,6 +133,8 @@ bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
 # print(paste("Computation Time:", Sys.time()-begin))
 
 # Summary for parameters of interest
+regressors <- regressor_names(data_prepared, year, country, gdp)
+
 bma_params_summary <- parameters_summary(
   regressors = regressors, bet = bma_result$bet, pvarh = bma_result$pvarh,
   pvarr = bma_result$pvarr, fy = bma_result$fy, fyt = bma_result$fyt,
