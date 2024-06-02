@@ -300,52 +300,14 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
     params <- SEM_params_to_list(params, data)
   }
 
-  # STEP 3: prepare matrices
-  n_entities <- nrow(data$Y1)
-  periods_n <- length(params$dep_vars)
-  tot_regressors_n <- ncol(data$Y2) / (periods_n - 1)
-  lin_related_regressors_n <- length(params$beta)
+  SEM_likelihood_bma(
+    params, data, timestamp_col, entity_col, dep_var_col,
+    lin_related_regressors,
+    per_entity,
+    projection_matrix_const,
+    exact_value
+  )
 
-  res_maker_matrix <- if (projection_matrix_const) {
-    data$res_maker_matrix
-  } else {
-    residual_maker_matrix(data$cur_Z)
-  }
-
-  B <- SEM_B_matrix(params$alpha, periods_n, params$beta)
-  C <- SEM_C_matrix(params$alpha, params$phi_0, periods_n, params$beta, params$phi_1)
-  S <- SEM_sigma_matrix(params$err_var, params$dep_vars, params$phis, params$psis)
-
-  U1 <- if (lin_related_regressors_n == 0) {
-    t(tcrossprod(B[[1]], data$Y1) - tcrossprod(C, data$cur_Z))
-  } else {
-    t(tcrossprod(B[[1]], data$Y1) + tcrossprod(B[[2]], data$cur_Y2) -
-        tcrossprod(C, data$cur_Z))
-  }
-  S11_inverse <- solve(S[[1]])
-  M <- data$Y2 - U1 %*% S11_inverse %*% S[[2]]
-  H <- crossprod(M, res_maker_matrix) %*% M
-
-  # STEP 4: calculate the likelihood
-  gaussian_normalization_const <- log(2 * pi) *
-    n_entities * (periods_n + (periods_n-1) * tot_regressors_n) / 2
-  trace_simplification_term <-
-    1/2 * n_entities * (periods_n - 1) * tot_regressors_n
-
-  likelihood <- -n_entities/2 * log(det(S[[1]]) * det(H/n_entities))
-
-  if(exact_value) {
-    likelihood <- likelihood -
-      gaussian_normalization_const - trace_simplification_term
-  }
-
-  likelihood <- if(!per_entity) {
-    likelihood - 1/2 * sum(diag(S11_inverse %*% crossprod(U1)))
-  } else {
-    likelihood / n_entities  - 1/2 * diag(U1 %*% S11_inverse %*% t(U1))
-  }
-
-  return(likelihood)
 }
 
 #' Likelihood for the SEM model simplified with the assumption that
