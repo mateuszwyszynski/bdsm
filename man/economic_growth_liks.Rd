@@ -10,8 +10,10 @@
 A double matrix with 11 rows and 16 columns.
 \describe{
 \item{first row}{Likelihoods for the models}
-\item{rows 2-6}{Standard deviations}
-\item{rows 7-11}{Robust standard deviations}
+\item{second row}{Almost 1/2 * BIC_k as in Raftery's Bayesian Model
+Selection in Social Research eq. 19.}
+\item{rows 3-7}{Standard deviations}
+\item{rows 8-12}{Robust standard deviations}
 }
 }
 }

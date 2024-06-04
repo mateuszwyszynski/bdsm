@@ -11,7 +11,8 @@ likelihoods_summary(
   entity_col,
   model_space,
   projection_matrix_const,
-  exact_value = TRUE
+  exact_value = TRUE,
+  model_prior = "uniform"
 )
 }
 \arguments{
@@ -34,12 +35,36 @@ the projection matrix) should be computed for each model separately.
 \item{exact_value}{Whether the exact value of the likelihood should be
 computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 \link[panels]{SEM_likelihood} for details.}
+
+\item{model_prior}{Which model prior to use. For now there are two options:
+\code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.}
 }
 \value{
-List with two elements \code{stds} and \code{stds_robust} (not sure yet what
-is meant by 'robust')
+Matrix with columns describing likelihood and standard deviations for each
+model. The first row is the likelihood for the model (computed using the
+parameters in the provided model space). The second row is almost 1/2 * BIC_k
+as in Raftery's Bayesian Model Selection in Social Research eq. 19 (see TODO
+in the code below). The third row is model posterior probability. Then there
+are rows with standard deviations for each parameter. After that we have rows
+with robust standard deviation (not sure yet what exactly "robust" means).
 }
 \description{
 Approximate standard deviations are computed for the models in the given
 model space. Two versions are computed.
+}
+\examples{
+data_centered_scaled <-
+  feature_standardization(df = panels::economic_growth[,1:7],
+                          timestamp_col = year, entity_col = country)
+data_cross_sectional_standarized <-
+  feature_standardization(df = data_centered_scaled, timestamp_col = year,
+                          entity_col = country, cross_sectional = TRUE,
+                          scale = FALSE)
+
+likelihoods_info <-
+  likelihoods_summary(df = data_cross_sectional_standarized,
+                      dep_var_col = gdp, timestamp_col = year,
+                      entity_col = country, model_space = economic_growth_ms,
+                      projection_matrix_const = TRUE)
+
 }

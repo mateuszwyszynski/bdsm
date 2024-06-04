@@ -24,6 +24,147 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("mateuszwyszynski/panels")
 ```
 
+## Basic Usage
+
+``` r
+library(magrittr)
+devtools::load_all()
+#> ℹ Loading panels
+
+set.seed(20)
+
+# Prepare data
+#
+# Features are scaled and centralized around the mean.
+# Then they are centralized around the mean within cross-sections
+data_prepared <- panels::economic_growth[,1:7] %>%
+  feature_standardization(timestamp_col = year, entity_col = country) %>%
+  feature_standardization(timestamp_col = year, entity_col = country,
+                          cross_sectional = TRUE, scale = FALSE)
+
+# If needed track computation time
+# begin<-Sys.time()
+
+# Find optimal model space
+#
+# Parameters for each model are initialized with init_value. Then MLE for each
+# model is searched numerically
+model_space <-
+  optimal_model_space(df = data_prepared, dep_var_col = gdp,
+                      timestamp_col = year, entity_col = country,
+                      init_value = 0.5, projection_matrix_const = TRUE)
+#> initial  value 391.724615 
+#> iter 100 value -440.576465
+#> final  value -442.511424 
+#> converged
+#> initial  value 499.196856 
+#> iter 100 value -453.243244
+#> final  value -461.726922 
+#> converged
+#> initial  value 465.522152 
+#> iter 100 value -432.427725
+#> final  value -446.215922 
+#> converged
+#> initial  value 656.459642 
+#> iter 100 value -451.634848
+#> final  value -463.221071 
+#> converged
+#> initial  value 534.179684 
+#> iter 100 value -431.328193
+#> final  value -448.917258 
+#> converged
+#> initial  value 559.238975 
+#> iter 100 value -448.140332
+#> final  value -465.886079 
+#> converged
+#> initial  value 504.517881 
+#> iter 100 value -436.837103
+#> final  value -451.364551 
+#> converged
+#> initial  value 612.978620 
+#> iter 100 value -446.697905
+#> final  value -466.614843 
+#> converged
+#> initial  value 463.517686 
+#> iter 100 value -448.667381
+#> final  value -454.200335 
+#> converged
+#> initial  value 580.058747 
+#> iter 100 value -464.834245
+#> final  value -467.292138 
+#> converged
+#> initial  value 543.422562 
+#> iter 100 value -442.500862
+#> final  value -456.263327 
+#> converged
+#> initial  value 743.365072 
+#> iter 100 value -461.298191
+#> final  value -468.678508 
+#> converged
+#> initial  value 592.805410 
+#> iter 100 value -451.477884
+#> final  value -459.119018 
+#> converged
+#> initial  value 626.869720 
+#> iter 100 value -462.423326
+#> final  value -471.739580 
+#> converged
+#> initial  value 569.187145 
+#> iter 100 value -451.771449
+#> iter 200 value -460.196545
+#> final  value -460.198591 
+#> converged
+#> initial  value 686.560634 
+#> iter 100 value -461.031414
+#> final  value -472.282811 
+#> converged
+
+# print(paste("Computation Time:", Sys.time()-begin))
+# begin<-Sys.time() # Reset clock
+
+# Compute intermediate BMA results
+bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
+                          timestamp_col = year, entity_col = country,
+                          model_space = model_space,
+                          projection_matrix_const = TRUE)
+#> [1] "Prior Mean Model Size: 2"
+#> [1] "Prior Inclusion Probability: 0.5"
+
+# print(paste("Computation Time:", Sys.time()-begin))
+
+# Summary for parameters of interest
+regressors <- regressor_names(data_prepared, year, country, gdp)
+
+bma_params_summary <- parameters_summary(
+  regressors = regressors, bet = bma_result$bet, pvarh = bma_result$pvarh,
+  pvarr = bma_result$pvarr, fy = bma_result$fy, fyt = bma_result$fyt,
+  ppmsize = bma_result$ppmsize, cout = bma_result$cout, nts = bma_result$nts,
+  pts = bma_result$pts, variables_n = bma_result$variables_n
+  )
+#> Warning in cbind(regressors, postprobinc, postmean, poststdh, poststdr, :
+#> number of rows of result is not a multiple of vector length (arg 1)
+#> [1] "Posterior Mean Model Size:  3.05869495570195"
+bma_params_summary
+#>    varname          postprob               pmean                std
+#>        ish                 1    1.04193144970432  0.101804358830184
+#> V1     sed 0.540698759499728   0.137662158474483 0.0868547375771481
+#> V2    pgrw 0.495775491935032 -0.0114541214642964 0.0716180291008528
+#> V3     pop 0.505491333084179 -0.0407496048077823 0.0663896162315334
+#> V4     ish 0.516729371183009   0.135808595502873  0.040201102608641
+#>                  stdR            unc_pmean            unc_std
+#>     0.144125225186717     1.04193144970432  0.101804358830184
+#> V1  0.153133539462144   0.0744337583172081 0.0937295111331604
+#> V2 0.0855190348011086 -0.00567867270364515 0.0507513529596844
+#> V3  0.083000439173543  -0.0205985720569394 0.0514108604088564
+#> V4 0.0471872840674506   0.0701762901554471 0.0737626792164461
+#>              unc_stdR
+#>     0.144125225186717
+#> V1  0.131854650936448
+#> V2 0.0604868049884084
+#> V3 0.0624295534630199
+#> V4 0.0758709554163802
+```
+
 ## Troubleshooting
 
 1.  Cannot install required packages / setup renv environment
