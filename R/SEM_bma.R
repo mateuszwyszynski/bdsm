@@ -1,3 +1,122 @@
+#' Compute Standard Deviation from Model Parameters
+#'
+#' @param params Parameters of the model
+#' @param df Data frame with data for the SEM analysis.
+#' @param timestamp_col The name of the column with timestamps
+#' @param entity_col Column with entities (e.g. countries)
+#' @param dep_var_col Column with the dependent variable
+#' @param exact_value Whether the exact value of the likelihood should be
+#' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
+#' \link[panels]{SEM_likelihood} for details.
+#' @param projection_matrix_const Whether the residual maker matrix (and so
+#' the projection matrix) should be computed for each model separately.
+#' \code{TRUE} means that the matrix will be the same for all models
+#' @param periods_n Number of time steps (e.g. years)
+#' @param n_entities Number of entitied (e.g. contries)
+#' @param matrices_shared_across_models these are Y1, Y2, Z and res_maker_matrix
+#' @param b parameter for beta (random) distribution of the prior inclusion
+#' probability
+#' @param prior_inc_prob Prior inclusion probability of the model
+#' @param model_prior Which model prior to use. For now there are two options:
+#' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
+#' @param regressors_n Number of regressors
+#'
+#' @return
+#' @export
+#'
+#' @examples
+std_dev_from_params <- function(params, df, timestamp_col, entity_col, dep_var_col,
+                                exact_value, projection_matrix_const,
+                                periods_n, n_entities, matrices_shared_across_models, b,
+                                prior_inc_prob, model_prior, regressors_n) {
+  regressors_subset <-
+    regressor_names_from_params_vector(params)
+
+  lin_features_n <- length(regressors_subset) + 1
+  features_n <- ncol(matrices_shared_across_models$Z)
+
+  model_specific_matrices <- df %>%
+    matrices_from_df(timestamp_col = {{ timestamp_col }},
+                     entity_col = {{ entity_col }},
+                     dep_var_col = {{ dep_var_col }},
+                     lin_related_regressors = regressors_subset,
+                     which_matrices = c("cur_Y2", "cur_Z"))
+
+  matrices_shared_across_models$cur_Z <- model_specific_matrices$cur_Z
+  matrices_shared_across_models$cur_Y2 <- model_specific_matrices$cur_Y2
+
+  params_no_na <- params %>% stats::na.omit()
+
+  likelihood <-
+    SEM_likelihood(params = params_no_na, data = matrices_shared_across_models,
+                   exact_value = exact_value,
+                   projection_matrix_const = projection_matrix_const)
+
+  hess <- hessian(SEM_likelihood, theta = params_no_na,
+                  data = matrices_shared_across_models)
+
+  likelihood_per_entity <-
+    SEM_likelihood(params_no_na, data = matrices_shared_across_models,
+                   per_entity = TRUE)
+
+  # TODO: how to interpret the Gmat and Imat
+  Gmat <- rootSolve::gradient(SEM_likelihood, params_no_na,
+                              data = matrices_shared_across_models,
+                              per_entity = TRUE)
+  Imat <- crossprod(Gmat)
+
+  # Section 2.3.3 in Moral-Benito
+  # GROWTH EMPIRICS IN PANEL DATA UNDER MODEL UNCERTAINTY AND WEAK EXOGENEITY:
+  # "Finally, each model-specific posterior is given by a normal distribution
+  # with mean at the MLE and dispersion matrix equal to the inverse of the
+  # Fisher information."
+  # This is most likely why hessian is used to compute standard errors.
+  # TODO: Learn the Bernstein–von Mises theorem which explain in detail how
+  # all this works
+  stdr <- rep(0, features_n)
+  stdh <- rep(0, features_n)
+
+  . <- NULL
+  linear_params <- t(params) %>% as.data.frame() %>%
+    dplyr::select(tidyselect::matches('alpha'),
+                  tidyselect::matches('beta')) %>%
+    as.matrix() %>% t()
+
+  stdr[!is.na(linear_params)] <- sqrt(diag(solve(hess) %*% Imat %*% solve(hess)))[1:lin_features_n]
+  stdh[!is.na(linear_params)] <- sqrt(diag(solve(hess)))[1:lin_features_n]
+
+  # Below we have almost 1/2 * BIC_k as in Raftery's Bayesian Model Selection
+  # in Social Research eq. 19. The part with reference model M_1 is skipped,
+  # because we use this formula to compute exp(logl) which is in turn used to
+  # compute posterior probabilities using eqs. 34/35. Since the part connected
+  # with M_1 model would be present in all posteriors it cancels out. Hence
+  # the important part is the one computed below.
+  #
+  # TODO: Why everything is divided by n_entities?
+
+  # Eq. 19
+  loglikelihood <-
+    (likelihood - (lin_features_n/2)*(log(n_entities*periods_n)))/n_entities
+
+  # Eq. 35
+  bic <- exp(loglikelihood)
+
+  if (model_prior == 'binomial-beta') {
+    prior_model_prob <-
+      gamma(lin_features_n) * gamma(b + regressors_n - lin_features_n + 1)
+  } else if (model_prior == 'uniform') {
+    prior_model_prob <-
+      prior_inc_prob^(lin_features_n - 1) *
+      (1-prior_inc_prob)^(regressors_n - lin_features_n + 1)
+  } else {
+    stop("Please specify a correct model prior!")
+  }
+
+  posterior_model_prob <- prior_model_prob * bic
+
+  c(likelihood, bic, posterior_model_prob, stdh, stdr)
+}
+
 #' Approximate standard deviations for the models
 #'
 #' Approximate standard deviations are computed for the models in the given
@@ -73,94 +192,16 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
   # parameter for beta (random) distribution of the prior inclusion probability
   b <- (regressors_n - prior_exp_model_size) / prior_exp_model_size
 
-  std_dev_from_params <- function(params, data) {
-    regressors_subset <-
-      regressor_names_from_params_vector(params)
-
-    lin_features_n <- length(regressors_subset) + 1
-    features_n <- ncol(data$Z)
-
-    model_specific_matrices <- df %>%
-      matrices_from_df(timestamp_col = {{ timestamp_col }},
-                       entity_col = {{ entity_col }},
-                       dep_var_col = {{ dep_var_col }},
-                       lin_related_regressors = regressors_subset,
-                       which_matrices = c("cur_Y2", "cur_Z"))
-
-    data$cur_Z <- model_specific_matrices$cur_Z
-    data$cur_Y2 <- model_specific_matrices$cur_Y2
-
-    params_no_na <- params %>% stats::na.omit()
-
-    likelihood <-
-      SEM_likelihood(params = params_no_na, data = data,
-                     exact_value = exact_value,
-                     projection_matrix_const = projection_matrix_const)
-
-    hess <- hessian(SEM_likelihood, theta = params_no_na, data = data)
-
-    likelihood_per_entity <-
-      SEM_likelihood(params_no_na, data = data, per_entity = TRUE)
-
-    # TODO: how to interpret the Gmat and Imat
-    Gmat <- rootSolve::gradient(SEM_likelihood, params_no_na, data = data,
-                                per_entity = TRUE)
-    Imat <- crossprod(Gmat)
-
-    # Section 2.3.3 in Moral-Benito
-    # GROWTH EMPIRICS IN PANEL DATA UNDER MODEL UNCERTAINTY AND WEAK EXOGENEITY:
-    # "Finally, each model-specific posterior is given by a normal distribution
-    # with mean at the MLE and dispersion matrix equal to the inverse of the
-    # Fisher information."
-    # This is most likely why hessian is used to compute standard errors.
-    # TODO: Learn the Bernstein–von Mises theorem which explain in detail how
-    # all this works
-    stdr <- rep(0, features_n)
-    stdh <- rep(0, features_n)
-
-    . <- NULL
-    linear_params <- t(params) %>% as.data.frame() %>%
-      dplyr::select(tidyselect::matches('alpha'),
-                    tidyselect::matches('beta')) %>%
-      as.matrix() %>% t()
-
-    stdr[!is.na(linear_params)] <- sqrt(diag(solve(hess) %*% Imat %*% solve(hess)))[1:lin_features_n]
-    stdh[!is.na(linear_params)] <- sqrt(diag(solve(hess)))[1:lin_features_n]
-
-    # Below we have almost 1/2 * BIC_k as in Raftery's Bayesian Model Selection
-    # in Social Research eq. 19. The part with reference model M_1 is skipped,
-    # because we use this formula to compute exp(logl) which is in turn used to
-    # compute posterior probabilities using eqs. 34/35. Since the part connected
-    # with M_1 model would be present in all posteriors it cancels out. Hence
-    # the important part is the one computed below.
-    #
-    # TODO: Why everything is divided by n_entities?
-
-    # Eq. 19
-    loglikelihood <-
-      (likelihood - (lin_features_n/2)*(log(n_entities*periods_n)))/n_entities
-
-    # Eq. 35
-    bic <- exp(loglikelihood)
-
-    if (model_prior == 'binomial-beta') {
-      prior_model_prob <-
-        gamma(lin_features_n) * gamma(b + regressors_n - lin_features_n + 1)
-    } else if (model_prior == 'uniform') {
-      prior_model_prob <-
-        prior_inc_prob^(lin_features_n - 1) *
-        (1-prior_inc_prob)^(regressors_n - lin_features_n + 1)
-    } else {
-      stop("Please specify a correct model prior!")
-    }
-
-    posterior_model_prob <- prior_model_prob * bic
-
-    c(likelihood, bic, posterior_model_prob, stdh, stdr)
-  }
-
   likelihoods_info <-
-    apply(model_space, 2, std_dev_from_params, matrices_shared_across_models)
+    apply(model_space, 2, std_dev_from_params, df = df,
+          timestamp_col = {{ timestamp_col }},
+          entity_col = {{ entity_col }}, dep_var_col = {{ dep_var_col }},
+          exact_value = exact_value,
+          projection_matrix_const = projection_matrix_const,
+          periods_n = periods_n, n_entities = n_entities,
+          matrices_shared_across_models = matrices_shared_across_models, b = b,
+          prior_inc_prob = prior_inc_prob, model_prior = model_prior,
+          regressors_n = regressors_n)
 
   likelihoods_info[3,] <- likelihoods_info[3,] / sum(likelihoods_info[3,])
 
