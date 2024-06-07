@@ -337,7 +337,13 @@ parameters_summary <- function(regressors, bet, pvarh, pvarr, fy, fyt, ppmsize, 
     }
   }
 
-  result=as.data.frame(cbind(regressors,postprobinc,postmean,poststdh,poststdr,upostmean,upoststdh,upoststdr))
+  result=as.data.frame(
+    cbind(
+      c("alpha", regressors),
+      postprobinc, postmean, poststdh, poststdr,
+      upostmean, upoststdh, upoststdr
+    )
+  )
   names(result)<-c("varname","postprob","pmean","std","stdR","unc_pmean","unc_std","unc_stdR")
 
   print(paste("Posterior Mean Model Size: ", popmsize))
