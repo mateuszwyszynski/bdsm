@@ -49,75 +49,13 @@ data_prepared <- panels::economic_growth[,1:7] %>%
 #
 # Parameters for each model are initialized with init_value. Then MLE for each
 # model is searched numerically
+library(parallel)
+cl <- makeForkCluster(detectCores())
+setDefaultCluster(cl)
 model_space <-
   optimal_model_space(df = data_prepared, dep_var_col = gdp,
                       timestamp_col = year, entity_col = country,
                       init_value = 0.5, projection_matrix_const = TRUE)
-#> initial  value 391.724615 
-#> iter 100 value -440.576465
-#> final  value -442.511424 
-#> converged
-#> initial  value 499.196856 
-#> iter 100 value -453.243244
-#> final  value -461.726922 
-#> converged
-#> initial  value 465.522152 
-#> iter 100 value -432.427725
-#> final  value -446.215922 
-#> converged
-#> initial  value 656.459642 
-#> iter 100 value -451.634848
-#> final  value -463.221071 
-#> converged
-#> initial  value 534.179684 
-#> iter 100 value -431.328193
-#> final  value -448.917258 
-#> converged
-#> initial  value 559.238975 
-#> iter 100 value -448.140332
-#> final  value -465.886079 
-#> converged
-#> initial  value 504.517881 
-#> iter 100 value -436.837103
-#> final  value -451.364551 
-#> converged
-#> initial  value 612.978620 
-#> iter 100 value -446.697905
-#> final  value -466.614843 
-#> converged
-#> initial  value 463.517686 
-#> iter 100 value -448.667381
-#> final  value -454.200335 
-#> converged
-#> initial  value 580.058747 
-#> iter 100 value -464.834245
-#> final  value -467.292138 
-#> converged
-#> initial  value 543.422562 
-#> iter 100 value -442.500862
-#> final  value -456.263327 
-#> converged
-#> initial  value 743.365072 
-#> iter 100 value -461.298191
-#> final  value -468.678508 
-#> converged
-#> initial  value 592.805410 
-#> iter 100 value -451.477884
-#> final  value -459.119018 
-#> converged
-#> initial  value 626.869720 
-#> iter 100 value -462.423326
-#> final  value -471.739580 
-#> converged
-#> initial  value 569.187145 
-#> iter 100 value -451.771449
-#> iter 200 value -460.196545
-#> final  value -460.198591 
-#> converged
-#> initial  value 686.560634 
-#> iter 100 value -461.031414
-#> final  value -472.282811 
-#> converged
 
 # print(paste("Computation Time:", Sys.time()-begin))
 # begin<-Sys.time() # Reset clock
@@ -133,7 +71,7 @@ bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
 # print(paste("Computation Time:", Sys.time()-begin))
 
 # Summary for parameters of interest
-regressors <- regressor_names(data_prepared, year, country, gdp)
+regressors <- panels:::regressor_names(data_prepared, year, country, gdp)
 
 bma_params_summary <- parameters_summary(
   regressors = regressors, bet = bma_result$bet, pvarh = bma_result$pvarh,
@@ -141,16 +79,14 @@ bma_params_summary <- parameters_summary(
   ppmsize = bma_result$ppmsize, cout = bma_result$cout, nts = bma_result$nts,
   pts = bma_result$pts, variables_n = bma_result$variables_n
   )
-#> Warning in cbind(regressors, postprobinc, postmean, poststdh, poststdr, :
-#> number of rows of result is not a multiple of vector length (arg 1)
 #> [1] "Posterior Mean Model Size:  3.05869495570195"
 bma_params_summary
 #>    varname          postprob               pmean                std
-#>        ish                 1    1.04193144970432  0.101804358830184
-#> V1     sed 0.540698759499728   0.137662158474483 0.0868547375771481
-#> V2    pgrw 0.495775491935032 -0.0114541214642964 0.0716180291008528
-#> V3     pop 0.505491333084179 -0.0407496048077823 0.0663896162315334
-#> V4     ish 0.516729371183009   0.135808595502873  0.040201102608641
+#>      alpha                 1    1.04193144970432  0.101804358830184
+#> V1     ish 0.540698759499728   0.137662158474483 0.0868547375771481
+#> V2     sed 0.495775491935032 -0.0114541214642964 0.0716180291008528
+#> V3    pgrw 0.505491333084179 -0.0407496048077823 0.0663896162315334
+#> V4     pop 0.516729371183009   0.135808595502873  0.040201102608641
 #>                  stdR            unc_pmean            unc_std
 #>     0.144125225186717     1.04193144970432  0.101804358830184
 #> V1  0.153133539462144   0.0744337583172081 0.0937295111331604
@@ -305,70 +241,6 @@ economic_growth_ms_2 <-
   optimal_model_space(df = data_prepared, dep_var_col = gdp,
                       timestamp_col = year, entity_col = country,
                       init_value = 0.5, projection_matrix_const = FALSE)
-#> initial  value 683.117366 
-#> iter 100 value 41.663662
-#> final  value 39.044737 
-#> converged
-#> initial  value 741.819590 
-#> iter 100 value -32.153781
-#> final  value -33.313975 
-#> converged
-#> initial  value 715.204410 
-#> iter 100 value -28.859578
-#> final  value -30.705138 
-#> converged
-#> initial  value 854.010861 
-#> iter 100 value -99.795552
-#> final  value -104.715978 
-#> converged
-#> initial  value 802.489421 
-#> iter 100 value -11.841397
-#> final  value -13.889648 
-#> converged
-#> initial  value 773.966583 
-#> iter 100 value -83.491063
-#> final  value -86.195425 
-#> converged
-#> initial  value 730.140223 
-#> iter 100 value -72.973749
-#> final  value -82.124903 
-#> converged
-#> initial  value 779.593030 
-#> iter 100 value -150.953097
-#> final  value -155.702262 
-#> converged
-#> initial  value 646.828778 
-#> iter 100 value -276.731665
-#> final  value -280.031940 
-#> converged
-#> initial  value 693.058877 
-#> iter 100 value -348.857920
-#> final  value -352.097640 
-#> converged
-#> initial  value 661.565114 
-#> iter 100 value -331.735361
-#> final  value -346.967488 
-#> converged
-#> initial  value 788.861127 
-#> iter 100 value -410.646171
-#> final  value -420.960603 
-#> converged
-#> initial  value 730.184924 
-#> iter 100 value -318.091992
-#> final  value -332.946433 
-#> converged
-#> initial  value 693.137385 
-#> iter 100 value -400.988338
-#> final  value -404.867459 
-#> converged
-#> initial  value 642.628746 
-#> iter 100 value -388.053141
-#> final  value -398.464516 
-#> converged
-#> initial  value 686.560634 
-#> iter 100 value -461.031414
-#> final  value -472.282811 
-#> converged
 
 nested_version_of_no_ish_model_params <- economic_growth_ms_2[, 15]
 no_ish_model_params <-

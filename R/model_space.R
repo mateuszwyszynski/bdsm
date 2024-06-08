@@ -167,7 +167,7 @@ optimal_model_space <-
       params
     }
 
-    model_space <- apply(model_space, 2, optimization_wrapper,
+    model_space <- parallel::parApply(cl = cl, model_space, 2, optimization_wrapper,
                          matrices_shared_across_models)
     model_space
 }
