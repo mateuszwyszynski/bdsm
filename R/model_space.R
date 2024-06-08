@@ -155,7 +155,7 @@ optimal_model_space <-
       # optimisation. Most likely optimisation methods used in Gauss are
       # scale-free and these used in R are not
       # TODO: search for methods (or implement methods) in R which are scale-free
-      control$parscale = 0.05*params_no_na
+      control$parscale = 0.01*params_no_na
 
       optimized <- stats::optim(params_no_na, SEM_likelihood, data = data,
                                 exact_value = exact_value,
