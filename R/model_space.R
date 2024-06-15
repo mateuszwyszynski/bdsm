@@ -110,9 +110,8 @@ regressor_names_from_params_vector <- function(params) {
 #' \link[panels]{SEM_likelihood} for details.
 #' @param control a list of control parameters for the optimization which are
 #' passed to \link[stats]{optim}. Default is
-#' \code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100)}, but note
-#' that a \code{parscale} element is also added later in the function code.
-#' For now it is hard coded with no control on the user side.
+#' \code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100, scale = 0.05)}, but note
+#' that \code{scale} is used only for adjusting the \code{parscale} element added later in the function code.
 #'
 #' @return
 #' List of parameters describing analysed models
@@ -122,7 +121,7 @@ optimal_model_space <-
   function(df, timestamp_col, entity_col, dep_var_col, init_value,
            projection_matrix_const, exact_value = TRUE,
            control = list(trace = 2, maxit = 10000, fnscale = -1,
-                          REPORT = 100)) {
+                          REPORT = 100, scale = 0.05)) {
     matrices_shared_across_models <- df %>%
       matrices_from_df(timestamp_col = {{ timestamp_col }},
                        entity_col = {{ entity_col }},
@@ -155,7 +154,8 @@ optimal_model_space <-
       # optimisation. Most likely optimisation methods used in Gauss are
       # scale-free and these used in R are not
       # TODO: search for methods (or implement methods) in R which are scale-free
-      control$parscale = 0.05*params_no_na
+      control$parscale = control$scale * params_no_na
+      control$scale = NULL
 
       optimized <- stats::optim(params_no_na, SEM_likelihood, data = data,
                                 exact_value = exact_value,
