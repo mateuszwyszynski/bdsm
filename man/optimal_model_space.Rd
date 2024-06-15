@@ -12,7 +12,7 @@ optimal_model_space(
   init_value,
   projection_matrix_const,
   exact_value = TRUE,
-  control = list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100)
+  control = list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100, scale = 0.05)
 )
 }
 \arguments{
@@ -37,9 +37,8 @@ computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 
 \item{control}{a list of control parameters for the optimization which are
 passed to \link[stats]{optim}. Default is
-\code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100)}, but note
-that a \code{parscale} element is also added later in the function code.
-For now it is hard coded with no control on the user side.}
+\code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100, scale = 0.05)}, but note
+that \code{scale} is used only for adjusting the \code{parscale} element added later in the function code.}
 }
 \value{
 List of parameters describing analysed models
