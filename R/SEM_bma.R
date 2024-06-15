@@ -201,6 +201,10 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 #' \link[panels]{SEM_likelihood} for details.
+#' @param run_parallel If \code{TRUE} the optimization is run in parallel using
+#' the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
+#' base apply function is used. Note that using the parallel computing requires
+#' setting the default cluster. See README.
 #'
 #' @return
 #' List of parameters describing analysed models
@@ -208,7 +212,8 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
 #' @export
 bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
                         model_space, projection_matrix_const,
-                        exact_value = TRUE, model_prior = 'uniform') {
+                        exact_value = TRUE, model_prior = 'uniform',
+                        run_parallel = FALSE) {
   regressors <- df %>%
     regressor_names(timestamp_col = {{ timestamp_col }},
                     entity_col = {{ entity_col }},
@@ -237,8 +242,9 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     df, dep_var_col = {{ dep_var_col }}, timestamp_col = {{ timestamp_col }},
     entity_col = {{ entity_col }}, model_space = model_space,
     projection_matrix_const = projection_matrix_const,
-    exact_value = exact_value, model_prior = model_prior
-    )
+    exact_value = exact_value, model_prior = model_prior,
+    run_parallel = run_parallel
+  )
 
   regressors_subsets <- rje::powerSet(regressors)
   regressors_subsets_matrix <-
