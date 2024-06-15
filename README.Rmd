@@ -53,19 +53,36 @@ data_prepared <- panels::economic_growth[,1:7] %>%
                           cross_sectional = TRUE, scale = FALSE)
 
 # If needed track computation time
-# begin<-Sys.time()
+begin <- Sys.time()
 
 # Find optimal model space
 #
 # Parameters for each model are initialized with init_value. Then MLE for each
 # model is searched numerically
+ 
 model_space <-
   optimal_model_space(df = data_prepared, dep_var_col = gdp,
                       timestamp_col = year, entity_col = country,
                       init_value = 0.5, projection_matrix_const = TRUE)
 
-# print(paste("Computation Time:", Sys.time()-begin))
-# begin<-Sys.time() # Reset clock
+
+
+print(paste("Computation Time:", Sys.time() - begin))
+# begin <- Sys.time() # Reset clock
+
+
+# Optional: To find the optimal model space with parallel computations
+library(parallel)
+cl <- makeCluster(detectCores())
+setDefaultCluster(cl)
+
+model_space <-
+  optimal_model_space(df = data_prepared, dep_var_col = gdp,
+                      timestamp_col = year, entity_col = country,
+                      init_value = 0.5, projection_matrix_const = TRUE,
+                      run_parallel = TRUE)
+
+stopCluster(cl = NULL)
 
 # Compute intermediate BMA results
 bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
