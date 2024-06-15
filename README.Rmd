@@ -54,14 +54,14 @@ data_prepared <- panels::economic_growth[,1:7] %>%
                           cross_sectional = TRUE, scale = FALSE)
 
 # If needed track computation time
-begin <- Sys.time()
+library(tictoc)
+tic()
 
 # STEP 2
 # Find optimal model space
 #
 # Parameters for each model are initialized with init_value. Then MLE for each
 # model is searched numerically
- 
 model_space <-
   optimal_model_space(df = data_prepared, dep_var_col = gdp,
                       timestamp_col = year, entity_col = country,
@@ -69,8 +69,8 @@ model_space <-
 
 
 
-print(paste("Computation Time:", Sys.time() - begin))
-# begin <- Sys.time() # Reset clock
+print(paste("Computation Time:", toc()))
+tic()
 
 # STEP 3
 # Compute intermediate BMA results
@@ -79,7 +79,7 @@ bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                           model_space = model_space,
                           projection_matrix_const = TRUE)
 
-# print(paste("Computation Time:", Sys.time()-begin))
+print(paste("Computation Time:", toc()))
 
 # STEP 4
 # Summary for parameters of interest
@@ -91,6 +91,7 @@ bma_params_summary <- parameters_summary(
   ppmsize = bma_result$ppmsize, cout = bma_result$cout, nts = bma_result$nts,
   pts = bma_result$pts, variables_n = bma_result$variables_n
   )
+
 bma_params_summary
 ```
 
