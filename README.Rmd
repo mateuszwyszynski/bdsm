@@ -266,7 +266,7 @@ not MLEs, because they were obtained with an incorrect implementation.
 # To find the optimal model space with parallel computations
 # replace the STEP 2 with:
 library(parallel)
-cl <- makeCluster(detectCores())
+cl <- makeCluster(detectCores(), 'FORK')
 setDefaultCluster(cl)
 
 model_space <-
