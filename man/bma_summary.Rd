@@ -12,7 +12,8 @@ bma_summary(
   model_space,
   projection_matrix_const,
   exact_value = TRUE,
-  model_prior = "uniform"
+  model_prior = "uniform",
+  run_parallel = FALSE
 )
 }
 \arguments{
@@ -38,6 +39,11 @@ computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 
 \item{model_prior}{Which model prior to use. For now there are two options:
 \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.}
+
+\item{run_parallel}{If \code{TRUE} the optimization is run in parallel using
+the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
+base apply function is used. Note that using the parallel computing requires
+setting the default cluster. See README.}
 }
 \value{
 List of parameters describing analysed models

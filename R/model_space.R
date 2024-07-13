@@ -108,11 +108,17 @@ regressor_names_from_params_vector <- function(params) {
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 #' \link[panels]{SEM_likelihood} for details.
+#' @param run_parallel If \code{TRUE} the optimization is run in parallel using
+#' the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
+#' base apply function is used. Note that using the parallel computing requires
+#' setting the default cluster. See README.
 #' @param control a list of control parameters for the optimization which are
 #' passed to \link[stats]{optim}. Default is
 #' \code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100)}, but note
 #' that a \code{parscale} element is also added later in the function code.
 #' For now it is hard coded with no control on the user side.
+#'
+#' @importFrom parallel parApply
 #'
 #' @return
 #' List of parameters describing analysed models
@@ -120,7 +126,7 @@ regressor_names_from_params_vector <- function(params) {
 #' @export
 optimal_model_space <-
   function(df, timestamp_col, entity_col, dep_var_col, init_value,
-           projection_matrix_const, exact_value = TRUE,
+           projection_matrix_const, exact_value = TRUE, run_parallel = FALSE,
            control = list(trace = 2, maxit = 10000, fnscale = -1,
                           REPORT = 100)) {
     matrices_shared_across_models <- df %>%
@@ -160,14 +166,21 @@ optimal_model_space <-
       optimized <- stats::optim(params_no_na, SEM_likelihood, data = data,
                                 exact_value = exact_value,
                                 projection_matrix_const = projection_matrix_const,
-                                method="BFGS",
+                                method = "BFGS",
                                 control = control)
 
       params[!is.na(params)] <- optimized[[1]]
       params
     }
 
-    model_space <- apply(model_space, 2, optimization_wrapper,
-                         matrices_shared_across_models)
+    model_space <- do.call(
+      ifelse(run_parallel, "parApply", "apply"),
+      list(
+        X = model_space, MARGIN = 2,
+        FUN = optimization_wrapper,
+        data = matrices_shared_across_models
+      )
+    )
+
     model_space
 }

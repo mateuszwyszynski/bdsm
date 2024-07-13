@@ -43,6 +43,7 @@ devtools::load_all()
 
 set.seed(20)
 
+# STEP 1
 # Prepare data
 #
 # Features are scaled and centralized around the mean.
@@ -53,8 +54,10 @@ data_prepared <- panels::economic_growth[,1:7] %>%
                           cross_sectional = TRUE, scale = FALSE)
 
 # If needed track computation time
-# begin<-Sys.time()
+library(tictoc)
+tic()
 
+# STEP 2
 # Find optimal model space
 #
 # Parameters for each model are initialized with init_value. Then MLE for each
@@ -64,17 +67,21 @@ model_space <-
                       timestamp_col = year, entity_col = country,
                       init_value = 0.5, projection_matrix_const = TRUE)
 
-# print(paste("Computation Time:", Sys.time()-begin))
-# begin<-Sys.time() # Reset clock
 
+
+print(paste("Computation Time:", toc()))
+tic()
+
+# STEP 3
 # Compute intermediate BMA results
 bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                           timestamp_col = year, entity_col = country,
                           model_space = model_space,
                           projection_matrix_const = TRUE)
 
-# print(paste("Computation Time:", Sys.time()-begin))
+print(paste("Computation Time:", toc()))
 
+# STEP 4
 # Summary for parameters of interest
 regressors <- panels:::regressor_names(data_prepared, year, country, gdp)
 
@@ -84,6 +91,7 @@ bma_params_summary <- parameters_summary(
   ppmsize = bma_result$ppmsize, cout = bma_result$cout, nts = bma_result$nts,
   pts = bma_result$pts, variables_n = bma_result$variables_n
   )
+
 bma_params_summary
 ```
 
@@ -250,3 +258,29 @@ perspective of the corrected version we are just using some random parameters
 to check if the value obtained with the nested model implementation and the full
 model implementation is consistent. The only thing is that these parameters are
 not MLEs, because they were obtained with an incorrect implementation.
+
+
+## Advanced Usage: parallel computing
+
+```{r}
+# To find the optimal model space with parallel computations
+# replace the STEP 2 with:
+library(parallel)
+cl <- makeCluster(detectCores(), 'FORK')
+setDefaultCluster(cl)
+
+model_space <-
+  optimal_model_space(df = data_prepared, dep_var_col = gdp,
+                      timestamp_col = year, entity_col = country,
+                      init_value = 0.5, projection_matrix_const = TRUE,
+                      run_parallel = TRUE)
+
+# and STEP 3 with:
+bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
+                          timestamp_col = year, entity_col = country,
+                          model_space = model_space,
+                          projection_matrix_const = TRUE,
+                          run_parallel = TRUE)
+
+stopCluster(cl = NULL)
+```
