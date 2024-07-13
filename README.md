@@ -33,6 +33,7 @@ devtools::load_all()
 
 set.seed(20)
 
+# STEP 1
 # Prepare data
 #
 # Features are scaled and centralized around the mean.
@@ -43,8 +44,10 @@ data_prepared <- panels::economic_growth[,1:7] %>%
                           cross_sectional = TRUE, scale = FALSE)
 
 # If needed track computation time
-# begin<-Sys.time()
+library(tictoc)
+tic()
 
+# STEP 2
 # Find optimal model space
 #
 # Parameters for each model are initialized with init_value. Then MLE for each
@@ -119,9 +122,17 @@ model_space <-
 #> final  value -472.282811 
 #> converged
 
-# print(paste("Computation Time:", Sys.time()-begin))
-# begin<-Sys.time() # Reset clock
 
+
+print(paste("Computation Time:", toc()))
+#> 43.655 sec elapsed
+#> [1] "Computation Time: c(elapsed = 2.167)" 
+#> [2] "Computation Time: c(elapsed = 45.822)"
+#> [3] "Computation Time: logical(0)"         
+#> [4] "Computation Time: 43.655 sec elapsed"
+tic()
+
+# STEP 3
 # Compute intermediate BMA results
 bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                           timestamp_col = year, entity_col = country,
@@ -130,10 +141,16 @@ bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
 #> [1] "Prior Mean Model Size: 2"
 #> [1] "Prior Inclusion Probability: 0.5"
 
-# print(paste("Computation Time:", Sys.time()-begin))
+print(paste("Computation Time:", toc()))
+#> 13.332 sec elapsed
+#> [1] "Computation Time: c(elapsed = 45.822)"
+#> [2] "Computation Time: c(elapsed = 59.154)"
+#> [3] "Computation Time: logical(0)"         
+#> [4] "Computation Time: 13.332 sec elapsed"
 
+# STEP 4
 # Summary for parameters of interest
-regressors <- regressor_names(data_prepared, year, country, gdp)
+regressors <- panels:::regressor_names(data_prepared, year, country, gdp)
 
 bma_params_summary <- parameters_summary(
   regressors = regressors, bet = bma_result$bet, pvarh = bma_result$pvarh,
@@ -141,16 +158,15 @@ bma_params_summary <- parameters_summary(
   ppmsize = bma_result$ppmsize, cout = bma_result$cout, nts = bma_result$nts,
   pts = bma_result$pts, variables_n = bma_result$variables_n
   )
-#> Warning in cbind(regressors, postprobinc, postmean, poststdh, poststdr, :
-#> number of rows of result is not a multiple of vector length (arg 1)
 #> [1] "Posterior Mean Model Size:  3.05869495570195"
+
 bma_params_summary
 #>    varname          postprob               pmean                std
-#>        ish                 1    1.04193144970432  0.101804358830184
-#> V1     sed 0.540698759499728   0.137662158474483 0.0868547375771481
-#> V2    pgrw 0.495775491935032 -0.0114541214642964 0.0716180291008528
-#> V3     pop 0.505491333084179 -0.0407496048077823 0.0663896162315334
-#> V4     ish 0.516729371183009   0.135808595502873  0.040201102608641
+#>      alpha                 1    1.04193144970432  0.101804358830184
+#> V1     ish 0.540698759499728   0.137662158474483 0.0868547375771481
+#> V2     sed 0.495775491935032 -0.0114541214642964 0.0716180291008528
+#> V3    pgrw 0.505491333084179 -0.0407496048077823 0.0663896162315334
+#> V4     pop 0.516729371183009   0.135808595502873  0.040201102608641
 #>                  stdR            unc_pmean            unc_std
 #>     0.144125225186717     1.04193144970432  0.101804358830184
 #> V1  0.153133539462144   0.0744337583172081 0.0937295111331604
@@ -401,3 +417,30 @@ are just using some random parameters to check if the value obtained
 with the nested model implementation and the full model implementation
 is consistent. The only thing is that these parameters are not MLEs,
 because they were obtained with an incorrect implementation.
+
+## Advanced Usage: parallel computing
+
+``` r
+# To find the optimal model space with parallel computations
+# replace the STEP 2 with:
+library(parallel)
+cl <- makeCluster(detectCores(), 'FORK')
+setDefaultCluster(cl)
+
+model_space <-
+  optimal_model_space(df = data_prepared, dep_var_col = gdp,
+                      timestamp_col = year, entity_col = country,
+                      init_value = 0.5, projection_matrix_const = TRUE,
+                      run_parallel = TRUE)
+
+# and STEP 3 with:
+bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
+                          timestamp_col = year, entity_col = country,
+                          model_space = model_space,
+                          projection_matrix_const = TRUE,
+                          run_parallel = TRUE)
+#> [1] "Prior Mean Model Size: 2"
+#> [1] "Prior Inclusion Probability: 0.5"
+
+stopCluster(cl = NULL)
+```
