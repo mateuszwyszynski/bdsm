@@ -48,7 +48,7 @@ set.seed(20)
 # Features are scaled and centralized around the mean.
 # Then they are centralized around the mean within cross-sections
 data_prepared <- panels::economic_growth[,1:7] %>%
-  feature_standardization(timestamp_col = year, entity_col = country) %>%
+  feature_standardization(timestamp_col = year, entity_col = gdp) %>%
   feature_standardization(timestamp_col = year, entity_col = country,
                           cross_sectional = TRUE, scale = FALSE)
 

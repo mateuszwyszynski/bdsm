@@ -38,7 +38,7 @@ set.seed(20)
 # Features are scaled and centralized around the mean.
 # Then they are centralized around the mean within cross-sections
 data_prepared <- panels::economic_growth[,1:7] %>%
-  feature_standardization(timestamp_col = year, entity_col = country) %>%
+  feature_standardization(timestamp_col = year, entity_col = gdp) %>%
   feature_standardization(timestamp_col = year, entity_col = country,
                           cross_sectional = TRUE, scale = FALSE)
 
@@ -79,26 +79,26 @@ bma_params_summary <- parameters_summary(
   ppmsize = bma_result$ppmsize, cout = bma_result$cout, nts = bma_result$nts,
   pts = bma_result$pts, variables_n = bma_result$variables_n
   )
-#> [1] "Posterior Mean Model Size:  3.05869495570195"
+#> [1] "Posterior Mean Model Size:  3.05868016490936"
 bma_params_summary
-#>    varname          postprob               pmean                std
-#>      alpha                 1    1.04193144970432  0.101804358830184
-#> V1     ish 0.540698759499728   0.137662158474483 0.0868547375771481
-#> V2     sed 0.495775491935032 -0.0114541214642964 0.0716180291008528
-#> V3    pgrw 0.505491333084179 -0.0407496048077823 0.0663896162315334
-#> V4     pop 0.516729371183009   0.135808595502873  0.040201102608641
+#>    varname          postprob                pmean                std
+#>      alpha                 1      1.0380101993044  0.100798715541872
+#> V1     ish   0.5408032249948    0.148775261064177 0.0874506466351991
+#> V2     sed 0.495699416513257 -0.00453079860029989    0.0705808820032
+#> V3    pgrw 0.505412195699608  -0.0437589925554382 0.0578964425316704
+#> V4     pop 0.516765327701691    0.149452007696598 0.0432562442318346
 #>                  stdR            unc_pmean            unc_std
-#>     0.144125225186717     1.04193144970432  0.101804358830184
-#> V1  0.153133539462144   0.0744337583172081 0.0937295111331604
-#> V2 0.0855190348011086 -0.00567867270364515 0.0507513529596844
-#> V3  0.083000439173543  -0.0205985720569394 0.0514108604088564
-#> V4 0.0471872840674506   0.0701762901554471 0.0737626792164461
+#>     0.143622968354622      1.0380101993044  0.100798715541872
+#> V1  0.154809806142961   0.0804581409829501 0.0981454209699889
+#> V2 0.0857782407075937 -0.00224591422250774 0.0497447289456269
+#> V3  0.084407293151446  -0.0221163285090468 0.0466132702805336
+#> V4  0.052902027048862   0.0772316157330083 0.0808988166914959
 #>              unc_stdR
-#>     0.144125225186717
-#> V1  0.131854650936448
-#> V2 0.0604868049884084
-#> V3 0.0624295534630199
-#> V4 0.0758709554163802
+#>     0.143622968354622
+#> V1  0.135858749120213
+#> V2  0.060435433747394
+#> V3 0.0638710538346752
+#> V4 0.0838088876518649
 ```
 
 ## Troubleshooting
