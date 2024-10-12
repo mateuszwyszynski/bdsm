@@ -39,7 +39,7 @@ set.seed(20)
 # Features are scaled and centralized around the mean.
 # Then they are centralized around the mean within cross-sections
 data_prepared <- panels::economic_growth[,1:7] %>%
-  feature_standardization(timestamp_col = year, entity_col = country) %>%
+  feature_standardization(timestamp_col = year, entity_col = gdp) %>%
   feature_standardization(timestamp_col = year, entity_col = country,
                           cross_sectional = TRUE, scale = FALSE)
 
@@ -56,80 +56,79 @@ model_space <-
   optimal_model_space(df = data_prepared, dep_var_col = gdp,
                       timestamp_col = year, entity_col = country,
                       init_value = 0.5, projection_matrix_const = TRUE)
-#> initial  value 391.724615 
-#> iter 100 value -440.576465
-#> final  value -442.511424 
+#> initial  value 411.629953 
+#> iter 100 value -417.175620
+#> final  value -419.142936 
 #> converged
-#> initial  value 499.196856 
-#> iter 100 value -453.243244
-#> final  value -461.726922 
+#> initial  value 515.891738 
+#> iter 100 value -435.586743
+#> final  value -438.358437 
 #> converged
-#> initial  value 465.522152 
-#> iter 100 value -432.427725
-#> final  value -446.215922 
+#> initial  value 484.052174 
+#> iter 100 value -416.630255
+#> final  value -422.847435 
 #> converged
-#> initial  value 656.459642 
-#> iter 100 value -451.634848
-#> final  value -463.221071 
+#> initial  value 671.649835 
+#> iter 100 value -432.843888
+#> final  value -439.852584 
 #> converged
-#> initial  value 534.179684 
-#> iter 100 value -431.328193
-#> final  value -448.917258 
+#> initial  value 555.967990 
+#> iter 100 value -414.115346
+#> final  value -425.548771 
 #> converged
-#> initial  value 559.238975 
-#> iter 100 value -448.140332
-#> final  value -465.886079 
+#> initial  value 577.687451 
+#> iter 100 value -420.151814
+#> final  value -442.517601 
 #> converged
-#> initial  value 504.517881 
-#> iter 100 value -436.837103
-#> final  value -451.364551 
+#> initial  value 524.801498 
+#> iter 100 value -416.156417
+#> final  value -427.996073 
 #> converged
-#> initial  value 612.978620 
-#> iter 100 value -446.697905
-#> final  value -466.614843 
+#> initial  value 629.808491 
+#> iter 100 value -418.033818
+#> final  value -443.246356 
 #> converged
-#> initial  value 463.517686 
-#> iter 100 value -448.667381
-#> final  value -454.200335 
+#> initial  value 481.877496 
+#> iter 100 value -426.997964
+#> final  value -430.831852 
 #> converged
-#> initial  value 580.058747 
-#> iter 100 value -464.834245
-#> final  value -467.292138 
+#> initial  value 595.078728 
+#> iter 100 value -440.036791
+#> final  value -443.923653 
 #> converged
-#> initial  value 543.422562 
-#> iter 100 value -442.500862
-#> final  value -456.263327 
+#> initial  value 560.277683 
+#> iter 100 value -419.513073
+#> final  value -432.894844 
 #> converged
-#> initial  value 743.365072 
-#> iter 100 value -461.298191
-#> final  value -468.678508 
+#> initial  value 756.766446 
+#> iter 100 value -439.730987
+#> final  value -445.310013 
 #> converged
-#> initial  value 592.805410 
-#> iter 100 value -451.477884
-#> final  value -459.119018 
+#> initial  value 612.918815 
+#> iter 100 value -428.790111
+#> final  value -435.750532 
 #> converged
-#> initial  value 626.869720 
-#> iter 100 value -462.423326
-#> final  value -471.739580 
+#> initial  value 643.529379 
+#> iter 100 value -440.770768
+#> final  value -448.371093 
 #> converged
-#> initial  value 569.187145 
-#> iter 100 value -451.771449
-#> iter 200 value -460.196545
-#> final  value -460.198591 
+#> initial  value 587.681944 
+#> iter 100 value -426.801191
+#> final  value -436.830104 
 #> converged
-#> initial  value 686.560634 
-#> iter 100 value -461.031414
-#> final  value -472.282811 
+#> initial  value 701.509591 
+#> iter 100 value -436.936673
+#> final  value -448.914323 
 #> converged
 
 
 
 print(paste("Computation Time:", toc()))
-#> 43.655 sec elapsed
-#> [1] "Computation Time: c(elapsed = 2.167)" 
-#> [2] "Computation Time: c(elapsed = 45.822)"
-#> [3] "Computation Time: logical(0)"         
-#> [4] "Computation Time: 43.655 sec elapsed"
+#> 43.665 sec elapsed
+#> [1] "Computation Time: c(elapsed = 2.145)"
+#> [2] "Computation Time: c(elapsed = 45.81)"
+#> [3] "Computation Time: logical(0)"        
+#> [4] "Computation Time: 43.665 sec elapsed"
 tic()
 
 # STEP 3
@@ -142,11 +141,11 @@ bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
 #> [1] "Prior Inclusion Probability: 0.5"
 
 print(paste("Computation Time:", toc()))
-#> 13.332 sec elapsed
-#> [1] "Computation Time: c(elapsed = 45.822)"
-#> [2] "Computation Time: c(elapsed = 59.154)"
+#> 13.413 sec elapsed
+#> [1] "Computation Time: c(elapsed = 45.81)" 
+#> [2] "Computation Time: c(elapsed = 59.223)"
 #> [3] "Computation Time: logical(0)"         
-#> [4] "Computation Time: 13.332 sec elapsed"
+#> [4] "Computation Time: 13.413 sec elapsed"
 
 # STEP 4
 # Summary for parameters of interest
@@ -158,27 +157,27 @@ bma_params_summary <- parameters_summary(
   ppmsize = bma_result$ppmsize, cout = bma_result$cout, nts = bma_result$nts,
   pts = bma_result$pts, variables_n = bma_result$variables_n
   )
-#> [1] "Posterior Mean Model Size:  3.05869495570195"
+#> [1] "Posterior Mean Model Size:  3.05869494257848"
 
 bma_params_summary
 #>    varname          postprob               pmean                std
-#>      alpha                 1    1.04193144970432  0.101804358830184
-#> V1     ish 0.540698759499728   0.137662158474483 0.0868547375771481
-#> V2     sed 0.495775491935032 -0.0114541214642964 0.0716180291008528
-#> V3    pgrw 0.505491333084179 -0.0407496048077823 0.0663896162315334
-#> V4     pop 0.516729371183009   0.135808595502873  0.040201102608641
+#>      alpha                 1    1.04189654307909  0.102695666926684
+#> V1     ish 0.540698754836789   0.149108635620996  0.088557548830021
+#> V2     sed 0.495775486192278 -0.0124381833704999 0.0747499712111808
+#> V3    pgrw 0.505491338572957  -0.044152693148279  0.070842345402009
+#> V4     pop 0.516729362976455   0.147146065407409 0.0421321307744319
 #>                  stdR            unc_pmean            unc_std
-#>     0.144125225186717     1.04193144970432  0.101804358830184
-#> V1  0.153133539462144   0.0744337583172081 0.0937295111331604
-#> V2 0.0855190348011086 -0.00567867270364515 0.0507513529596844
-#> V3  0.083000439173543  -0.0205985720569394 0.0514108604088564
-#> V4 0.0471872840674506   0.0701762901554471 0.0737626792164461
+#>     0.148097675047196     1.04189654307909  0.102695666926684
+#> V1  0.158796923971551   0.0806228536156851 0.0988024110305675
+#> V2   0.09017641977638 -0.00616654640785827 0.0529985728267167
+#> V3 0.0893812932900516  -0.0223188039611246 0.0549925838945677
+#> V4 0.0517354928748085   0.0760346926424624  0.079524751874329
 #>              unc_stdR
-#>     0.144125225186717
-#> V1  0.131854650936448
-#> V2 0.0604868049884084
-#> V3 0.0624295534630199
-#> V4 0.0758709554163802
+#>     0.148097675047196
+#> V1  0.138405308268246
+#> V2 0.0637982353760638
+#> V3 0.0672732077208198
+#> V4 0.0824013904451513
 ```
 
 ## Troubleshooting
