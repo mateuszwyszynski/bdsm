@@ -53,7 +53,8 @@ std_dev_from_params <- function(params, df, timestamp_col, entity_col, dep_var_c
                    projection_matrix_const = projection_matrix_const)
 
   hess <- hessian(SEM_likelihood, theta = params_no_na,
-                  data = matrices_shared_across_models)
+                  data = matrices_shared_across_models,
+                  projection_matrix_const = projection_matrix_const)
 
   likelihood_per_entity <-
     SEM_likelihood(params_no_na, data = matrices_shared_across_models,
