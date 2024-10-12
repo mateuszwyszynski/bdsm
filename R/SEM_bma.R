@@ -103,7 +103,8 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
                      exact_value = exact_value,
                      projection_matrix_const = projection_matrix_const)
 
-    hess <- hessian(SEM_likelihood, theta = params_no_na, data = data)
+    hess <- hessian(SEM_likelihood, theta = params_no_na, data = data,
+                    projection_matrix_const = projection_matrix_const)
 
     likelihood_per_entity <-
       SEM_likelihood(params_no_na, data = data, per_entity = TRUE)

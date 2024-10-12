@@ -34,6 +34,20 @@
 #' A double matrix with 51 rows and 16 columns.
 "economic_growth_ms"
 
+#' Example Model Space
+#'
+#' A matrix representing the model space built using all regressors from
+#' the \code{economic_growth} dataset. Therefore the model space contains
+#' \code{2^9 = 512} models (columns). This model space generates Posterior
+#' Inclusion Probabilities which are consistent with the results presented by
+#' Moral-Benito. The original results were approximated up to the 4th decimal
+#' place. The results obtained using this model space lead to exactly the same
+#' approximations.
+#'
+#' @format ## `economic_growth_ms_full_proj_const`
+#' A double matrix with 106 rows and 512 columns.
+"economic_growth_ms_full_proj_const"
+
 #' Example Approximate Likelihoods Summary based on Model Space
 #'
 #' A matrix representing the summary of likelihoods computed with
