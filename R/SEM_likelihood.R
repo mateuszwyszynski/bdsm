@@ -214,7 +214,7 @@ matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
 SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
                            lin_related_regressors = NULL,
                            per_entity = FALSE, projection_matrix_const = TRUE,
-                           exact_value = TRUE) {
+                           exact_value = FALSE) {
   if (is.list(params) && !is.data.frame(data)) {
     alpha <- params$alpha
     phi_0 <- params$phi_0

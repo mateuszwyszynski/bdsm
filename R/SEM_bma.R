@@ -167,7 +167,7 @@ std_dev_from_params <- function(params, df, timestamp_col, entity_col, dep_var_c
 #'
 likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
                                 model_space, projection_matrix_const,
-                                exact_value = TRUE, model_prior = 'uniform') {
+                                exact_value = FALSE, model_prior = 'uniform') {
   regressors <- df %>%
     regressor_names(timestamp_col = {{ timestamp_col }},
                     entity_col = {{ entity_col }},
@@ -238,7 +238,7 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
 #' @export
 bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
                         model_space, projection_matrix_const,
-                        exact_value = TRUE, model_prior = 'uniform') {
+                        exact_value = FALSE, model_prior = 'uniform') {
   regressors <- df %>%
     regressor_names(timestamp_col = {{ timestamp_col }},
                     entity_col = {{ entity_col }},

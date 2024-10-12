@@ -120,7 +120,7 @@ regressor_names_from_params_vector <- function(params) {
 #' @export
 optimal_model_space <-
   function(df, timestamp_col, entity_col, dep_var_col, init_value,
-           projection_matrix_const, exact_value = TRUE,
+           projection_matrix_const, exact_value = FALSE,
            control = list(trace = 2, maxit = 10000, fnscale = -1,
                           REPORT = 100)) {
     matrices_shared_across_models <- df %>%
