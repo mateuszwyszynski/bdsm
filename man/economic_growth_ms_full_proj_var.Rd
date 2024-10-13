@@ -3,7 +3,7 @@
 \docType{data}
 \name{economic_growth_ms_full_proj_var}
 \alias{economic_growth_ms_full_proj_var}
-\title{Example Model Space}
+\title{Full Model Space with Varying Projection Matrix}
 \format{
 \subsection{\code{economic_growth_ms_full_proj_var}}{
 

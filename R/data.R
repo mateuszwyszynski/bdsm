@@ -34,7 +34,7 @@
 #' A double matrix with 51 rows and 16 columns.
 "economic_growth_ms"
 
-#' Example Model Space
+#' Full Model Space with Varying Projection Matrix
 #'
 #' A matrix representing the model space built using all regressors from
 #' the \code{economic_growth} dataset. Therefore the model space contains
@@ -47,6 +47,24 @@
 #' @format ## `economic_growth_ms_full_proj_var`
 #' A double matrix with 106 rows and 512 columns.
 "economic_growth_ms_full_proj_var"
+
+#' Full Model Space with Constant Projection Matrix
+#'
+#' A matrix representing the model space built using all regressors from
+#' the \code{economic_growth} dataset. Therefore the model space contains
+#' \code{2^9 = 512} models (columns). The same projection matrix is used for
+#' each model.
+#'
+#' TODO: to avoid NaNs when computing estimates of standard deviations, the step
+#' size in the hessian function has to be increased to 1e-2. This is most likely
+#' cause by the fact that the likelihood values are much closer to each other
+#' after the correction for the projection matrix is introduced. Hence we have
+#' to either increase the relative tolerance of the optimisation algorithm or
+#' loosen the precision when computing approximate hessian.
+#'
+#' @format ## `economic_growth_ms_full_proj_const`
+#' A double matrix with 106 rows and 512 columns.
+"economic_growth_ms_full_proj_const"
 
 #' Example Approximate Likelihoods Summary based on Model Space
 #'
