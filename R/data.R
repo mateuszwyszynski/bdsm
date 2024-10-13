@@ -42,11 +42,11 @@
 #' Inclusion Probabilities which are consistent with the results presented by
 #' Moral-Benito. The original results were approximated up to the 4th decimal
 #' place. The results obtained using this model space lead to exactly the same
-#' approximations.
+#' approximations. A different projection matrix is used for each model.
 #'
-#' @format ## `economic_growth_ms_full_proj_const`
+#' @format ## `economic_growth_ms_full_proj_var`
 #' A double matrix with 106 rows and 512 columns.
-"economic_growth_ms_full_proj_const"
+"economic_growth_ms_full_proj_var"
 
 #' Example Approximate Likelihoods Summary based on Model Space
 #'
