@@ -21,10 +21,8 @@
 #' @param init_value Initial value for parameters present in the model. Default
 #' is \code{1}.
 #'
-#' @return
+#' @return matrix of model parameters
 #' @export
-#'
-#' @examples
 initialize_model_space <- function(df, timestamp_col, entity_col,
                                    dep_var_col, init_value = 1) {
   regressors <- df %>%
@@ -78,8 +76,6 @@ initialize_model_space <- function(df, timestamp_col, entity_col,
 #' Names of regressors which are assumed to be linearly connected with dependent
 #' variable within the model described by the \code{params} vector.
 #' @export
-#'
-#' @examples
 regressor_names_from_params_vector <- function(params) {
   regressors_subset <-
     t(params %>% stats::na.omit()) %>% as.data.frame() %>%

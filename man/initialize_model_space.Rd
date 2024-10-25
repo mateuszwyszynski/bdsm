@@ -25,6 +25,9 @@ natural numbers can be used as timestamps}
 \item{init_value}{Initial value for parameters present in the model. Default
 is \code{1}.}
 }
+\value{
+matrix of model parameters
+}
 \description{
 This function builds a representation of the model space, by creating a
 dataframe where each column represents values of the parameters for a given

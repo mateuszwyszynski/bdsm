@@ -19,8 +19,6 @@
 #' @importFrom rlang :=
 #'
 #' @export
-#'
-#' @examples
 join_lagged_col <- function(df, col, col_lagged, timestamp_col,
                             entity_col, timestep = NULL) {
   non_lagged_df <- df %>%
@@ -61,8 +59,6 @@ join_lagged_col <- function(df, col, col_lagged, timestamp_col,
 #' \code{FALSE}. Default is \code{TRUE}.
 #'
 #' @export
-#'
-#' @examples
 feature_standardization <- function(df, timestamp_col, entity_col,
                                     cross_sectional = FALSE, scale = TRUE) {
   if (!cross_sectional) {

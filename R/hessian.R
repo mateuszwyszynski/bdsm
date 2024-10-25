@@ -9,8 +9,6 @@
 #' @return Hessian kxk matrix where k is the number of parameters
 #' included in the theta matrix
 #' @export
-#'
-#' @examples
 hessian <- function(lik, theta, ...) {
   k <- length(theta)
   hessi <- optimbase::zeros(k, k)
