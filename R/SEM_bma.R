@@ -12,9 +12,6 @@
 #' \link[panels]{optimal_model_space}
 #' @param model_prior Which model prior to use. For now there are two options:
 #' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
-#' @param projection_matrix_const Whether the residual maker matrix (and so
-#' the projection matrix) should be computed for each model separately.
-#' \code{TRUE} means that the matrix will be the same for all models
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 #' \link[panels]{SEM_likelihood} for details.
@@ -47,11 +44,10 @@
 #' likelihoods_info <-
 #'   likelihoods_summary(df = data_cross_sectional_standarized,
 #'                       dep_var_col = gdp, timestamp_col = year,
-#'                       entity_col = country, model_space = economic_growth_ms,
-#'                       projection_matrix_const = TRUE)
+#'                       entity_col = country, model_space = economic_growth_ms)
 #'
 likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
-                                model_space, projection_matrix_const,
+                                model_space,
                                 exact_value = TRUE, model_prior = 'uniform',
                                 run_parallel = FALSE) {
   regressors <- df %>%
@@ -100,11 +96,9 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
 
     likelihood <-
       SEM_likelihood(params = params_no_na, data = data,
-                     exact_value = exact_value,
-                     projection_matrix_const = projection_matrix_const)
+                     exact_value = exact_value)
 
-    hess <- hessian(SEM_likelihood, theta = params_no_na, data = data,
-                    projection_matrix_const = projection_matrix_const)
+    hess <- hessian(SEM_likelihood, theta = params_no_na, data = data)
 
     likelihood_per_entity <-
       SEM_likelihood(params_no_na, data = data, per_entity = TRUE)
@@ -204,9 +198,6 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
 #' \link[panels]{optimal_model_space}
 #' @param model_prior Which model prior to use. For now there are two options:
 #' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
-#' @param projection_matrix_const Whether the residual maker matrix (and so
-#' the projection matrix) should be computed for each model separately.
-#' \code{TRUE} means that the matrix will be the same for all models
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 #' \link[panels]{SEM_likelihood} for details.
@@ -220,7 +211,7 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
 #'
 #' @export
 bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
-                        model_space, projection_matrix_const,
+                        model_space,
                         exact_value = TRUE, model_prior = 'uniform',
                         run_parallel = FALSE) {
   regressors <- df %>%
@@ -250,7 +241,6 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
   likelihoods_info <- likelihoods_summary(
     df, dep_var_col = {{ dep_var_col }}, timestamp_col = {{ timestamp_col }},
     entity_col = {{ entity_col }}, model_space = model_space,
-    projection_matrix_const = projection_matrix_const,
     exact_value = exact_value, model_prior = model_prior,
     run_parallel = run_parallel
   )
