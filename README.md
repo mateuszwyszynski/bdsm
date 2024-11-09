@@ -55,7 +55,7 @@ tic()
 model_space <-
   optimal_model_space(df = data_prepared, dep_var_col = gdp,
                       timestamp_col = year, entity_col = country,
-                      init_value = 0.5, projection_matrix_const = TRUE)
+                      init_value = 0.5)
 #> initial  value 411.629953 
 #> iter 100 value -417.175620
 #> final  value -419.142936 
@@ -135,8 +135,7 @@ tic()
 # Compute intermediate BMA results
 bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                           timestamp_col = year, entity_col = country,
-                          model_space = model_space,
-                          projection_matrix_const = TRUE)
+                          model_space = model_space)
 #> [1] "Prior Mean Model Size: 2"
 #> [1] "Prior Inclusion Probability: 0.5"
 
@@ -275,12 +274,10 @@ no_ish_model_params <-
   nested_version_of_no_ish_model_params %>% stats::na.omit()
 no_ish_model_likelihood_original <-
   SEM_likelihood(no_ish_model_params, data_prepared, year, country, gdp,
-                 lin_related_regressors = c('sed', 'pgrw', 'pop'),
-                 projection_matrix_const = FALSE)
+                 lin_related_regressors = c('sed', 'pgrw', 'pop'))
 no_ish_model_likelihood_corrected <-
   SEM_likelihood(no_ish_model_params, data_prepared, year, country, gdp,
-                 lin_related_regressors = c('sed', 'pgrw', 'pop'),
-                 projection_matrix_const = TRUE)
+                 lin_related_regressors = c('sed', 'pgrw', 'pop'))
 
 nested_version_of_no_ish_model_params['beta_ish'] = 0
 nested_version_of_no_ish_model_params['phi_1_ish'] = 0
@@ -288,8 +285,7 @@ nested_version_of_no_ish_model_params['phi_1_ish'] = 0
 nested_no_ish_model_likelihood <-
   SEM_likelihood(nested_version_of_no_ish_model_params, data_prepared, year,
                  country, gdp,
-                 lin_related_regressors = c('ish', 'sed', 'pgrw', 'pop'),
-                 projection_matrix_const = TRUE)
+                 lin_related_regressors = c('ish', 'sed', 'pgrw', 'pop'))
 ```
 
 One can clearly see that the result obtained with the corrected version
@@ -319,7 +315,7 @@ data_prepared <- panels::economic_growth[,1:7] %>%
 economic_growth_ms_2 <-
   optimal_model_space(df = data_prepared, dep_var_col = gdp,
                       timestamp_col = year, entity_col = country,
-                      init_value = 0.5, projection_matrix_const = FALSE)
+                      init_value = 0.5)
 #> initial  value 683.117366 
 #> iter 100 value 41.663662
 #> final  value 39.044737 
@@ -390,12 +386,10 @@ no_ish_model_params <-
   nested_version_of_no_ish_model_params %>% stats::na.omit()
 no_ish_model_likelihood_original <-
   SEM_likelihood(no_ish_model_params, data_prepared, year, country, gdp,
-                 lin_related_regressors = c('sed', 'pgrw', 'pop'),
-                 projection_matrix_const = FALSE)
+                 lin_related_regressors = c('sed', 'pgrw', 'pop'))
 no_ish_model_likelihood_corrected <-
   SEM_likelihood(no_ish_model_params, data_prepared, year, country, gdp,
-                 lin_related_regressors = c('sed', 'pgrw', 'pop'),
-                 projection_matrix_const = TRUE)
+                 lin_related_regressors = c('sed', 'pgrw', 'pop'))
 
 nested_version_of_no_ish_model_params['beta_ish'] = 0
 nested_version_of_no_ish_model_params['phi_1_ish'] = 0
@@ -403,8 +397,7 @@ nested_version_of_no_ish_model_params['phi_1_ish'] = 0
 nested_no_ish_model_likelihood <-
   SEM_likelihood(nested_version_of_no_ish_model_params, data_prepared, year,
                  country, gdp,
-                 lin_related_regressors = c('ish', 'sed', 'pgrw', 'pop'),
-                 projection_matrix_const = FALSE)
+                 lin_related_regressors = c('ish', 'sed', 'pgrw', 'pop'))
 ```
 
 Note that the value obtained with the corrected version matches the
@@ -429,14 +422,13 @@ setDefaultCluster(cl)
 model_space <-
   optimal_model_space(df = data_prepared, dep_var_col = gdp,
                       timestamp_col = year, entity_col = country,
-                      init_value = 0.5, projection_matrix_const = TRUE,
+                      init_value = 0.5,
                       run_parallel = TRUE)
 
 # and STEP 3 with:
 bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                           timestamp_col = year, entity_col = country,
                           model_space = model_space,
-                          projection_matrix_const = TRUE,
                           run_parallel = TRUE)
 #> [1] "Prior Mean Model Size: 2"
 #> [1] "Prior Inclusion Probability: 0.5"

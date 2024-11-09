@@ -12,7 +12,6 @@ SEM_likelihood(
   dep_var_col,
   lin_related_regressors = NULL,
   per_entity = FALSE,
-  projection_matrix_const = TRUE,
   exact_value = TRUE
 )
 }
@@ -38,10 +37,6 @@ which linear relation is not set to zero for a given model.}
 
 \item{per_entity}{Whether to compute overall likelihood or a vector of
 likelihoods with per entity value}
-
-\item{projection_matrix_const}{Wheter the residual maker matrix (and so
-the projection matrix) should be computed for each model separately.
-\code{TRUE} means that the matrix will be the same for all models}
 
 \item{exact_value}{Whether the exact value of the likelihood should be
 computed (\code{TRUE}) or just the proportional part (\code{FALSE}).

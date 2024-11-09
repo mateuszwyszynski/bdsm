@@ -10,7 +10,6 @@ optimal_model_space(
   entity_col,
   dep_var_col,
   init_value,
-  projection_matrix_const,
   exact_value = TRUE,
   run_parallel = FALSE,
   control = list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100, scale = 0.05)
@@ -27,10 +26,6 @@ optimal_model_space(
 
 \item{init_value}{The value with which the model space will be initialized.
 This will be the starting point for the numerical optimization.}
-
-\item{projection_matrix_const}{Whether the residual maker matrix (and so
-the projection matrix) should be computed for each model separately.
-\code{TRUE} means that the matrix will be the same for all models}
 
 \item{exact_value}{Whether the exact value of the likelihood should be
 computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
