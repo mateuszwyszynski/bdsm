@@ -10,7 +10,6 @@ data_prepared <- panels::economic_growth[,1:7] %>%
 
 economic_growth_ms <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
                                    timestamp_col = year, entity_col = country,
-                                   init_value = 0.5,
-                                   projection_matrix_const = TRUE)
+                                   init_value = 0.5)
 
 usethis::use_data(economic_growth_ms, overwrite = TRUE)
