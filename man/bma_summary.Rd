@@ -10,7 +10,6 @@ bma_summary(
   timestamp_col,
   entity_col,
   model_space,
-  projection_matrix_const,
   exact_value = TRUE,
   model_prior = "uniform",
   run_parallel = FALSE
@@ -28,10 +27,6 @@ bma_summary(
 \item{model_space}{A matrix (with named rows) with each column corresponding
 to a model. Each column specifies model parameters. Compare with
 \link[panels]{optimal_model_space}}
-
-\item{projection_matrix_const}{Whether the residual maker matrix (and so
-the projection matrix) should be computed for each model separately.
-\code{TRUE} means that the matrix will be the same for all models}
 
 \item{exact_value}{Whether the exact value of the likelihood should be
 computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check

@@ -8,8 +8,7 @@ test_that("optimal_model_space correctly computes economic_growth_ms", {
 
   model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
                                      timestamp_col = year, entity_col = country,
-                                     init_value = 0.5,
-                                     projection_matrix_const = TRUE)
+                                     init_value = 0.5)
 
   expect_equal(model_space, economic_growth_ms)
 })

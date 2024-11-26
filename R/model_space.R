@@ -98,9 +98,6 @@ regressor_names_from_params_vector <- function(params) {
 #' @param dep_var_col Column with the dependent variable
 #' @param init_value The value with which the model space will be initialized.
 #' This will be the starting point for the numerical optimization.
-#' @param projection_matrix_const Whether the residual maker matrix (and so
-#' the projection matrix) should be computed for each model separately.
-#' \code{TRUE} means that the matrix will be the same for all models
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 #' \link[panels]{SEM_likelihood} for details.
@@ -121,7 +118,7 @@ regressor_names_from_params_vector <- function(params) {
 #' @export
 optimal_model_space <-
   function(df, timestamp_col, entity_col, dep_var_col, init_value,
-           projection_matrix_const, exact_value = TRUE, run_parallel = FALSE,
+           exact_value = TRUE, run_parallel = FALSE,
            control = list(trace = 2, maxit = 10000, fnscale = -1,
                           REPORT = 100, scale = 0.05)) {
     matrices_shared_across_models <- df %>%
@@ -161,7 +158,6 @@ optimal_model_space <-
 
       optimized <- stats::optim(params_no_na, SEM_likelihood, data = data,
                                 exact_value = exact_value,
-                                projection_matrix_const = projection_matrix_const,
                                 method = "BFGS",
                                 control = control)
 

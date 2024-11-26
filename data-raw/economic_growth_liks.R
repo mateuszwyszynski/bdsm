@@ -11,6 +11,6 @@ data_prepared <- panels::economic_growth[,1:7] %>%
 economic_growth_liks <-
   likelihoods_summary(df = data_prepared, dep_var_col = gdp,
                       timestamp_col = year, entity_col = country,
-                      economic_growth_ms, projection_matrix_const = TRUE)
+                      economic_growth_ms)
 
 usethis::use_data(economic_growth_liks, overwrite = TRUE)

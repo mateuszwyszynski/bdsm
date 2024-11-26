@@ -16,7 +16,7 @@ test_that("SEM likelihood is calculated correctly for default feature standardiz
     generate_test_feature_standard_data(),
     times, entities, dep_var
   )
-  expect_equal(sem_value, 278.13706)
+  expect_equal(sem_value, 133.223858)
 })
 
 test_that("SEM likelihood is calculated correctly for cross_sectional TRUE", {
@@ -26,7 +26,7 @@ test_that("SEM likelihood is calculated correctly for cross_sectional TRUE", {
     generate_test_feature_standard_data(cross_sectional = TRUE),
     times, entities, dep_var
   )
-  expect_equal(sem_value, 549.07193)
+  expect_equal(sem_value, 217.693805)
 })
 
 test_that("SEM likelihood is calculated correctly for cross_sectional TRUE and scale FALSE", {
@@ -36,21 +36,21 @@ test_that("SEM likelihood is calculated correctly for cross_sectional TRUE and s
     generate_test_feature_standard_data(cross_sectional = TRUE, scale = FALSE),
     times, entities, dep_var
   )
-  expect_equal(sem_value, 560.93187)
+  expect_equal(sem_value, 225.54665)
 })
 
 test_that("SEM likelihood is calculated correctly for cross_sectional FALSE and scale FALSE", {
-  set.seed(2)
+  set.seed(1)
   sem_value <- SEM_likelihood(
     0.5,
     generate_test_feature_standard_data(cross_sectional = FALSE, scale = FALSE),
     times, entities, dep_var
   )
-  expect_equal(sem_value, 266.36818)
+  expect_equal(sem_value, 140.498138)
 })
 
 test_that("SEM likelihood is calculated incorrectly for specific data", {
-  set.seed(1)
+  set.seed(2)
   # TODO: That produces NaN for that particular seed.
   testthat::expect_warning(
     sem_value <- SEM_likelihood(
