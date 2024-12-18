@@ -25,9 +25,24 @@ cross sections}
 \item{scale}{Whether to divide by the standard deviation \code{TRUE} or not
 \code{FALSE}. Default is \code{TRUE}.}
 }
+\value{
+A dataframe with standardized features
+}
 \description{
 This function performs
 \href{https://en.wikipedia.org/wiki/Feature_scaling}{feature standarization}
 (also known as z-score normalization), i.e. the features are centered around
 the mean and scaled with standard deviation.
+}
+\examples{
+df <- data.frame(
+  year = c(2000, 2001, 2002, 2003, 2004),
+  country = c("A", "A", "B", "B", "C"),
+  gdp = c(1, 2, 3, 4, 5),
+  ish = c(2, 3, 4, 5, 6),
+  sed = c(3, 4, 5, 6, 7)
+)
+
+feature_standardization(df, year, country)
+
 }

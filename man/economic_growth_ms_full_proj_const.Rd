@@ -24,7 +24,7 @@ TODO: to avoid NaNs when computing estimates of standard deviations, the step
 size in the hessian function has to be increased to 1e-2. This is most likely
 cause by the fact that the likelihood values are much closer to each other
 after the correction for the projection matrix is introduced. Hence we have
-to either increase the relative tolerance of the optimisation algorithm or
+to either increase the relative tolerance of the optimization algorithm or
 loosen the precision when computing approximate hessian.
 }
 \keyword{datasets}

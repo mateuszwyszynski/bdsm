@@ -198,7 +198,7 @@ matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
 #' @export
 #'
 #' @examples
-#' # TODO: sometimes generates NaN and positive values - why?
+# TODO: sometimes generates NaN and positive values - why?
 #' set.seed(1)
 #' df <- data.frame(
 #'   entities = rep(1:4, 5),

@@ -4,10 +4,18 @@
 #'
 #' @param lik function
 #' @param theta kx1 matrix
-#' @param ... other parametrs passed to \code{lik} function.
+#' @param ... other parameters passed to \code{lik} function.
 #'
 #' @return Hessian kxk matrix where k is the number of parameters
 #' included in the theta matrix
+#'
+#' @examples
+#' lik <- function(theta) {
+#'  return(theta[1]^2 + theta[2]^2)
+#' }
+#'
+#' hessian(lik, c(1, 1))
+#'
 #' @export
 hessian <- function(lik, theta, ...) {
   k <- length(theta)

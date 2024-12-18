@@ -43,3 +43,13 @@ feature is created, i.e. if there are 4 features we end up with 2^4 possible
 models (for each model we independently decide whether to include or not a
 feature).
 }
+\examples{
+library(magrittr)
+
+data_prepared <- economic_growth[,1:7] \%>\%
+  feature_standardization(timestamp_col = year, entity_col = country) \%>\%
+  feature_standardization(timestamp_col = year, entity_col = country,
+                        cross_sectional = TRUE, scale = FALSE)
+
+initialize_model_space(data_prepared, year, country, gdp)
+}

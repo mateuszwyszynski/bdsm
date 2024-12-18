@@ -32,7 +32,7 @@ autocracy score}
 economic_growth
 }
 \description{
-Data used in Growth Empirics in Panel Data under Model Uncerainty and Weak
+Data used in Growth Empirics in Panel Data under Model Uncertainty and Weak
 Exogeneity (Moral-Benito, 2016, Journal of Applied Econometrics).
 }
 \keyword{datasets}

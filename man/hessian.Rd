@@ -11,7 +11,7 @@ hessian(lik, theta, ...)
 
 \item{theta}{kx1 matrix}
 
-\item{...}{other parametrs passed to \code{lik} function.}
+\item{...}{other parameters passed to \code{lik} function.}
 }
 \value{
 Hessian kxk matrix where k is the number of parameters
@@ -19,4 +19,12 @@ included in the theta matrix
 }
 \description{
 Creates the hessian matrix for a given likelihood function.
+}
+\examples{
+lik <- function(theta) {
+ return(theta[1]^2 + theta[2]^2)
+}
+
+hessian(lik, c(1, 1))
+
 }

@@ -92,7 +92,6 @@ times number of time stamps divided by 2, i.e.
 \code{regressors_n * (periods_n - 1) * periods_n / 2}
 }
 \examples{
-# TODO: sometimes generates NaN and positive values - why?
 set.seed(1)
 df <- data.frame(
   entities = rep(1:4, 5),

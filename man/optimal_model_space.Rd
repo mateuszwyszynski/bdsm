@@ -42,11 +42,26 @@ passed to \link[stats]{optim}. Default is
 that \code{scale} is used only for adjusting the \code{parscale} element added later in the function code.}
 }
 \value{
-List of parameters describing analysed models
+List of parameters describing analyzed models
 }
 \description{
 Given a dataset and an initial value for parameters, initializes a model
 space with parameters equal to initial value for each model. Then for each
 model performs a numerical optimization and finds parameters which maximize
 the likelihood.
+}
+\examples{
+\donttest{
+library(magrittr)
+
+data_prepared <- economic_growth[,1:7] \%>\%
+   feature_standardization(timestamp_col = year, entity_col = country) \%>\%
+   feature_standardization(timestamp_col = year, entity_col = country,
+                           cross_sectional = TRUE, scale = FALSE)
+
+model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
+                                   timestamp_col = year, entity_col = country,
+                                   init_value = 0.5)
+}
+
 }

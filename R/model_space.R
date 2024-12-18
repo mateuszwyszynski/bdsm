@@ -22,6 +22,16 @@
 #' is \code{1}.
 #'
 #' @return matrix of model parameters
+#'
+#' @examples
+#' library(magrittr)
+#'
+#' data_prepared <- economic_growth[,1:7] %>%
+#'   feature_standardization(timestamp_col = year, entity_col = country) %>%
+#'   feature_standardization(timestamp_col = year, entity_col = country,
+#'                         cross_sectional = TRUE, scale = FALSE)
+#'
+#' initialize_model_space(data_prepared, year, country, gdp)
 #' @export
 initialize_model_space <- function(df, timestamp_col, entity_col,
                                    dep_var_col, init_value = 1) {
@@ -75,6 +85,11 @@ initialize_model_space <- function(df, timestamp_col, entity_col,
 #' @return
 #' Names of regressors which are assumed to be linearly connected with dependent
 #' variable within the model described by the \code{params} vector.
+#'
+#' @examples
+#' params <- c(alpha = 1, beta_gdp = 1, beta_gdp_lagged = 1, phi_0 = 1, err_var = 1)
+#' regressor_names_from_params_vector(params)
+#'
 #' @export
 regressor_names_from_params_vector <- function(params) {
   regressors_subset <-
@@ -113,7 +128,21 @@ regressor_names_from_params_vector <- function(params) {
 #' @importFrom parallel parApply
 #'
 #' @return
-#' List of parameters describing analysed models
+#' List of parameters describing analyzed models
+#'
+#' @examples
+#' \donttest{
+#' library(magrittr)
+#'
+#' data_prepared <- economic_growth[,1:7] %>%
+#'    feature_standardization(timestamp_col = year, entity_col = country) %>%
+#'    feature_standardization(timestamp_col = year, entity_col = country,
+#'                            cross_sectional = TRUE, scale = FALSE)
+#'
+#' model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
+#'                                    timestamp_col = year, entity_col = country,
+#'                                    init_value = 0.5)
+#' }
 #'
 #' @export
 optimal_model_space <-
@@ -150,7 +179,7 @@ optimal_model_space <-
       params_no_na <- params %>% stats::na.omit()
 
       # parscale argument somehow (don't know yet how) changes step size during
-      # optimisation. Most likely optimisation methods used in Gauss are
+      # optimization. Most likely optimization methods used in Gauss are
       # scale-free and these used in R are not
       # TODO: search for methods (or implement methods) in R which are scale-free
       control$parscale = control$scale * params_no_na

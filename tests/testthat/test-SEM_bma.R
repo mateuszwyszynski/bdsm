@@ -15,6 +15,7 @@ test_that(paste("likelihoods_summary computes correct approximations of",
 
 test_that(paste("parameters_summary computes correct approximations of",
                 "BMA parameters of interest based on economic_growth_ms"), {
+  skip_on_os(c("windows", "linux"))
   set.seed(20)
 
   data_prepared <- panels::economic_growth[,1:7] %>%

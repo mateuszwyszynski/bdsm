@@ -16,6 +16,16 @@
 #' A dataframe with two columns merged, i.e. just one column with the desired
 #' quantity is left.
 #'
+#' @examples
+#' df <- data.frame(
+#'   year = c(2000, 2001, 2002, 2003, 2004),
+#'   country = c("A", "A", "B", "B", "C"),
+#'   gdp = c(1, 2, 3, 4, 5),
+#'   gdp_lagged = c(NA, 1, 2, 3, 4)
+#' )
+#'
+#' join_lagged_col(df, gdp, gdp_lagged, year, country, 1)
+#'
 #' @importFrom rlang :=
 #'
 #' @export
@@ -57,6 +67,19 @@ join_lagged_col <- function(df, col, col_lagged, timestamp_col,
 #' cross sections
 #' @param scale Whether to divide by the standard deviation \code{TRUE} or not
 #' \code{FALSE}. Default is \code{TRUE}.
+#'
+#' @return A dataframe with standardized features
+#'
+#' @examples
+#' df <- data.frame(
+#'   year = c(2000, 2001, 2002, 2003, 2004),
+#'   country = c("A", "A", "B", "B", "C"),
+#'   gdp = c(1, 2, 3, 4, 5),
+#'   ish = c(2, 3, 4, 5, 6),
+#'   sed = c(3, 4, 5, 6, 7)
+#' )
+#'
+#' feature_standardization(df, year, country)
 #'
 #' @export
 feature_standardization <- function(df, timestamp_col, entity_col,

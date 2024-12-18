@@ -1,7 +1,7 @@
 Package: panels
-Title: Modelling Dynamic Panel Data
+Title: Modeling Dynamic Panel Data
 Version: 0.0.0.9000
-Authors@R: 
+Authors@R:
     c(person(given = "Mateusz",
            family = "Wyszynski",
            role = c("aut", "cre"),
@@ -16,25 +16,29 @@ Authors@R:
            role = "ctb",
            email = "beckkrzysztof@gmail.com"
       ))
-Description: This package allows to build and analyze models based on
-    panel data.
+Description: Tools to build and analyze models based on panel data.
+    The package provides functions to estimate dynamic panel data models.
+    It also provides tools to analyze the results of the estimation.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Suggests: 
+Suggests:
+    spelling,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports:
     dplyr,
     magrittr,
     optimbase,
+    parallel,
     rje,
     rlang,
     rootSolve,
     stats,
     tidyr,
     tidyselect
-Depends: 
+Depends:
     R (>= 2.10)
+Language: en-US
