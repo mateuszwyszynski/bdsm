@@ -16,7 +16,7 @@ economic_growth_bma_params
 \description{
 A matrix representing the summary of parameters computed with
 \code{parameters_summary} based on the \code{economic_growth_ms} model
-space. TODO: descrive the matrix properly after cleaning up the code of the
+space. TODO: describe the matrix properly after cleaning up the code of the
 function \code{parameters_summary}.
 }
 \keyword{datasets}

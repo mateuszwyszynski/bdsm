@@ -25,6 +25,9 @@ natural numbers can be used as timestamps}
 \item{init_value}{Initial value for parameters present in the model. Default
 is \code{1}.}
 }
+\value{
+matrix of model parameters
+}
 \description{
 This function builds a representation of the model space, by creating a
 dataframe where each column represents values of the parameters for a given
@@ -39,4 +42,14 @@ A power set of all possible exclusions of linear dependence on the given
 feature is created, i.e. if there are 4 features we end up with 2^4 possible
 models (for each model we independently decide whether to include or not a
 feature).
+}
+\examples{
+library(magrittr)
+
+data_prepared <- economic_growth[,1:7] \%>\%
+  feature_standardization(timestamp_col = year, entity_col = country) \%>\%
+  feature_standardization(timestamp_col = year, entity_col = country,
+                        cross_sectional = TRUE, scale = FALSE)
+
+initialize_model_space(data_prepared, year, country, gdp)
 }

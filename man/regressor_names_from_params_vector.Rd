@@ -21,3 +21,8 @@ regressors and the dependent variable.
 The vector needs to have named rows, i.e. it is assumed it comes from a
 model space (see \link[panels]{initialize_model_space} for details).
 }
+\examples{
+params <- c(alpha = 1, beta_gdp = 1, beta_gdp_lagged = 1, phi_0 = 1, err_var = 1)
+regressor_names_from_params_vector(params)
+
+}

@@ -36,3 +36,14 @@ This function allows to turn data in the format with lagged values for a
 chosen column (i.e. there are two columns with the same quantity, but one
 column is lagged in time) into the format with just one column
 }
+\examples{
+df <- data.frame(
+  year = c(2000, 2001, 2002, 2003, 2004),
+  country = c("A", "A", "B", "B", "C"),
+  gdp = c(1, 2, 3, 4, 5),
+  gdp_lagged = c(NA, 1, 2, 3, 4)
+)
+
+join_lagged_col(df, gdp, gdp_lagged, year, country, 1)
+
+}

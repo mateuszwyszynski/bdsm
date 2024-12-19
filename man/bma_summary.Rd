@@ -41,11 +41,27 @@ base apply function is used. Note that using the parallel computing requires
 setting the default cluster. See README.}
 }
 \value{
-List of parameters describing analysed models
+List of parameters describing analyzed models
 }
 \description{
 A summary of a given model space is prepared. This include things such as
 posterior inclusion probability (PIP), posterior mean and so on. This is the
 core function of the package, because it allows to make assessments and
 decisions about the parameters and models.
+}
+\examples{
+\donttest{
+library(magrittr)
+
+data_prepared <- economic_growth[,1:7] \%>\%
+   feature_standardization(timestamp_col = year, entity_col = country) \%>\%
+   feature_standardization(timestamp_col = year, entity_col = country,
+                           cross_sectional = TRUE, scale = FALSE)
+
+
+bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
+                          timestamp_col = year, entity_col = country,
+                          model_space = economic_growth_ms)
+}
+
 }

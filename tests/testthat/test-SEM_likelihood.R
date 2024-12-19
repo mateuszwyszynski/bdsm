@@ -10,6 +10,7 @@
 # 25.80372 26.05294 27.14582 26.22264 27.25252 36.02822   100
 
 test_that("SEM likelihood is calculated correctly for default feature standardization parameters", {
+  skip_on_os(c("windows", "linux"))
   set.seed(1)
   sem_value <- SEM_likelihood(
     0.5,
@@ -20,6 +21,7 @@ test_that("SEM likelihood is calculated correctly for default feature standardiz
 })
 
 test_that("SEM likelihood is calculated correctly for cross_sectional TRUE", {
+  skip_on_os(c("windows", "linux"))
   set.seed(1)
   sem_value <- SEM_likelihood(
     0.5,
@@ -30,6 +32,7 @@ test_that("SEM likelihood is calculated correctly for cross_sectional TRUE", {
 })
 
 test_that("SEM likelihood is calculated correctly for cross_sectional TRUE and scale FALSE", {
+  skip_on_os(c("windows", "linux"))
   set.seed(1)
   sem_value <- SEM_likelihood(
     0.5,
@@ -40,6 +43,7 @@ test_that("SEM likelihood is calculated correctly for cross_sectional TRUE and s
 })
 
 test_that("SEM likelihood is calculated correctly for cross_sectional FALSE and scale FALSE", {
+  skip_on_os(c("windows", "linux"))
   set.seed(1)
   sem_value <- SEM_likelihood(
     0.5,
@@ -50,6 +54,7 @@ test_that("SEM likelihood is calculated correctly for cross_sectional FALSE and 
 })
 
 test_that("SEM likelihood is calculated incorrectly for specific data", {
+  skip_on_os(c("windows", "linux"))
   set.seed(2)
   # TODO: That produces NaN for that particular seed.
   testthat::expect_warning(

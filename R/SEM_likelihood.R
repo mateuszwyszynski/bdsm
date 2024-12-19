@@ -150,7 +150,7 @@ matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
 #' distribution, 2. a term disappearing during likelihood simplification in
 #' Likelihood-based Estimation of Dynamic Panels with Predetermined Regressors
 #' by Moral-Benito (see Appendix A.1). The latter happens when transitioning
-#' from equation (47) to equation (48), in step 2: the term trace{HG_22} is
+#' from equation (47) to equation (48), in step 2: the term \code{trace(HG_22)} is
 #' dropped, because it can be assumed to be constant from Moral-Benito
 #' perspective. To get the exact value of the likelihood we have to take this
 #' term into account.
@@ -198,7 +198,7 @@ matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
 #' @export
 #'
 #' @examples
-#' # TODO: sometimes generates NaN and positive values - why?
+# TODO: sometimes generates NaN and positive values - why?
 #' set.seed(1)
 #' df <- data.frame(
 #'   entities = rep(1:4, 5),

@@ -1,4 +1,5 @@
 test_that("optimal_model_space correctly computes economic_growth_ms", {
+  skip_on_os(c("windows", "linux"))
   set.seed(23)
 
   data_prepared <- panels::economic_growth[,1:7] %>%

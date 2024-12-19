@@ -1,6 +1,6 @@
 #' Economic Growth Data
 #'
-#' Data used in Growth Empirics in Panel Data under Model Uncerainty and Weak
+#' Data used in Growth Empirics in Panel Data under Model Uncertainty and Weak
 #' Exogeneity (Moral-Benito, 2016, Journal of Applied Econometrics).
 #'
 #' @format ## `economic_growth`
@@ -59,7 +59,7 @@
 #' size in the hessian function has to be increased to 1e-2. This is most likely
 #' cause by the fact that the likelihood values are much closer to each other
 #' after the correction for the projection matrix is introduced. Hence we have
-#' to either increase the relative tolerance of the optimisation algorithm or
+#' to either increase the relative tolerance of the optimization algorithm or
 #' loosen the precision when computing approximate hessian.
 #'
 #' @format ## `economic_growth_ms_full_proj_const`
@@ -88,7 +88,7 @@
 #'
 #' A matrix representing the summary of parameters computed with
 #' \code{parameters_summary} based on the \code{economic_growth_ms} model
-#' space. TODO: descrive the matrix properly after cleaning up the code of the
+#' space. TODO: describe the matrix properly after cleaning up the code of the
 #' function \code{parameters_summary}.
 #'
 #' @format ## `economic_growth_bma_params`

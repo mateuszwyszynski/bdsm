@@ -56,69 +56,69 @@ model_space <-
   optimal_model_space(df = data_prepared, dep_var_col = gdp,
                       timestamp_col = year, entity_col = country,
                       init_value = 0.5)
-#> initial  value 411.629953 
+#> initial  value 411.629953
 #> iter 100 value -417.175620
-#> final  value -419.142936 
+#> final  value -419.142936
 #> converged
-#> initial  value 515.891738 
+#> initial  value 515.891738
 #> iter 100 value -435.586743
-#> final  value -438.358437 
+#> final  value -438.358437
 #> converged
-#> initial  value 484.052174 
+#> initial  value 484.052174
 #> iter 100 value -416.630255
-#> final  value -422.847435 
+#> final  value -422.847435
 #> converged
-#> initial  value 671.649835 
+#> initial  value 671.649835
 #> iter 100 value -432.843888
-#> final  value -439.852584 
+#> final  value -439.852584
 #> converged
-#> initial  value 555.967990 
+#> initial  value 555.967990
 #> iter 100 value -414.115346
-#> final  value -425.548771 
+#> final  value -425.548771
 #> converged
-#> initial  value 577.687451 
+#> initial  value 577.687451
 #> iter 100 value -420.151814
-#> final  value -442.517601 
+#> final  value -442.517601
 #> converged
-#> initial  value 524.801498 
+#> initial  value 524.801498
 #> iter 100 value -416.156417
-#> final  value -427.996073 
+#> final  value -427.996073
 #> converged
-#> initial  value 629.808491 
+#> initial  value 629.808491
 #> iter 100 value -418.033818
-#> final  value -443.246356 
+#> final  value -443.246356
 #> converged
-#> initial  value 481.877496 
+#> initial  value 481.877496
 #> iter 100 value -426.997964
-#> final  value -430.831852 
+#> final  value -430.831852
 #> converged
-#> initial  value 595.078728 
+#> initial  value 595.078728
 #> iter 100 value -440.036791
-#> final  value -443.923653 
+#> final  value -443.923653
 #> converged
-#> initial  value 560.277683 
+#> initial  value 560.277683
 #> iter 100 value -419.513073
-#> final  value -432.894844 
+#> final  value -432.894844
 #> converged
-#> initial  value 756.766446 
+#> initial  value 756.766446
 #> iter 100 value -439.730987
-#> final  value -445.310013 
+#> final  value -445.310013
 #> converged
-#> initial  value 612.918815 
+#> initial  value 612.918815
 #> iter 100 value -428.790111
-#> final  value -435.750532 
+#> final  value -435.750532
 #> converged
-#> initial  value 643.529379 
+#> initial  value 643.529379
 #> iter 100 value -440.770768
-#> final  value -448.371093 
+#> final  value -448.371093
 #> converged
-#> initial  value 587.681944 
+#> initial  value 587.681944
 #> iter 100 value -426.801191
-#> final  value -436.830104 
+#> final  value -436.830104
 #> converged
-#> initial  value 701.509591 
+#> initial  value 701.509591
 #> iter 100 value -436.936673
-#> final  value -448.914323 
+#> final  value -448.914323
 #> converged
 
 
@@ -127,7 +127,7 @@ print(paste("Computation Time:", toc()))
 #> 43.665 sec elapsed
 #> [1] "Computation Time: c(elapsed = 2.145)"
 #> [2] "Computation Time: c(elapsed = 45.81)"
-#> [3] "Computation Time: logical(0)"        
+#> [3] "Computation Time: logical(0)"
 #> [4] "Computation Time: 43.665 sec elapsed"
 tic()
 
@@ -141,16 +141,16 @@ bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
 
 print(paste("Computation Time:", toc()))
 #> 13.413 sec elapsed
-#> [1] "Computation Time: c(elapsed = 45.81)" 
+#> [1] "Computation Time: c(elapsed = 45.81)"
 #> [2] "Computation Time: c(elapsed = 59.223)"
-#> [3] "Computation Time: logical(0)"         
+#> [3] "Computation Time: logical(0)"
 #> [4] "Computation Time: 13.413 sec elapsed"
 
 # STEP 4
 # Summary for parameters of interest
 regressors <- panels:::regressor_names(data_prepared, year, country, gdp)
 
-bma_params_summary <- parameters_summary(
+bma_params_summary <- panels:::parameters_summary(
   regressors = regressors, bet = bma_result$bet, pvarh = bma_result$pvarh,
   pvarr = bma_result$pvarr, fy = bma_result$fy, fyt = bma_result$fyt,
   ppmsize = bma_result$ppmsize, cout = bma_result$cout, nts = bma_result$nts,

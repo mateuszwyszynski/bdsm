@@ -54,17 +54,18 @@ Approximate standard deviations are computed for the models in the given
 model space. Two versions are computed.
 }
 \examples{
-data_centered_scaled <-
-  feature_standardization(df = panels::economic_growth[,1:7],
-                          timestamp_col = year, entity_col = country)
-data_cross_sectional_standarized <-
-  feature_standardization(df = data_centered_scaled, timestamp_col = year,
-                          entity_col = country, cross_sectional = TRUE,
-                          scale = FALSE)
+\donttest{
+  data_centered_scaled <-
+    feature_standardization(df = panels::economic_growth[,1:7],
+                            timestamp_col = year, entity_col = country)
+  data_cross_sectional_standarized <-
+    feature_standardization(df = data_centered_scaled, timestamp_col = year,
+                            entity_col = country, cross_sectional = TRUE,
+                            scale = FALSE)
 
-likelihoods_info <-
-  likelihoods_summary(df = data_cross_sectional_standarized,
-                      dep_var_col = gdp, timestamp_col = year,
-                      entity_col = country, model_space = economic_growth_ms)
+    likelihoods_summary(df = data_cross_sectional_standarized,
+                        dep_var_col = gdp, timestamp_col = year,
+                        entity_col = country, model_space = economic_growth_ms)
+}
 
 }

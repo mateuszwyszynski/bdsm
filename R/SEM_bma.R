@@ -33,18 +33,19 @@
 #' @export
 #'
 #' @examples
-#' data_centered_scaled <-
-#'   feature_standardization(df = panels::economic_growth[,1:7],
-#'                           timestamp_col = year, entity_col = country)
-#' data_cross_sectional_standarized <-
-#'   feature_standardization(df = data_centered_scaled, timestamp_col = year,
-#'                           entity_col = country, cross_sectional = TRUE,
-#'                           scale = FALSE)
+#' \donttest{
+#'   data_centered_scaled <-
+#'     feature_standardization(df = panels::economic_growth[,1:7],
+#'                             timestamp_col = year, entity_col = country)
+#'   data_cross_sectional_standarized <-
+#'     feature_standardization(df = data_centered_scaled, timestamp_col = year,
+#'                             entity_col = country, cross_sectional = TRUE,
+#'                             scale = FALSE)
 #'
-#' likelihoods_info <-
-#'   likelihoods_summary(df = data_cross_sectional_standarized,
-#'                       dep_var_col = gdp, timestamp_col = year,
-#'                       entity_col = country, model_space = economic_growth_ms)
+#'     likelihoods_summary(df = data_cross_sectional_standarized,
+#'                         dep_var_col = gdp, timestamp_col = year,
+#'                         entity_col = country, model_space = economic_growth_ms)
+#' }
 #'
 likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
                                 model_space,
@@ -207,7 +208,22 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
 #' setting the default cluster. See README.
 #'
 #' @return
-#' List of parameters describing analysed models
+#' List of parameters describing analyzed models
+#'
+#' @examples
+#' \donttest{
+#' library(magrittr)
+#'
+#' data_prepared <- economic_growth[,1:7] %>%
+#'    feature_standardization(timestamp_col = year, entity_col = country) %>%
+#'    feature_standardization(timestamp_col = year, entity_col = country,
+#'                            cross_sectional = TRUE, scale = FALSE)
+#'
+#'
+#' bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
+#'                           timestamp_col = year, entity_col = country,
+#'                           model_space = economic_growth_ms)
+#' }
 #'
 #' @export
 bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
@@ -319,7 +335,6 @@ bma_summary <- function(df, dep_var_col, timestamp_col, entity_col,
 #'
 #' @return
 #' TODO dataframe with results
-#' @export
 parameters_summary <- function(regressors, bet, pvarh, pvarr, fy, fyt, ppmsize, cout,
                                nts, pts, variables_n) {
   popmsize=ppmsize/fyt
