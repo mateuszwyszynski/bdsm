@@ -9,8 +9,7 @@ test_that(paste("likelihoods_summary computes correct approximations of",
 
   lik_info <- likelihoods_summary(df = data_prepared, dep_var_col = gdp,
                                   timestamp_col = year, entity_col = country,
-                                  model_space = economic_growth_ms,
-                                  projection_matrix_const = TRUE)
+                                  model_space = economic_growth_ms)
   expect_equal(lik_info, economic_growth_liks)
 })
 
@@ -27,8 +26,7 @@ test_that(paste("parameters_summary computes correct approximations of",
 
   bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                             timestamp_col = year, entity_col = country,
-                            model_space = economic_growth_ms,
-                            projection_matrix_const = TRUE)
+                            model_space = economic_growth_ms)
 
   bma_params <- parameters_summary(
     regressors = regressors, bet = bma_result$bet, pvarh = bma_result$pvarh,
@@ -36,7 +34,7 @@ test_that(paste("parameters_summary computes correct approximations of",
     fyt = bma_result$fyt, ppmsize = bma_result$ppmsize,
     cout = bma_result$cout, nts = bma_result$nts, pts = bma_result$pts,
     variables_n = bma_result$variables_n
-    )
+  )
 
   expect_equal(bma_params, economic_growth_bma_params)
 })

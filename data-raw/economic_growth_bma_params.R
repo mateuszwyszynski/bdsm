@@ -12,8 +12,7 @@ regressors <- regressor_names(data_prepared, year, country, gdp)
 
 bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,
                           timestamp_col = year, entity_col = country,
-                          model_space = economic_growth_ms,
-                          projection_matrix_const = TRUE)
+                          model_space = economic_growth_ms)
 
 economic_growth_bma_params <-
   parameters_summary(regressors = regressors,

@@ -144,9 +144,6 @@ matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
 #' which linear relation is not set to zero for a given model.
 #' @param per_entity Whether to compute overall likelihood or a vector of
 #' likelihoods with per entity value
-#' @param projection_matrix_const Wheter the residual maker matrix (and so
-#' the projection matrix) should be computed for each model separately.
-#' \code{TRUE} means that the matrix will be the same for all models
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}).
 #' Currently \code{TRUE} adds: 1. a normalization constant coming from Gaussian
@@ -213,7 +210,7 @@ matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
 #' SEM_likelihood(0.5, df, times, entities, dep_var)
 SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
                            lin_related_regressors = NULL,
-                           per_entity = FALSE, projection_matrix_const = TRUE,
+                           per_entity = FALSE,
                            exact_value = TRUE) {
   if (is.list(params) && !is.data.frame(data)) {
     alpha <- params$alpha
@@ -229,11 +226,7 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
     Y2 <- data$Y2
     cur_Y2 <- data$cur_Y2
     cur_Z <- data$cur_Z
-    res_maker_matrix <- if (projection_matrix_const) {
-      data$res_maker_matrix
-    } else {
-      residual_maker_matrix(cur_Z)
-    }
+    res_maker_matrix <- residual_maker_matrix(cur_Z)
 
     n_entities <- nrow(Y1)
     periods_n <- length(dep_vars)
@@ -304,7 +297,6 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
     }
     likelihood <-
       SEM_likelihood(params = params, data = data, per_entity = per_entity,
-                     projection_matrix_const = projection_matrix_const,
                      exact_value = exact_value)
   }
   likelihood
