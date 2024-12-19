@@ -1,5 +1,5 @@
-Package: panels
-Title: Modeling Dynamic Panel Data
+Package: BDSM
+Title: Bayesian Dynamic Systems Modeling
 Version: 0.0.0.9000
 Authors@R:
     c(person(given = "Mateusz",
