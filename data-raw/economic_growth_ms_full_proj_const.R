@@ -3,7 +3,7 @@ library(magrittr)
 
 set.seed(23)
 
-data_prepared <- panels::economic_growth %>%
+data_prepared <- bdsm::economic_growth %>%
   feature_standardization(timestamp_col = year, entity_col = gdp) %>%
   feature_standardization(timestamp_col = year, entity_col = country,
                           cross_sectional = TRUE, scale = FALSE)

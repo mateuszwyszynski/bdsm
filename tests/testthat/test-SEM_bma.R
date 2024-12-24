@@ -2,7 +2,7 @@ test_that(paste("likelihoods_summary computes correct approximations of",
                 "standard deviations based on economic_growth_ms"), {
   set.seed(23)
 
-  data_prepared <- panels::economic_growth[,1:7] %>%
+  data_prepared <- bdsm::economic_growth[,1:7] %>%
     feature_standardization(timestamp_col = year, entity_col = country) %>%
     feature_standardization(timestamp_col = year, entity_col = country,
                             cross_sectional = TRUE, scale = FALSE)
@@ -18,7 +18,7 @@ test_that(paste("parameters_summary computes correct approximations of",
   skip_on_os(c("windows", "linux"))
   set.seed(20)
 
-  data_prepared <- panels::economic_growth[,1:7] %>%
+  data_prepared <- bdsm::economic_growth[,1:7] %>%
     feature_standardization(timestamp_col = year, entity_col = country) %>%
     feature_standardization(timestamp_col = year, entity_col = country,
                             cross_sectional = TRUE, scale = FALSE)

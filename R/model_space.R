@@ -78,7 +78,7 @@ initialize_model_space <- function(df, timestamp_col, entity_col,
 #' regressors and the dependent variable.
 #'
 #' The vector needs to have named rows, i.e. it is assumed it comes from a
-#' model space (see \link[panels]{initialize_model_space} for details).
+#' model space (see \link[bdsm]{initialize_model_space} for details).
 #'
 #' @param params a vector with parameters describing the model
 #'
@@ -115,7 +115,7 @@ regressor_names_from_params_vector <- function(params) {
 #' This will be the starting point for the numerical optimization.
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
-#' \link[panels]{SEM_likelihood} for details.
+#' \link[bdsm]{SEM_likelihood} for details.
 #' @param run_parallel If \code{TRUE} the optimization is run in parallel using
 #' the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
 #' base apply function is used. Note that using the parallel computing requires

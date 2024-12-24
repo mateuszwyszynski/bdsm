@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(panels)
+library(bdsm)
 
-test_check("panels")
+test_check("bdsm")

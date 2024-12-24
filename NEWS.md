@@ -1,3 +1,3 @@
-# panels (development version)
+# bdsm (development version)
 
 * Initial CRAN submission.

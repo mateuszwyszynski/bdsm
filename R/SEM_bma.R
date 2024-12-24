@@ -9,12 +9,12 @@
 #' @param entity_col Column with entities (e.g. countries)
 #' @param model_space A matrix (with named rows) with each column corresponding
 #' to a model. Each column specifies model parameters. Compare with
-#' \link[panels]{optimal_model_space}
+#' \link[bdsm]{optimal_model_space}
 #' @param model_prior Which model prior to use. For now there are two options:
 #' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
-#' \link[panels]{SEM_likelihood} for details.
+#' \link[bdsm]{SEM_likelihood} for details.
 #' @param run_parallel If \code{TRUE} the optimization is run in parallel using
 #' the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
 #' base apply function is used. Note that using the parallel computing requires
@@ -35,7 +35,7 @@
 #' @examples
 #' \donttest{
 #'   data_centered_scaled <-
-#'     feature_standardization(df = panels::economic_growth[,1:7],
+#'     feature_standardization(df = bdsm::economic_growth[,1:7],
 #'                             timestamp_col = year, entity_col = country)
 #'   data_cross_sectional_standarized <-
 #'     feature_standardization(df = data_centered_scaled, timestamp_col = year,
@@ -196,12 +196,12 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
 #' @param entity_col Column with entities (e.g. countries)
 #' @param model_space A matrix (with named rows) with each column corresponding
 #' to a model. Each column specifies model parameters. Compare with
-#' \link[panels]{optimal_model_space}
+#' \link[bdsm]{optimal_model_space}
 #' @param model_prior Which model prior to use. For now there are two options:
 #' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
-#' \link[panels]{SEM_likelihood} for details.
+#' \link[bdsm]{SEM_likelihood} for details.
 #' @param run_parallel If \code{TRUE} the optimization is run in parallel using
 #' the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
 #' base apply function is used. Note that using the parallel computing requires

@@ -1,6 +1,6 @@
 ## code to prepare `economic_growth` dataset goes here
 
-fpath <- system.file("extdata", "economic_growth_raw.xlsx", package = "panels")
+fpath <- system.file("extdata", "economic_growth_raw.xlsx", package = "bdsm")
 
 economic_growth_raw <- readxl::read_excel(fpath)
 

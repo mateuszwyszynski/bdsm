@@ -29,7 +29,7 @@ This will be the starting point for the numerical optimization.}
 
 \item{exact_value}{Whether the exact value of the likelihood should be
 computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
-\link[panels]{SEM_likelihood} for details.}
+\link[bdsm]{SEM_likelihood} for details.}
 
 \item{run_parallel}{If \code{TRUE} the optimization is run in parallel using
 the \link[parallel]{parApply} function. If \code{FALSE} (default value) the

@@ -26,11 +26,11 @@ bma_summary(
 
 \item{model_space}{A matrix (with named rows) with each column corresponding
 to a model. Each column specifies model parameters. Compare with
-\link[panels]{optimal_model_space}}
+\link[bdsm]{optimal_model_space}}
 
 \item{exact_value}{Whether the exact value of the likelihood should be
 computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
-\link[panels]{SEM_likelihood} for details.}
+\link[bdsm]{SEM_likelihood} for details.}
 
 \item{model_prior}{Which model prior to use. For now there are two options:
 \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.}
