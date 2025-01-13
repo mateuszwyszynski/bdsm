@@ -1,3 +1,3 @@
-# bdsm (development version)
+# bdsm 0.1.0
 
 * Initial CRAN submission.
