@@ -15,3 +15,14 @@ generate_test_feature_standard_data <- function(cross_sectional = FALSE, scale =
     scale
   )
 }
+
+#this is mine to work on
+generate_test_data_prep <- function(cross_sectional = FALSE, scale = TRUE) {
+  feature_standardization(
+    generate_test_data(),
+    timestamp_col = times,
+    entity_col = entities,
+    cross_sectional,
+    scale
+  )
+}

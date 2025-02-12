@@ -22,3 +22,9 @@ test_that("feature_standardization returns all rows provided", {
   df <- generate_test_feature_standard_data()
   expect_equal(nrow(df), nrow(generate_test_data()))
 })
+
+test_that("feature_standardization returns all rows provided", {
+  set.seed(1)
+  df <- generate_test_feature_standard_data()
+  expect_equal(nrow(df), nrow(generate_test_data()))
+})

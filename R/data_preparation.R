@@ -63,8 +63,8 @@ join_lagged_col <- function(df, col, col_lagged, timestamp_col,
 #' @param df Dataframe with data that should be prepared for LIML estimation
 #' @param timestamp_col Column with timestamps (e.g. years)
 #' @param entity_col Column with entities (e.g. countries)
-#' @param cross_sectional Whether to perform feature standardization within
-#' cross sections
+#' @param time_effects Whether to introduce time fixed effects
+#' (by cross-sectional demeaning)
 #' @param scale Whether to divide by the standard deviation \code{TRUE} or not
 #' \code{FALSE}. Default is \code{TRUE}.
 #'
@@ -83,8 +83,8 @@ join_lagged_col <- function(df, col, col_lagged, timestamp_col,
 #'
 #' @export
 feature_standardization <- function(df, timestamp_col, entity_col,
-                                    cross_sectional = FALSE, scale = TRUE) {
-  if (!cross_sectional) {
+                                    time_effects = FALSE, scale = TRUE) {
+  if (!time_effects) {
     df %>%
       dplyr::mutate(dplyr::across(!({{ timestamp_col }}:{{ entity_col }}),
                                   function(x) c(scale(x, scale = scale))))

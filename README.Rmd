@@ -84,7 +84,7 @@ print(paste("Computation Time:", toc()))
 # Summary for parameters of interest
 regressors <- bdsm:::regressor_names(data_prepared, year, country, gdp)
 
-bma_params_summary <- bdsm:::parameters_summary(
+bma_params_summary1 <- bdsm:::parameters_summary(
   regressors = regressors, bet = bma_result$bet, pvarh = bma_result$pvarh,
   pvarr = bma_result$pvarr, fy = bma_result$fy, fyt = bma_result$fyt,
   ppmsize = bma_result$ppmsize, cout = bma_result$cout, nts = bma_result$nts,
