@@ -70,8 +70,9 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
   prior_exp_model_size <- regressors_n / 2
   prior_inc_prob <- prior_exp_model_size / regressors_n
 
-  print(paste("Prior Mean Model Size:", prior_exp_model_size))
-  print(paste("Prior Inclusion Probability:", prior_inc_prob))
+  # THIS WILL BE DELETED
+  #print(paste("Prior Mean Model Size:", prior_exp_model_size))
+  #print(paste("Prior Inclusion Probability:", prior_inc_prob))
 
   # parameter for beta (random) distribution of the prior inclusion probability
   b <- (regressors_n - prior_exp_model_size) / prior_exp_model_size

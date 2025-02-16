@@ -47,11 +47,11 @@ set.seed(20)
 # Prepare data
 #
 # Features are scaled and centralized around the mean.
-# Then they are centralized around the mean within cross-sections
+# Then they are centralized around the mean within cross-sections (fixed time effects)
 data_prepared <- bdsm::economic_growth[,1:7] %>%
   feature_standardization(timestamp_col = year, entity_col = gdp) %>%
   feature_standardization(timestamp_col = year, entity_col = country,
-                          cross_sectional = TRUE, scale = FALSE)
+                          time_effects = TRUE, scale = FALSE)
 
 # If needed track computation time
 library(tictoc)
@@ -84,7 +84,7 @@ print(paste("Computation Time:", toc()))
 # Summary for parameters of interest
 regressors <- bdsm:::regressor_names(data_prepared, year, country, gdp)
 
-bma_params_summary2 <- bdsm:::parameters_summary(
+bma_params_summary <- bdsm:::parameters_summary(
   regressors = regressors, bet = bma_result$bet, pvarh = bma_result$pvarh,
   pvarr = bma_result$pvarr, fy = bma_result$fy, fyt = bma_result$fyt,
   ppmsize = bma_result$ppmsize, cout = bma_result$cout, nts = bma_result$nts,
