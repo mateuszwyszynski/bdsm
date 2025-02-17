@@ -40,6 +40,7 @@ model_sizes = function(bma_list){
 
   R <- bma_list[[4]] # total number of regressors from bma_list
   M <- bma_list[[5]] # size of the model space from bma_list
+  EMS <- bma_list[[8]] # expected model size
   sizePriors <- bma_list[[9]] # table with unifrom and random model priors spread over model sizes from bma_list
   modelPosterior <- bma_list[[10]] # table with posterior model probabilities from bma_list
 
@@ -103,13 +104,13 @@ model_sizes = function(bma_list){
     ggplot2::geom_line(ggplot2::aes(color = Probability, linetype = Probability)) +
     ggplot2::scale_color_manual(values = c("darkred", "steelblue")) +
     ggplot2::ylab("Prior, Posterior") + ggplot2::xlab("Model size (number of regressors)") +
-    ggplot2::ggtitle("Results with binomial model prior")
+    ggplot2::ggtitle(paste0("Results with binomial model prior (EMS = ", EMS, ")"))
 
   Graph2_2 <- ggplot2::ggplot(forGraph2, ggplot2::aes(x = ID, y = Value)) +
     ggplot2::geom_line(ggplot2::aes(color = Probability, linetype = Probability)) +
     ggplot2::scale_color_manual(values = c("darkred", "steelblue")) +
     ggplot2::ylab("Prior, Posterior") + ggplot2::xlab("Model size (number of regressors)") +
-    ggplot2::ggtitle("Results with binomial-beta model prior")
+    ggplot2::ggtitle(paste0("Results with binomial-beta model prior (EMS = ", EMS, ")"))
 
   # Putting together the last plot
   Finalplot <- ggpubr::ggarrange(Graph1_2,Graph2_2,
