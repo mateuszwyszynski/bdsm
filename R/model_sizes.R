@@ -36,14 +36,14 @@
 
 utils::globalVariables(c("ID", "Value", "Probability"))
 
-## ADD DILUTION OPTION
 model_sizes = function(bma_list){
 
-  R <- bma_list[[4]] # total number of regressors from bma_list
-  M <- bma_list[[5]] # size of the model space from bma_list
+  R <- bma_list[[4]] # total number of regressors
+  M <- bma_list[[5]] # size of the model space
   EMS <- bma_list[[8]] # expected model size
-  sizePriors <- bma_list[[9]] # table with uniform and random model priors spread over model sizes from bma_list
-  modelPosterior <- bma_list[[10]] # table with posterior model probabilities from bma_list
+  sizePriors <- bma_list[[9]] # table with uniform and random model priors spread over model sizes
+  modelPosterior <- bma_list[[10]] # table with posterior model probabilities
+  dilution <- bma_list[[12]] # 0 - no dilution prior, 1 - dilution prior
 
   reg_ID <- modelPosterior[,1:R]
   uniform_posterior <- matrix(modelPosterior[,R+1], nrow = M, ncol = 1)
@@ -100,18 +100,33 @@ model_sizes = function(bma_list){
     ggplot2::ylab("Prior, Posterior") + ggplot2::xlab("Model size (number of regressors)")
 
   ## Preparation of the data for BIG COMBINED GRAPH
+  if (dilution==0){
+    Graph1_2 <- ggplot2::ggplot(forGraph1, ggplot2::aes(x = ID, y = Value)) +
+      ggplot2::geom_line(ggplot2::aes(color = Probability, linetype = Probability)) +
+      ggplot2::scale_color_manual(values = c("darkred", "steelblue")) +
+      ggplot2::ylab("Prior, Posterior") + ggplot2::xlab("Model size (number of regressors)") +
+      ggplot2::ggtitle(paste0("Results with binomial model prior (EMS = ", EMS, ")"))
 
-  Graph1_2 <- ggplot2::ggplot(forGraph1, ggplot2::aes(x = ID, y = Value)) +
-    ggplot2::geom_line(ggplot2::aes(color = Probability, linetype = Probability)) +
-    ggplot2::scale_color_manual(values = c("darkred", "steelblue")) +
-    ggplot2::ylab("Prior, Posterior") + ggplot2::xlab("Model size (number of regressors)") +
-    ggplot2::ggtitle(paste0("Results with binomial model prior (EMS = ", EMS, ")"))
+    Graph2_2 <- ggplot2::ggplot(forGraph2, ggplot2::aes(x = ID, y = Value)) +
+      ggplot2::geom_line(ggplot2::aes(color = Probability, linetype = Probability)) +
+      ggplot2::scale_color_manual(values = c("darkred", "steelblue")) +
+      ggplot2::ylab("Prior, Posterior") + ggplot2::xlab("Model size (number of regressors)") +
+      ggplot2::ggtitle(paste0("Results with binomial-beta model prior (EMS = ", EMS, ")"))
+  }
 
-  Graph2_2 <- ggplot2::ggplot(forGraph2, ggplot2::aes(x = ID, y = Value)) +
-    ggplot2::geom_line(ggplot2::aes(color = Probability, linetype = Probability)) +
-    ggplot2::scale_color_manual(values = c("darkred", "steelblue")) +
-    ggplot2::ylab("Prior, Posterior") + ggplot2::xlab("Model size (number of regressors)") +
-    ggplot2::ggtitle(paste0("Results with binomial-beta model prior (EMS = ", EMS, ")"))
+  if (dilution==1){
+    Graph1_2 <- ggplot2::ggplot(forGraph1, ggplot2::aes(x = ID, y = Value)) +
+      ggplot2::geom_line(ggplot2::aes(color = Probability, linetype = Probability)) +
+      ggplot2::scale_color_manual(values = c("darkred", "steelblue")) +
+      ggplot2::ylab("Prior, Posterior") + ggplot2::xlab("Model size (number of regressors)") +
+      ggplot2::ggtitle(paste0("Results with diluted binomial model prior (EMS = ", EMS, ")"))
+
+    Graph2_2 <- ggplot2::ggplot(forGraph2, ggplot2::aes(x = ID, y = Value)) +
+      ggplot2::geom_line(ggplot2::aes(color = Probability, linetype = Probability)) +
+      ggplot2::scale_color_manual(values = c("darkred", "steelblue")) +
+      ggplot2::ylab("Prior, Posterior") + ggplot2::xlab("Model size (number of regressors)") +
+      ggplot2::ggtitle(paste0("Results with diluted binomial-beta model prior (EMS = ", EMS, ")"))
+  }
 
   # Putting together the last plot
   Finalplot <- ggpubr::ggarrange(Graph1_2,Graph2_2,

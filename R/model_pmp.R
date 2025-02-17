@@ -35,22 +35,22 @@
 #' model_graphs <- model_pmp(bma_results, Top = 16)
 #' }
 #'
-#'@name modelPMP
+#'@name model_pmp
 
 utils::globalVariables(c("ID", "Value", "Probability"))
 
-model_pmp = function(bma_list,Top=4){
+model_pmp = function(bma_list,Top=5){
 
-# Collecting information from the Post object
-R <- bma_list[[4]] # total number of regressors from bma_list
-M <- bma_list[[5]] # size of the model space from bma_list
+# Collecting information from the bma_list
+R <- bma_list[[4]] # total number of regressors
+M <- bma_list[[5]] # size of the model space
 EMS <- bma_list[[8]] # expected model size
-PMPs <- bma_list[[10]][,(R+1):(R+2)] # PMP_uniform,PMP_random
+PMPs <- bma_list[[10]][,(R+1):(R+2)] # PMP_uniform, PMP_random
 Priors <- bma_list[[11]] # Priors: uniform and random
 
-if (Top>M){# CONDITION about what to do if the user sets Top that is higher than MS (Top>MS)
+if (Top>M){# CONDITION about what to do if the user sets Top that is higher than M
   # we tell the user that we are setting Top = R
-  message("The number of the best models (Top) cannot be higher than the total number of models. We set Top=4 (total number of regressors) and continiue :)")
+  message("The number of the best models (Top) cannot be higher than the total number of models. We set Top = R (total number of regressors) and continiue :)")
   Top = R # we set M=K
 }
 
