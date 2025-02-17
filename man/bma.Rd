@@ -34,7 +34,7 @@ bma(
 \item{dil.Par}{Parameter associated with dilution prior - the exponent of the determinant (George 2010). Used only if parameter dilution = 1.}
 }
 \value{
-A list with Posterior objects: \cr
+A list with bma objects: \cr
 \enumerate{
 \item uniform_table - table with the results under binomial model prior \cr
 \item random_table - table with the results under binomial-beta model prior \cr

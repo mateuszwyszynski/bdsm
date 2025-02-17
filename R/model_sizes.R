@@ -6,7 +6,7 @@
 #'
 #' @param bma_list bma_list object (the result of the bma function)
 #'
-#' @return Four graphs with prior and posterior model probabilities:\cr
+#' @return A list with three graphs with prior and posterior model probabilities for model sizes:\cr
 #' 1) The results with binomial model prior (based on PMP - posterior model probability) \cr
 #' 2) The results with binomial-beta model prior (based on PMP - posterior model probability) \cr
 #' 3) One graph combining all the aforementioned graphs
@@ -29,19 +29,20 @@
 #' bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
 #' entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
 #'
-#' model_graphs <- model_sizes(bma_results)
+#' size_graphs <- model_sizes(bma_results)
 #' }
 #'
 #'@name model_sizes
 
 utils::globalVariables(c("ID", "Value", "Probability"))
 
+## ADD DILUTION OPTION
 model_sizes = function(bma_list){
 
   R <- bma_list[[4]] # total number of regressors from bma_list
   M <- bma_list[[5]] # size of the model space from bma_list
   EMS <- bma_list[[8]] # expected model size
-  sizePriors <- bma_list[[9]] # table with unifrom and random model priors spread over model sizes from bma_list
+  sizePriors <- bma_list[[9]] # table with uniform and random model priors spread over model sizes from bma_list
   modelPosterior <- bma_list[[10]] # table with posterior model probabilities from bma_list
 
   reg_ID <- modelPosterior[,1:R]

@@ -12,7 +12,7 @@
 #' @param dilution Binary parameter: 0 - NO application of a dilution prior; 1 - application of a dilution prior (George 2010).
 #' @param dil.Par Parameter associated with dilution prior - the exponent of the determinant (George 2010). Used only if parameter dilution = 1.
 #'
-#' @return A list with Posterior objects: \cr
+#' @return A list with bma objects: \cr
 #' 1. uniform_table - table with the results under binomial model prior \cr
 #' 2. random_table - table with the results under binomial-beta model prior \cr
 #' 3. reg_names - vector with names of the regressors - to be used by the functions \cr
@@ -257,13 +257,14 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
   uniform_table[1,1] <- NA
   random_table[1,1] <- NA
 
-  PIPs <- cbind(PIP_uniform,PIP_random) # Table with PIP under different model priors for Jointness function
-  forJointness <- cbind(reg_ID,PMP_uniform,PMP_random) # Table with model IDs and PMPs for Jointness function
-  forBestModels <- cbind(reg_ID,BestModels_prep,PMP_uniform,PMP_random) # Table with model IDs, coefs, stds, stdRs, PMP_uniform, PMP_random for bestModels function
-  sizePriors <- cbind(uniform_sizes,random_sizes) # Table with uniform and random model priors spread over model sizes
-  PMPs <- cbind(reg_ID,PMP_uniform,PMP_random)
+  PIPs <- cbind(PIP_uniform, PIP_random) # Table with PIP under different model priors for Jointness function
+  forJointness <- cbind(reg_ID, PMP_uniform, PMP_random) # Table with model IDs and PMPs for Jointness function
+  forBestModels <- cbind(reg_ID, BestModels_prep, PMP_uniform, PMP_random) # Table with model IDs, coefs, stds, stdRs, PMP_uniform, PMP_random for bestModels function
+  sizePriors <- cbind(uniform_sizes, random_sizes) # Table with uniform and random model priors spread over model sizes
+  PMPs <- cbind(reg_ID,PMP_uniform, PMP_random)
+  modelPriors <- cbind(uniform_models, random_models)
 
   bma_list <- list(uniform_table,random_table,reg_names,R,M,forJointness,
-                   forBestModels,EMS,sizePriors,PMPs,alphas,betas_nonzero)
+                   forBestModels,EMS,sizePriors,PMPs,modelPriors,dilution,alphas,betas_nonzero)
   return(bma_list)
 }

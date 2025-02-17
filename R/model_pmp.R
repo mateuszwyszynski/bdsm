@@ -1,0 +1,121 @@
+#' Graphs of the prior and posterior model probabilities for the best individual models
+#'
+#' This function draws four graphs of prior and posterior model probabilities for the best individual models: \cr
+#' a) The results with binomial model prior (based on PMP - posterior model probability) \cr
+#' b) The results with binomial-beta model prior (based on PMP - posterior model probability) \cr
+#' Models on the graph are ordered according to their posterior model probability.
+#'
+#'
+#' @param bma_list bma_list object (the result of the bma function)
+#' @param Top The number of the best model to be placed on the graphs
+#'
+#' @return A list with three graphs with prior and posterior model probabilities for individual models:\cr
+#' 1) The results with binomial model prior (based on PMP - posterior model probability) \cr
+#' 2) The results with binomial-beta model prior (based on PMP - posterior model probability) \cr
+#' 3) On graph combining the aforementioned graphs
+#'
+#' @export
+#'
+#' @examples
+#' \donttest{
+#' library(magrittr)
+#'
+#' data_prepared <- economic_growth[,1:7] %>%
+#'    feature_standardization(timestamp_col = year, entity_col = country) %>%
+#'    feature_standardization(timestamp_col = year, entity_col = country,
+#'                            cross_sectional = TRUE, scale = FALSE)
+#'
+#' model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
+#'                                    timestamp_col = year, entity_col = country,
+#'                                    init_value = 0.5)
+#'
+#' bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
+#' entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
+#'
+#' model_graphs <- model_pmp(bma_results, Top = 16)
+#' }
+#'
+#'@name modelPMP
+
+utils::globalVariables(c("ID", "Value", "Probability"))
+
+model_pmp = function(bma_list,Top=4){
+
+# Collecting information from the Post object
+R <- bma_list[[4]] # total number of regressors from bma_list
+M <- bma_list[[5]] # size of the model space from bma_list
+EMS <- bma_list[[8]] # expected model size
+PMPs <- bma_list[[10]][,(R+1):(R+2)] # PMP_uniform,PMP_random
+Priors <- bma_list[[11]] # Priors: uniform and random
+
+if (Top>M){# CONDITION about what to do if the user sets Top that is higher than MS (Top>MS)
+  # we tell the user that we are setting Top = R
+  message("The number of the best models (Top) cannot be higher than the total number of models. We set Top=4 (total number of regressors) and continiue :)")
+  Top = R # we set M=K
+}
+
+# Objects to store posteriors and priors
+PMP_uniform <- cbind(PMPs[,1], Priors[,1])
+PMP_random <- cbind(PMPs[,2], Priors[,2])
+
+# Ordering of the models according to posterior criterion
+PMP_uniform <- PMP_uniform[order(PMP_uniform[,1], decreasing=T),]
+PMP_random <- PMP_random[order(PMP_random[,1], decreasing=T),]
+
+ranking <- matrix(1:M, nrow = M, ncol = 1)
+
+# Adding a ranking number
+PMP_uniform <- cbind(ranking[1:Top,], PMP_uniform[1:Top,])
+PMP_random <- cbind(ranking[1:Top,], PMP_random[1:Top,])
+
+IDnames <- cbind("ID","Posterior","Prior") # names of the variables to be used by 'tidyverse'
+
+colnames(PMP_uniform) <- IDnames
+colnames(PMP_random) <- IDnames
+
+forGraph1 <- as.data.frame(PMP_uniform)
+forGraph2 <- as.data.frame(PMP_random)
+
+## Preparation of the Figures with ggplot
+forGraph1 <- tidyr::gather(forGraph1, key = "Probability", value = "Value", -ID)
+
+forGraph2 <- tidyr::gather(forGraph2, key = "Probability", value = "Value", -ID)
+
+## Preparation of the Figures with ggplot
+Graph1 <- ggplot2::ggplot(forGraph1, ggplot2::aes(x = ID, y = Value)) +
+  ggplot2::geom_line(ggplot2::aes(color = Probability, linetype = Probability)) +
+  ggplot2::scale_color_manual(values = c("darkred", "steelblue")) +
+  ggplot2::ylab("Prior, Posterior") +
+  ggplot2::xlab("Model number in the raniking")
+
+Graph2 <- ggplot2::ggplot(forGraph2, ggplot2::aes(x = ID, y = Value)) +
+  ggplot2::geom_line(ggplot2::aes(color = Probability, linetype = Probability)) +
+  ggplot2::scale_color_manual(values = c("darkred", "steelblue")) +
+  ggplot2::ylab("Prior, Posterior") +
+  ggplot2::xlab("Model number in the raniking")
+
+## Preparation of the data for BIG COMBINED GRAPH
+Graph1_2 <- ggplot2::ggplot(forGraph1, ggplot2::aes(x = ID, y = Value)) +
+  ggplot2::geom_line(ggplot2::aes(color = Probability, linetype = Probability)) +
+  ggplot2::scale_color_manual(values = c("darkred", "steelblue")) +
+  ggplot2::ylab("Prior, Posterior") +
+  ggplot2::xlab("Model number in the ranking") +
+  ggplot2::ggtitle(paste0("Results with binomial model prior (EMS = ", EMS, ")"))
+
+Graph2_2 <- ggplot2::ggplot(forGraph2, ggplot2::aes(x = ID, y = Value)) +
+  ggplot2::geom_line(ggplot2::aes(color = Probability, linetype = Probability)) +
+  ggplot2::scale_color_manual(values = c("darkred", "steelblue")) +
+  ggplot2::ylab("Prior, Posterior") +
+  ggplot2::xlab("Model number in the ranking") +
+  ggplot2::ggtitle(paste0("Results with binomial-beta model prior (EMS = ", EMS, ")"))
+
+# Putting together the last plot
+Finalplot <- ggpubr::ggarrange(Graph1_2,Graph2_2,
+                               labels = c("a)", "b)"),
+                               ncol = 1, nrow = 2, common.legend = TRUE, legend = "bottom")
+
+print(Finalplot)
+
+out <- list(Graph1, Graph2, Finalplot)
+return(out)
+}
