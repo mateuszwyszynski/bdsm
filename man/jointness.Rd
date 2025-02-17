@@ -4,10 +4,10 @@
 \alias{jointness}
 \title{Calculation of of the jointness measures}
 \usage{
-jointness(bma, measure = "HCGHM", rho = 0.5, app = 3)
+jointness(bma_list, measure = "HCGHM", rho = 0.5, app = 3)
 }
 \arguments{
-\item{bma}{bma object (the result of the bma function)}
+\item{bma_list}{bma object (the result of the bma function)}
 
 \item{measure}{Parameter for choosing the measure of jointness: \cr
 HCGHM - for Hofmarcher et al. (2018) measure; \cr
@@ -53,6 +53,6 @@ model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
 bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
 entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
 
-jointness_table <- jointness(nma_results,)
+jointness_table <- jointness(bma_results, measure = "HCGHM", rho = 0.5, app = 3)
 }
 }

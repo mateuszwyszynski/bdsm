@@ -134,7 +134,7 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
   PMP_random <- random_models*table[,(3*K+R+1)]
   PMP_random <- PMP_random / sum(PMP_random)
 
-  ##### FOR forModelSizes
+  ##### FOR model_sizes
   sizes <- matrix(0, nrow = R+1, ncol = 1) # vector to store number of models in a given model size
 
   for (k in 0:R){ # at this LOOP we add all combinations of regressors up models with R variables
@@ -149,10 +149,10 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
   random_models_ordered <- matrix(for_sizes[,(R+3)], nrow = M, ncol = 1)
 
   for (i in 1:(R+1)){
-    if (i==1){uniform_sizes[i,1]=uniform_models_ordered[1,1]
-    random_sizes[i,1]=random_models_ordered[1,1]} # we collect probabilities for different model sizes: the case of the model with no regressors
-    else{uniform_sizes[i,1]=sum(uniform_models_ordered[(ind[i-1]+1):ind[i],1])
-    random_sizes[i,1]=sum(random_models_ordered[(ind[i-1]+1):ind[i],1])
+    if (i==1){uniform_sizes[i,1] = uniform_models_ordered[1,1]
+    random_sizes[i,1] = random_models_ordered[1,1]} # we collect probabilities for different model sizes: the case of the model with no regressors
+    else{uniform_sizes[i,1] = sum(uniform_models_ordered[(ind[i-1]+1):ind[i],1])
+    random_sizes[i,1] = sum(random_models_ordered[(ind[i-1]+1):ind[i],1])
     } # we collect probabilities for different model sizes: the case of models with regressors
   }
   ######################################################
