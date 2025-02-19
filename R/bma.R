@@ -58,6 +58,8 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
   R <- K-1
   # Model space size
   M <- 2^R
+  # Number of observations
+  N <- nrow((na.omit(df[,4])))
 
   like_table <- likelihoods_summary(df = df, dep_var_col = {{dep_var_col}}, timestamp_col = {{timestamp_col}},
                                     entity_col = {{entity_col}}, model_space = model_space, run_parallel = run_parallel)
@@ -210,8 +212,11 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
   PM_random_nonzero <- matrix(0, nrow = M/2, ncol = R)
   Positive_betas <- matrix(0, nrow = R, ncol = 1)
   Positive_alpha <- 0
+  d_free <- matrix(0, nrow = M, ncol = 1) # Degrees of freedom
+  reg_sums <- matrix(rowSums(reg_ID), nrow = M, ncol = 1)
 
   for (i in 1:M){
+    d_free[i,1] = N - reg_sums[i,1] - 1
     if(alphas[i,1]>0){
       Positive_alpha <- 1/M + Positive_alpha
     }
@@ -265,6 +270,6 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
   modelPriors <- cbind(uniform_models, random_models)
 
   bma_list <- list(uniform_table,random_table,reg_names,R,M,forJointness,
-                   forBestModels,EMS,sizePriors,PMPs,modelPriors,dilution,alphas,betas_nonzero)
+                   forBestModels,EMS,sizePriors,PMPs,modelPriors,dilution,alphas,betas_nonzero,d_free)
   return(bma_list)
 }

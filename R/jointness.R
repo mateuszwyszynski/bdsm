@@ -18,8 +18,8 @@
 #' LS - for Ley & Steel (2007) measure; \cr
 #' DW - for Doppelhofer & Weeks (2009) measure; \cr
 #' PPI - for posterior probability of including both variables.
-#' @param rho The parameter "rho" (\eqn{\rho}) to be used in HCGHM jointness measure (default rho=0.5). Works only if HCGHM measure is chosen (Hofmarcher et al. 2018).
-#' @param app Parameter indicating the decimal place to which the jointness measures should be rounded (default app=3).
+#' @param rho The parameter "rho" (\eqn{\rho}) to be used in HCGHM jointness measure (default rho = 0.5). Works only if HCGHM measure is chosen (Hofmarcher et al. 2018).
+#' @param app Parameter indicating the decimal place to which the jointness measures should be rounded (default app = 3).
 #'
 #' @return A table with jointness measures for all the pairs of regressors used in the analysis. Parameter "above" indicates what model prior is used for the values ABOVE the diagonal, and parameter "below" indicates what model prior is used for the values BELOW the diagonal.
 #'
