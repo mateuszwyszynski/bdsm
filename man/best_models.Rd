@@ -22,7 +22,7 @@ best_models(
 
 \item{best}{The number of the best models to be considered}
 
-\item{app}{Parameter indicating the decimal place to which the jointness measures should be rounded (default app = 3).}
+\item{app}{Parameter indicating the decimal place to which number in the tables should be rounded (default app = 3)}
 
 \item{estimate}{A parameter with values TRUE or FALSE indicating which table should be displayed when
 the function finishes calculations. Works well when best is small.\cr

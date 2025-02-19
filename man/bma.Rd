@@ -11,6 +11,7 @@ bma(
   entity_col,
   model_space,
   run_parallel = FALSE,
+  app = 4,
   EMS = NULL,
   dilution = 0,
   dil.Par = 0.5
@@ -25,9 +26,12 @@ bma(
 
 \item{entity_col}{Column with entities (e.g. countries)}
 
-\item{model_space}{The result of the optimal_model_space function. A matrix (with named rows) with each column corresponding to a model. Each column specifies model parameters. Compare with \link[bdsm]{optimal_model_space}}
+\item{model_space}{The result of the optimal_model_space function. A matrix (with named rows)
+with each column corresponding to a model. Each column specifies model parameters. Compare with \link[bdsm]{optimal_model_space}}
 
-\item{EMS}{Expected model size for model binomial and binomial-beta model prior.}
+\item{app}{Parameter indicating the decimal place to which number in the BMA tables should be rounded (default app = 4)}
+
+\item{EMS}{Expected model size for model binomial and binomial-beta model prior}
 
 \item{dilution}{Binary parameter: 0 - NO application of a dilution prior; 1 - application of a dilution prior (George 2010).}
 
@@ -42,16 +46,20 @@ A list with bma objects: \cr
 \item R - total number of regressors \cr
 \item M - size of the mode space \cr
 \item forJointnes - table with model IDs and PMPs for jointness function \cr
-\item forBestModels - table with model IDs, PMPs, coefficients, stds, and, stdRs for best_odels function \cr
-\item EMS - expected model size for binomial and binomial-beta model prior specified by the user (default EMS=R/2) \cr
+\item forBestModels - table with model IDs, PMPs, coefficients, stds, and, stdRs for best_models function \cr
+\item EMS - expected model size for binomial and binomial-beta model prior specified by the user (default EMS = R/2) \cr
 \item sizePriors - table with uniform and random model priors spread over model sizes for model_sizes function \cr
 \item PMPs - table with posterior model probabilities for model_sizes function \cr
-\item alphas - coefficients on lagged dependent variable \cr
-\item betas_nonzero - nonzero coefficients on the regressors
+\item modelPriors - table with priors on models for model_pmp function \cr
+\item dilution - parameter indication if priors were diluted for model_sizes function \cr
+\item alphas - coefficients on lagged dependent variable for coef_hist function\cr
+\item betas_nonzero - nonzero coefficients on the regressors for coef_hist function \cr
+\item d_free - table with degrees of freedom of estimated models for best_models function \cr
+\item PMStable - table with prior and posterior expected model size for binomial and binomial-beta model prior
 }
 }
 \description{
-This function calculates bma object for the model_space object obtained using optimal_model_space function.\cr
+This function calculates bma object for the model_space object obtained using optimal_model_space function.
 It calculates BMA statistics and objects for the use by other functions.
 }
 \examples{

@@ -8,7 +8,7 @@
 #' 1 - binomial model prior \cr
 #' 2 - binomial-beta model prior
 #' @param best The number of the best models to be considered
-#' @param app Parameter indicating the decimal place to which the jointness measures should be rounded (default app = 3).
+#' @param app Parameter indicating the decimal place to which number in the tables should be rounded (default app = 3)
 #' @param estimate A parameter with values TRUE or FALSE indicating which table should be displayed when
 #' the function finishes calculations. Works well when best is small.\cr
 #' TRUE - table with estimation to the results \cr

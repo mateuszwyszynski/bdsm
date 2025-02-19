@@ -1,14 +1,16 @@
 #' Calculation of the bma object
 #'
-#' This function calculates bma object for the model_space object obtained using optimal_model_space function.\cr
+#' This function calculates bma object for the model_space object obtained using optimal_model_space function.
 #' It calculates BMA statistics and objects for the use by other functions.
 #'
 #' @param df Data frame with data for the SEM analysis.
 #' @param dep_var_col Column with the dependent variable
 #' @param timestamp_col The name of the column with timestamps
 #' @param entity_col Column with entities (e.g. countries)
-#' @param model_space The result of the optimal_model_space function. A matrix (with named rows) with each column corresponding to a model. Each column specifies model parameters. Compare with \link[bdsm]{optimal_model_space}
-#' @param EMS Expected model size for model binomial and binomial-beta model prior.
+#' @param model_space The result of the optimal_model_space function. A matrix (with named rows)
+#' with each column corresponding to a model. Each column specifies model parameters. Compare with \link[bdsm]{optimal_model_space}
+#' @param app Parameter indicating the decimal place to which number in the BMA tables should be rounded (default app = 4)
+#' @param EMS Expected model size for model binomial and binomial-beta model prior
 #' @param dilution Binary parameter: 0 - NO application of a dilution prior; 1 - application of a dilution prior (George 2010).
 #' @param dil.Par Parameter associated with dilution prior - the exponent of the determinant (George 2010). Used only if parameter dilution = 1.
 #'
@@ -19,12 +21,16 @@
 #' 4. R - total number of regressors \cr
 #' 5. M - size of the mode space \cr
 #' 6. forJointnes - table with model IDs and PMPs for jointness function \cr
-#' 7. forBestModels - table with model IDs, PMPs, coefficients, stds, and, stdRs for best_odels function \cr
-#' 8. EMS - expected model size for binomial and binomial-beta model prior specified by the user (default EMS=R/2) \cr
+#' 7. forBestModels - table with model IDs, PMPs, coefficients, stds, and, stdRs for best_models function \cr
+#' 8. EMS - expected model size for binomial and binomial-beta model prior specified by the user (default EMS = R/2) \cr
 #' 9. sizePriors - table with uniform and random model priors spread over model sizes for model_sizes function \cr
 #' 10. PMPs - table with posterior model probabilities for model_sizes function \cr
-#' 11. alphas - coefficients on lagged dependent variable \cr
-#' 12. betas_nonzero - nonzero coefficients on the regressors
+#' 11. modelPriors - table with priors on models for model_pmp function \cr
+#' 12. dilution - parameter indication if priors were diluted for model_sizes function \cr
+#' 13. alphas - coefficients on lagged dependent variable for coef_hist function\cr
+#' 14. betas_nonzero - nonzero coefficients on the regressors for coef_hist function \cr
+#' 15. d_free - table with degrees of freedom of estimated models for best_models function \cr
+#' 16. PMStable - table with prior and posterior expected model size for binomial and binomial-beta model prior
 #'
 #' @export
 #'
@@ -47,7 +53,7 @@
 
 
 bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
-               run_parallel = FALSE, EMS = NULL, dilution = 0, dil.Par = 0.5){
+               run_parallel = FALSE, app = 4, EMS = NULL, dilution = 0, dil.Par = 0.5){
 
   reg_names <- colnames(df)
   reg_names <- reg_names[-(1:2)]
@@ -251,6 +257,8 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
 
   uniform_table <- cbind(PIP_uniform,PM_uniform,PSD_uniform,PSD_R_uniform,con_PM_uniform,con_PSD_uniform,con_PSD_R_uniform,Positive)
   random_table <- cbind(PIP_random,PM_random,PSD_random,PSD_R_random,con_PM_random,con_PSD_random,con_PSD_R_random,Positive)
+  uniform_table <- round(uniform_table, app)
+  random_table <- round(random_table, app)
 
   bma_names <- c("PIP", "PM", "PSD", "PSD_R","PM_con", "PSD_con", "PSD_R_con", "%(+)")
 
@@ -269,7 +277,15 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
   PMPs <- cbind(reg_ID,PMP_uniform, PMP_random)
   modelPriors <- cbind(uniform_models, random_models)
 
+  PriorMS <- matrix(EMS, nrow = 1, ncol = 2)
+  PosteriorMS <- matrix((colSums(PIPs)-1), nrow = 1, ncol = 2)
+  PMStable <- rbind(PriorMS,PosteriorMS)
+  colnames(PMStable) <- c("Prior models size", "Posterior model size")
+  row.names(PMStable) <- c("Binomial", "Binomial-beta")
+
   bma_list <- list(uniform_table,random_table,reg_names,R,M,forJointness,
-                   forBestModels,EMS,sizePriors,PMPs,modelPriors,dilution,alphas,betas_nonzero,d_free)
+                   forBestModels,EMS,sizePriors,PMPs,modelPriors,dilution,
+                   alphas,betas_nonzero,d_free,PMStable)
+
   return(bma_list)
 }
