@@ -286,6 +286,12 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
   bma_list <- list(uniform_table,random_table,reg_names,R,M,forJointness,
                    forBestModels,EMS,sizePriors,PMPs,modelPriors,dilution,
                    alphas,betas_nonzero,d_free,PMStable)
+  names(bma_list) <- c("Table with the binomial model prior results", "Table with the binomial model prior results",
+                       "Names of variables", "Number of regressors", "Size of the model space (number of models)",
+                       "Table for jointness function","Table for best_models function", "Expected model size",
+                       "Table with model size priors","Table with posterior model probabilities","Table with model priors",
+                       "Paremeter indication use of dilution","Ceofficients on the lagged dependent variable",
+                       "Coefficients on regressors", "degrees of freedom of the models","Table with prior and posterior model sizes")
 
   return(bma_list)
 }
