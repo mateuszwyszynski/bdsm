@@ -6,12 +6,24 @@ generate_test_data <- function() {
   )
 }
 
-generate_test_feature_standard_data <- function(cross_sectional = FALSE, scale = TRUE) {
+generate_test_feature_standard_data <- function(time_effects = FALSE, scale = TRUE) {
   feature_standardization(
     generate_test_data(),
     timestamp_col = times,
     entity_col = entities,
-    cross_sectional,
+    time_effects,
+    scale
+  )
+}
+
+generate_test_data_prep_data <- function(standardize = TRUE, time_effects = TRUE, entity_effects = TRUE,
+                                    scale = TRUE) {
+  data_prep(
+    generate_test_data(),
+    timestamp_col = times,
+    entity_col = entities,
+    time_effects,
+    entity_effects,
     scale
   )
 }

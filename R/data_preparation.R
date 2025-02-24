@@ -63,8 +63,8 @@ join_lagged_col <- function(df, col, col_lagged, timestamp_col,
 #' @param df Dataframe with data that should be prepared for LIML estimation
 #' @param timestamp_col Column with timestamps (e.g. years)
 #' @param entity_col Column with entities (e.g. countries)
-#' @param cross_sectional Whether to perform feature standardization within
-#' cross sections
+#' @param time_effects Whether to introduce time fixed effects
+#' (by cross-sectional demeaning)
 #' @param scale Whether to divide by the standard deviation \code{TRUE} or not
 #' \code{FALSE}. Default is \code{TRUE}.
 #'
@@ -83,8 +83,8 @@ join_lagged_col <- function(df, col, col_lagged, timestamp_col,
 #'
 #' @export
 feature_standardization <- function(df, timestamp_col, entity_col,
-                                    cross_sectional = FALSE, scale = TRUE) {
-  if (!cross_sectional) {
+                                    time_effects = FALSE, scale = TRUE) {
+  if (!time_effects) {
     df %>%
       dplyr::mutate(dplyr::across(!({{ timestamp_col }}:{{ entity_col }}),
                                   function(x) c(scale(x, scale = scale))))
@@ -95,4 +95,65 @@ feature_standardization <- function(df, timestamp_col, entity_col,
                                    function(x) c(scale(x, scale = scale)))) %>%
       dplyr::arrange({{ entity_col }}) %>% dplyr::ungroup()
   }
+}
+
+#' Perform standardization of variables and prepears fixed effects estiamtion
+#'
+#' @description
+#' This function performs
+#' \href{https://en.wikipedia.org/wiki/Feature_scaling}{feature standarization}
+#' (also known as z-score normalization), i.e. the features are centered around
+#' the mean and scaled with standard deviation. Additionally, it allows introduction
+#' of cross sectional and time fixed effects through demeaning.
+#'
+#' @param df Dataframe with data that should be prepared for LIML estimation
+#' @param timestamp_col Column with timestamps (e.g. years)
+#' @param entity_col Column with entities (e.g. countries)
+#' @param standardize Whether to standardize the data (by mean subtraction)
+#' @param scale Whether to divide by the standard deviation \code{TRUE} or not
+#' \code{FALSE} during standardization. Default is \code{TRUE}
+#' @param time_effects Whether to introduce time fixed effects
+#' (by cross-sectional demeaning)
+#' @param entity_effects Whether to introduce time cross-section effects
+#' (by time demeaning)
+#'
+#'
+#' @return A dataframe with standardized variables or/and prepared for fixed effects
+#' estimation
+#'
+#' @examples
+#' df <- data.frame(
+#'   year = c(2000, 2001, 2002, 2003, 2004),
+#'   country = c("A", "A", "B", "B", "C"),
+#'   gdp = c(1, 2, 3, 4, 5),
+#'   ish = c(2, 3, 4, 5, 6),
+#'   sed = c(3, 4, 5, 6, 7)
+#' )
+#'
+#' data_prep(df, year, country, entity_effects = TRUE)
+#'
+#' @export
+data_prep <- function(df, timestamp_col, entity_col,standardize = TRUE,
+                      entity_effects = FALSE, time_effects = FALSE,
+                      scale = TRUE) {
+  if (standardize == TRUE) {
+    df %>%
+      dplyr::mutate(dplyr::across(!({{ timestamp_col }}:{{ entity_col }}),
+                                  function(x) c(scale(x, scale = scale))))
+  }
+  if (time_effects == TRUE) {
+    df %>% dplyr::group_by({{ timestamp_col }}) %>%
+      dplyr::reframe("{{entity_col}}" := {{ entity_col }},
+                     dplyr::across(!{{ entity_col }},
+                                   function(x) c(scale(x, scale = FALSE)))) %>%
+      dplyr::arrange({{ entity_col }}) %>% dplyr::ungroup()
+  }
+  if (entity_effects == TRUE) {
+    df %>% dplyr::group_by({{ entity_col }}) %>%
+      dplyr::reframe("{{timestamp_col}}" := {{ timestamp_col }},
+                     dplyr::across(!{{ timestamp_col }},
+                                   function(x) c(scale(x, scale = FALSE)))) %>%
+      dplyr::arrange({{ timestamp_col }}) %>% dplyr::ungroup()
+  }
+
 }

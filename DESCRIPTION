@@ -30,6 +30,11 @@ Suggests:
 Config/testthat/edition: 3
 Imports:
     dplyr,
+    ggplot2,
+    ggpubr,
+    grid,
+    gridExtra,
+    knitr,
     magrittr,
     optimbase,
     parallel,

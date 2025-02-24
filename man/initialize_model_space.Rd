@@ -49,7 +49,7 @@ library(magrittr)
 data_prepared <- economic_growth[,1:7] \%>\%
   feature_standardization(timestamp_col = year, entity_col = country) \%>\%
   feature_standardization(timestamp_col = year, entity_col = country,
-                        cross_sectional = TRUE, scale = FALSE)
+                        time_effects = TRUE, scale = FALSE)
 
 initialize_model_space(data_prepared, year, country, gdp)
 }
