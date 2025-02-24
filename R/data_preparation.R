@@ -114,7 +114,7 @@ feature_standardization <- function(df, timestamp_col, entity_col,
 #' \code{FALSE} during standardization. Default is \code{TRUE}
 #' @param time_effects Whether to introduce time fixed effects
 #' (by cross-sectional demeaning)
-#' @param entity_effets Whether to introduce time cross-section effects
+#' @param entity_effects Whether to introduce time cross-section effects
 #' (by time demeaning)
 #'
 #'

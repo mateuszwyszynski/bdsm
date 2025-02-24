@@ -13,7 +13,11 @@
 #' @param EMS Expected model size for model binomial and binomial-beta model prior
 #' @param dilution Binary parameter: 0 - NO application of a dilution prior; 1 - application of a dilution prior (George 2010).
 #' @param dil.Par Parameter associated with dilution prior - the exponent of the determinant (George 2010). Used only if parameter dilution = 1.
-#'
+#' @param run_parallel If \code{TRUE} the optimization is run in parallel using
+#' the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
+#' base apply function is used. Note that using the parallel computing requires
+#' setting the default cluster. See README.
+
 #' @return A list with bma objects: \cr
 #' 1. uniform_table - table with the results under binomial model prior \cr
 #' 2. random_table - table with the results under binomial-beta model prior \cr
@@ -34,6 +38,8 @@
 #'
 #' @export
 #'
+#' @import stats rje
+#'
 #' @examples
 #' \donttest{
 #' library(magrittr)
@@ -41,7 +47,7 @@
 #' data_prepared <- economic_growth[,1:7] %>%
 #'    feature_standardization(timestamp_col = year, entity_col = country) %>%
 #'    feature_standardization(timestamp_col = year, entity_col = country,
-#'                            cross_sectional = TRUE, scale = FALSE)
+#'                            time_effects = TRUE, scale = FALSE)
 #'
 #' model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
 #'                                    timestamp_col = year, entity_col = country,
@@ -128,7 +134,7 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
         dilut[i,1] = 1
       }else{
         cols_to_extract <- which(table[i,1:R] == 1)
-        dilut[i,1] = (det(cor(for_dilut[, cols_to_extract, drop = FALSE])))^dil.Par
+        dilut[i,1] = (det(stats::cor(for_dilut[, cols_to_extract, drop = FALSE])))^dil.Par
       }
     }
 

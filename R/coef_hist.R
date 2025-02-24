@@ -29,7 +29,7 @@
 #' data_prepared <- economic_growth[,1:7] %>%
 #'    feature_standardization(timestamp_col = year, entity_col = country) %>%
 #'    feature_standardization(timestamp_col = year, entity_col = country,
-#'                            cross_sectional = TRUE, scale = FALSE)
+#'                            time_effects = TRUE, scale = FALSE)
 #'
 #' model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
 #'                                    timestamp_col = year, entity_col = country,
@@ -38,7 +38,7 @@
 #' bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
 #' entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
 #'
-#' coef_plots <- coef_hist(bma_list, kernel = 1)
+#' coef_plots <- coef_hist(bma_results, kernel = 1)
 #' }
 
 utils::globalVariables(".data")

@@ -39,7 +39,7 @@
 #'                             timestamp_col = year, entity_col = country)
 #'   data_cross_sectional_standarized <-
 #'     feature_standardization(df = data_centered_scaled, timestamp_col = year,
-#'                             entity_col = country, cross_sectional = TRUE,
+#'                             entity_col = country, time_effects = TRUE,
 #'                             scale = FALSE)
 #'
 #'     likelihoods_summary(df = data_cross_sectional_standarized,
@@ -218,7 +218,7 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
 #' data_prepared <- economic_growth[,1:7] %>%
 #'    feature_standardization(timestamp_col = year, entity_col = country) %>%
 #'    feature_standardization(timestamp_col = year, entity_col = country,
-#'                            cross_sectional = TRUE, scale = FALSE)
+#'                            time_effects = TRUE, scale = FALSE)
 #'
 #'
 #' bma_result <- bma_summary(df = data_prepared, dep_var_col = gdp,

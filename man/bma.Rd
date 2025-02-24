@@ -29,6 +29,11 @@ bma(
 \item{model_space}{The result of the optimal_model_space function. A matrix (with named rows)
 with each column corresponding to a model. Each column specifies model parameters. Compare with \link[bdsm]{optimal_model_space}}
 
+\item{run_parallel}{If \code{TRUE} the optimization is run in parallel using
+the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
+base apply function is used. Note that using the parallel computing requires
+setting the default cluster. See README.}
+
 \item{app}{Parameter indicating the decimal place to which number in the BMA tables should be rounded (default app = 4)}
 
 \item{EMS}{Expected model size for model binomial and binomial-beta model prior}
@@ -69,7 +74,7 @@ library(magrittr)
 data_prepared <- economic_growth[,1:7] \%>\%
    feature_standardization(timestamp_col = year, entity_col = country) \%>\%
    feature_standardization(timestamp_col = year, entity_col = country,
-                           cross_sectional = TRUE, scale = FALSE)
+                           time_effects = TRUE, scale = FALSE)
 
 model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
                                    timestamp_col = year, entity_col = country,

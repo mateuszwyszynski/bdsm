@@ -23,14 +23,14 @@ data_prep(
 
 \item{standardize}{Whether to standardize the data (by mean subtraction)}
 
+\item{entity_effects}{Whether to introduce time cross-section effects
+(by time demeaning)}
+
 \item{time_effects}{Whether to introduce time fixed effects
 (by cross-sectional demeaning)}
 
 \item{scale}{Whether to divide by the standard deviation \code{TRUE} or not
 \code{FALSE} during standardization. Default is \code{TRUE}}
-
-\item{entity_effets}{Whether to introduce time cross-section effects
-(by time demeaning)}
 }
 \value{
 A dataframe with standardized variables or/and prepared for fixed effects

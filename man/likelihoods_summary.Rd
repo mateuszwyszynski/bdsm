@@ -60,7 +60,7 @@ model space. Two versions are computed.
                             timestamp_col = year, entity_col = country)
   data_cross_sectional_standarized <-
     feature_standardization(df = data_centered_scaled, timestamp_col = year,
-                            entity_col = country, cross_sectional = TRUE,
+                            entity_col = country, time_effects = TRUE,
                             scale = FALSE)
 
     likelihoods_summary(df = data_cross_sectional_standarized,
