@@ -7,7 +7,7 @@
 #'
 #'
 #' @param bma_list bma_list object (the result of the bma function)
-#' @param Top The number of the best model to be placed on the graphs
+#' @param top The number of the best model to be placed on the graphs
 #'
 #' @return A list with three graphs with prior and posterior model probabilities for individual models:\cr
 #' 1) The results with binomial model prior (based on PMP - posterior model probability) \cr
@@ -32,14 +32,14 @@
 #' bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
 #' entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
 #'
-#' model_graphs <- model_pmp(bma_results, Top = 16)
+#' model_graphs <- model_pmp(bma_results, top = 16)
 #' }
 #'
 #'@name model_pmp
 
 utils::globalVariables(c("ID", "Value", "Probability"))
 
-model_pmp = function(bma_list,Top=5){
+model_pmp = function(bma_list,top=5){
 
 # Collecting information from the bma_list
 R <- bma_list[[4]] # total number of regressors
@@ -48,10 +48,10 @@ EMS <- bma_list[[8]] # expected model size
 PMPs <- bma_list[[10]][,(R+1):(R+2)] # PMP_uniform, PMP_random
 Priors <- bma_list[[11]] # Priors: uniform and random
 
-if (Top>M){# CONDITION about what to do if the user sets Top that is higher than M
-  # we tell the user that we are setting Top = R
-  message("The number of the best models (Top) cannot be higher than the total number of models. We set Top = R (total number of regressors) and continiue :)")
-  Top = R # we set M=K
+if (top>M){# CONDITION about what to do if the user sets top that is higher than M
+  # we tell the user that we are setting top = R
+  message("The number of the best models (top) cannot be higher than the total number of models. We set top = R (total number of regressors) and continiue :)")
+  top = R # we set M=K
 }
 
 # Objects to store posteriors and priors
@@ -65,8 +65,8 @@ PMP_random <- PMP_random[order(PMP_random[,1], decreasing=T),]
 ranking <- matrix(1:M, nrow = M, ncol = 1)
 
 # Adding a ranking number
-PMP_uniform <- cbind(ranking[1:Top,], PMP_uniform[1:Top,])
-PMP_random <- cbind(ranking[1:Top,], PMP_random[1:Top,])
+PMP_uniform <- cbind(ranking[1:top,], PMP_uniform[1:top,])
+PMP_random <- cbind(ranking[1:top,], PMP_random[1:top,])
 
 IDnames <- cbind("ID","Posterior","Prior") # names of the variables to be used by 'tidyverse'
 
