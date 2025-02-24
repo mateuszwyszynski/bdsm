@@ -6,7 +6,7 @@
 \arguments{
 \item{bma_list}{bma_list object (the result of the bma function)}
 
-\item{Top}{The number of the best model to be placed on the graphs}
+\item{top}{The number of the best model to be placed on the graphs}
 }
 \value{
 A list with three graphs with prior and posterior model probabilities for individual models:\cr
@@ -38,7 +38,7 @@ model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
 bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
 entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
 
-model_graphs <- model_pmp(bma_results, Top = 16)
+model_graphs <- model_pmp(bma_results, top = 16)
 }
 
 }
