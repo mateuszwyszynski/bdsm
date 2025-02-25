@@ -107,7 +107,7 @@ regressor_names_from_params_vector <- function(params) {
 #' model performs a numerical optimization and finds parameters which maximize
 #' the likelihood.
 #'
-#' @param df Data frame with data for the SEM analysis.
+#' @param df Data frame with data for the analysis.
 #' @param timestamp_col The name of the column with time stamps
 #' @param entity_col Column with entities (e.g. countries)
 #' @param dep_var_col Column with the dependent variable

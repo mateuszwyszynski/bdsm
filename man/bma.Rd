@@ -4,37 +4,14 @@
 \alias{bma}
 \title{Calculation of the bma object}
 \usage{
-bma(
-  df,
-  dep_var_col,
-  timestamp_col,
-  entity_col,
-  model_space,
-  run_parallel = FALSE,
-  app = 4,
-  EMS = NULL,
-  dilution = 0,
-  dil.Par = 0.5
-)
+bma(for_bma, df, app = 4, EMS = NULL, dilution = 0, dil.Par = 0.5)
 }
 \arguments{
+\item{for_bma}{List with model space and likelihood table (the result of bma_prep function).}
+
 \item{df}{Data frame with data for the SEM analysis.}
 
-\item{dep_var_col}{Column with the dependent variable}
-
-\item{timestamp_col}{The name of the column with timestamps}
-
-\item{entity_col}{Column with entities (e.g. countries)}
-
-\item{model_space}{The result of the optimal_model_space function. A matrix (with named rows)
-with each column corresponding to a model. Each column specifies model parameters. Compare with \link[bdsm]{optimal_model_space}}
-
-\item{run_parallel}{If \code{TRUE} the optimization is run in parallel using
-the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
-base apply function is used. Note that using the parallel computing requires
-setting the default cluster. See README.}
-
-\item{app}{Parameter indicating the decimal place to which number in the BMA tables should be rounded (default app = 4)}
+\item{app}{Parameter indicating the decimal place to which number in the BMA tables and prior and posterior model sizes should be rounded (default app = 4)}
 
 \item{EMS}{Expected model size for model binomial and binomial-beta model prior}
 
@@ -76,11 +53,9 @@ data_prepared <- economic_growth[,1:7] \%>\%
    feature_standardization(timestamp_col = year, entity_col = country,
                            time_effects = TRUE, scale = FALSE)
 
-model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
-                                   timestamp_col = year, entity_col = country,
-                                   init_value = 0.5)
+for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
+timestamp_col = year, entity_col = country, init_value = 0.5)
 
-bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
-entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
+bma_results <- bma(for_bma, df = data_prepared, app = 3, dilution = 0)
 }
 }

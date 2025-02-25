@@ -3,21 +3,13 @@
 #' This function calculates bma object for the model_space object obtained using optimal_model_space function.
 #' It calculates BMA statistics and objects for the use by other functions.
 #'
+#' @param for_bma List with model space and likelihood table (the result of bma_prep function).
 #' @param df Data frame with data for the SEM analysis.
-#' @param dep_var_col Column with the dependent variable
-#' @param timestamp_col The name of the column with timestamps
-#' @param entity_col Column with entities (e.g. countries)
-#' @param model_space The result of the optimal_model_space function. A matrix (with named rows)
-#' with each column corresponding to a model. Each column specifies model parameters. Compare with \link[bdsm]{optimal_model_space}
-#' @param app Parameter indicating the decimal place to which number in the BMA tables should be rounded (default app = 4)
+#' @param app Parameter indicating the decimal place to which number in the BMA tables and prior and posterior model sizes should be rounded (default app = 4)
 #' @param EMS Expected model size for model binomial and binomial-beta model prior
 #' @param dilution Binary parameter: 0 - NO application of a dilution prior; 1 - application of a dilution prior (George 2010).
 #' @param dil.Par Parameter associated with dilution prior - the exponent of the determinant (George 2010). Used only if parameter dilution = 1.
-#' @param run_parallel If \code{TRUE} the optimization is run in parallel using
-#' the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
-#' base apply function is used. Note that using the parallel computing requires
-#' setting the default cluster. See README.
-
+#'
 #' @return A list with bma objects: \cr
 #' 1. uniform_table - table with the results under binomial model prior \cr
 #' 2. random_table - table with the results under binomial-beta model prior \cr
@@ -49,17 +41,14 @@
 #'    feature_standardization(timestamp_col = year, entity_col = country,
 #'                            time_effects = TRUE, scale = FALSE)
 #'
-#' model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
-#'                                    timestamp_col = year, entity_col = country,
-#'                                    init_value = 0.5)
+#' for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
+#' timestamp_col = year, entity_col = country, init_value = 0.5)
 #'
-#' bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
-#' entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
+#' bma_results <- bma(for_bma, df = data_prepared, app = 3, dilution = 0)
 #' }
 
 
-bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
-               run_parallel = FALSE, app = 4, EMS = NULL, dilution = 0, dil.Par = 0.5){
+bma = function(for_bma, df, app = 4, EMS = NULL, dilution = 0, dil.Par = 0.5){
 
   reg_names <- colnames(df)
   reg_names <- reg_names[-(1:2)]
@@ -73,12 +62,12 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
   # Number of observations
   N <- nrow((na.omit(df[,4])))
 
-  like_table <- likelihoods_summary(df = df, dep_var_col = {{dep_var_col}}, timestamp_col = {{timestamp_col}},
-                                    entity_col = {{entity_col}}, model_space = model_space, run_parallel = run_parallel)
+  model_space <- for_bma[[1]]
+  like_table <- for_bma[[2]]
 
   likes <- matrix(like_table[2,], nrow = 1, ncol = M)
-  std <- like_table[4:(3+K),]
-  stdR <- like_table[(4+K):(3+2*K),]
+  std <- like_table[3:(2+K),]
+  stdR <- like_table[(3+K):(2+2*K),]
   alphas <- matrix(model_space[1,], nrow = 1, ncol = M)
   betas <- model_space[(3+R+1):(3+2*R),]
   reg_ID <- rje::powerSetMat(R)
@@ -285,7 +274,7 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
 
   PriorMS <- matrix(EMS, nrow = 1, ncol = 2)
   PosteriorMS <- matrix((colSums(PIPs)-1), nrow = 1, ncol = 2)
-  PMStable <- rbind(PriorMS,PosteriorMS)
+  PMStable <- round(t(rbind(PriorMS,PosteriorMS)),app)
   colnames(PMStable) <- c("Prior models size", "Posterior model size")
   row.names(PMStable) <- c("Binomial", "Binomial-beta")
 

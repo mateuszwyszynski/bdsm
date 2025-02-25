@@ -25,12 +25,10 @@
 #'    feature_standardization(timestamp_col = year, entity_col = country,
 #'                            time_effects = TRUE, scale = FALSE)
 #'
-#' model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
-#'                                    timestamp_col = year, entity_col = country,
-#'                                    init_value = 0.5)
+#' for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
+#' timestamp_col = year, entity_col = country, init_value = 0.5)
 #'
-#' bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
-#' entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
+#' bma_results <- bma(for_bma, df = data_prepared, app = 3, dilution = 0)
 #'
 #' model_graphs <- model_pmp(bma_results, top = 16)
 #' }
@@ -47,6 +45,7 @@ M <- bma_list[[5]] # size of the model space
 EMS <- bma_list[[8]] # expected model size
 PMPs <- bma_list[[10]][,(R+1):(R+2)] # PMP_uniform, PMP_random
 Priors <- bma_list[[11]] # Priors: uniform and random
+dilution <- bma_list[[12]] # 0 - no dilution prior, 1 - dilution prior
 
 if (top>M){# CONDITION about what to do if the user sets top that is higher than M
   # we tell the user that we are setting top = R
@@ -94,7 +93,7 @@ Graph2 <- ggplot2::ggplot(forGraph2, ggplot2::aes(x = ID, y = Value)) +
   ggplot2::ylab("Prior, Posterior") +
   ggplot2::xlab("Model number in the raniking")
 
-## Preparation of the data for BIG COMBINED GRAPH
+if (dilution==0){
 Graph1_2 <- ggplot2::ggplot(forGraph1, ggplot2::aes(x = ID, y = Value)) +
   ggplot2::geom_line(ggplot2::aes(color = Probability, linetype = Probability)) +
   ggplot2::scale_color_manual(values = c("darkred", "steelblue")) +
@@ -108,6 +107,23 @@ Graph2_2 <- ggplot2::ggplot(forGraph2, ggplot2::aes(x = ID, y = Value)) +
   ggplot2::ylab("Prior, Posterior") +
   ggplot2::xlab("Model number in the ranking") +
   ggplot2::ggtitle(paste0("Results with binomial-beta model prior (EMS = ", EMS, ")"))
+}
+
+if (dilution==1){
+  Graph1_2 <- ggplot2::ggplot(forGraph1, ggplot2::aes(x = ID, y = Value)) +
+    ggplot2::geom_line(ggplot2::aes(color = Probability, linetype = Probability)) +
+    ggplot2::scale_color_manual(values = c("darkred", "steelblue")) +
+    ggplot2::ylab("Prior, Posterior") +
+    ggplot2::xlab("Model number in the ranking") +
+    ggplot2::ggtitle(paste0("Results with diluted binomial model prior (EMS = ", EMS, ")"))
+
+  Graph2_2 <- ggplot2::ggplot(forGraph2, ggplot2::aes(x = ID, y = Value)) +
+    ggplot2::geom_line(ggplot2::aes(color = Probability, linetype = Probability)) +
+    ggplot2::scale_color_manual(values = c("darkred", "steelblue")) +
+    ggplot2::ylab("Prior, Posterior") +
+    ggplot2::xlab("Model number in the ranking") +
+    ggplot2::ggtitle(paste0("Results with diluted binomial-beta model prior (EMS = ", EMS, ")"))
+}
 
 # Putting together the last plot
 Finalplot <- ggpubr::ggarrange(Graph1_2,Graph2_2,
