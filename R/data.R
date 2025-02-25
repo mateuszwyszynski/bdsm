@@ -84,13 +84,15 @@
 #' }
 "economic_growth_liks"
 
-#' Example Approximate Summary of Parameters of Interest Based on Model Space
+#' Example of bms_prep function result
 #'
-#' A matrix representing the summary of parameters computed with
-#' \code{parameters_summary} based on the \code{economic_growth_ms} model
-#' space. TODO: describe the matrix properly after cleaning up the code of the
-#' function \code{parameters_summary}.
+#' A list with two obects: model space and likelihood summary table computed using
+#' \code{bma_prep} obtained based on the Moral-Benito data.
 #'
-#' @format ## `economic_growth_bma_params`
-#' A double matrix with 5 rows and 8 columns
-"economic_growth_bma_params"
+#' @format ## `bma_prep_objects`
+#' A list with two objects.
+#' \describe{
+#'    \item{Table with the parameters for the entire model space}
+#'    \item{Table with likelihoods, BICs, and standard deviations, and robust standard deviations}
+#' }
+"bma_prep_objects"
