@@ -16,6 +16,7 @@ test_that(paste("likelihoods_summary computes correct approximations of",
 test_that(paste("parameters_summary computes correct approximations of",
                 "BMA parameters of interest based on economic_growth_ms"), {
   skip_on_os(c("windows", "linux"))
+  skip_on_cran()
   set.seed(20)
 
   data_prepared <- bdsm::economic_growth[,1:7] %>%

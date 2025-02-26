@@ -1,5 +1,6 @@
 test_that("optimal_model_space correctly computes economic_growth_ms", {
   skip_on_os(c("windows", "linux"))
+  skip_on_cran()
   set.seed(23)
 
   data_prepared <- bdsm::economic_growth[,1:7] %>%

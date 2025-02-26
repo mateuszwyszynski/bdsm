@@ -2,6 +2,9 @@
 
 # Resubmission
 
+Some tests were marked as skip on CRAN as they were failing due to 
+different seeding methods.
+
 The description was modified to be more precise and to include the 
 references describing the methods implemented in the package.
 
