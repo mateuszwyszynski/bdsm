@@ -110,13 +110,17 @@ feature_standardization <- function(df, timestamp_col, entity_col,
 #' @param timestamp_col Column with timestamps (e.g. years)
 #' @param entity_col Column with entities (e.g. countries)
 #' @param standardize Whether to standardize the data (by mean subtraction)
-#' @param scale Whether to divide by the standard deviation \code{TRUE} or not
+#' @param scale Whether to divide by the standard deviation \code{TRUE} or not for standardize option
+#' (works only if \code{standardize = TRUE})
 #' \code{FALSE} during standardization. Default is \code{TRUE}
 #' @param time_effects Whether to introduce time fixed effects
 #' (by cross-sectional demeaning)
+#' @param time_scale Whether to divide by the standard deviation \code{TRUE} or not with respect to cross-sections
+#' (works only if \code{time_effects = TRUE})
 #' @param entity_effects Whether to introduce time cross-section effects
-#' (by time demeaning)
-#'
+#' (by time (within periods) demeaning)
+#' @param entity_scale Whether to divide by the standard deviation \code{TRUE} or not with respect to time time (within periods)
+#' (works only if \code{entity_effects = TRUE})
 #'
 #' @return A dataframe with standardized variables or/and prepared for fixed effects
 #' estimation
@@ -133,27 +137,38 @@ feature_standardization <- function(df, timestamp_col, entity_col,
 #' data_prep(df, year, country, entity_effects = TRUE)
 #'
 #' @export
-data_prep <- function(df, timestamp_col, entity_col,standardize = TRUE,
-                      entity_effects = FALSE, time_effects = FALSE,
-                      scale = TRUE) {
-  if (standardize == TRUE) {
-    df %>%
-      dplyr::mutate(dplyr::across(!({{ timestamp_col }}:{{ entity_col }}),
-                                  function(x) c(scale(x, scale = scale))))
-  }
-  if (time_effects == TRUE) {
-    df %>% dplyr::group_by({{ timestamp_col }}) %>%
-      dplyr::reframe("{{entity_col}}" := {{ entity_col }},
-                     dplyr::across(!{{ entity_col }},
-                                   function(x) c(scale(x, scale = FALSE)))) %>%
-      dplyr::arrange({{ entity_col }}) %>% dplyr::ungroup()
-  }
-  if (entity_effects == TRUE) {
-    df %>% dplyr::group_by({{ entity_col }}) %>%
-      dplyr::reframe("{{timestamp_col}}" := {{ timestamp_col }},
-                     dplyr::across(!{{ timestamp_col }},
-                                   function(x) c(scale(x, scale = FALSE)))) %>%
-      dplyr::arrange({{ timestamp_col }}) %>% dplyr::ungroup()
+data_prep <- function(df, timestamp_col, entity_col,
+                      standardize = TRUE, scale = TRUE,
+                      entity_effects = FALSE, entity_scale = FALSE,
+                      time_effects = FALSE, time_scale = FALSE) {
+
+  # Global standardization
+  if (standardize) {
+    df <- df %>%
+      dplyr::mutate(dplyr::across(-c({{ timestamp_col }}, {{ entity_col }}),
+                                  ~ scale(.x, scale = scale)))
   }
 
+  # Within-group standardization by time
+  if (time_effects) {
+    df <- df %>%
+      dplyr::group_by({{ timestamp_col }}) %>%
+      dplyr::mutate(dplyr::across(-{{ entity_col }},
+                                  ~ scale(.x, scale = time_scale))) %>%
+      dplyr::ungroup() %>%
+      dplyr::arrange({{ entity_col }})
+  }
+
+  # Within-group standardization by entity
+  if (entity_effects) {
+    df <- df %>%
+      dplyr::group_by({{ entity_col }}) %>%
+      dplyr::mutate(dplyr::across(-{{ timestamp_col }},
+                                  ~ scale(.x, scale = entity_scale))) %>%
+      dplyr::ungroup() %>%
+      dplyr::arrange({{ timestamp_col }})
+  }
+
+  return(df)
 }
+

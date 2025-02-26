@@ -9,9 +9,11 @@ data_prep(
   timestamp_col,
   entity_col,
   standardize = TRUE,
+  scale = TRUE,
   entity_effects = FALSE,
+  entity_scale = FALSE,
   time_effects = FALSE,
-  scale = TRUE
+  time_scale = FALSE
 )
 }
 \arguments{
@@ -23,14 +25,21 @@ data_prep(
 
 \item{standardize}{Whether to standardize the data (by mean subtraction)}
 
+\item{scale}{Whether to divide by the standard deviation \code{TRUE} or not for standardize option
+(works only if \code{standardize = TRUE})
+\code{FALSE} during standardization. Default is \code{TRUE}}
+
 \item{entity_effects}{Whether to introduce time cross-section effects
-(by time demeaning)}
+(by time (within periods) demeaning)}
+
+\item{entity_scale}{Whether to divide by the standard deviation \code{TRUE} or not with respect to time time (within periods)
+(works only if \code{entity_effects = TRUE})}
 
 \item{time_effects}{Whether to introduce time fixed effects
 (by cross-sectional demeaning)}
 
-\item{scale}{Whether to divide by the standard deviation \code{TRUE} or not
-\code{FALSE} during standardization. Default is \code{TRUE}}
+\item{time_scale}{Whether to divide by the standard deviation \code{TRUE} or not with respect to cross-sections
+(works only if \code{time_effects = TRUE})}
 }
 \value{
 A dataframe with standardized variables or/and prepared for fixed effects
