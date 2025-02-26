@@ -11,6 +11,7 @@
 
 test_that("SEM likelihood is calculated correctly for default feature standardization parameters", {
   skip_on_os(c("windows", "linux"))
+  skip_on_cran()
   set.seed(1)
   sem_value <- SEM_likelihood(
     0.5,
@@ -22,6 +23,7 @@ test_that("SEM likelihood is calculated correctly for default feature standardiz
 
 test_that("SEM likelihood is calculated correctly for time_effects TRUE", {
   skip_on_os(c("windows", "linux"))
+  skip_on_cran()
   set.seed(1)
   sem_value <- SEM_likelihood(
     0.5,
@@ -33,6 +35,7 @@ test_that("SEM likelihood is calculated correctly for time_effects TRUE", {
 
 test_that("SEM likelihood is calculated correctly for time_effects TRUE and scale FALSE", {
   skip_on_os(c("windows", "linux"))
+  skip_on_cran()
   set.seed(1)
   sem_value <- SEM_likelihood(
     0.5,
@@ -44,6 +47,7 @@ test_that("SEM likelihood is calculated correctly for time_effects TRUE and scal
 
 test_that("SEM likelihood is calculated correctly for time_effects FALSE and scale FALSE", {
   skip_on_os(c("windows", "linux"))
+  skip_on_cran()
   set.seed(1)
   sem_value <- SEM_likelihood(
     0.5,
@@ -55,6 +59,7 @@ test_that("SEM likelihood is calculated correctly for time_effects FALSE and sca
 
 test_that("SEM likelihood is calculated incorrectly for specific data", {
   skip_on_os(c("windows", "linux"))
+  skip_on_cran()
   set.seed(2)
   # TODO: That produces NaN for that particular seed.
   testthat::expect_warning(

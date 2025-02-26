@@ -16,9 +16,11 @@ Authors@R:
            role = "ctb",
            email = "beckkrzysztof@gmail.com"
       ))
-Description: Tools to build and analyze models based on panel data.
-    The package provides functions to estimate dynamic panel data models.
-    It also provides tools to analyze the results of the estimation.
+Description: Implements methods for building and analyzing models based on panel
+    data as described in the paper by 
+    Moral-Benito (2013, <doi:10.1080/07350015.2013.818003>).
+    The package provides functions to estimate dynamic panel data models
+    and analyze the results of the estimation.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
