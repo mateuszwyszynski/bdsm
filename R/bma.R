@@ -129,6 +129,9 @@ bma = function(for_bma, df, app = 4, EMS = NULL, dilution = 0, dil.Par = 0.5){
 
     uniform_models <- uniform_models*dilut
     random_models <- random_models*dilut
+    uniform_models <- uniform_models / sum(uniform_models)
+    random_models <- random_models / sum(random_models)
+
   }
   ##################################
 
