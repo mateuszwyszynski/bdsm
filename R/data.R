@@ -84,15 +84,28 @@
 #' }
 "economic_growth_liks"
 
-#' Example of bms_prep function result
+#' Example of bms_prep function result with four regressors
 #'
-#' A list with two obects: model space and likelihood summary table computed using
-#' \code{bma_prep} obtained based on the Moral-Benito data.
+#' A list with two objects: model space and likelihood summary table computed using
+#' \code{bma_prep} obtained based on the Moral-Benito (2016) data (with four regressors).
 #'
 #' @format ## `bma_prep_objects`
 #' A list with two objects.
 #' \describe{
-#'    \item{Table with the parameters for the entire model space}
-#'    \item{Table with likelihoods, BICs, and standard deviations, and robust standard deviations}
+#'    \item{model space}{Table with the parameters for the entire model space}
+#'    \item{likelihood summmary}{Table with likelihoods, BICs, and standard deviations, and robust standard deviations}
 #' }
 "bma_prep_objects"
+
+#' Example of bms_prep function result with nine regressors (full Moral-Benito (2016) set)
+#'
+#' A list with two objects: model space and likelihood summary table computed using
+#' \code{bma_prep} obtained based on the Moral-Benito (2016) data (with 9 regressors).
+#'
+#' @format ## `bma_prep_objects_full`
+#' A list with two objects.
+#' \describe{
+#'    \item{model space}{Table with the parameters for the entire model space}
+#'    \item{likelihood summmary}{Table with likelihoods, BICs, and standard deviations, and robust standard deviations}
+#' }
+"bma_prep_objects_full"

@@ -150,6 +150,8 @@ best_models = function(bma_list, criterion = 1, best = 5, app = 3, estimate = TR
     for (j in 1:best){
       if (!is.na(asterisks[i,j])){
         models_std[i,j] = paste0(models_std[i,j],asterisks[i,j])
+      }
+      if (!is.na(asterisksR[i,j])){
         models_stdR[i,j] = paste0(models_stdR[i,j],asterisksR[i,j])
       }
     }

@@ -69,7 +69,7 @@ bma = function(for_bma, df, app = 4, EMS = NULL, dilution = 0, dil.Par = 0.5){
   std <- like_table[3:(2+K),]
   stdR <- like_table[(3+K):(2+2*K),]
   alphas <- matrix(model_space[1,], nrow = 1, ncol = M)
-  betas <- model_space[(3+R+1):(3+2*R),]
+  betas <- model_space[8:(7+R),]
   reg_ID <- rje::powerSetMat(R)
   colnames(reg_ID) <- reg_names[2:K]
 
