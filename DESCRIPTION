@@ -27,6 +27,7 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests:
+    rmarkdown,
     spelling,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
@@ -49,3 +50,4 @@ Imports:
 Depends:
     R (>= 3.5)
 Language: en-US
+VignetteBuilder: knitr

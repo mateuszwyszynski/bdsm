@@ -8,3 +8,4 @@
 
 # testthat error messages
 tests/testthat/testthat-problems.rds
+inst/doc

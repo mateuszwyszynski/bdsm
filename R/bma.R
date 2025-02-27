@@ -93,7 +93,10 @@ bma = function(for_bma, df, app = 4, EMS = NULL, dilution = 0, dil.Par = 0.5){
   # binomial (Sala-I-Martin et al. 2004) [uniform];
   # binomial-beta (Ley and Steel 2009) [random]
 
-  # Establishing model prior when the user has not provided it
+  # Expected model prior
+  if (EMS<0.01|EMS>R){
+    message("EMS was change to R/2 (R - number of regressors)")
+    EMS = R / 2}
   if (is.null(EMS)){EMS = R / 2}
 
   uniform_models <- matrix(0, nrow = M, ncol = 1) # vector to store BINOMIAL probabilities ON MODELS
