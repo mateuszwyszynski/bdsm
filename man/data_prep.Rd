@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_preparation.R
 \name{data_prep}
 \alias{data_prep}
-\title{Perform standardization of variables and prepears fixed effects estiamtion}
+\title{Perform standardization of variables and prepares for fixed effects estimation}
 \usage{
 data_prep(
   df,
@@ -13,7 +13,8 @@ data_prep(
   entity_effects = FALSE,
   entity_scale = FALSE,
   time_effects = FALSE,
-  time_scale = FALSE
+  time_scale = FALSE,
+  order = c("S", "0", "0")
 )
 }
 \arguments{
@@ -40,6 +41,11 @@ data_prep(
 
 \item{time_scale}{Whether to divide by the standard deviation \code{TRUE} or not with respect to cross-sections
 (works only if \code{time_effects = TRUE})}
+
+\item{order}{A three element vector indicating the order in which data transfromation should be applied, where: \cr
+S - standardization of the columns \cr
+T - preparation for time effects estimation \cr
+E - preparation for entity effects estimation}
 }
 \value{
 A dataframe with standardized variables or/and prepared for fixed effects
@@ -49,8 +55,8 @@ estimation
 This function performs
 \href{https://en.wikipedia.org/wiki/Feature_scaling}{feature standarization}
 (also known as z-score normalization), i.e. the features are centered around
-the mean and scaled with standard deviation. Additionally, it allows introduction
-of cross sectional and time fixed effects through demeaning.
+the mean and scaled with standard deviation. Additionally, it allows preparation
+for cross-sectional and time fixed effects through demeaning (as well as scaling within groups).
 }
 \examples{
 df <- data.frame(

@@ -97,14 +97,14 @@ feature_standardization <- function(df, timestamp_col, entity_col,
   }
 }
 
-#' Perform standardization of variables and prepears fixed effects estiamtion
+#' Perform standardization of variables and prepares for fixed effects estimation
 #'
 #' @description
 #' This function performs
 #' \href{https://en.wikipedia.org/wiki/Feature_scaling}{feature standarization}
 #' (also known as z-score normalization), i.e. the features are centered around
-#' the mean and scaled with standard deviation. Additionally, it allows introduction
-#' of cross sectional and time fixed effects through demeaning.
+#' the mean and scaled with standard deviation. Additionally, it allows preparation
+#' for cross-sectional and time fixed effects through demeaning (as well as scaling within groups).
 #'
 #' @param df Dataframe with data that should be prepared for LIML estimation
 #' @param timestamp_col Column with timestamps (e.g. years)
@@ -121,6 +121,10 @@ feature_standardization <- function(df, timestamp_col, entity_col,
 #' (by time (within periods) demeaning)
 #' @param entity_scale Whether to divide by the standard deviation \code{TRUE} or not with respect to time time (within periods)
 #' (works only if \code{entity_effects = TRUE})
+#' @param order A three element vector indicating the order in which data transfromation should be applied, where: \cr
+#' S - standardization of the columns \cr
+#' T - preparation for time effects estimation \cr
+#' E - preparation for entity effects estimation
 #'
 #' @return A dataframe with standardized variables or/and prepared for fixed effects
 #' estimation
@@ -137,38 +141,46 @@ feature_standardization <- function(df, timestamp_col, entity_col,
 #' data_prep(df, year, country, entity_effects = TRUE)
 #'
 #' @export
+#'
 data_prep <- function(df, timestamp_col, entity_col,
-                      standardize = TRUE, scale = TRUE,
-                      entity_effects = FALSE, entity_scale = FALSE,
-                      time_effects = FALSE, time_scale = FALSE) {
+                        standardize = TRUE, scale = TRUE,
+                        entity_effects = FALSE, entity_scale = FALSE,
+                        time_effects = FALSE, time_scale = FALSE,
+                        order = c("S", "0", "0")) {
 
-  # Global standardization
-  if (standardize) {
-    df <- df %>%
-      dplyr::mutate(dplyr::across(-c({{ timestamp_col }}, {{ entity_col }}),
-                                  ~ scale(.x, scale = scale)))
+  # Helper function to apply transformations
+  apply_transformation <- function(df, effect) {
+    if (effect == "S" && standardize) {
+      df <- df %>%
+        dplyr::mutate(dplyr::across(-c({{ timestamp_col }}, {{ entity_col }}),
+                                    ~ scale(.x, scale = scale)))
+    }
+
+    if (effect == "T" && time_effects) {
+      df <- df %>%
+        dplyr::group_by({{ timestamp_col }}) %>%
+        dplyr::mutate(dplyr::across(-{{ entity_col }},
+                                    ~ scale(.x, scale = time_scale))) %>%
+        dplyr::ungroup() %>%
+        dplyr::arrange({{ entity_col }})
+    }
+
+    if (effect == "E" && entity_effects) {
+      df <- df %>%
+        dplyr::group_by({{ entity_col }}) %>%
+        dplyr::mutate(dplyr::across(-{{ timestamp_col }},
+                                    ~ scale(.x, scale = entity_scale))) %>%
+        dplyr::ungroup() %>%
+        dplyr::arrange({{ timestamp_col }})
+    }
+
+    return(df)
   }
 
-  # Within-group standardization by time
-  if (time_effects) {
-    df <- df %>%
-      dplyr::group_by({{ timestamp_col }}) %>%
-      dplyr::mutate(dplyr::across(-{{ entity_col }},
-                                  ~ scale(.x, scale = time_scale))) %>%
-      dplyr::ungroup() %>%
-      dplyr::arrange({{ entity_col }})
-  }
-
-  # Within-group standardization by entity
-  if (entity_effects) {
-    df <- df %>%
-      dplyr::group_by({{ entity_col }}) %>%
-      dplyr::mutate(dplyr::across(-{{ timestamp_col }},
-                                  ~ scale(.x, scale = entity_scale))) %>%
-      dplyr::ungroup() %>%
-      dplyr::arrange({{ timestamp_col }})
+  # Apply transformations in the specified order
+  for (effect in order) {
+    df <- apply_transformation(df, effect)
   }
 
   return(df)
 }
-

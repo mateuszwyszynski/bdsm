@@ -1,0 +1,346 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{natbib}
+\usepackage{vmargin}
+\usepackage{amsmath}
+%\usepackage{a4wide}
+
+\title{\texttt{bdsm}: Bayesian dynamic systems modelling. \\ Bayesian model averaging for dynamic panels \\ with weakly exogenous regressors}
+\author{Krzysztof Beck \\ Lazarski University
+\and Marcin Dubel \\ Lazarski University
+\and Mateusz Wyszyński \\ Lazarski University}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+%\setpapersize{A4}
+% \VignetteIndexEntry{bdsm: Bayesian dynamic systems modelling}
+\maketitle
+\abstract{Place for abstract}
+
+\clearpage
+\tableofcontents
+
+\clearpage
+\section{Introduction}
+% Alternative packages
+\cite{Raftery+2005}\\
+\cite{Feldkircher+2015}\\
+\cite{Blazejowski+2015}\\
+
+\noindent
+% Leamer
+\cite{Leamer+1978}\\
+\cite{Leamer+1983}\\
+\cite{Leamer+1985}\\
+
+\noindent
+% Alternative to Moral-Benito
+\cite{Leon+2015}\\
+\cite{Mirestean+2016}\\
+\cite{Chen+2018}\\
+
+\noindent
+% Surveys
+\cite{Moral+2015}\\
+\cite{Steel+2020}\\
+
+\section{Model setup and Bayesian model averaging}
+
+\subsection{Model setup}
+\noindent \cite{Moral+2016} considers the following model specification:
+\begin{equation}\label{eq1}
+    y_{it}=\alpha y_{it-1}+\beta x_{it}+\eta_{i}+\zeta_{t}+v_{it}
+\end{equation}
+\noindent where $y_{it}$ is the dependent variable, $i$ $(=1,...,N)$ indexes entity (ex. country), $t$ $(=1,...,T)$ indexes time , $x_{it}$ is a matrix of growth determinants, $\beta$ is a parameter vector, $\eta_{i}$ is an entity specific fixed effect, $\zeta_{t}$ is a period-specific shock and $v_{it}$ is a shock to the dependent variable. To address the issue of reverse causality the model is build on the assumption of weak exogeneity, that can be formalized as
+\begin{equation}\label{eq2}
+    E(v_{ij,t}|y^{t-1}_{t},x^{t}_{i},\eta_{i})=0
+\end{equation}
+\noindent where $y^{t-1}_{t}=(y_{ij,0},...,y_{ij,t-1})'$ and $x_{t}=(x_{ij,0},...,x_{ij,t})'$. Accordingly, weak exogeneity implies that the current values of the regressors, lagged dependent variable, and fixed effects are uncorrelated with the current shocks, while they are all allowed to be correlated with each other at the same time. On the assumption of weakly exogenous regressors, \cite{Moral+2013} augmented equation (\ref{eq1}) with a reduced-form equation capturing the unrestricted feedback process:
+\begin{equation}\label{eq3}
+x_{it}=\gamma_{t0}y_{i0}+...+\gamma_{tt-1}y_{it-1}+\Lambda_{t1}x_{i1}+...+\Lambda_{tt-1}x_{it-1}+c_{t}\eta_{i}+\vartheta_{it}
+\end{equation}
+\noindent where $t=2,\dots ,T;$ $c_{t}$ is the $k\times 1$ vector of parameters. For $h<t$, $\gamma_{th}$ is a $k\times 1$ vector $(y_{th}^{1},\dots,y_{th}^{k})'$  $h=0,\dots,T-1$; $\Lambda_{th}$ is a $k\times k$ matrix of parameters, and $\vartheta_{it}$ is a $k\times 1$ of prediction errors. The mean vector and the covariance matrix of the joint distribution of the initial observations and the individual effects $\eta_{i}$ are unrestricted:
+\begin{equation}\label{eq4}
+    y_{i0}=c_{0}\eta_{i}+\upsilon_{it}
+\end{equation}
+\begin{equation}\label{eq5}
+    x_{i1}=\gamma_{10}y_{i0}+c_{1}\eta_{i}+\vartheta_{it}
+\end{equation}
+\noindent where $c_{0}$ is a scalar, and $c_{1}$ and $\gamma_{10}$ are $k\times 1$ vectors.\footnote{The method outperforms the Arellano--Bond estimator \citep{Moral+2019}.}
+
+\indent For the model setup given in equations (\ref{eq1}) and (\ref{eq3}-\ref{eq5}), \cite{Moral+2013} derived the log-likelihood function:
+\begin{equation}\label{eq6}
+    \log f(data|\theta) \propto \frac{N}{2}\log\det(B^{-1}D\Sigma D'B'^{-1})-\frac{1}{2}\sum_{i=1}^{N}\{R'_{i}(B^{-1}D\Sigma D'B'^{-1})^{-1}R_{i}\}
+\end{equation}
+\noindent where $\theta$ denotes parameters to be estimated, $R_{i}=(y_{io},x'_{i1},y_{i1},\dots,x'_{iT},y_{iT})'$ are vectors of observed variables, and $\Sigma=diag[\sigma^{2}_{\eta},\sigma^{2}_{\upsilon_{0}},\Sigma_{\vartheta_{1}},\sigma^{2}_{\upsilon_{1}},...,\Sigma_{\vartheta_{T}},\sigma^{2}_{\upsilon_{T}}]$ is the block-diagonal variance-covariance matrix. Matrix B is given by:
+\begin{equation}\label{eq7}
+B=\begin{bmatrix}
+ 1&0&0&0&0&\dotsc& 0&0&0\\
+ -\gamma_{10}&I_{k}&0&0&0&\dotsc&0&0&0\\
+ -\alpha&-\beta'&1&0&0&\dotsc&0&0&0\\
+ -\gamma_{20}&-\Lambda_{21}&-\gamma_{21}&I_{k}&0&\dotsc&0&0&0\\
+0&0&-\alpha&-\beta'&1&\dotsc&\vdots&\vdots&\vdots\\
+\vdots&\vdots&\vdots&\vdots&\vdots&\ddots&0&0&0\\
+ -\gamma_{T0}&-\Lambda_{T1}&-\gamma_{T1}&-\Lambda_{T2}&-\gamma_{T2}&\dotsc&-\gamma_{TT-1}&I_{k}&0\\
+ 0&0&0&0&0&\dotsc&-\alpha&-\beta'&1\\
+\end{bmatrix}
+\end{equation}
+and matrix D is given by:
+\begin{equation}\label{eq8}
+D=\begin{bmatrix}
+(c_{0}&c'_{1}&1&c'_{2}&1&\dotsc&c'_{T}&1)' & I_{T(k+1) + 1}
+ \end{bmatrix}.
+\end{equation}
+
+\indent The model setup in equations (\ref{eq1}) and (\ref{eq3}-\ref{eq5}) requires that in addition to the parameters of interest $\alpha$ and $\beta$, the parameters $\gamma_{ij}$ and $\Lambda_{km}$ need to be estimated. To make the optimisation of likelihood computationally feasible, \cite{Moral+2013} developed Simultaneous Equations Model (SEM) setup where the parameters of non-central interest are incorporated in the variance-covariance matrix. In the SEM setup, the model is defined by $1 + (T - 1)k + T$ equations:
+\[
+\begin{cases}
+    \eta_i = \phi_i y_{i0} + x'_{i1} \phi_1 + \epsilon_i &  \\
+    x_{it} = \pi_{t0} y_{i0} + \pi_{t1} x_{i1} + \pi^w_t x_{i1} + \xi_{it}, & t = 2, ..., T \\
+    y_{it} = \alpha y_{it-1} + x'_{it} \beta + \phi_0 y_{i0} + x'_{i1} \phi_1 + w'_i \delta + \epsilon_i + v_{it}, & t = 1, ..., T
+\end{cases}
+\]
+This setup can be rewritten in a matrix form:
+\begin{equation}\label{eq9}
+    B R_i = C z_i + U_i,
+\end{equation}
+\noindent where:
+\begin{equation}\label{eq10}
+    z_i = [y_{i0}, x'_{i1}, w'_i]'
+\end{equation}
+is the vector of strictly exogenous variables,
+\begin{equation}\label{eq11}
+    R_i = [y_{i1}, y_{i2}, ..., y_{iT}, x'_{i2}, x'_{i3}, ..., x'_{iT}]',
+\end{equation}
+\begin{equation}\label{eq12}
+    U_i = [\epsilon_i + v_{i1}, \epsilon_i + v_{i2}, ..., \epsilon_i + v_{iT}, \xi'_{i2}, \xi'_{i3}, ..., \xi'_{iT}]'
+\end{equation}
+\noindent and matrices $B$ and $C$ contain coefficients $\alpha$, $\beta$, $\phi_0$, $\phi_1$. Since these matrices are not connected to the error, we simply note that they are defined in such a way that the equation (\ref{eq9}) is equivalent to the SEM setup. The main difference of the SEM setup is that equations for $x_{it}$ now depend only on $y_{i0}$ and $x_{i1}$ and not on $y_{is}$ and $x_{is}$ for other periods $s$.\\
+\indent Following \cite{Moral+2013}, we can then define the likelihood function as:
+\begin{equation}\label{eq13}
+    L \propto - \frac{N}{2} \log \det \Omega(\theta) - \frac{1}{2} tr \{ \Omega(\theta)^{-1} (R - Z \Pi(\theta))' (R - Z \Pi(\theta)) \}
+\end{equation}
+where $R$ and $Z$ are matrices containing vectors $R_i$ and $z_i$ respectively and:
+\begin{equation}\label{eq14}
+    \Pi(\theta) = B^{-1} C
+\end{equation}
+\begin{equation}\label{eq15}
+    U^*_i(\theta) = B^{-1} U_i
+\end{equation}
+\begin{equation}\label{eq16}
+    \Omega(\theta) = Var(U^*_i) = B^{-1} \cdot Var(U_i) \cdot  B'^{-1} = B^{-1} \Sigma B'^{-1}
+\end{equation}
+It is possible to find analytical solution for MLE for some of the parameters. Then the formula for the likelihood function can be simplified to:
+\begin{equation}\label{eq17}
+    L(\theta) \propto - \frac{N}{2} \log \det \Sigma_{11} - \frac{1}{2} tr \{ \Sigma_{11}^{-1} U_1' U_1 \} - \frac{N}{2} \log \det (\frac{H}{N})
+\end{equation}
+\normalsize
+\noindent where $U_1$ is a matrix of errors connected only to dependent variables, $\Sigma_{11}$ is a part of the $\Sigma$ matrix:
+\begin{equation}\label{eq18}
+\Sigma=var(U_{i})=var\left(\frac{U_{i1}}{U_{i2}}\right)=\begin{bmatrix}
+            \Sigma_{11}&\Sigma_{12}\\
+            \Sigma_{21}&\Sigma_{22}\\
+            \end{bmatrix}.
+\end{equation}
+\noindent and $H = (R_2 + U_1 F_{12})' Q (R_2 + U_1 F_{12})$ with $R_2$ being a matrix of regressor vectors $[x'_{i2}, x'_{i3}, ..., x'_{iT}]$ and $F_{12} = - \Sigma_{11}^{-1} \Sigma_{12}$.
+
+\subsection{Bayesian model averaging}
+\noindent Given the likelihood function in (\ref{eq17}), henceforth denoted as $L(\text{data}|\theta_{i}, M_{j})$ for a specific model $i$, it is possible to utilize Bayesian model averaging\footnote{For an introduction to BMA see \cite{Raftery+1995,Raftery+1997,Fernandez+2001,Fernandez+2001b,Doppelhofer+2009,Beck+2017}.} (BMA). To achieve that, we first estimate all possible variants of equation:
+\begin{equation}\label{eq19}
+   Y=X\beta+\epsilon
+\end{equation}
+\noindent where $Y$ is a vector of dependent variable, $X$ is a matrix of potential determinants, $\theta$ is a parameter vector, and $\epsilon$ is a stochastic term. All the variants include a lagged dependent variable; therefore, with $K$ regressors, there are $2^{K}$ possible models that can be estimated. Each of these models can be assigned a posterior model probability; however, the marginal (integrated) likelihood, $L(\text{data}|M_{i})$, must first be computed. \cite{Moral+2012} utilizes approach of developed by \cite{Raftery+1995} and \cite{Sala+2004} based on the Bayesian information criterion (BIC) approximation.\\
+\indent The Bayes factor for models $M_{i}$ and $M_{i}$, $B_{ij}=\frac{L(\text{data}|M_{i})}{L(\text{data}|M_{j})}$, can be approximated using Schwartz criterion:
+\begin{equation}\label{eq20}
+S=\log L(\text{data} \mid\hat{\theta_{i}},M_{i})-\log L(\text{data}|\hat{\theta_{j}},M_{j})-\frac{k_{i}-k_{j}}{2}\log (N)
+\end{equation}
+where $L(\text{data}|\hat{\theta}_{i}, M_{i})$ and $L(\text{data}|\hat{\theta}_{j}, M_{j})$ are the maximum likelihood values for models $i$ and $j$, respectively. The terms $k_{i}$ and $k_{j}$ denote the number of regressors in models $i$ and $j$. Bayesian information criterion is given by:
+\begin{equation}\label{eq21}
+    BIC=-2S=-2\log B_{ij}.
+\end{equation}
+Given null model $M_{0}$
+\begin{equation}\label{eq22}
+B_{ij}=\frac{L(y|M_{i})}{L(y|M_{j})}=\frac{\frac{L(y|M_{i})}{L(y|M_{0})}}{\frac{L(y|M_{j})}{L(y|M_{0})}}=\frac{B_{i0}}{B_{j0}}=\frac{B_{0j}}{B_{0i}}
+\end{equation}
+and
+\begin{equation}\label{eq23}
+2\log B_{ij}=2[\log B_{0j} - \log B_{0i}]=BIC_{j}-BIC_{i}.
+\end{equation}
+The posterior model probability (PMP) of model $j$ given the data is
+\begin{equation}\label{eq24}
+    P(M_{j}|y)=\frac{L(\text{data}|M_{j})P(M_{j})}{\sum_{i=1}^{2^K}L(\text{data}|M_{i})P(M_{i})}
+\end{equation}
+where $P(M_{j})$ denotes prior model probability. In other words, the PMP represents the share of model $j$ in the total posterior probability mass. Combining, equations (\ref{eq21}-\ref{eq24}) we get:
+\begin{equation}\label{eq25}
+\small
+\begin{split}
+    P(M_{j}|y)=\frac{L(\text{data}|M_{j})P(M_{j})}{\sum_{i=1}^{2^K}L(\text{data}|M_{i})P(M_{i})}
+    =\frac{\frac{L(\text{data}|M_{j})}{L(\text{data}|M_{0})}
+    L(\text{data}|M_{0})P(M_{j})}{\sum_{i=1}^{2^K}\frac{L(\text{data}|M_{i})}{L(\text{data}|M_{0})}
+    L(\text{data}|M_{0})P(M_{i})}\\
+    =\frac{B_{j0}L(\text{data}|M_{0})P(M_{j})}{\sum_{i=1}^{2^K}B_{i0}
+    L(\text{data}|M_{0})P(M_{i})}
+    =\frac{L(\text{data}|M_{0})B_{j0}P(M_{j})}{L(\text{data}|M_{0})\sum_{i=1}^{2^K}B_{i0}P(M_{i})}
+    =\frac{B_{j0}P(M_{j})}{\sum_{i=1}^{2^K}B_{i0}P(M_{i})}
+\end{split}
+\end{equation}
+\normalsize
+Finally, using the result that
+\begin{equation}\label{eq26}
+ B_{j0}=\exp{(-\frac{1}{2}BIC_{j})}
+\end{equation}
+we can calculate posterior model probability as
+\begin{equation}\label{eq27}
+    P(M_{j}|\text{data})=\frac{\exp{(-\frac{1}{2}BIC_{j})}P(M_{j})}{\sum_{i=1}^{2^K}\exp{(-\frac{1}{2}BIC_{i})} P(M_{i})}.
+\end{equation}
+
+\subsection{BMA statistics}
+\noindent With PMPs, it is possible to calculate BMA statistics. The probability that a given variable should be included in a model after seeing the data, i.e. the posterior inclusion probability (PIP) is given by:
+\begin{equation}
+P(x_{k}|\text{data})=\sum_{j=1}^{2^K}1(\pi_{k}=1|\text{data}, M_{j})\times P(M_{j}|\text{data})
+\end{equation}
+where $x_{k}$ is regressor $k$ $(k=1, \dots, K)$, $\pi{_j}$ is $(K\times 1)$ binary vector, where 1 indicates presence of a regressor in a model, and $1(\pi_{j}|\text{data}, M_{j})$ is an indicator function that takes the value 1 when regressor $x_{k}$ is present in model $j$ and 0 otherwise.  Posterior mean (PM) is calculated as:
+\begin{equation}\label{pm}
+E(\beta_{k}|\text{data})=\sum_{j=1}^{2^K}\widehat{\beta}_{k,j}\times P(M_{j}|\text{data})
+\end{equation}
+\noindent where $\widehat{\beta}_{k,j}$ is the value of the coefficient $\beta_{k}$ in model $j$. The posterior standard deviation (PSD) is equal to:
+\begin{equation}\label{psd}
+\footnotesize  SD(\beta_{k}|\text{data})=\sqrt{\sum_{j=1}^{2^K}V(\beta_{k,j}|\text{data},M_{j})\times P(M_{j}|\text{data})+\sum_{j=1}^{2^K}[\widehat{\beta}_{k,j}-E(\beta_{k}|\text{data})]^{2}\times P(M_{j}|\text{data})}
+    \end{equation}
+\noindent where $V(\beta_{k,j}|data,M_{j})$ denotes the conditional variance of the coefficient $\beta_{k}$ in model $M_{j}$.
+
+\indent Alternatively, one might be interested in the values of the coefficients and variances on the condition of inclusion of a given regressor in a model. The conditional posterior mean (PM\_con) is given by:
+\begin{equation}
+E(\beta_{k}|\pi_{j}=1,\text{data})=\frac{E(\beta_{k}|\text{data})}{P(x_{k}|\text{data})}.
+\end{equation}
+The conditional standard deviation (PSD\_con) is:
+\begin{equation}
+    SD(\beta_{k}|\pi_{j}=1,\text{data})=\sqrt{\frac{SD(\beta_{k}|\text{data})^2+E(\beta_{k}|\text{data})^2}{P(x_{k}|\text{data})}-E(\beta_{k}|\pi_{j}=1,\text{data})^2}.
+\end{equation}
+\indent The BMA statistics allow the assessment of the robustness of the examined regressors. \cite{Raftery+1995}, classifies a variable as weak, positive, strong, and very strong when the posterior inclusion probability (PIP) is between 0.5 and 0.75, between 0.75 and 0.95, between 0.95 and 0.99, and above 0.99, respectively. \cite{Raftery+1995} also refers to the variable as robust when the absolute value of the ratio of posterior mean (PM) to posterior standard deviation (PSD) is above 1, indicating that the regressor improves the power of the regression. \cite{Masanjala+2008} propose a more stringent criterion, where they require the statistic to be higher than 1.3, while \cite{Sala+2004} argue for 2, corresponding to $90\%$ and $95\%$, respectively.
+
+\subsection{Model priors and jointness}
+\noindent To perform BMA one needs to specify prior model probability\footnote{For a thorough discussion of model priors see \cite{Sala+2004,Ley+2009,George+2010,Eicher+2011}.}. The package offers two main options. The first is binomial model prior \citep{Sala+2004}:
+\begin{equation}
+    P(M_{j})=(\frac{EMS}{K})^{k_{j}}(1-\frac{EMS}{K})^{K-k_{j}}
+\end{equation}
+where $EMS$ is the expected model size and $k_{j}$ is a number of regressors in model $j$. If $EMS = \frac{EMS}{K}$, the binomial model prior simplifies to a uniform model prior with $P(M_{j}) \propto 1$, meaning that all models are assumed to have equal probabilities. The second option is binomial-beta model prior \cite{Ley+2009} given by:
+\begin{equation}
+    P(M_{j}) \propto \Gamma(1+k_{j})\Gamma(\frac{K-EMS}{EMS}+K-k_{j}).
+\end{equation}
+In the context of binomial-beta prior $EMS = \frac{EMS}{K}$ corresponds to equal probabilities on model sizes.
+
+\indent In order to account for potential multicolinearity between regressors one can use dilution prior introduce by \cite{George+2010}.The dilution prior involves augmenting the model prior (binomial or binomial-beta) with a function that accounts for multicollinearity:
+\begin{equation}
+    P_{D}(M_{j}) \propto P(M_{j})|COR_{j}|^{\omega}
+\end{equation}
+where $P_{D}(M_{j})$ is the diluted model prior, $|COR_{j}|$ is the determinant of the correlation matrix of regressors in model $j$, and $\omega$ is the dilution parameter. The lower the correlation between regressors, the closer $|COR_{j}|$ is to one, resulting in a smaller degree of dilution.
+
+\indent To determine whether regressors are substitutes or complements, various authors have developed jointness measures\footnote{To learn more about jointness measures, we recommend reading \cite{Doppelhofer+2009, Ley+2007, Hofmarcher+2018} in that order.}. Assuming two different covariates $a$ and $b$, let $P(a\cap b)$ be the posterior probability of the inclusion of both variables, $P(\overline{a}\cap \overline{b})$ the posterior probability of the exclusion of both variables, $P(\overline{a}\cap b)$ and $P(a\cap \overline{b})$ denote the posterior probability of including each variable separately. The first measure of jointness is simply $P(a\cap b)$. However, this measure ignores much of the information about the relationships between the regressors. \cite{Doppelhofer+2009} measure if defined as:
+\begin{equation}
+    J_{DW}=\text{log}\left[\frac{P(a\cap b)*P(\overline{a}\cap \overline{b})}{P(\overline{a}\cap b)*P(a\cap \overline{b})}\right].
+\end{equation}
+If $J_{DW} < -2$, $-2 < J_{DW} < -1$, $-1 < J_{DW} < 1$, $1 < J_{DW} < 2$, and $J_{DW} > 2$, the authors classify the regressors as strong substitutes, significant substitutes, not significantly related, significant complements, and strong complements, respectively. Jointness measure proposed by \cite{Ley+2007} is given by:
+\begin{equation}
+    J_{LS}=\frac{P(a\cap b)}{P(\overline{a}\cap b)+P(a\cap \overline{b})}.
+\end{equation}
+The measure takes values in the range $[0, \infty)$, with higher values indicating a stronger complementary relationship. Finally, \cite{Hofmarcher+2018} measure of jointness is:
+\begin{equation}
+    J_{HCGHM}=\frac{(P(a\cap b)+\rho)*P(\overline{a}\cap \overline{b})+\rho)-(P(\overline{a}\cap b)+\rho)*P(a\cap \overline{b})+\rho)}{(P(a\cap b)+\rho)*P(\overline{a}\cap \overline{b})+\rho)+(P(\overline{a}\cap b)+\rho)*P(a\cap \overline{b})+\rho)+\rho}.
+\end{equation}
+\cite{Hofmarcher+2018} advocate the use of the \cite{Jeffreys+1946} prior, which results in $\rho=\frac{1}{2}$. The measure takes values from -1 to 1, where values close to -1 indicate substitutes, and those close to 1 complements.
+
+\section{Data preparation}
+This section demonstrates how to prepare the data for estimation. The first step involves installing the package and subsequently loading it into the R session.
+\begin{Schunk}
+\begin{Sinput}
+> install.packages("bdsm", repos = "https://cloud.r-project.org")
+\end{Sinput}
+\end{Schunk}
+<<>>=
+library(bdsm)
+@
+% This part below will be changed when CRAN version is up to date
+Throughout the manuscript, we use the data from \cite{Moral+2016} on the determinants of economic growth. The package includes the data along with a detailed description of all variables.
+<<>>=
+?economic_growth
+@
+
+The data used for estimation must be in a specific format. The first two columns should specify time and the entity (e.g., country) and time. The dependent variable should be placed in the third column, while the regressors should occupy the remaining columns. The data should be arranged as follows:
+<<>>=
+economic_growth[1:12,1:10]
+@
+However, it is common for researchers to store their data in alternative format:
+<<>>=
+original_economic_growth[1:12,1:10]
+@
+In this case, the user can use the \verb+join_lagged_col+ function to transform the dataset into the desired format. The user needs to specify the dependent variable column (\verb+col+), the lagged dependent variable column (\verb+col_lagged+), the column identifying the cross-section (\verb+entity_col+), the column with the time index (\verb+timestamp_col+), and the change in the number of time units from period to period (\verb+timestep+).
+
+<<>>=
+economic_growth <- join_lagged_col(df = original_economic_growth,
+                        col = gdp, col_lagged = lag_gdp,
+                        timestamp_col = year,
+                        entity_col = country, timestep = 10)
+@
+
+Once the data is in the correct format, the user can perform further data transformations using the \verb+data_prep+ function. The user might want to prepare the data for a fixed effects model. For time fixed effects, the user can perform cross-sectional demeaning (\verb+time_effects = TRUE+), while for cross-section effects, the user can perform time demeaning (\verb+entity_effects = TRUE+). Moreover, the user can scale the data by the standard deviation within cross-sections (\verb+time_scale = TRUE+) and within time periods (\verb+entity_scale = TRUE+). The user can also perform regular standardization by subtracting the mean from each column (\verb+standardize = TRUE+) and dividing it by the standard deviation (\verb+scale = TRUE+). Standardization is preferred because it improves the computational efficiency of the likelihood optimization. Finally, the user can specify the order in which demeaning and/or scaling should be applied using the \verb+order+ parameter. This parameter takes a vector with three elements, where the order of the elements determines the sequence of operations. Here, \texttt{S}, \texttt{T}, \texttt{E}, and \texttt{0} denote standardization, preparation for time effects, preparation for entity effects, and skipping an operation, respectively. For example, to apply the entity effect first and then standardization, use:
+<<>>=
+data_prepared <- data_prep(df = economic_growth, timestamp_col = year,
+                           entity_col = country, standardize = TRUE,
+                           scale = TRUE, entity_effects = TRUE,
+                           order = c("T", "S", "0"))
+@
+
+\cite{Moral+2016} first standardized the regressors, leaving the dependent variable unchanged, and then introduced time fixed effects. To achieve this effect, use:
+<<>>=
+data_prepared <- economic_growth |>
+    data_prep(timestamp_col = year, entity_col = gdp,
+              order = c("S","0","0")) |>
+    data_prep(timestamp_col = year, entity_col = country,
+              standardize = FALSE, scale = FALSE,
+              time_effects = TRUE, time_scale = FALSE,
+              order = c("T","0","0"))
+@
+
+
+
+\begin{Schunk}
+\begin{Sinput}
+R> economic_growth[1:12,1:10]
+\end{Sinput}
+\begin{Soutput}
+Example output
+\end{Soutput}
+\end{Schunk}
+
+\section{Usage}
+
+\subsection{Basic Workflow}
+
+
+
+\begin{Schunk}
+\begin{Sinput}
+R> library(bdsm)
+R> data(mydata)
+R> result <- bma(y ~ ., data = mydata)
+R> summary(result)
+\end{Sinput}
+\begin{Soutput}
+# Output here
+\end{Soutput}
+\end{Schunk}
+
+\section{Technical Details}
+
+\begin{itemize}
+    \item Implements g-prior for Bayesian Linear Regression.
+    \item Supports model comparison and posterior analysis.
+\end{itemize}
+
+\section{References}
+
+\bibliographystyle{apalike} % Add your desired bibliography style here (e.g., plain, alpha, etc.)
+\bibliography{references}  % Include your .bib file name here
+
+\end{document}
