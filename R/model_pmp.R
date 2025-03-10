@@ -37,7 +37,7 @@
 
 utils::globalVariables(c("ID", "Value", "Probability"))
 
-model_pmp = function(bma_list,top=5){
+model_pmp = function(bma_list, top = NULL){
 
 # Collecting information from the bma_list
 R <- bma_list[[4]] # total number of regressors
@@ -47,10 +47,14 @@ PMPs <- bma_list[[10]][,(R+1):(R+2)] # PMP_uniform, PMP_random
 Priors <- bma_list[[11]] # Priors: uniform and random
 dilution <- bma_list[[12]] # 0 - no dilution prior, 1 - dilution prior
 
+if (is.null(top)){
+  top <- M
+}
+
 if (top>M){# CONDITION about what to do if the user sets top that is higher than M
   # we tell the user that we are setting top = R
   message("The number of the best models (top) cannot be higher than the total number of models. We set top = R (total number of regressors) and continiue :)")
-  top = R # we set M=K
+  top = M
 }
 
 # Objects to store posteriors and priors

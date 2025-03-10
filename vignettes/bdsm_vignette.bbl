@@ -1,148 +1,278 @@
 \begin{thebibliography}{}
 
+\bibitem[Aller et~al., 2021]{Aller+2021}
+Aller, C., Ductor, L., \& Grechyna, D. (2021).
+\newblock Robust determinants of co2 emissions.
+\newblock {\em Energy Economics}, 96(105154).
+
+\bibitem[Amini \& Parmeter, 2011]{amini2011bayesian}
+Amini, S.~M. \& Parmeter, C.~F. (2011).
+\newblock Bayesian model averaging in r.
+\newblock {\em Journal of Economic and Social Measurement}, 36(4), 253--287.
+
+\bibitem[Arin et~al., 2019]{Arin+2019}
+Arin, K.~P., Braunfels, E., \& Doppelhofer, G. (2019).
+\newblock {Revisiting the growth effects of fiscal policy: A Bayesian model averaging approach}.
+\newblock {\em Journal of Macroeconomics}, 62(103158), 1--16.
+
+\bibitem[Baran \& M\"oller, 2015]{Baran+2015}
+Baran, S. \& M\"oller, A. (2015).
+\newblock Joint probabilistic forecasting of wind speed and temperature using bayesian model averaging.
+\newblock {\em Environmetrics}, 26(2), 120--132.
+
+\bibitem[Barro, 1991]{Barro+1991}
+Barro, R.~J. (1991).
+\newblock {Economic Growth in a Cross Section of Countries}.
+\newblock {\em The Quarterly Journal of Economics}, 106(2), 407--443.
+
 \bibitem[Beck, 2017]{Beck+2017}
 Beck, K. (2017).
 \newblock {Bayesian model averaging and jointness measures: theoretical framework and application to the gravity model of trade}.
-\newblock {\em Statistics in Transition. New Series}, 18(3):393--412.
+\newblock {\em Statistics in Transition. New Series}, 18(3), 393--412.
 
-\bibitem[Błażejowski and Kwiatkowski, 2015]{Blazejowski+2015}
-Błażejowski, M. and Kwiatkowski, J. (2015).
+\bibitem[Beck, 2022]{Beck+2022}
+Beck, K. (2022).
+\newblock {Macroeconomic policy coordination and the European business cycle: Accounting for model uncertainty and reverse causality}.
+\newblock {\em Bulletin of Economic Research}, 74(4), 1095--1114.
+
+\bibitem[Błażejowski \& Kwiatkowski, 2015]{Blazejowski+2015}
+Błażejowski, M. \& Kwiatkowski, J. (2015).
 \newblock {Bayesian Model Averaging and Jointness Measures for gretl}.
-\newblock {\em Journal of Statistical Software}, 68(5):1--24.
+\newblock {\em Journal of Statistical Software}, 68(5), 1--24.
 
 \bibitem[Chen et~al., 2018]{Chen+2018}
-Chen, H., Mirestean, A., and Tsangarides, C.~G. (2018).
-\newblock {imited information bayesian model averaging for dynamic panels with application to a trade gravity model}.
-\newblock {\em Econometric Reviews}, 37(7):777--805.
+Chen, H., Mirestean, A., \& Tsangarides, C.~G. (2018).
+\newblock {Limited information bayesian model averaging for dynamic panels with application to a trade gravity model}.
+\newblock {\em Econometric Reviews}, 37(7), 777--805.
 
-\bibitem[Doppelhofer and Weeks, 2009]{Doppelhofer+2009}
-Doppelhofer, G. and Weeks, M. (2009).
+\bibitem[Clyde et~al., 2011]{clyde2011bayesian}
+Clyde, M.~A., Ghosh, J., \& Littman, M.~L. (2011).
+\newblock Bayesian adaptive sampling for variable selection and model averaging.
+\newblock {\em Journal of Computational and Graphical Statistics}, 20(1), 80--101.
+
+\bibitem[D'Andrea, 2022]{DAndrea+2022}
+D'Andrea, S. (2022).
+\newblock Are there any robust determinants of growth in europe? a bayesian model averaging approach.
+\newblock {\em International Economics}, 171, 143--173.
+
+\bibitem[Doppelhofer \& Weeks, 2009]{Doppelhofer+2009}
+Doppelhofer, G. \& Weeks, M. (2009).
 \newblock {Jointness of growth determinants}.
-\newblock {\em Journal of Applied Econometrics}, 24(2):209--244.
+\newblock {\em Journal of Applied Econometrics}, 24(2), 209--244.
+
+\bibitem[Ductor \& Leiva-Leon, 2016]{Ductor+2016}
+Ductor, L. \& Leiva-Leon, D. (2016).
+\newblock {Dynamics of Global Business Cycles Interdependence}.
+\newblock {\em Journal of International Economics}, 102, 1109--1127.
 
 \bibitem[Eicher et~al., 2011]{Eicher+2011}
-Eicher, T.~S., Papageorgiou, C., and Raftery, A.~E. (2011).
+Eicher, T.~S., Papageorgiou, C., \& Raftery, A.~E. (2011).
 \newblock {Default priors and predictive performance in Bayesian model averaging, with application to growth determinants}.
-\newblock {\em Journal of Applied Econometrics}, 26(1):30--55.
+\newblock {\em Journal of Applied Econometrics}, 26(1), 30--55.
 
-\bibitem[Feldkircher and Zeugner, 2015]{Feldkircher+2015}
-Feldkircher, M. and Zeugner, S. (2015).
+\bibitem[Eicher et~al., 2007]{Eicher+2007}
+Eicher, T.~S., Papageorgiou, C., \& Roehn, O. (2007).
+\newblock {Unraveling the fortunes of the fortunate: An Iterative Bayesian Model Averaging (IBMA) approach}.
+\newblock {\em Journal of Macroeconomics}, 29(3), 494--514.
+
+\bibitem[Feldkircher \& Zeugner, 2015]{Feldkircher+2015}
+Feldkircher, M. \& Zeugner, S. (2015).
 \newblock {Bayesian Model Averaging Employing Fixed and Flexible Priors: The BMS Package for R}.
-\newblock 68(4):1--37.
+\newblock 68(4), 1--37.
 
 \bibitem[Fern{\'{a}}ndez et~al., 2001a]{Fernandez+2001}
-Fern{\'{a}}ndez, C., Ley, E., and Steel, M.~F. (2001a).
+Fern{\'{a}}ndez, C., Ley, E., \& Steel, M.~F. (2001a).
 \newblock {Benchmark priors for Bayesian model averaging}.
-\newblock {\em Journal of Econometrics}, 100(2):381--427.
+\newblock {\em Journal of Econometrics}, 100(2), 381--427.
 
 \bibitem[Fern{\'{a}}ndez et~al., 2001b]{Fernandez+2001b}
-Fern{\'{a}}ndez, C., Ley, E., and Steel, M.~F. (2001b).
+Fern{\'{a}}ndez, C., Ley, E., \& Steel, M.~F. (2001b).
 \newblock {Model uncertainty in cross-country growth regressions}.
-\newblock {\em Journal of Applied Econometrics}, 16(5):563--576.
+\newblock {\em Journal of Applied Econometrics}, 16(5), 563--576.
+
+\bibitem[Figini \& Giudici, 2017]{Figini+2017}
+Figini, S. \& Giudici, P. (2017).
+\newblock Credit risk assessment with bayesian model averaging.
+\newblock {\em Communications in Statistics - Theory and Methods}, 46(19), 9507--9517.
+
+\bibitem[Fragoso et~al., 2018]{Fragoso+2018}
+Fragoso, T.~M., Bertoli, W., \& Louzada, F. (2018).
+\newblock Bayesian model averaging: A systematic review and conceptual classification.
+\newblock {\em International Statistical Review}, 86(1), 1--28.
 
 \bibitem[George, 2010]{George+2010}
 George, E.~I. (2010).
 \newblock {Dilution priors: Compensating for model space redundancy}.
-\newblock In Berger, J.~O., Cai, T., and Johnstone, I.~M., editors, {\em Borrowing Strength: Theory Powering Applications – A Festschrift for Lawrence D. Brown}, pages 158--165. Institute of Mathematical Statistics, Beachwood, OH.
+\newblock In J.~O. Berger, T. Cai, \& I.~M. Johnstone (Eds.), {\em Borrowing Strength: Theory Powering Applications – A Festschrift for Lawrence D. Brown}  (pp.\ 158--165). Beachwood, OH: Institute of Mathematical Statistics.
+
+\bibitem[Granger \& Uhlig, 1990]{Granger+1990}
+Granger, C.~W. \& Uhlig, H.~F. (1990).
+\newblock Reasonable extreme-bounds analysis.
+\newblock {\em Journal of Econometrics}, 44(1), 159--170.
+
+\bibitem[Guliyev, 2024]{Guliyev+2024}
+Guliyev, H. (2024).
+\newblock Determinants of ecological footprint in european countries: Fresh insight from bayesian model averaging for panel data analysis.
+\newblock {\em Science of The Total Environment}, 912, 169455.
+
+\bibitem[Hlavac, 2016]{Hlavac+2016}
+Hlavac, M. (2016).
+\newblock Extremebounds: Extreme bounds analysis in r.
+\newblock {\em Journal of Statistical Software}, 72(9), 1--22.
 
 \bibitem[Hofmarcher et~al., 2018]{Hofmarcher+2018}
-Hofmarcher, P., Crespo~Cuaresma, J., Gr{\"{u}}n, B., Humer, S., and Moser, M. (2018).
+Hofmarcher, P., Crespo~Cuaresma, J., Gr{\"{u}}n, B., Humer, S., \& Moser, M. (2018).
 \newblock {Bivariate joint measure in Bayesian Model Averaging: Solving the conundrum}.
-\newblock {\em Journal of Macroeconomics}, 57:150--165.
+\newblock {\em Journal of Macroeconomics}, 57, 150--165.
+
+\bibitem[Horvath et~al., 2024]{Horvath+2024}
+Horvath, R., Horvatova, E., \& Siranova, M. (2024).
+\newblock The determinants of financial development: Evidence from bayesian model averaging.
+\newblock {\em Economic Systems}, (101274).
 
 \bibitem[Jeffreys, 1946]{Jeffreys+1946}
 Jeffreys, H. (1946).
 \newblock {An invariant form for the prior probability in estimation problems}.
-\newblock {\em Proceedings of the Royal Society of London. Series A, Mathematical and Physical Sciences}, 186(1007):453--461.
+\newblock {\em Proceedings of the Royal Society of London. Series A, Mathematical and Physical Sciences}, 186(1007), 453--461.
+
+\bibitem[Kass \& Raftery, 1995]{Kass+1995b}
+Kass, R.~E. \& Raftery, A.~E. (1995).
+\newblock {Bayes Factors}.
+\newblock {\em Journal of the American Statistical Association}, 90(430), 773--795.
 
 \bibitem[Leamer, 1978]{Leamer+1978}
 Leamer, E.~E. (1978).
 \newblock {\em Specification Searches: Ad Hoc Inference with Nonexperimental Data}.
-\newblock John Wiley \& Sons, New York.
+\newblock New York: John Wiley \& Sons.
 
 \bibitem[Leamer, 1983]{Leamer+1983}
 Leamer, E.~E. (1983).
 \newblock {Let's Take the Con Out of Econometrics}.
-\newblock {\em The American Economic Review}, 73(1):31--43.
+\newblock {\em The American Economic Review}, 73(1), 31--43.
 
 \bibitem[Leamer, 1985]{Leamer+1985}
 Leamer, E.~E. (1985).
 \newblock {Sensitivity Analyses Would Help}.
-\newblock {\em American Economic Review}, 75(3):308--313.
+\newblock {\em American Economic Review}, 75(3), 308--313.
 
-\bibitem[Ley and Steel, 2007]{Ley+2007}
-Ley, E. and Steel, M.~F. (2007).
+\bibitem[Leamer \& Leonard, 1981]{Leamer+1981}
+Leamer, E.~E. \& Leonard, H. (1981).
+\newblock {Reporting the fragility of regression estimates}.
+\newblock {\em The Review of Economics and Statistics}, 65(2), 306--317.
+
+\bibitem[Lenkoski et~al., 2014]{Lenkoski+2014}
+Lenkoski, A., Eicher, T.~S., \& Raftery, A.~E. (2014).
+\newblock Two-stage bayesian model averaging in endogenous variable models.
+\newblock {\em Econometric Reviews}, 33(1-4), 122--151.
+
+\bibitem[Levine \& Renelt, 1992]{Levine+1992}
+Levine, R. \& Renelt, D. (1992).
+\newblock {A Sensitivity Analysis of Cross-Country Growth Regressions}.
+\newblock {\em The American Economic Review}, 82(4), 942--963.
+
+\bibitem[Ley \& Steel, 2007]{Ley+2007}
+Ley, E. \& Steel, M.~F. (2007).
 \newblock {Jointness in Bayesian variable selection with applications to growth regression}.
-\newblock {\em Journal of Macroeconomics}, 29(3):476--493.
+\newblock {\em Journal of Macroeconomics}, 29(3), 476--493.
 
-\bibitem[Ley and Steel, 2009]{Ley+2009}
-Ley, E. and Steel, M.~F. (2009).
+\bibitem[Ley \& Steel, 2009]{Ley+2009}
+Ley, E. \& Steel, M.~F. (2009).
 \newblock {On the effect of prior assumptions in Bayesian model averaging with applications to growth regression}.
-\newblock {\em Journal of Applied Econometrics}, 24(4):651--674.
+\newblock {\em Journal of Applied Econometrics}, 24(4), 651--674.
 
-\bibitem[León-González and Montolio, 2015]{Leon+2015}
-León-González, R. and Montolio, D. (2015).
+\bibitem[Ley \& Steel, 2012]{Ley+2012}
+Ley, E. \& Steel, M.~F. (2012).
+\newblock {Mixtures of g-priors for Bayesian model averaging with economic applications}.
+\newblock {\em Journal of Econometrics}, 171(2), 251--266.
+
+\bibitem[León-González \& Montolio, 2015]{Leon+2015}
+León-González, R. \& Montolio, D. (2015).
 \newblock {Endogeneity and panel data in growth regressions: A Bayesian model averaging approach}.
-\newblock {\em Journal of Macroeconomics}, 24:23--39.
+\newblock {\em Journal of Macroeconomics}, 24, 23--39.
 
-\bibitem[Masanjala and Papageorgiou, 2008]{Masanjala+2008}
-Masanjala, W.~H. and Papageorgiou, C. (2008).
+\bibitem[Liu \& Maheu, 2009]{Liu+2009}
+Liu, C. \& Maheu, J.~M. (2009).
+\newblock Forecasting realized volatility: a bayesian model-averaging approach.
+\newblock {\em Journal of Applied Econometrics}, 24(5), 709--733.
+
+\bibitem[Masanjala \& Papageorgiou, 2008]{Masanjala+2008}
+Masanjala, W.~H. \& Papageorgiou, C. (2008).
 \newblock {Rough and lonely road to prosperity: a reexamination of the growth in Africa using Bayesian model averaging}.
-\newblock {\em Journal of Applied Econometrics}, 23(5):671--682.
+\newblock {\em Journal of Applied Econometrics}, 23(5), 671--682.
 
-\bibitem[Mirestean and Tsangarides, 2016]{Mirestean+2016}
-Mirestean, A. and Tsangarides, C.~G. (2016).
+\bibitem[Mirestean \& Tsangarides, 2016]{Mirestean+2016}
+Mirestean, A. \& Tsangarides, C.~G. (2016).
 \newblock {Growth Determinants Revisited Using Limited‐Information Bayesian Model Averaging}.
-\newblock {\em Journal of Applied Econometrics}, 31(1):106--132.
+\newblock {\em Journal of Applied Econometrics}, 31(1), 106--132.
 
 \bibitem[Moral-Benito, 2012]{Moral+2012}
 Moral-Benito, E. (2012).
 \newblock {Determinants of Economic Growth: A Bayesian Panel Data Approach}.
-\newblock {\em The Review of Economics and Statistics}, 92(4):566--579.
+\newblock {\em The Review of Economics and Statistics}, 92(4), 566--579.
 
 \bibitem[Moral-Benito, 2013]{Moral+2013}
 Moral-Benito, E. (2013).
 \newblock {Likelihood-Based Estimation of Dynamic Panels with Predetermined Regressors}.
-\newblock {\em Journal of Business and Economic Statistics}, 31(4):451--472.
+\newblock {\em Journal of Business and Economic Statistics}, 31(4), 451--472.
 
 \bibitem[Moral-Benito, 2015]{Moral+2015}
 Moral-Benito, E. (2015).
 \newblock {Model Averaging in Economics: An Overview}.
-\newblock {\em Journal of Economic Surveys}, 29(1):46--75.
+\newblock {\em Journal of Economic Surveys}, 29(1), 46--75.
 
 \bibitem[Moral-Benito, 2016]{Moral+2016}
 Moral-Benito, E. (2016).
 \newblock {Growth Empirics in Panel Data Under Model Uncertainty and Weak Exogeneity}.
-\newblock {\em Journal of Applied Econometrics}, 31(3):584--602.
+\newblock {\em Journal of Applied Econometrics}, 31(3), 584--602.
 
 \bibitem[Moral-Benito et~al., 2019]{Moral+2019}
-Moral-Benito, E., Allison, P., and Williams, R. (2019).
+Moral-Benito, E., Allison, P., \& Williams, R. (2019).
 \newblock {Dynamic panel data modelling using maximum likelihood: An alternative to Arellano-Bond}.
-\newblock {\em Applied Economics}, 51(20):2221--2232.
+\newblock {\em Applied Economics}, 51(20), 2221--2232.
+
+\bibitem[Moser \& Hofmarcher, 2014]{Moser+2014}
+Moser, M. \& Hofmarcher, P. (2014).
+\newblock {Model priors revisited: Interaction terms in BMA growth applications}.
+\newblock {\em Journal of Applied Econometrics}, 29(2), 344--347.
+
+\bibitem[Payne et~al., 2024]{Payne+2024}
+Payne, R.~D., Ray, P., \& Thomann, M.~A. (2024).
+\newblock Bayesian model averaging of longitudinal dose-response models.
+\newblock {\em Journal of Biopharmaceutical Statistics}, 34(3), 349--365.
 
 \bibitem[Raftery, 1995]{Raftery+1995}
 Raftery, A.~E. (1995).
 \newblock {Bayesian model selection in social research}.
-\newblock {\em Sociological Methodology}, 25:111--163.
+\newblock {\em Sociological Methodology}, 25, 111--163.
 
 \bibitem[Raftery et~al., 1997]{Raftery+1997}
-Raftery, A.~E., Madigan, D., and Hoeting, J.~A. (1997).
+Raftery, A.~E., Madigan, D., \& Hoeting, J.~A. (1997).
 \newblock Bayesian model averaging for linear regression models.
-\newblock {\em Journal of the American Statistical Association}, 92(437):179--191.
+\newblock {\em Journal of the American Statistical Association}, 92(437), 179--191.
 
 \bibitem[Raftery et~al., 2005]{Raftery+2005}
-Raftery, A.~E., Painter, I.~S., and Volinsky, C.~T. (2005).
+Raftery, A.~E., Painter, I.~S., \& Volinsky, C.~T. (2005).
 \newblock {BMA}: An {R} package for bayesian model averaging.
-\newblock {\em R News}, 5(2):2--8.
+\newblock {\em R News}, 5(2), 2--8.
+
+\bibitem[Sala-I-Martin, 1997]{Sala+1997}
+Sala-I-Martin, X. (1997).
+\newblock {I Just Ran Two Million Regressions}.
+\newblock {\em The American Economic Review}, 27(2), 178--183.
 
 \bibitem[Sala-I-Martin et~al., 2004]{Sala+2004}
-Sala-I-Martin, X., Doppelhofer, G., and Miller, R.~I. (2004).
+Sala-I-Martin, X., Doppelhofer, G., \& Miller, R.~I. (2004).
 \newblock {Determinants of Long-Term Growth: A Bayesian Averaging of Classical Estimates (BACE) Approach}.
-\newblock {\em The American Economic Review}, 94:813--835.
+\newblock {\em The American Economic Review}, 94, 813--835.
+
+\bibitem[Sloughter et~al., 2013]{Sloughter+2013}
+Sloughter, J.~M., Gneiting, T., \& Raftery, A.~E. (2013).
+\newblock Probabilistic wind vector forecasting using ensembles and bayesian model averaging.
+\newblock {\em Monthly Weather Review}, 141(6), 2107--2119.
 
 \bibitem[Steel, 2020]{Steel+2020}
 Steel, M.~F. (2020).
 \newblock {Model Averaging and Its Use in Economics}.
-\newblock {\em Journal of Economic Literature}, 58(3):644--719.
+\newblock {\em Journal of Economic Literature}, 58(3), 644--719.
 
 \end{thebibliography}

@@ -261,7 +261,7 @@ bma = function(for_bma, df, app = 4, EMS = NULL, dilution = 0, dil.Par = 0.5){
   uniform_table <- round(uniform_table, app)
   random_table <- round(random_table, app)
 
-  bma_names <- c("PIP", "PM", "PSD", "PSD_R","PM_con", "PSD_con", "PSD_R_con", "%(+)")
+  bma_names <- c("PIP", "PM", "PSD", "PSDR","PMcon", "PSDcon", "PSDRcon", "%(+)")
 
   colnames(uniform_table) <- bma_names
   row.names(uniform_table) <- reg_names
