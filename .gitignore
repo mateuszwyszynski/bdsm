@@ -8,3 +8,7 @@
 
 # testthat error messages
 tests/testthat/testthat-problems.rds
+
+# binary files
+*.o
+*.so
