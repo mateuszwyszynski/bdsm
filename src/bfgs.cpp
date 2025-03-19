@@ -1,143 +1,198 @@
 #include <RcppArmadillo.h>
-#include <roptim.h>
+#include <vector>
+#include <cmath>
 
 using namespace Rcpp;
-using namespace roptim;
 
-class SEMObjective : public Functor {
-public:
-  SEMObjective(SEXP data_, bool exact_value_, Function SEM_likelihood_fn_, double fnscale_, 
-               arma::vec parscale_ = arma::vec()) :
-    data(data_),
-    exact_value(exact_value_),
-    SEM_likelihood_fn(SEM_likelihood_fn_),
-    fnscale(fnscale_),
-    parscale(parscale_) {}
-
-  double operator()(const arma::vec &x) {
-    NumericVector x_rcpp(x.begin(), x.end());
-    double result = as<double>(SEM_likelihood_fn(x_rcpp, data, R_NilValue, R_NilValue, R_NilValue,
-                                       R_NilValue, false, exact_value));
-    // We're maximizing but roptim minimizes, so negate if fnscale is negative
-    if (fnscale < 0) {
-      return -result;
-    } else {
-      return result;
-    }
-  }
-  
-  // Override gradient method to match R's numerical gradient behavior
-  arma::vec gradient(const arma::vec &x) {
-    const double eps = std::sqrt(DOUBLE_EPS); // Similar to R's .Machine$double.eps^0.5
-    arma::vec grad(x.n_elem);
-    
-    for(unsigned int i = 0; i < x.n_elem; i++) {
-      double h = eps * std::max(std::abs(x(i)), 1.0);
-      if (parscale.n_elem > 0) {
-        h *= parscale(i); // Adjust step size by parscale if provided
-      }
-      
-      arma::vec x_plus = x;
-      x_plus(i) += h;
-      double f_plus = this->operator()(x_plus);
-      
-      arma::vec x_minus = x;
-      x_minus(i) -= h;
-      double f_minus = this->operator()(x_minus);
-      
-      // Central difference approximation
-      grad(i) = (f_plus - f_minus) / (2 * h);
-    }
-    
-    return grad;
-  }
-
-private:
-  SEXP data;
-  bool exact_value;
-  Function SEM_likelihood_fn;
-  double fnscale;
-  arma::vec parscale;
-  const double DOUBLE_EPS = 2.2204460492503131e-16; // R's .Machine$double.eps
-};
-
+// Custom BFGS implementation from scratch
+// This doesn't rely on external optimization libraries
 // [[Rcpp::export]]
 List bfgs_optim(NumericVector params_no_na, Function SEM_likelihood, SEXP data, bool exact_value, List control) {
   // Extract control parameters
-  double fnscale = -1.0;
+  double fnscale = -1.0; // Default for maximization in R
+  int maxit = 1000;
+  double reltol = 1e-8;
+  int trace = 2;
+  int report = 10;
+  bool use_r = false; // Fall back to R's optim for testing?
+  
   if (control.containsElementNamed("fnscale")) {
     fnscale = as<double>(control["fnscale"]);
   }
-  
-  // Extract parameter scaling
-  arma::vec parscale;
-  if (control.containsElementNamed("parscale")) {
-    parscale = as<arma::vec>(control["parscale"]);
-  }
-  
-  SEMObjective objective(data, exact_value, SEM_likelihood, fnscale, parscale);
-  Roptim<SEMObjective> optimizer;
-  arma::vec params_arma(params_no_na.begin(), params_no_na.size());
-
-  // Set appropriate defaults to better match R behavior
-  optimizer.control.trace = 2;      // Match R default in optimal_model_space
-  optimizer.control.maxit = 1000;   // Match R default in optimal_model_space
-  optimizer.control.reltol = 1e-8;  // Default R value
-  optimizer.control.abstol = -INFINITY;
-  optimizer.control.alpha = 1.0;    // Line search parameters to match R
-  optimizer.control.beta = 0.5;
-  optimizer.control.gamma = 2.0;
-  
-  // Override defaults with control parameters
   if (control.containsElementNamed("maxit")) {
-    optimizer.control.maxit = as<int>(control["maxit"]);
-  }
-  if (control.containsElementNamed("abstol")) {
-    optimizer.control.abstol = as<double>(control["abstol"]);
+    maxit = as<int>(control["maxit"]);
   }
   if (control.containsElementNamed("reltol")) {
-    optimizer.control.reltol = as<double>(control["reltol"]);
-  }
-  if (control.containsElementNamed("REPORT")) {
-    optimizer.control.REPORT = as<int>(control["REPORT"]);
+    reltol = as<double>(control["reltol"]);
   }
   if (control.containsElementNamed("trace")) {
-    optimizer.control.trace = as<int>(control["trace"]);
+    trace = as<int>(control["trace"]);
   }
-  if (control.containsElementNamed("parscale")) {
-    optimizer.control.parscale = parscale;
-  }
-
-  optimizer.set_method("BFGS");
-  
-  // Set more aggressive initial line search step (to match R behavior)
-  optimizer.control.lmm = 20;  // Increase memory for L-BFGS-B approximation
-  
-  optimizer.minimize(objective, params_arma);
-
-  // Get results and negate value if needed for consistency
-  arma::vec result_par = optimizer.par();
-  NumericVector par(result_par.begin(), result_par.end());
-  double value = optimizer.value();
-  
-  // Need to negate back to match R's behavior if we're maximizing
-  if (fnscale < 0) {
-    value = -value;
+  if (control.containsElementNamed("REPORT")) {
+    report = as<int>(control["REPORT"]);
   }
   
-  int convergence = optimizer.convergence();
-  int count = optimizer.fncount();
-  int grad_count = optimizer.grcount();
-
-  // Create and return results in the same format as stats::optim
+  // Fall back to R's implementation for testing if needed
+  if (use_r) {
+    Environment stats("package:stats");
+    Function optim = stats["optim"];
+    
+    List result = optim(
+      Named("par") = params_no_na,
+      Named("fn") = SEM_likelihood,
+      Named("data") = data,
+      Named("exact_value") = exact_value,
+      Named("method") = "BFGS",
+      Named("control") = control
+    );
+    
+    return result;
+  }
+  
+  // Initialize parameter vector
+  int n = params_no_na.size();
+  arma::vec x(params_no_na.begin(), n);
+  
+  // Counters
+  int f_count = 0;
+  int g_count = 0;
+  
+  // Objective function
+  auto fn = [&](const arma::vec& pars) {
+    NumericVector pars_r(pars.begin(), pars.end());
+    f_count++;
+    double val = as<double>(SEM_likelihood(pars_r, data, R_NilValue, R_NilValue, 
+                                         R_NilValue, R_NilValue, false, exact_value));
+    // For maximization problems, negate
+    return fnscale < 0 ? -val : val;
+  };
+  
+  // Numerical gradient function
+  auto grad = [&](const arma::vec& pars) {
+    g_count++;
+    arma::vec g(n);
+    double eps = std::sqrt(2.2e-16); // ~sqrt(.Machine$double.eps)
+    
+    double f0 = fn(pars);
+    
+    for (int i = 0; i < n; i++) {
+      arma::vec x_plus = pars;
+      double h = eps * std::max(1.0, std::abs(pars(i)));
+      x_plus(i) += h;
+      
+      double f_plus = fn(x_plus);
+      g(i) = (f_plus - f0) / h;
+    }
+    
+    return g;
+  };
+  
+  // Initial function value and gradient
+  double f = fn(x);
+  arma::vec g = grad(x);
+  
+  // Initial Hessian approximation (identity matrix)
+  arma::mat H = arma::eye(n, n);
+  
+  // Report initial value
+  if (trace > 0) {
+    Rcout << "initial  value " << (fnscale < 0 ? -f : f) << std::endl;
+  }
+  
+  bool converged = false;
+  int iter = 0;
+  
+  // Main BFGS loop
+  while (iter < maxit) {
+    // Compute search direction
+    arma::vec direction = -H * g;
+    
+    // Line search to find step size
+    double alpha = 1.0;
+    double beta = 0.5;  // Backtracking factor
+    double c1 = 1e-4;   // Sufficient decrease condition constant
+    
+    // Initial values
+    double f0 = f;
+    arma::vec x0 = x;
+    arma::vec g0 = g;
+    
+    // Backtracking line search
+    double slope = arma::dot(g, direction);
+    if (slope >= 0) {
+      // If direction is not descent, reset Hessian to identity
+      H = arma::eye(n, n);
+      direction = -g;
+      slope = arma::dot(g, direction);
+    }
+    
+    // Keep reducing step size until we find a sufficient decrease
+    while (true) {
+      x = x0 + alpha * direction;
+      f = fn(x);
+      
+      if (f <= f0 + c1 * alpha * slope || alpha < 1e-10) {
+        break;
+      }
+      
+      alpha *= beta;
+    }
+    
+    // Compute new gradient
+    g = grad(x);
+    
+    // BFGS update of Hessian approximation
+    arma::vec s = alpha * direction;
+    arma::vec y = g - g0;
+    
+    double rho = 1.0 / std::max(1e-12, arma::dot(y, s));
+    
+    if (std::abs(rho) < 1e10) { // Protection against numerical issues
+      arma::mat identity = arma::eye(n, n);
+      H = (identity - rho * s * y.t()) * H * (identity - rho * y * s.t()) + rho * s * s.t();
+    }
+    
+    // Check convergence
+    double gnorm = arma::norm(g, 2);
+    
+    if (gnorm < reltol || std::abs(f - f0) < reltol * (1.0 + std::abs(f0))) {
+      converged = true;
+      break;
+    }
+    
+    // Reporting
+    if (trace > 0 && iter % report == 0) {
+      Rcout << "iter " << iter << " value " << (fnscale < 0 ? -f : f) << std::endl;
+    }
+    
+    iter++;
+  }
+  
+  // Final value after adjustment for maximization/minimization
+  double value = fnscale < 0 ? -f : f;
+  
+  // Final parameters
+  NumericVector par(x.begin(), x.end());
+  
+  // Reporting
+  if (trace > 0) {
+    Rcout << "final  value " << value << std::endl;
+    if (converged) {
+      Rcout << "converged" << std::endl;
+    } else {
+      Rcout << "max iterations reached" << std::endl;
+    }
+  }
+  
+  // Return in the format expected by optim()
   return List::create(
     Named("par") = par,
     Named("value") = value,
     Named("counts") = List::create(
-      Named("function") = count,
-      Named("gradient") = grad_count
+      Named("function") = f_count,
+      Named("gradient") = g_count
     ),
-    Named("convergence") = convergence,
-    Named("message") = optimizer.message()
+    Named("convergence") = converged ? 0 : 1,
+    Named("message") = converged ? "converged" : "max iterations reached"
   );
 }
