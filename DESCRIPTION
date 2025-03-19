@@ -40,12 +40,19 @@ Imports:
     magrittr,
     optimbase,
     parallel,
+    Rcpp,
+    RcppArmadillo,
     rje,
     rlang,
+    roptim,
     rootSolve,
     stats,
     tidyr,
     tidyselect
+LinkingTo:
+    Rcpp,
+    RcppArmadillo,
+    roptim
 Depends:
     R (>= 2.10)
 Language: en-US

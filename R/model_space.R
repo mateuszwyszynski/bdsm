@@ -149,7 +149,7 @@ optimal_model_space <-
   function(df, timestamp_col, entity_col, dep_var_col, init_value,
            exact_value = TRUE, run_parallel = FALSE,
            control = list(trace = 2, maxit = 10000, fnscale = -1,
-                          REPORT = 100, scale = 0.05)) {
+                          REPORT = 100, scale = 0.05), optim_cpp = FALSE) {
     matrices_shared_across_models <- df %>%
       matrices_from_df(timestamp_col = {{ timestamp_col }},
                        entity_col = {{ entity_col }},
@@ -185,10 +185,14 @@ optimal_model_space <-
       control$parscale = control$scale * params_no_na
       control$scale = NULL
 
-      optimized <- stats::optim(params_no_na, SEM_likelihood, data = data,
-                                exact_value = exact_value,
-                                method = "BFGS",
-                                control = control)
+      if (optim_cpp) {
+        optimized <- bfgs_optim(params_no_na, SEM_likelihood, data, exact_value, control)
+      } else {
+        optimized <- stats::optim(params_no_na, SEM_likelihood, data = data,
+                                  exact_value = exact_value,
+                                  method = "BFGS",
+                                  control = control)
+      }
 
       params[!is.na(params)] <- optimized[[1]]
       params
