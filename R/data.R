@@ -4,7 +4,7 @@
 #' Exogeneity (Moral-Benito, 2016, Journal of Applied Econometrics).
 #'
 #' @format ## `economic_growth`
-#' A data frame with 365 rows and 12 columns:
+#' A data frame with 365 rows and 12 columns (73 countries and 4 periods + extra one for lagged dependent variable):
 #' \describe{
 #'   \item{year}{Year}
 #'   \item{country}{Country ID}
@@ -84,13 +84,54 @@
 #' }
 "economic_growth_liks"
 
-#' Example Approximate Summary of Parameters of Interest Based on Model Space
+#' Example of bma_prep function result with four regressors
 #'
-#' A matrix representing the summary of parameters computed with
-#' \code{parameters_summary} based on the \code{economic_growth_ms} model
-#' space. TODO: describe the matrix properly after cleaning up the code of the
-#' function \code{parameters_summary}.
+#' A list with two objects: model space and likelihood summary table computed using
+#' \code{bma_prep} obtained based on the Moral-Benito (2016) data (with four regressors).
 #'
-#' @format ## `economic_growth_bma_params`
-#' A double matrix with 5 rows and 8 columns
-"economic_growth_bma_params"
+#' @format ## `bma_prep_objects`
+#' A list with two objects.
+#' \describe{
+#'    \item{model space}{Table with the parameters for the entire model space}
+#'    \item{likelihood summmary}{Table with likelihoods, BICs, and standard deviations, and robust standard deviations}
+#' }
+"bma_prep_objects"
+
+#' Example of bms_prep function result with nine regressors (full Moral-Benito (2016) set)
+#'
+#' A list with two objects: model space and likelihood summary table computed using
+#' \code{bma_prep} obtained based on the Moral-Benito (2016) data (with 9 regressors).
+#'
+#' @format ## `bma_prep_objects_full`
+#' A list with two objects.
+#' \describe{
+#'    \item{model space}{Table with the parameters for the entire model space}
+#'    \item{likelihood summmary}{Table with likelihoods, BICs, and standard deviations, and robust standard deviations}
+#' }
+"bma_prep_objects_full"
+
+#' Economic Growth Data in original from
+#'
+#' Data used in Growth Empirics in Panel Data under Model Uncertainty and Weak
+#' Exogeneity (Moral-Benito, 2016, Journal of Applied Econometrics).
+#'
+#' @format ## `original_economic_growth`
+#' A data frame with 292 rows and 13 columns (73 countries and 4 periods + extra one for lagged dependent variable):
+#' \describe{
+#'   \item{year}{Year}
+#'   \item{country}{Country ID}
+#'   \item{gdp}{Logarithm of GDP per capita (2000 US dollars at PP)}
+#'   \item{gdp_lag}{Lagged logarithm of GDP per capita (2000 US dollars at PP)}
+#'   \item{ish}{Ratio of real domestic investment to GDP}
+#'   \item{sed}{Stock of years of secondary education in the total population}
+#'   \item{pgrw}{Average growth rate of population}
+#'   \item{pop}{Population in millions of people}
+#'   \item{ipr}{Purchasing-power-parity numbers for investment goods}
+#'   \item{opem}{Exports plus imports as a share of GDP}
+#'   \item{gsh}{Ratio of government consumption to GDP}
+#'   \item{lnlex}{Logarithm of the life expectancy at birth}
+#'   \item{polity}{Composite index given by the democracy score minus the
+#'   autocracy score}
+#' }
+#' @source <http://qed.econ.queensu.ca/jae/datasets/moral-benito001/>
+"original_economic_growth"

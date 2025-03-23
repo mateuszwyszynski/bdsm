@@ -2,16 +2,19 @@
 % Please edit documentation in R/data_preparation.R
 \name{data_prep}
 \alias{data_prep}
-\title{Perform standardization of variables and prepears fixed effects estiamtion}
+\title{Perform standardization of variables and prepares for fixed effects estimation}
 \usage{
 data_prep(
   df,
   timestamp_col,
   entity_col,
   standardize = TRUE,
+  scale = TRUE,
   entity_effects = FALSE,
+  entity_scale = FALSE,
   time_effects = FALSE,
-  scale = TRUE
+  time_scale = FALSE,
+  order = c("S", "0", "0")
 )
 }
 \arguments{
@@ -23,14 +26,26 @@ data_prep(
 
 \item{standardize}{Whether to standardize the data (by mean subtraction)}
 
+\item{scale}{Whether to divide by the standard deviation \code{TRUE} or not for standardize option
+(works only if \code{standardize = TRUE})
+\code{FALSE} during standardization. Default is \code{TRUE}}
+
 \item{entity_effects}{Whether to introduce time cross-section effects
-(by time demeaning)}
+(by time (within periods) demeaning)}
+
+\item{entity_scale}{Whether to divide by the standard deviation \code{TRUE} or not with respect to time time (within periods)
+(works only if \code{entity_effects = TRUE})}
 
 \item{time_effects}{Whether to introduce time fixed effects
 (by cross-sectional demeaning)}
 
-\item{scale}{Whether to divide by the standard deviation \code{TRUE} or not
-\code{FALSE} during standardization. Default is \code{TRUE}}
+\item{time_scale}{Whether to divide by the standard deviation \code{TRUE} or not with respect to cross-sections
+(works only if \code{time_effects = TRUE})}
+
+\item{order}{A three element vector indicating the order in which data transfromation should be applied, where: \cr
+S - standardization of the columns \cr
+T - preparation for time effects estimation \cr
+E - preparation for entity effects estimation}
 }
 \value{
 A dataframe with standardized variables or/and prepared for fixed effects
@@ -40,8 +55,8 @@ estimation
 This function performs
 \href{https://en.wikipedia.org/wiki/Feature_scaling}{feature standarization}
 (also known as z-score normalization), i.e. the features are centered around
-the mean and scaled with standard deviation. Additionally, it allows introduction
-of cross sectional and time fixed effects through demeaning.
+the mean and scaled with standard deviation. Additionally, it allows preparation
+for cross-sectional and time fixed effects through demeaning (as well as scaling within groups).
 }
 \examples{
 df <- data.frame(

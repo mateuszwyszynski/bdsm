@@ -16,7 +16,7 @@ optimal_model_space(
 )
 }
 \arguments{
-\item{df}{Data frame with data for the SEM analysis.}
+\item{df}{Data frame with data for the analysis.}
 
 \item{timestamp_col}{The name of the column with time stamps}
 

@@ -7,7 +7,7 @@
 \format{
 \subsection{\code{economic_growth}}{
 
-A data frame with 365 rows and 12 columns:
+A data frame with 365 rows and 12 columns (73 countries and 4 periods + extra one for lagged dependent variable):
 \describe{
 \item{year}{Year}
 \item{country}{Country ID}

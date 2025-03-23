@@ -31,19 +31,17 @@
 #'    feature_standardization(timestamp_col = year, entity_col = country,
 #'                            time_effects = TRUE, scale = FALSE)
 #'
-#' model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
-#'                                    timestamp_col = year, entity_col = country,
-#'                                    init_value = 0.5)
+#' for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
+#' timestamp_col = year, entity_col = country, init_value = 0.5)
 #'
-#' bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
-#' entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
+#' bma_results <- bma(for_bma, df = data_prepared, round = 3, dilution = 0)
 #'
 #' coef_plots <- coef_hist(bma_results, kernel = 1)
 #' }
 
 utils::globalVariables(".data")
 
-coef_hist = function(bma_list, BW = "FD", binW = NULL, BN = 0, num = NULL, kernel = 0){
+coef_hist <- function(bma_list, BW = "FD", binW = NULL, BN = 0, num = NULL, kernel = 0){
 
 x_names <- bma_list[[3]] # names of variables
 K <- bma_list[[4]] + 1 # number of variables
