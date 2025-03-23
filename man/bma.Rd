@@ -11,13 +11,13 @@ bma(for_bma, df, round = 4, EMS = NULL, dilution = 0, dil.Par = 0.5)
 
 \item{df}{Data frame with data for the SEM analysis.}
 
+\item{round}{Parameter indicating the decimal place to which number in the BMA tables and prior and posterior model sizes should be rounded (default round = 4)}
+
 \item{EMS}{Expected model size for model binomial and binomial-beta model prior}
 
 \item{dilution}{Binary parameter: 0 - NO application of a dilution prior; 1 - application of a dilution prior (George 2010).}
 
 \item{dil.Par}{Parameter associated with dilution prior - the exponent of the determinant (George 2010). Used only if parameter dilution = 1.}
-
-\item{roundParameter}{indicating the decimal place to which number in the BMA tables and prior and posterior model sizes should be rounded (default round= 4)}
 }
 \value{
 A list with bma objects: \cr
@@ -41,7 +41,7 @@ A list with bma objects: \cr
 }
 }
 \description{
-This function calculates bma object for the model_space object obtained using optimal_model_space function.
+This function calculates bma object based on the model_space object obtained using optimal_model_space function.
 It calculates BMA statistics and objects for the use by other functions.
 }
 \examples{
@@ -56,6 +56,6 @@ data_prepared <- economic_growth[,1:7] \%>\%
 for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
 timestamp_col = year, entity_col = country, init_value = 0.5)
 
-bma_results <- bma(for_bma, df = data_prepared, round= 3, dilution = 0)
+bma_results <- bma(for_bma, df = data_prepared, round = 3, dilution = 0)
 }
 }

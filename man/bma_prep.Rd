@@ -51,7 +51,7 @@ standard errors for all estimated models
 }
 \description{
 This function calculates model space, values of the maximized likelihood function, BICs, and
-standard deviation of the parameters that will be used in Bayesian model averaging.
+standard deviations of the parameters that will be used in Bayesian model averaging.
 }
 \examples{
 \donttest{

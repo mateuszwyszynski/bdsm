@@ -3,7 +3,7 @@
 \docType{data}
 \name{bma_prep_objects}
 \alias{bma_prep_objects}
-\title{Example of bms_prep function result with four regressors}
+\title{Example of bma_prep function result with four regressors}
 \format{
 \subsection{\code{bma_prep_objects}}{
 

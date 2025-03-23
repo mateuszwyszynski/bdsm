@@ -19,7 +19,7 @@
 #' DW - for Doppelhofer & Weeks (2009) measure; \cr
 #' PPI - for posterior probability of including both variables.
 #' @param rho The parameter "rho" (\eqn{\rho}) to be used in HCGHM jointness measure (default rho = 0.5). Works only if HCGHM measure is chosen (Hofmarcher et al. 2018).
-#' @param roundParameter indicating the decimal place to which the jointness measures should be rounded (default round= 3).
+#' @param round Parameter indicating the decimal place to which the jointness measures should be rounded (default round = 3).
 #'
 #' @return A table with jointness measures for all the pairs of regressors used in the analysis. Parameter "above" indicates what model prior is used for the values ABOVE the diagonal, and parameter "below" indicates what model prior is used for the values BELOW the diagonal.
 #'
@@ -37,13 +37,13 @@
 #' for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
 #' timestamp_col = year, entity_col = country, init_value = 0.5)
 #'
-#' bma_results <- bma(for_bma, df = data_prepared, round= 3, dilution = 0)
+#' bma_results <- bma(for_bma, df = data_prepared, round = 3, dilution = 0)
 #'
-#' jointness_table <- jointness(bma_results, measure = "HCGHM", rho = 0.5, round= 3)
+#' jointness_table <- jointness(bma_results, measure = "HCGHM", rho = 0.5, round = 3)
 #' }
 
 
-jointness <- function(bma_list, measure = "HCGHM", rho = 0.5, round= 3){
+jointness <- function(bma_list, measure = "HCGHM", rho = 0.5, round = 3){
 
   # Extraction of the elements of the bma object
   reg_names <- bma_list[[3]] # vector with names of the regressors from bma object
