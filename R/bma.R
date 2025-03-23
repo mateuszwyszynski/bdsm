@@ -48,7 +48,7 @@
 #' }
 
 
-bma = function(for_bma, df, app = 4, EMS = NULL, dilution = 0, dil.Par = 0.5){
+bma <- function(for_bma, df, app = 4, EMS = NULL, dilution = 0, dil.Par = 0.5){
 
   reg_names <- colnames(df)
   reg_names <- reg_names[-(1:2)]
