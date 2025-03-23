@@ -84,7 +84,7 @@
 #' }
 "economic_growth_liks"
 
-#' Example of bms_prep function result with four regressors
+#' Example of bma_prep function result with four regressors
 #'
 #' A list with two objects: model space and likelihood summary table computed using
 #' \code{bma_prep} obtained based on the Moral-Benito (2016) data (with four regressors).
