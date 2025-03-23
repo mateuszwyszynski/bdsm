@@ -190,9 +190,9 @@ we can calculate posterior model probability as
 \subsection{BMA statistics}
 \noindent With PMPs, it is possible to calculate BMA statistics. The probability that a given variable should be included in a model after seeing the data, i.e. the posterior inclusion probability (PIP) is given by:
 \begin{equation}
-P(x_{k}|\text{data})=\sum_{j=1}^{2^K}1(\pi_{k}=1|\text{data}, M_{j})\times P(M_{j}|\text{data})
+P(x_{k}|\text{data})=\sum_{j=1}^{2^K}1(\pi_{jk}=1|\text{data}, M_{j})\times P(M_{j}|\text{data})
 \end{equation}
-where $x_{k}$ is regressor $k$ $(k=1, \dots, K)$, $\pi{_j}$ is $(K\times 1)$ binary vector, where 1 indicates presence of a regressor in a model, and $1(\pi_{j}|\text{data}, M_{j})$ is an indicator function that takes the value 1 when regressor $x_{k}$ is present in model $j$ and 0 otherwise.  Posterior mean (PM) is calculated as:
+where $x_{k}$ is regressor $k$ $(k=1, \dots, K)$, $\pi_{j}$ is $(K\times 1)$ binary vector, where 1 indicates presence of a regressor in a model, and $1(\pi_{jk}|\text{data}, M_{j})$ is an indicator function that takes the value 1 when regressor $x_{k}$ is present in model $j$ and 0 otherwise.  Posterior mean (PM) is calculated as:
 \begin{equation}\label{pm}
 E(\beta_{k}|\text{data})=\sum_{j=1}^{2^K}\widehat{\beta}_{k,j}\times P(M_{j}|\text{data})
 \end{equation}
@@ -205,11 +205,11 @@ SD(\beta_{k}|\text{data})=\sqrt{\sum_{j=1}^{2^K}V(\beta_{k,j}|\text{data},M_{j})
 
 \indent Alternatively, one might be interested in the values of the coefficients and variances on the condition of inclusion of a given regressor in a model. The conditional posterior mean (PMcon) is given by:
 \begin{equation}
-E(\beta_{k}|\pi_{j}=1,\text{data})=\frac{E(\beta_{k}|\text{data})}{P(x_{k}|\text{data})}.
+E(\beta_{k}|\pi_{jk}=1,\text{data})=\frac{E(\beta_{k}|\text{data})}{P(x_{k}|\text{data})}.
 \end{equation}
 The conditional standard deviation (PSDcon) is:
 \begin{equation}
-    SD(\beta_{k}|\pi_{j}=1,\text{data})=\sqrt{\frac{SD(\beta_{k}|\text{data})^2+E(\beta_{k}|\text{data})^2}{P(x_{k}|\text{data})}-E(\beta_{k}|\pi_{j}=1,\text{data})^2}.
+    SD(\beta_{k}|\pi_{j}=1,\text{data})=\sqrt{\frac{SD(\beta_{k}|\text{data})^2+E(\beta_{k}|\text{data})^2}{P(x_{k}|\text{data})}-E(\beta_{k}|\pi_{jk}=1,\text{data})^2}.
 \end{equation}
 \indent The BMA statistics allow the assessment of the robustness of the examined regressors. \citet{Raftery+1995}, classifies a variable as weak, positive, strong, and very strong when the posterior inclusion probability (PIP) is between 0.5 and 0.75, between 0.75 and 0.95, between 0.95 and 0.99, and above 0.99, respectively. \citet{Raftery+1995} also refers to the variable as robust when the absolute value of the ratio of posterior mean (PM) to posterior standard deviation (PSD) is above 1, indicating that the regressor improves the power of the regression. \citet{Masanjala+2008} propose a more stringent criterion, where they require the statistic to be higher than 1.3, while \citet{Sala+2004} argue for 2, corresponding to $90\%$ and $95\%$, respectively.
 
@@ -353,7 +353,7 @@ Even with parallel computing, executing \verb+bma_prep+ may be time-consuming. F
 \subsection{Bayesian model averaging: The \texttt{bma} function}
 The \verb+bma+ function enables users to perform Bayesian model averaging using the \verb+bma_prep+ object and the corresponding prepared data frame. The \verb+app+ parameter specifies the decimal place to which the BMA statistics should be rounded in the results.
 <<>>=
-bma_results <- bma(bma_prep_objects_full, df = data_prepared, app = 3)
+bma_results <- bma(bma_prep_objects_full, df = data_prepared, round= 3)
 @
 The \verb+bma+ function returns a list containing 16 elements, each described in detail. However, most of these elements are only required for other functions. The main objects of interest are two table with the BMA statistics. The results obtained with binomial model prior are first on the list.
 <<>>=
@@ -483,7 +483,7 @@ This section provides a more detailed description of the available model prior o
 The \verb+bma+ function calculates BMA statistics using both the binomial and binomial-beta model priors. By default, the \verb+bma+ function sets the expected model size (EMS) to $K/2$, where $K$ denotes the total number of regressors. The binomial model prior with $EMS = K/2$ leads to a uniform model prior, assigning equal probabilities to all models. In contrast, the binomial-beta model prior with $EMS = K/2$ assumes equal probabilities across all model sizes. However, the user can modify the prior model specification by changing the \verb+EMS+ parameter. First, consider the consequence of concentrating prior probability mass on small models by setting $EMS = 2$.
 <<>>=
 bma_results2 <- bma(bma_prep_objects_full, df = data_prepared,
-                    app = 3, EMS = 2)
+                    round= 3, EMS = 2)
 @
 Before turning to the main BMA results, let us focus on the changes in the posterior probability mass with respect to model sizes.
 <<>>=
@@ -509,14 +509,14 @@ bma_results2[[2]]
 @
 The change in PIPs is again significant, though not as pronounced as in the case of the binomial model prior. Changes in the ratios are relatively small and irregular for both regular and robust standard errors. The most pronounced change is the drop in the value of the ratios for the democracy index (\verb+polity+), indicating that this regressor performs better in larger models. It is also very instructive to examine the jointness measures calculated under the new prior specification.
 <<>>=
-jointness(bma_results2, measure = "HCGHM", rho = 0.5, app = 3)
+jointness(bma_results2, measure = "HCGHM", rho = 0.5, round= 3)
 @
 On the one hand, the results obtained with the binomial-beta model prior did not change in any significant manner. On the other hand, the results obtained with the binomial model prior changed substantially. The measure indicates that population is a substitute for both the investment price (\verb+ipr+) and the democracy index, as well as, to a lesser extent, secondary education (\verb+sed+) and population growth (\verb+pgrw+).
 
 Next, to consider the consequences of concentrating prior probability mass on large models, \verb+EMS+ was set to eight.
 <<>>=
 bma_results8 <- bma(bma_prep_objects_full, df = data_prepared,
-                    app = 3, EMS = 8)
+                    round= 3, EMS = 8)
 bma_results8[[16]]
 @
 The posterior model size increased for the binomial prior; however, it remained almost unchanged for the binomial-beta model prior. The most interesting aspect is the new graphs of prior and posterior probability mass over the model sizes.
@@ -539,7 +539,7 @@ bma_results8[[2]]
 @
 With the increase in expected model size, population is classified as very strong, and all the other regressors are classified as strong in terms of the posterior inclusion probability criterion. Similarly to the case of the binomial prior, all the ratios increased except for population. It is also instructive to examine the jointness measures.
 <<>>=
-jointness(bma_results8, measure = "HCGHM", rho = 0.5, app = 3)
+jointness(bma_results8, measure = "HCGHM", rho = 0.5, round= 3)
 @
 The values of the measures show that all the regressors exhibit a very strong complementary relationship. This outcome, once again, underscores the importance of carefully considering the prior when interpreting jointness measures.
 
@@ -547,7 +547,7 @@ The values of the measures show that all the regressors exhibit a very strong co
 One of the main issues associated with identifying robust regressors is multicollinearity. Some regressors may approximate the same underlying factor influencing the dependent variable. Multicollinearity may result from the absence of observable variables associated with a specific theory or from a theory failing to provide a unique candidate for a regressor. Moreover, some regressors may share a common determinant. Although \citet{Moral+2013, Moral+2016} address this issue to some extent, researchers have another option to mitigate multicollinearity: the dilution prior proposed by \citet{George+2010} and described in detail in subsection \ref{prior_joint}. To apply the dilution prior, the user must set \verb+dilution = 1+ in the \verb+bma+ function. The user can also manipulate the dilution parameter $\omega$. The default option is \verb+dil.Par = 0.5+, as recommended by \citet{George+2010}.
 <<>>=
 bma_results_dil <- bma(bma_prep_objects_full, df = data_prepared,
-                       app = 3, dilution = 1)
+                       round= 3, dilution = 1)
 @
 The effect of implementing the dilution prior is well depicted by the distribution of prior probability mass over the model sizes.
 <<fig=TRUE>>=
@@ -557,14 +557,14 @@ size_graphs_dil <- model_sizes(bma_results_dil)
 On the one hand, the change in the prior distribution is barely visible for the binomial model prior. On the other hand, the change is more pronounced for the binomial-beta model prior. In panel b), the prior probability mass has decreased for larger models and increased for smaller models. However, this change is not uniform, as models characterized by the highest degree of multicollinearity are subject to the greatest penalty in terms of prior probability mass. Before moving to the BMA statistics, it is instructive to examine the change in the \verb+dil.Par+ parameter.
 <<fig=TRUE>>=
 bma_results_dil01 <- bma(bma_prep_objects_full, df = data_prepared,
-                       app = 3, dilution = 1, dil.Par = 0.1)
+                       round= 3, dilution = 1, dil.Par = 0.1)
 size_graphs_dil01 <- model_sizes(bma_results_dil01)
 @
 
 Decreasing the value of $\omega$ diminishes the impact of dilution on the model prior. Conversely, raising the \verb+dil.Par+ parameter increases the degree of dilution.
 <<fig=TRUE>>=
 bma_results_dil2 <- bma(bma_prep_objects_full, df = data_prepared,
-                       app = 3, dilution = 1, dil.Par = 2)
+                       round= 3, dilution = 1, dil.Par = 2)
 size_graphs_dil2 <- model_sizes(bma_results_dil2)
 @
 

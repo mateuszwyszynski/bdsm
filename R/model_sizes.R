@@ -25,7 +25,7 @@
 #' for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
 #' timestamp_col = year, entity_col = country, init_value = 0.5)
 #'
-#' bma_results <- bma(for_bma, df = data_prepared, app = 3, dilution = 0)
+#' bma_results <- bma(for_bma, df = data_prepared, round= 3, dilution = 0)
 #'
 #' size_graphs <- model_sizes(bma_results)
 #' }
@@ -34,7 +34,7 @@
 
 utils::globalVariables(c("ID", "Value", "Probability"))
 
-model_sizes = function(bma_list){
+model_sizes <- function(bma_list){
 
   R <- bma_list[[4]] # total number of regressors
   M <- bma_list[[5]] # size of the model space

@@ -4,7 +4,7 @@
 \alias{jointness}
 \title{Calculation of of the jointness measures}
 \usage{
-jointness(bma_list, measure = "HCGHM", rho = 0.5, app = 3)
+jointness(bma_list, measure = "HCGHM", rho = 0.5, round = 3)
 }
 \arguments{
 \item{bma_list}{bma object (the result of the bma function)}
@@ -17,7 +17,7 @@ PPI - for posterior probability of including both variables.}
 
 \item{rho}{The parameter "rho" (\eqn{\rho}) to be used in HCGHM jointness measure (default rho = 0.5). Works only if HCGHM measure is chosen (Hofmarcher et al. 2018).}
 
-\item{app}{Parameter indicating the decimal place to which the jointness measures should be rounded (default app = 3).}
+\item{roundParameter}{indicating the decimal place to which the jointness measures should be rounded (default round= 3).}
 }
 \value{
 A table with jointness measures for all the pairs of regressors used in the analysis. Parameter "above" indicates what model prior is used for the values ABOVE the diagonal, and parameter "below" indicates what model prior is used for the values BELOW the diagonal.
@@ -49,8 +49,8 @@ data_prepared <- economic_growth[,1:7] \%>\%
 for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
 timestamp_col = year, entity_col = country, init_value = 0.5)
 
-bma_results <- bma(for_bma, df = data_prepared, app = 3, dilution = 0)
+bma_results <- bma(for_bma, df = data_prepared, round= 3, dilution = 0)
 
-jointness_table <- jointness(bma_results, measure = "HCGHM", rho = 0.5, app = 3)
+jointness_table <- jointness(bma_results, measure = "HCGHM", rho = 0.5, round= 3)
 }
 }

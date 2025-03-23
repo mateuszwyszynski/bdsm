@@ -5,7 +5,7 @@ test_that(paste("best_models creates correct lists with graphs"), {
     feature_standardization(timestamp_col = year, entity_col = country,
                             time_effects = TRUE, scale = FALSE)
 
-  bma_results <- bma(bma_prep_objects, df = data_prepared, app = 3, dilution = 0)
+  bma_results <- bma(bma_prep_objects, df = data_prepared, round= 3, dilution = 0)
 
   best <- 5
 

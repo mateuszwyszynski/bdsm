@@ -5,7 +5,7 @@
 #'
 #' @param for_bma List with model space and likelihood table (the result of bma_prep function).
 #' @param df Data frame with data for the SEM analysis.
-#' @param app Parameter indicating the decimal place to which number in the BMA tables and prior and posterior model sizes should be rounded (default app = 4)
+#' @param roundParameter indicating the decimal place to which number in the BMA tables and prior and posterior model sizes should be rounded (default round= 4)
 #' @param EMS Expected model size for model binomial and binomial-beta model prior
 #' @param dilution Binary parameter: 0 - NO application of a dilution prior; 1 - application of a dilution prior (George 2010).
 #' @param dil.Par Parameter associated with dilution prior - the exponent of the determinant (George 2010). Used only if parameter dilution = 1.
@@ -44,11 +44,10 @@
 #' for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
 #' timestamp_col = year, entity_col = country, init_value = 0.5)
 #'
-#' bma_results <- bma(for_bma, df = data_prepared, app = 3, dilution = 0)
+#' bma_results <- bma(for_bma, df = data_prepared, round= 3, dilution = 0)
 #' }
 
-
-bma <- function(for_bma, df, app = 4, EMS = NULL, dilution = 0, dil.Par = 0.5){
+bma <- function(for_bma, df, round = 4, EMS = NULL, dilution = 0, dil.Par = 0.5){
 
   reg_names <- colnames(df)
   reg_names <- reg_names[-(1:2)]
@@ -257,8 +256,8 @@ bma <- function(for_bma, df, app = 4, EMS = NULL, dilution = 0, dil.Par = 0.5){
 
   uniform_table <- cbind(PIP_uniform,PM_uniform,PSD_uniform,PSD_R_uniform,con_PM_uniform,con_PSD_uniform,con_PSD_R_uniform,Positive)
   random_table <- cbind(PIP_random,PM_random,PSD_random,PSD_R_random,con_PM_random,con_PSD_random,con_PSD_R_random,Positive)
-  uniform_table <- round(uniform_table, app)
-  random_table <- round(random_table, app)
+  uniform_table <- round(uniform_table, round)
+  random_table <- round(random_table, round)
 
   bma_names <- c("PIP", "PM", "PSD", "PSDR","PMcon", "PSDcon", "PSDRcon", "%(+)")
 
@@ -279,7 +278,7 @@ bma <- function(for_bma, df, app = 4, EMS = NULL, dilution = 0, dil.Par = 0.5){
 
   PriorMS <- matrix(EMS, nrow = 1, ncol = 2)
   PosteriorMS <- matrix((colSums(PIPs)-1), nrow = 1, ncol = 2)
-  PMStable <- round(t(rbind(PriorMS,PosteriorMS)),app)
+  PMStable <- round(t(rbind(PriorMS,PosteriorMS)),round)
   colnames(PMStable) <- c("Prior models size", "Posterior model size")
   row.names(PMStable) <- c("Binomial", "Binomial-beta")
 

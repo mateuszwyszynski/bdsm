@@ -43,7 +43,7 @@ data_prepared <- economic_growth[,1:7] \%>\%
 for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
 timestamp_col = year, entity_col = country, init_value = 0.5)
 
-bma_results <- bma(for_bma, df = data_prepared, app = 3, dilution = 0)
+bma_results <- bma(for_bma, df = data_prepared, round= 3, dilution = 0)
 
 coef_plots <- coef_hist(bma_results, kernel = 1)
 }

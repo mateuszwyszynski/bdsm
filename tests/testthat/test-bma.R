@@ -6,7 +6,7 @@ test_that(paste("bma computes correct bma_list and all its objects"), {
                                 time_effects = TRUE, scale = FALSE)
 
 
-      bma_results <- bma(bma_prep_objects, df = data_prepared, app = 3, dilution = 0)
+      bma_results <- bma(bma_prep_objects, df = data_prepared, round= 3, dilution = 0)
 
       expect_equal(length(bma_results), 16)
       expect_equal(is.numeric(bma_results[[4]]), TRUE)

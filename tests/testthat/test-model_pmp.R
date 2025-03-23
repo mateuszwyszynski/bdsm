@@ -5,7 +5,7 @@ test_that(paste("model_pmp creates correct lists with graphs"), {
     feature_standardization(timestamp_col = year, entity_col = country,
                             time_effects = TRUE, scale = FALSE)
 
-  bma_results <- bma(bma_prep_objects, df = data_prepared, app = 3, dilution = 0)
+  bma_results <- bma(bma_prep_objects, df = data_prepared, round= 3, dilution = 0)
 
   model_graphs <- model_pmp(bma_results, top = 16)
 
