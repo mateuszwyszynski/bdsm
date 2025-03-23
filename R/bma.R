@@ -1,6 +1,6 @@
 #' Calculation of the bma object
 #'
-#' This function calculates bma object for the model_space object obtained using optimal_model_space function.
+#' This function calculates bma object based on the model_space object obtained using optimal_model_space function.
 #' It calculates BMA statistics and objects for the use by other functions.
 #'
 #' @param for_bma List with model space and likelihood table (the result of bma_prep function).
