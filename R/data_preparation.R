@@ -182,5 +182,5 @@ data_prep <- function(df, timestamp_col, entity_col,
     df <- apply_transformation(df, effect)
   }
 
-  return(df)
+  df
 }
