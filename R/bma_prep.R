@@ -1,7 +1,7 @@
 #' Calculation of the bma_prep object
 #'
 #' This function calculates model space, values of the maximized likelihood function, BICs, and
-#' standard deviation of the parameters that will be used in Bayesian model averaging.
+#' standard deviations of the parameters that will be used in Bayesian model averaging.
 #'
 #' @param df Data frame with data for the analysis.
 #' @param timestamp_col The name of the column with time stamps
