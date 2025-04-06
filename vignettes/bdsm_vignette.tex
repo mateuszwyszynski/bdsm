@@ -3,6 +3,7 @@
 \usepackage{natbib}
 \usepackage{vmargin}
 \usepackage{amsmath}
+\usepackage{amsfonts}
 \usepackage{lmodern}
 \usepackage{fix-cm}
 \usepackage{dsfont}
@@ -81,7 +82,7 @@ This section outlines the model setup, describes the approach to Bayesian model 
 \noindent where $y_{it}$ is the dependent variable, $i$ $(=1,...,N)$ indexes entity (ex. country), $t$ $(=1,...,T)$ indexes time, $x_{it}$ is a matrix of growth determinants, $\beta$ is a parameter vector, $\eta_{i}$ is an entity specific fixed effect, $\zeta_{t}$ is a period-specific shock and $v_{it}$ is a shock to the dependent variable.
 To address the issue of reverse causality the model is build on the assumption of weak exogeneity, that can be formalized as
 \begin{equation}\label{eq2}
-    E(v_{ij,t}|y^{t-1}_{t},x^{t}_{i},\eta_{i})=0
+    \mathbb{E}(v_{ij,t}|y^{t-1}_{t},x^{t}_{i},\eta_{i})=0
 \end{equation}
 \noindent where $y^{t-1}_{t}=(y_{ij,0},...,y_{ij,t-1})'$ and $x^t_{i}=(x_{ij,0},...,x_{ij,t})'$.
 Accordingly, weak exogeneity implies that the current values of the regressors, lagged dependent variable, and fixed effects are uncorrelated with the current shocks, while they are all allowed to be correlated with each other at the same time.
@@ -212,22 +213,22 @@ and
 \end{equation}
 The posterior model probability (PMP) of model $j$ given the data is
 \begin{equation}\label{eq24}
-    P(M_{j}|y)=\frac{L(\text{data}|M_{j})P(M_{j})}{\sum_{i=1}^{2^K}L(\text{data}|M_{i})P(M_{i})}
+    \mathbb{P}(M_{j}|y)=\frac{L(\text{data}|M_{j})\mathbb{P}(M_{j})}{\sum_{i=1}^{2^K}L(\text{data}|M_{i})\mathbb{P}(M_{i})}
 \end{equation}
-where $P(M_{j})$ denotes prior model probability.
+where $\mathbb{P}(M_{j})$ denotes prior model probability.
 In other words, the PMP represents the share of model $j$ in the total posterior probability mass.
 Combining, equations (\ref{eq21}-\ref{eq24}) we get:
 \begin{equation}\label{eq25}
 \fontsize{9pt}{12pt} \selectfont
 \begin{split}
-    P(M_{j}|y)=\frac{L(\text{data}|M_{j})P(M_{j})}{\sum_{i=1}^{2^K}L(\text{data}|M_{i})P(M_{i})}
+    \mathbb{P}(M_{j}|y)=\frac{L(\text{data}|M_{j})\mathbb{P}(M_{j})}{\sum_{i=1}^{2^K}L(\text{data}|M_{i})\mathbb{P}(M_{i})}
     =\frac{\frac{L(\text{data}|M_{j})}{L(\text{data}|M_{0})}
-    L(\text{data}|M_{0})P(M_{j})}{\sum_{i=1}^{2^K}\frac{L(\text{data}|M_{i})}{L(\text{data}|M_{0})}
-    L(\text{data}|M_{0})P(M_{i})}\\
-    =\frac{B_{j0}L(\text{data}|M_{0})P(M_{j})}{\sum_{i=1}^{2^K}B_{i0}
-    L(\text{data}|M_{0})P(M_{i})}
-    =\frac{L(\text{data}|M_{0})B_{j0}P(M_{j})}{L(\text{data}|M_{0})\sum_{i=1}^{2^K}B_{i0}P(M_{i})}
-    =\frac{B_{j0}P(M_{j})}{\sum_{i=1}^{2^K}B_{i0}P(M_{i})}
+    L(\text{data}|M_{0})\mathbb{P}(M_{j})}{\sum_{i=1}^{2^K}\frac{L(\text{data}|M_{i})}{L(\text{data}|M_{0})}
+    L(\text{data}|M_{0})\mathbb{P}(M_{i})}\\
+    =\frac{B_{j0}L(\text{data}|M_{0})\mathbb{P}(M_{j})}{\sum_{i=1}^{2^K}B_{i0}
+    L(\text{data}|M_{0})\mathbb{P}(M_{i})}
+    =\frac{L(\text{data}|M_{0})B_{j0}\mathbb{P}(M_{j})}{L(\text{data}|M_{0})\sum_{i=1}^{2^K}B_{i0}\mathbb{P}(M_{i})}
+    =\frac{B_{j0}\mathbb{P}(M_{j})}{\sum_{i=1}^{2^K}B_{i0}\mathbb{P}(M_{i})}
 \end{split}
 \end{equation}
 \normalsize
@@ -237,7 +238,7 @@ Finally, using the result that
 \end{equation}
 we can calculate posterior model probability as
 \begin{equation}\label{eq27}
-    P(M_{j}|\text{data})=\frac{\exp{(-\frac{1}{2}BIC_{j})}P(M_{j})}{\sum_{i=1}^{2^K}\exp{(-\frac{1}{2}BIC_{i})} P(M_{i})}.
+    \mathbb{P}(M_{j}|\text{data})=\frac{\exp{(-\frac{1}{2}BIC_{j})}\mathbb{P}(M_{j})}{\sum_{i=1}^{2^K}\exp{(-\frac{1}{2}BIC_{i})} \mathbb{P}(M_{i})}.
 \end{equation}
 
 \subsection{BMA statistics}
@@ -245,7 +246,7 @@ we can calculate posterior model probability as
 Let's denote by $\pi_k$ the random variable which is equal to one if the $k^{th}$ regressor should be considered as the determinant of the dependent variable.
 The posterior inclusion probability (PIP) for the regressor is given by:
 \begin{equation}
-P(\pi_k = 1 |\text{data}) = \sum_{j=1}^{2^K} \mathds{1} (k^{th} \text{ regressor is in model } M_{j}) \cdot P(M_{j}|\text{data})
+\mathbb{P}(\pi_k = 1 |\text{data}) = \sum_{j=1}^{2^K} \mathds{1} (k^{th} \text{ regressor is in model } M_{j}) \cdot \mathbb{P}(M_{j}|\text{data})
 \end{equation}
 where the indicator function $\mathds{1}$ is equal to one if the regressor is part of the model $M_j$ and zero otherwise.
 In other words, the PIP tells us how likely it is that the given regressor has impact on the variable of interest.
@@ -255,29 +256,29 @@ Let's denote by $\pi_{\beta}$ the random variable which is equal to one if the g
 The posterior mean of $\beta$ is given by:
 
 \begin{equation}\label{pm}
-E(\beta|\text{data})=\sum_{j=1}^{2^K}\widehat{\beta}_{j} \cdot P(M_{j}, \pi_{\beta} = 1 |\text{data})
+\mathbb{E}(\beta|\text{data})=\sum_{j=1}^{2^K}\widehat{\beta}_{j} \cdot \mathbb{P}(M_{j}, \pi_{\beta} = 1 |\text{data})
 \end{equation}
 
 \noindent where $\widehat{\beta}_{j}$ is the value of the coefficient $\beta$ in model $j$.
 It tells us what is the mean (or expected) value for the parameter taking into account all considered models.
 Note that if $\beta$ is not present in the given model $j$ we can assign any value to $\widehat{\beta}_{j}$,
-because the probability $P(M_{j}, \pi_{\beta} = 1 |\text{data})$ wil be zero anyway.
+because the probability $\mathbb{P}(M_{j}, \pi_{\beta} = 1 |\text{data})$ wil be zero anyway.
 
 The posterior variance of the parameter $\beta$ is equal to:
 
 \begin{equation}
 \begin{split}
-V(\beta|\text{data}) =\ &\sum_{j=1}^{2^K}V(\beta_{j}|\text{data},M_{j}) \cdot P(M_{j}, \pi_{\beta} = 1 |\text{data})\\[1ex]
-&+\sum_{j=1}^{2^K}\Bigl[\widehat{\beta}_{j}-E(\beta|\text{data})\Bigr]^{2} \cdot P(M_{j}, \pi_{\beta} = 1 |\text{data})
+Var(\beta|\text{data}) =\ &\sum_{j=1}^{2^K}Var(\beta_{j}|\text{data},M_{j}) \cdot \mathbb{P}(M_{j}, \pi_{\beta} = 1 |\text{data})\\[1ex]
+&+\sum_{j=1}^{2^K}\Bigl[\widehat{\beta}_{j}-\mathbb{E}(\beta|\text{data})\Bigr]^{2} \cdot \mathbb{P}(M_{j}, \pi_{\beta} = 1 |\text{data})
 \end{split}
 \end{equation}
 
-\noindent where $V(\beta_{j}|\text{data},M_{j})$ denotes the conditional variance of the coefficient $\beta$ in model $M_{j}$
+\noindent where $Var(\beta_{j}|\text{data},M_{j})$ denotes the conditional variance of the coefficient $\beta$ in model $M_{j}$
 (in other words assuming that the model $M_j$ is the true model).
 Posterior standard deviation (PSD) of $\beta$ is then defined as the square root of the variance:
 
 \begin{equation}\label{psd}
-SD(\beta | \text{data}) = \sqrt{ V(\beta | \text{data}) }
+SD(\beta | \text{data}) = \sqrt{ Var(\beta | \text{data}) }
 \end{equation}
 
 \indent Alternatively, one might be interested in the values of the mean and variance on the condition of inclusion of a given parameter,
@@ -285,18 +286,18 @@ i.e. assuming that it is definitely a part of the model.
 Note that this is usually determined by the presence of a related regressor.
 The conditional posterior mean (PMcon) for a parameter $\beta$ is given by:
 \begin{equation}
-E(\beta | \pi_{\beta}=1,\text{data})=\frac{E(\beta|\text{data})}{P(\pi_{\beta} = 1|\text{data})}.
+\mathbb{E}(\beta | \pi_{\beta}=1,\text{data})=\frac{\mathbb{E}(\beta|\text{data})}{\mathbb{P}(\pi_{\beta} = 1|\text{data})}.
 \end{equation}
 Similarly, the conditional variance is:
 
 \begin{equation}
-    V(\beta|\pi_{\beta}=1,\text{data})=\frac{V(\beta|\text{data})+E(\beta|\text{data})^2}{P(\pi_{\beta}=1|\text{data})}-E(\beta|\pi_{\beta}=1,\text{data})^2
+    Var(\beta|\pi_{\beta}=1,\text{data})=\frac{Var(\beta|\text{data})+\mathbb{E}(\beta|\text{data})^2}{\mathbb{P}(\pi_{\beta}=1|\text{data})}-\mathbb{E}(\beta|\pi_{\beta}=1,\text{data})^2
 \end{equation}
 
 \noindent and so the conditional standard deviation (PSDcon) is:
 
 \begin{equation}
-SD(\beta | \pi_{k}=1,\text{data}) = \sqrt{ V(\beta | \pi_{k}=1,\text{data}) }
+SD(\beta | \pi_{k}=1,\text{data}) = \sqrt{ Var(\beta | \pi_{k}=1,\text{data}) }
 \end{equation}
 
 \indent The BMA statistics allow the assessment of the robustness of the examined regressors.
@@ -309,40 +310,40 @@ SD(\beta | \pi_{k}=1,\text{data}) = \sqrt{ V(\beta | \pi_{k}=1,\text{data}) }
 The package offers two main options.
 The first is binomial model prior \citep{Sala+2004}:
 \begin{equation}
-    P(M_{j})=(\frac{EMS}{K})^{k_{j}}(1-\frac{EMS}{K})^{K-k_{j}}
+    \mathbb{P}(M_{j})=(\frac{EMS}{K})^{k_{j}}(1-\frac{EMS}{K})^{K-k_{j}}
 \end{equation}
 where $EMS$ is the expected model size and $k_{j}$ is a number of regressors in model $j$.
-If $EMS = \frac{EMS}{K}$, the binomial model prior simplifies to a uniform model prior with $P(M_{j}) \propto 1$, meaning that all models are assumed to have equal probabilities.
+If $EMS = \frac{EMS}{K}$, the binomial model prior simplifies to a uniform model prior with $\mathbb{P}(M_{j}) \propto 1$, meaning that all models are assumed to have equal probabilities.
 The second option is binomial-beta model prior \citet{Ley+2009} given by:
 \begin{equation}
-    P(M_{j}) \propto \Gamma(1+k_{j})\Gamma(\frac{K-EMS}{EMS}+K-k_{j}).
+    \mathbb{P}(M_{j}) \propto \Gamma(1+k_{j})\Gamma(\frac{K-EMS}{EMS}+K-k_{j}).
 \end{equation}
 In the context of binomial-beta prior $EMS = \frac{EMS}{K}$ corresponds to equal probabilities on model sizes.
 
 \indent In order to account for potential multicolinearity between regressors one can use dilution prior introduce by \citet{George+2010}.The dilution prior involves augmenting the model prior (binomial or binomial-beta) with a function that accounts for multicollinearity:
 \begin{equation}
-    P_{D}(M_{j}) \propto P(M_{j})|COR_{j}|^{\omega}
+    P_{D}(M_{j}) \propto \mathbb{P}(M_{j})|COR_{j}|^{\omega}
 \end{equation}
 where $P_{D}(M_{j})$ is the diluted model prior, $|COR_{j}|$ is the determinant of the correlation matrix of regressors in model $j$, and $\omega$ is the dilution parameter.
 The lower the correlation between regressors, the closer $|COR_{j}|$ is to one, resulting in a smaller degree of dilution.
 
 \indent To determine whether regressors are substitutes or complements, various authors have developed jointness measures\footnote{To learn more about jointness measures, we recommend reading \citet{Doppelhofer+2009, Ley+2007, Hofmarcher+2018} in that order.}.
-Assuming two different covariates $a$ and $b$, let $P(a\cap b)$ be the posterior probability of the inclusion of both variables, $P(\overline{a}\cap \overline{b})$ the posterior probability of the exclusion of both variables, $P(\overline{a}\cap b)$ and $P(a\cap \overline{b})$ denote the posterior probability of including each variable separately.
-The first measure of jointness is simply $P(a\cap b)$.
+Assuming two different covariates $a$ and $b$, let $\mathbb{P}(a\cap b)$ be the posterior probability of the inclusion of both variables, $\mathbb{P}(\overline{a}\cap \overline{b})$ the posterior probability of the exclusion of both variables, $\mathbb{P}(\overline{a}\cap b)$ and $\mathbb{P}(a\cap \overline{b})$ denote the posterior probability of including each variable separately.
+The first measure of jointness is simply $\mathbb{P}(a\cap b)$.
 However, this measure ignores much of the information about the relationships between the regressors.
 \citet{Doppelhofer+2009} measure if defined as:
 \begin{equation}
-    J_{DW}=\text{log}\left[\frac{P(a\cap b)*P(\overline{a}\cap \overline{b})}{P(\overline{a}\cap b)*P(a\cap \overline{b})}\right].
+    J_{DW}=\text{log}\left[\frac{\mathbb{P}(a\cap b)*\mathbb{P}(\overline{a}\cap \overline{b})}{\mathbb{P}(\overline{a}\cap b)*\mathbb{P}(a\cap \overline{b})}\right].
 \end{equation}
 If $J_{DW} < -2$, $-2 < J_{DW} < -1$, $-1 < J_{DW} < 1$, $1 < J_{DW} < 2$, and $J_{DW} > 2$, the authors classify the regressors as strong substitutes, significant substitutes, not significantly related, significant complements, and strong complements, respectively.
 Jointness measure proposed by \citet{Ley+2007} is given by:
 \begin{equation}
-    J_{LS}=\frac{P(a\cap b)}{P(\overline{a}\cap b)+P(a\cap \overline{b})}.
+    J_{LS}=\frac{\mathbb{P}(a\cap b)}{\mathbb{P}(\overline{a}\cap b)+\mathbb{P}(a\cap \overline{b})}.
 \end{equation}
 The measure takes values in the range $[0, \infty)$, with higher values indicating a stronger complementary relationship.
 Finally, \citet{Hofmarcher+2018} measure of jointness is:
 \begin{equation}
-    J_{HCGHM}=\frac{(P(a\cap b)+\rho)*P(\overline{a}\cap \overline{b})+\rho)-(P(\overline{a}\cap b)+\rho)*P(a\cap \overline{b})+\rho)}{(P(a\cap b)+\rho)*P(\overline{a}\cap \overline{b})+\rho)+(P(\overline{a}\cap b)+\rho)*P(a\cap \overline{b})+\rho)+\rho}.
+    J_{HCGHM}=\frac{(\mathbb{P}(a\cap b)+\rho)*\mathbb{P}(\overline{a}\cap \overline{b})+\rho)-(\mathbb{P}(\overline{a}\cap b)+\rho)*\mathbb{P}(a\cap \overline{b})+\rho)}{(\mathbb{P}(a\cap b)+\rho)*\mathbb{P}(\overline{a}\cap \overline{b})+\rho)+(\mathbb{P}(\overline{a}\cap b)+\rho)*\mathbb{P}(a\cap \overline{b})+\rho)+\rho}.
 \end{equation}
 \citet{Hofmarcher+2018} advocate the use of the \citet{Jeffreys+1946} prior, which results in $\rho=\frac{1}{2}$.
 The measure takes values from -1 to 1, where values close to -1 indicate substitutes, and those close to 1 complements.

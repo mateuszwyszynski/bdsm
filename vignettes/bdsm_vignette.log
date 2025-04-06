@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.22)  6 APR 2025 13:02
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.22)  6 APR 2025 13:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -128,6 +128,14 @@ LaTeX Info: Redefining \Relbar on input line 970.
 LaTeX Info: Redefining \[ on input line 2953.
 LaTeX Info: Redefining \] on input line 2954.
 )
+(/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/lm/lmodern.sty
 Package: lmodern 2015/05/01 v1.6.1 Latin Modern Fonts
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
@@ -210,20 +218,20 @@ File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
 (./bdsm_vignette.aux)
 \openout1 = `bdsm_vignette.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
 
 (/usr/local/texlive/2025/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -278,42 +286,53 @@ e
 ))
 (./bdsm_vignette-concordance.tex)
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 2
-0.
+1.
 
 (/usr/local/texlive/2025/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 2
-0.
+1.
 
 (/usr/local/texlive/2025/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OML+lmm on input line 2
-0.
+1.
 
 (/usr/local/texlive/2025/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-20.
+21.
 
 (/usr/local/texlive/2025/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-20.
+21.
 
 (/usr/local/texlive/2025/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 20.
+(Font)              <12> on input line 21.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 20.
+(Font)              <8> on input line 21.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 20.
+(Font)              <6> on input line 21.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 21.
 
+
+(/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 21.
+
+
+(/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
 (./bdsm_vignette.toc
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <9> on input line 3.
@@ -339,14 +358,14 @@ cal/texlive/2025/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/local/texlive/20
 25/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/local/texlive/2025/texmf-d
 ist/fonts/enc/dvips/lm/lm-mathex.enc}]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 176.
+(Font)              <10> on input line 177.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 176.
+(Font)              <7> on input line 177.
 
 
 [4]
 LaTeX Font Info:    Trying to load font information for U+dsrom on input line 2
-48.
+49.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/doublestroke/Udsrom.fd
 File: Udsrom.fd 1995/08/01 v0.1 Double stroke roman font definitions
 )
@@ -357,7 +376,7 @@ File: Udsrom.fd 1995/08/01 v0.1 Double stroke roman font definitions
 
 [7]
 LaTeX Font Info:    Trying to load font information for TS1+lmtt on input line 
-381.
+382.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/lm/ts1lmtt.fd
 File: ts1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
@@ -366,124 +385,124 @@ File: ts1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 
 [9]
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <12> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 534.
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 535.
 
 
 [10]
 
 [11]
-<bdsm_vignette-014.pdf, id=70, 433.62pt x 433.62pt>
+<bdsm_vignette-014.pdf, id=71, 433.62pt x 433.62pt>
 File: bdsm_vignette-014.pdf Graphic file (type pdf)
 <use bdsm_vignette-014.pdf>
-Package pdftex.def Info: bdsm_vignette-014.pdf  used on input line 638.
+Package pdftex.def Info: bdsm_vignette-014.pdf  used on input line 639.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
 [12 <./bdsm_vignette-014.pdf>]
-<bdsm_vignette-015.pdf, id=80, 433.62pt x 433.62pt>
+<bdsm_vignette-015.pdf, id=81, 433.62pt x 433.62pt>
 File: bdsm_vignette-015.pdf Graphic file (type pdf)
 <use bdsm_vignette-015.pdf>
-Package pdftex.def Info: bdsm_vignette-015.pdf  used on input line 647.
+Package pdftex.def Info: bdsm_vignette-015.pdf  used on input line 648.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
-<bdsm_vignette-016.pdf, id=81, 433.62pt x 433.62pt>
+<bdsm_vignette-016.pdf, id=82, 433.62pt x 433.62pt>
 File: bdsm_vignette-016.pdf Graphic file (type pdf)
 <use bdsm_vignette-016.pdf>
-Package pdftex.def Info: bdsm_vignette-016.pdf  used on input line 668.
+Package pdftex.def Info: bdsm_vignette-016.pdf  used on input line 669.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
 [13 <./bdsm_vignette-015.pdf>]
 
 [14 <./bdsm_vignette-016.pdf>]
-<bdsm_vignette-019.pdf, id=101, 433.62pt x 433.62pt>
+<bdsm_vignette-019.pdf, id=102, 433.62pt x 433.62pt>
 File: bdsm_vignette-019.pdf Graphic file (type pdf)
 <use bdsm_vignette-019.pdf>
-Package pdftex.def Info: bdsm_vignette-019.pdf  used on input line 748.
+Package pdftex.def Info: bdsm_vignette-019.pdf  used on input line 749.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
 [15]
 
 [16 <./bdsm_vignette-019.pdf>]
-<bdsm_vignette-023.pdf, id=115, 433.62pt x 433.62pt>
+<bdsm_vignette-023.pdf, id=116, 433.62pt x 433.62pt>
 File: bdsm_vignette-023.pdf Graphic file (type pdf)
 <use bdsm_vignette-023.pdf>
-Package pdftex.def Info: bdsm_vignette-023.pdf  used on input line 834.
+Package pdftex.def Info: bdsm_vignette-023.pdf  used on input line 835.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
 [17]
-<bdsm_vignette-024.pdf, id=119, 433.62pt x 433.62pt>
+<bdsm_vignette-024.pdf, id=120, 433.62pt x 433.62pt>
 File: bdsm_vignette-024.pdf Graphic file (type pdf)
 <use bdsm_vignette-024.pdf>
-Package pdftex.def Info: bdsm_vignette-024.pdf  used on input line 843.
+Package pdftex.def Info: bdsm_vignette-024.pdf  used on input line 844.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
 [18 <./bdsm_vignette-023.pdf>]
-<bdsm_vignette-025.pdf, id=132, 433.62pt x 433.62pt>
+<bdsm_vignette-025.pdf, id=133, 433.62pt x 433.62pt>
 File: bdsm_vignette-025.pdf Graphic file (type pdf)
 <use bdsm_vignette-025.pdf>
-Package pdftex.def Info: bdsm_vignette-025.pdf  used on input line 853.
+Package pdftex.def Info: bdsm_vignette-025.pdf  used on input line 854.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
 [19 <./bdsm_vignette-024.pdf>]
 
 [20 <./bdsm_vignette-025.pdf>]
-<bdsm_vignette-028.pdf, id=159, 433.62pt x 433.62pt>
+<bdsm_vignette-028.pdf, id=160, 433.62pt x 433.62pt>
 File: bdsm_vignette-028.pdf Graphic file (type pdf)
 <use bdsm_vignette-028.pdf>
-Package pdftex.def Info: bdsm_vignette-028.pdf  used on input line 890.
+Package pdftex.def Info: bdsm_vignette-028.pdf  used on input line 891.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
-<bdsm_vignette-029.pdf, id=160, 433.62pt x 433.62pt>
+<bdsm_vignette-029.pdf, id=161, 433.62pt x 433.62pt>
 File: bdsm_vignette-029.pdf Graphic file (type pdf)
 <use bdsm_vignette-029.pdf>
-Package pdftex.def Info: bdsm_vignette-029.pdf  used on input line 901.
+Package pdftex.def Info: bdsm_vignette-029.pdf  used on input line 902.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
 [21 <./bdsm_vignette-028.pdf>]
 
 [22 <./bdsm_vignette-029.pdf>]
-<bdsm_vignette-034.pdf, id=179, 433.62pt x 433.62pt>
+<bdsm_vignette-034.pdf, id=180, 433.62pt x 433.62pt>
 File: bdsm_vignette-034.pdf Graphic file (type pdf)
 <use bdsm_vignette-034.pdf>
-Package pdftex.def Info: bdsm_vignette-034.pdf  used on input line 993.
+Package pdftex.def Info: bdsm_vignette-034.pdf  used on input line 994.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
 [23]
-<bdsm_vignette-035.pdf, id=184, 433.62pt x 433.62pt>
+<bdsm_vignette-035.pdf, id=185, 433.62pt x 433.62pt>
 File: bdsm_vignette-035.pdf Graphic file (type pdf)
 <use bdsm_vignette-035.pdf>
-Package pdftex.def Info: bdsm_vignette-035.pdf  used on input line 1003.
+Package pdftex.def Info: bdsm_vignette-035.pdf  used on input line 1004.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
 [24 <./bdsm_vignette-034.pdf>]
 
 [25 <./bdsm_vignette-035.pdf>]
-<bdsm_vignette-040.pdf, id=204, 433.62pt x 433.62pt>
+<bdsm_vignette-040.pdf, id=205, 433.62pt x 433.62pt>
 File: bdsm_vignette-040.pdf Graphic file (type pdf)
 <use bdsm_vignette-040.pdf>
-Package pdftex.def Info: bdsm_vignette-040.pdf  used on input line 1092.
+Package pdftex.def Info: bdsm_vignette-040.pdf  used on input line 1093.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
 [26]
-<bdsm_vignette-041.pdf, id=208, 433.62pt x 433.62pt>
+<bdsm_vignette-041.pdf, id=209, 433.62pt x 433.62pt>
 File: bdsm_vignette-041.pdf Graphic file (type pdf)
 <use bdsm_vignette-041.pdf>
-Package pdftex.def Info: bdsm_vignette-041.pdf  used on input line 1106.
+Package pdftex.def Info: bdsm_vignette-041.pdf  used on input line 1107.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
 [27 <./bdsm_vignette-040.pdf>]
-<bdsm_vignette-042.pdf, id=218, 433.62pt x 433.62pt>
+<bdsm_vignette-042.pdf, id=219, 433.62pt x 433.62pt>
 File: bdsm_vignette-042.pdf Graphic file (type pdf)
 <use bdsm_vignette-042.pdf>
-Package pdftex.def Info: bdsm_vignette-042.pdf  used on input line 1117.
+Package pdftex.def Info: bdsm_vignette-042.pdf  used on input line 1118.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
@@ -504,11 +523,11 @@ L3 programming layer <2025-01-18>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 4573 strings out of 473190
- 77468 string characters out of 5715800
- 474031 words of memory out of 5000000
- 27707 multiletter control sequences out of 15000+600000
- 627149 words of font info for 83 fonts, out of 8000000 for 9000
+ 4690 strings out of 473190
+ 79291 string characters out of 5715800
+ 474538 words of memory out of 5000000
+ 27808 multiletter control sequences out of 15000+600000
+ 630037 words of font info for 97 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  59i,19n,67p,434b,325s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/doublestroke/dsrom10.p
@@ -534,11 +553,12 @@ msy9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lmtk10.pfb><
 /usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lmtt10.pfb></usr/local
 /texlive/2025/texmf-dist/fonts/type1/public/lm/lmtt12.pfb></usr/local/texlive/2
 025/texmf-dist/fonts/type1/public/lm/lmtt9.pfb></usr/local/texlive/2025/texmf-d
-ist/fonts/type1/public/lm/lmtto10.pfb>
-Output written on bdsm_vignette.pdf (33 pages, 695719 bytes).
+ist/fonts/type1/public/lm/lmtto10.pfb></usr/local/texlive/2025/texmf-dist/fonts
+/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on bdsm_vignette.pdf (33 pages, 698795 bytes).
 PDF statistics:
- 381 PDF objects out of 1000 (max. 8388607)
- 254 compressed objects within 3 object streams
+ 386 PDF objects out of 1000 (max. 8388607)
+ 257 compressed objects within 3 object streams
  0 named destinations out of 1000 (max. 500000)
  75 words of extra memory for PDF output out of 10000 (max. 10000000)
 
