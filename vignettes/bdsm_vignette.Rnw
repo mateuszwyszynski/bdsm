@@ -249,35 +249,47 @@ P(\pi_k = 1 |\text{data}) = \sum_{j=1}^{2^K} \mathds{1} (k^{th} \text{ regressor
 where the indicator function $\mathds{1}$ is equal to one if the regressor is part of the model $M_j$ and zero otherwise.
 In other words, the PIP tells us how likely it is that the given regressor has impact on the variable of interest.
 
-Another interesting statistic is the posterior mean (PM) of a given parameter $\beta$:
+Another interesting statistic is the posterior mean (PM) of a given parameter $\beta$.
+Let's denote by $\pi_{\beta}$ the random variable which is equal to one if the given parameter is present in the model, and zero otherwise.
+The posterior mean of $\beta$ is given by:
+
 \begin{equation}\label{pm}
-E(\beta|\text{data})=\sum_{j=1}^{2^K}\widehat{\beta}_{j} \cdot P(M_{j}|\text{data})
+E(\beta|\text{data})=\sum_{j=1}^{2^K}\widehat{\beta}_{j} \cdot P(M_{j}, \pi_{\beta} = 1 |\text{data})
 \end{equation}
+
 \noindent where $\widehat{\beta}_{j}$ is the value of the coefficient $\beta$ in model $j$.
 It tells us what is the mean (or expected) value for the parameter taking into account all considered models.
+Note that if $\beta$ is not present in the given model $j$ we can assign any value to $\widehat{\beta}_{j}$,
+because the probability $P(M_{j}, \pi_{\beta} = 1 |\text{data})$ wil be zero anyway.
 
-Similarly, the posterior variance of the parameter $\beta$ is equal to:
+The posterior variance of the parameter $\beta$ is equal to:
+
 \begin{equation}
-V(\beta|\text{data})=\sum_{j=1}^{2^K}V(\beta_{j}|\text{data},M_{j}) \cdot P(M_{j}|\text{data})+\sum_{j=1}^{2^K}[\widehat{\beta}_{j}-E(\beta|\text{data})]^{2} \cdot P(M_{j}|\text{data})
+\begin{split}
+V(\beta|\text{data}) =\ &\sum_{j=1}^{2^K}V(\beta_{j}|\text{data},M_{j}) \cdot P(M_{j}, \pi_{\beta} = 1 |\text{data})\\[1ex]
+&+\sum_{j=1}^{2^K}\Bigl[\widehat{\beta}_{j}-E(\beta|\text{data})\Bigr]^{2} \cdot P(M_{j}, \pi_{\beta} = 1 |\text{data})
+\end{split}
 \end{equation}
-\noindent where $V(\beta_{j}|\text{data},M_{j})$ denotes the conditional variance of the coefficient $\beta$ in model $M_{j}$,
-i.e. assuming that the model $M_j$ is the true model.
+
+\noindent where $V(\beta_{j}|\text{data},M_{j})$ denotes the conditional variance of the coefficient $\beta$ in model $M_{j}$
+(in other words assuming that the model $M_j$ is the true model).
 Posterior standard deviation (PSD) of $\beta$ is then defined as the square root of the variance:
 
 \begin{equation}\label{psd}
 SD(\beta | \text{data}) = \sqrt{ V(\beta | \text{data}) }
 \end{equation}
 
-\indent Alternatively, one might be interested in the values of the coefficients and variances on the condition of inclusion of a given regressor,
-i.e. assuming that the given regressor is definitely a determinant of the dependent variable.
-The conditional posterior mean (PMcon) for a parameter $\beta_k$ related to the $k^{th}$ regressor is given by:
+\indent Alternatively, one might be interested in the values of the mean and variance on the condition of inclusion of a given parameter,
+i.e. assuming that it is definitely a part of the model.
+Note that this is usually determined by the presence of a related regressor.
+The conditional posterior mean (PMcon) for a parameter $\beta$ is given by:
 \begin{equation}
-E(\beta_{k}|\pi_{k}=1,\text{data})=\frac{E(\beta_{k}|\text{data})}{P(\pi_k = 1|\text{data})}.
+E(\beta | \pi_{\beta}=1,\text{data})=\frac{E(\beta|\text{data})}{P(\pi_{\beta} = 1|\text{data})}.
 \end{equation}
 Similarly, the conditional variance is:
 
 \begin{equation}
-    V(\beta_{k}|\pi_{k}=1,\text{data})=\frac{V(\beta_{k}|\text{data})+E(\beta_{k}|\text{data})^2}{P(\pi_{k}=1|\text{data})}-E(\beta_{k}|\pi_{k}=1,\text{data})^2
+    V(\beta|\pi_{\beta}=1,\text{data})=\frac{V(\beta|\text{data})+E(\beta|\text{data})^2}{P(\pi_{\beta}=1|\text{data})}-E(\beta|\pi_{\beta}=1,\text{data})^2
 \end{equation}
 
 \noindent and so the conditional standard deviation (PSDcon) is:

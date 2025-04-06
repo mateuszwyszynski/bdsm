@@ -3,8 +3,8 @@
 \contentsline {subsection}{\numberline {2.1}Model setup}{3}{}%
 \contentsline {subsection}{\numberline {2.2}Bayesian model averaging}{4}{}%
 \contentsline {subsection}{\numberline {2.3}BMA statistics}{5}{}%
-\contentsline {subsection}{\numberline {2.4}Model priors and jointness}{6}{}%
-\contentsline {section}{\numberline {3}Data preparation}{7}{}%
+\contentsline {subsection}{\numberline {2.4}Model priors and jointness}{7}{}%
+\contentsline {section}{\numberline {3}Data preparation}{8}{}%
 \contentsline {section}{\numberline {4}Estimation of the model space}{9}{}%
 \contentsline {section}{\numberline {5}Performing Bayesian model averaging}{10}{}%
 \contentsline {subsection}{\numberline {5.1}Bayesian model averaging: The \texttt {bma} function}{10}{}%
