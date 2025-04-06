@@ -48,7 +48,7 @@ This section outlines the model setup, describes the approach to Bayesian model 
 \begin{equation}\label{eq2}
     E(v_{ij,t}|y^{t-1}_{t},x^{t}_{i},\eta_{i})=0
 \end{equation}
-\noindent where $y^{t-1}_{t}=(y_{ij,0},...,y_{ij,t-1})'$ and $x_{t}=(x_{ij,0},...,x_{ij,t})'$. Accordingly, weak exogeneity implies that the current values of the regressors, lagged dependent variable, and fixed effects are uncorrelated with the current shocks, while they are all allowed to be correlated with each other at the same time. On the assumption of weakly exogenous regressors, \citet{Moral+2013} augmented equation (\ref{eq1}) with a reduced-form equation capturing the unrestricted feedback process:
+\noindent where $y^{t-1}_{t}=(y_{ij,0},...,y_{ij,t-1})'$ and $x^t_{i}=(x_{ij,0},...,x_{ij,t})'$. Accordingly, weak exogeneity implies that the current values of the regressors, lagged dependent variable, and fixed effects are uncorrelated with the current shocks, while they are all allowed to be correlated with each other at the same time. On the assumption of weakly exogenous regressors, \citet{Moral+2013} augmented equation (\ref{eq1}) with a reduced-form equation capturing the unrestricted feedback process:
 \begin{equation}\label{eq3}
 x_{it}=\gamma_{t0}y_{i0}+...+\gamma_{tt-1}y_{it-1}+\Lambda_{t1}x_{i1}+...+\Lambda_{tt-1}x_{it-1}+c_{t}\eta_{i}+\vartheta_{it}
 \end{equation}
@@ -138,7 +138,7 @@ It is possible to find analytical solution for MLE for some of the parameters. T
 \noindent and $H = (R_2 + U_1 F_{12})' Q (R_2 + U_1 F_{12})$ with $R_2$ being a matrix of regressor vectors $[x'_{i2}, x'_{i3}, ..., x'_{iT}]$ and $F_{12} = - \Sigma_{11}^{-1} \Sigma_{12}$.
 
 \subsection{Bayesian model averaging}
-\noindent Given the likelihood function in (\ref{eq17}), henceforth denoted as $L(\text{data}|\theta_{i}, M_{j})$ for a specific model $i$, it is possible to utilize Bayesian model averaging\footnote{For an introduction to BMA see \citet{Raftery+1995,Raftery+1997,Kass+1995b,Doppelhofer+2009,amini2011bayesian,Beck+2017,Fragoso+2018}.} (BMA). To achieve that, we first estimate all possible variants of equation:
+\noindent Given the likelihood function in (\ref{eq17}), henceforth denoted as $L(\text{data}|\theta_{i}, M_{i})$ for a specific model $i$, it is possible to utilize Bayesian model averaging\footnote{For an introduction to BMA see \citet{Raftery+1995,Raftery+1997,Kass+1995b,Doppelhofer+2009,amini2011bayesian,Beck+2017,Fragoso+2018}.} (BMA). To achieve that, we first estimate all possible variants of equation:
 \begin{equation}\label{eq19}
    Y=X\beta+\epsilon
 \end{equation}
