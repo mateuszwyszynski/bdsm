@@ -128,7 +128,7 @@ D=\begin{bmatrix}
 \end{equation}
 
 \indent The model setup in equations (\ref{eq1}) and (\ref{eq3}-\ref{eq5}) requires that in addition to the parameters of interest $\alpha$ and $\beta$, the parameters $\gamma_{ij}$ and $\Lambda_{km}$ need to be estimated.
-To make the optimisation of likelihood computationally feasible, \citet{Moral+2013} developed Simultaneous Equations Model (SEM) setup where the parameters of non-central interest are incorporated in the variance-covariance matrix.
+To make the optimization of likelihood computationally feasible, \citet{Moral+2013} developed Simultaneous Equations Model (SEM) setup where the parameters of non-central interest are incorporated in the variance-covariance matrix.
 In the SEM setup, the model is defined by $1 + (T - 1)k + T$ equations:
 \[
 \begin{cases}
@@ -596,7 +596,7 @@ If the user's dataset contains only a few regressors, the sufficient option is
 \end{Sinput}
 \end{Schunk}
 However, for larger datasets, it is better to take advantage of parallel computing.
-Then the numerical optimisation used to find MLEs can be computed in parallel,
+Then the numerical optimization used to find MLEs can be computed in parallel,
 separately for each model.
 To do this, first load the \verb+parallel+ package and set up a cluster.
 
