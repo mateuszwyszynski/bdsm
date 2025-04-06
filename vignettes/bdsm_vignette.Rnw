@@ -370,16 +370,20 @@ Finally, \citet{Hofmarcher+2018} measure of jointness is:
 The measure takes values from -1 to 1, where values close to -1 indicate substitutes, and those close to 1 complements.
 
 \section{Data preparation}\label{data}
+
 This section demonstrates how to prepare the data for estimation.
 The first step involves installing the package and subsequently loading it into the R session.
+
 \begin{Schunk}
 \begin{Sinput}
 > install.packages("bdsm")
 \end{Sinput}
 \end{Schunk}
+
 <<>>=
 library(bdsm)
 @
+
 % This part below will be changed when CRAN version is up to date
 Throughout the manuscript, we use the data from \citet{Moral+2016} on the determinants of economic growth.
 The package includes the data along with a detailed description of all variables.
@@ -388,16 +392,20 @@ The package includes the data along with a detailed description of all variables
 @
 
 The data used for estimation must be in a specific format.
-The first two columns should specify time and the entity (e.g., country) and time.
+The first two columns should specify time and the entity (e.g., country).
 The dependent variable should be placed in the third column, while the regressors should occupy the remaining columns.
 The data should be arranged as follows:
+
 <<>>=
 economic_growth[1:12,1:10]
 @
+
 However, it is common for researchers to store their data in alternative format:
+
 <<>>=
 original_economic_growth[1:12,1:10]
 @
+
 In this case, the user can use the \verb+join_lagged_col+ function to transform the dataset into the desired format.
 The user needs to specify the dependent variable column (\verb+col+), the lagged dependent variable column (\verb+col_lagged+), the column identifying the cross-section (\verb+entity_col+), the column with the time index (\verb+timestamp_col+), and the change in the number of time units from period to period (\verb+timestep+).
 
@@ -416,8 +424,9 @@ The user can also perform regular standardization by subtracting the mean from e
 Standardization is preferred because it improves the computational efficiency of the likelihood optimization.
 Finally, the user can specify the order in which demeaning and/or scaling should be applied using the \verb+order+ parameter.
 This parameter takes a vector with three elements, where the order of the elements determines the sequence of operations.
-Here, \texttt{S}, \texttt{T}, \texttt{E}, and \texttt{0} denote standardization, preparation for time effects, preparation for entity effects, and skipping an operation, respectively.
+Here, \texttt{S}, \texttt{T}, \texttt{E}, and \texttt{0} denote standardization, preparation for time effects, preparation for entity effects, and no operation, respectively.
 For example, to apply the entity effect first and then standardization, use:
+
 <<>>=
 data_prepared <- data_prep(df = economic_growth, timestamp_col = year,
                            entity_col = country, standardize = TRUE,
@@ -427,6 +436,7 @@ data_prepared <- data_prep(df = economic_growth, timestamp_col = year,
 
 \citet{Moral+2016} first standardized the regressors, leaving the dependent variable unchanged, and then introduced time fixed effects.
 To achieve this effect, use:
+
 <<>>=
 data_prepared <- economic_growth |>
     data_prep(timestamp_col = year, entity_col = gdp,
