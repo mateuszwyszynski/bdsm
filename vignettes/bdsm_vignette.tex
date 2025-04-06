@@ -5,6 +5,7 @@
 \usepackage{amsmath}
 \usepackage{lmodern}
 \usepackage{fix-cm}
+\usepackage{dsfont}
 
 \title{\texttt{bdsm}: Bayesian dynamic systems modelling. \\ Bayesian model averaging for dynamic panels \\ with weakly exogenous regressors}
 \author{Krzysztof Beck \\ Lazarski University
@@ -240,34 +241,52 @@ we can calculate posterior model probability as
 \end{equation}
 
 \subsection{BMA statistics}
-\noindent With PMPs, it is possible to calculate BMA statistics.
-The probability that a given variable should be included in a model after seeing the data, i.e.
-the posterior inclusion probability (PIP) is given by:
+\noindent With PMPs, we can calculate useful BMA statistics.
+Let's denote by $\pi_k$ the random variable which is equal to one if the $k^{th}$ regressor should be considered as the determinant of the dependent variable.
+The posterior inclusion probability (PIP) for the regressor is given by:
 \begin{equation}
-P(x_{k}|\text{data})=\sum_{j=1}^{2^K}1(\pi_{jk}=1|\text{data}, M_{j})\times P(M_{j}|\text{data})
+P(\pi_k = 1 |\text{data}) = \sum_{j=1}^{2^K} \mathds{1} (k^{th} \text{ regressor is in model } M_{j}) \cdot P(M_{j}|\text{data})
 \end{equation}
-where $x_{k}$ is regressor $k$ $(k=1, \dots, K)$, $\pi_{j}$ is $(K\times 1)$ binary vector, where 1 indicates presence of a regressor in a model, and $1(\pi_{jk}|\text{data}, M_{j})$ is an indicator function that takes the value 1 when regressor $x_{k}$ is present in model $j$ and 0 otherwise.
-Posterior mean (PM) is calculated as:
-\begin{equation}\label{pm}
-E(\beta_{k}|\text{data})=\sum_{j=1}^{2^K}\widehat{\beta}_{k,j}\times P(M_{j}|\text{data})
-\end{equation}
-\noindent where $\widehat{\beta}_{k,j}$ is the value of the coefficient $\beta_{k}$ in model $j$.
-The posterior standard deviation (PSD) is equal to:
-\begin{equation}\label{psd}
-\fontsize{7.5pt}{9pt}\selectfont
-SD(\beta_{k}|\text{data})=\sqrt{\sum_{j=1}^{2^K}V(\beta_{k,j}|\text{data},M_{j})\times P(M_{j}|\text{data})+\sum_{j=1}^{2^K}[\widehat{\beta}_{k,j}-E(\beta_{k}|\text{data})]^{2}\times P(M_{j}|\text{data})}
-\end{equation}
-\noindent where $V(\beta_{k,j}|data,M_{j})$ denotes the conditional variance of the coefficient $\beta_{k}$ in model $M_{j}$.
+where the indicator function $\mathds{1}$ is equal to one if the regressor is part of the model $M_j$ and zero otherwise.
+In other words, the PIP tells us how likely it is that the given regressor has impact on the variable of interest.
 
-\indent Alternatively, one might be interested in the values of the coefficients and variances on the condition of inclusion of a given regressor in a model.
-The conditional posterior mean (PMcon) is given by:
-\begin{equation}
-E(\beta_{k}|\pi_{jk}=1,\text{data})=\frac{E(\beta_{k}|\text{data})}{P(x_{k}|\text{data})}.
+Another interesting statistic is the posterior mean (PM) of a given parameter $\beta$:
+\begin{equation}\label{pm}
+E(\beta|\text{data})=\sum_{j=1}^{2^K}\widehat{\beta}_{j} \cdot P(M_{j}|\text{data})
 \end{equation}
-The conditional standard deviation (PSDcon) is:
+\noindent where $\widehat{\beta}_{j}$ is the value of the coefficient $\beta$ in model $j$.
+It tells us what is the mean (or expected) value for the parameter taking into account all considered models.
+
+Similarly, the posterior variance of the parameter $\beta$ is equal to:
 \begin{equation}
-    SD(\beta_{k}|\pi_{j}=1,\text{data})=\sqrt{\frac{SD(\beta_{k}|\text{data})^2+E(\beta_{k}|\text{data})^2}{P(x_{k}|\text{data})}-E(\beta_{k}|\pi_{jk}=1,\text{data})^2}.
+V(\beta|\text{data})=\sum_{j=1}^{2^K}V(\beta_{j}|\text{data},M_{j}) \cdot P(M_{j}|\text{data})+\sum_{j=1}^{2^K}[\widehat{\beta}_{j}-E(\beta|\text{data})]^{2} \cdot P(M_{j}|\text{data})
 \end{equation}
+\noindent where $V(\beta_{j}|\text{data},M_{j})$ denotes the conditional variance of the coefficient $\beta$ in model $M_{j}$,
+i.e. assuming that the model $M_j$ is the true model.
+Posterior standard deviation (PSD) of $\beta$ is then defined as the square root of the variance:
+
+\begin{equation}\label{psd}
+SD(\beta | \text{data}) = \sqrt{ V(\beta | \text{data}) }
+\end{equation}
+
+\indent Alternatively, one might be interested in the values of the coefficients and variances on the condition of inclusion of a given regressor,
+i.e. assuming that the given regressor is definitely a determinant of the dependent variable.
+The conditional posterior mean (PMcon) for a parameter $\beta_k$ related to the $k^{th}$ regressor is given by:
+\begin{equation}
+E(\beta_{k}|\pi_{k}=1,\text{data})=\frac{E(\beta_{k}|\text{data})}{P(\pi_k = 1|\text{data})}.
+\end{equation}
+Similarly, the conditional variance is:
+
+\begin{equation}
+    V(\beta_{k}|\pi_{k}=1,\text{data})=\frac{V(\beta_{k}|\text{data})+E(\beta_{k}|\text{data})^2}{P(\pi_{k}=1|\text{data})}-E(\beta_{k}|\pi_{k}=1,\text{data})^2
+\end{equation}
+
+\noindent and so the conditional standard deviation (PSDcon) is:
+
+\begin{equation}
+SD(\beta | \pi_{k}=1,\text{data}) = \sqrt{ V(\beta | \pi_{k}=1,\text{data}) }
+\end{equation}
+
 \indent The BMA statistics allow the assessment of the robustness of the examined regressors.
 \citet{Raftery+1995}, classifies a variable as weak, positive, strong, and very strong when the posterior inclusion probability (PIP) is between 0.5 and 0.75, between 0.75 and 0.95, between 0.95 and 0.99, and above 0.99, respectively.
 \citet{Raftery+1995} also refers to the variable as robust when the absolute value of the ratio of posterior mean (PM) to posterior standard deviation (PSD) is above 1, indicating that the regressor improves the power of the regression.
