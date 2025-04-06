@@ -456,7 +456,8 @@ The function creates a list with two tables.
 We refer to the first as the the model space,
 because it contains the estimated MLEs of the parameters for each considered model.
 The second contains the values of the likelihood function at the estimated MLE,
-the Bayesian information criterion, and the standard errors for each model.
+the Bayesian information criterion,
+and the standard errors of the parameters of interest for each model.
 In both tables a single column represents a single considered model.
 
 The MLEs for the parameters are found through numerical optimization.
