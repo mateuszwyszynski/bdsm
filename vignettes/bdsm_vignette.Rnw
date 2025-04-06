@@ -7,6 +7,7 @@
 \usepackage{lmodern}
 \usepackage{fix-cm}
 \usepackage{dsfont}
+\usepackage{hyperref}
 
 \title{\texttt{bdsm}: Bayesian dynamic systems modelling. \\ Bayesian model averaging for dynamic panels \\ with weakly exogenous regressors}
 \author{Krzysztof Beck \\ Lazarski University
@@ -182,7 +183,7 @@ Then the formula for the likelihood function can be simplified to:
 \end{equation}
 \noindent and $H = (R_2 + U_1 F_{12})' Q (R_2 + U_1 F_{12})$ with $R_2$ being a matrix of regressor vectors $[x'_{i2}, x'_{i3}, ..., x'_{iT}]$ and $F_{12} = - \Sigma_{11}^{-1} \Sigma_{12}$.
 
-\subsection{Bayesian model averaging}
+\subsection{Bayesian model averaging}\label{bma}
 \noindent Given the likelihood function in (\ref{eq17}), henceforth denoted as $L(\text{data}|\theta_{i}, M_{i})$ for a specific model $i$, it is possible to utilize Bayesian model averaging\footnote{For an introduction to BMA see \citet{Raftery+1995,Raftery+1997,Kass+1995b,Doppelhofer+2009,amini2011bayesian,Beck+2017,Fragoso+2018}.} (BMA).
 To achieve that, we first estimate all possible variants of equation:
 \begin{equation}\label{eq19}
@@ -448,37 +449,93 @@ data_prepared <- economic_growth |>
 @
 
 \section{Estimation of the model space}\label{model_space}
-The prepared data can be used in the \verb+bma_prep+ function.
-This function creates a list with two main objects.
-The first table contains the parameters of all possible models with $K$ regressors, estimated via maximum likelihood.
-The second is a table with the values of the likelihood function, the Bayesian information criterion, and the standard errors for all considered models.
-Two types of standard errors are provided, both derived from the Hessian of the maximized log-likelihood function.
-The first type consists of the regular standard errors, calculated using the inverse of the observed information matrix:
-\begin{equation}
-I(\hat{\theta}) = -\frac{\partial^2 \log L(\theta)}{\partial \theta \partial \theta'}
-\end{equation}
-where $I(\hat{\theta})$ is the information matrix and $\log L(\theta)$ is the natural logarithm of the likelihood function.
-The variance covariance matrix is given by
-\begin{equation}
-\hat{V} = I(\hat{\theta})^{-1},
-\end{equation}
-and the standard errors by
-\begin{equation}
-\text{SE}(\hat{\theta}) = \sqrt{\text{diag}(\hat{V})}.
-\end{equation}
-The second type, robust standard errors or heteroscedasticity consistent standard errors, are estimated using sandwich variance estimator:
 
-The second type, robust standard errors (or heteroscedasticity-consistent standard errors), is estimated using the sandwich variance estimator:
+The prepared data can be used to find MLEs discribed in \autoref{bma}.
+This is done using the core function of the package: \verb+bma_prep+.
+The function creates a list with two tables.
+We refer to the first as the the model space,
+because it contains the estimated MLEs of the parameters for each considered model.
+The second contains the values of the likelihood function at the estimated MLE,
+the Bayesian information criterion, and the standard errors for each model.
+In both tables a single column represents a single considered model.
+
+The MLEs for the parameters are found through numerical optimization.
+More advanced users can use the \verb+control+ parameter to control the way the numerical optimization is performed.
+We refer to the function manual for more details and \verb+stats+ package for more details.
+
+Two types of standard errors are provided,
+both derived from the Hessian of the maximized log-likelihood function.
+The first type consists of the regular standard errors,
+calculated using the inverse of the observed information matrix:
+
 \begin{equation}
-\hat{V}_{R} = I(\hat{\theta})^{-1} \sum_{i=1}^{n} s_i s_i' I(\hat{\theta})^{-1}
-\end{equation}
-where $s_i = \frac{\partial \ell}{\partial \theta}$ is the score (gradient of the log-likelihood for each observation).
-The robust standard errors are given by:
-\begin{equation}
-\text{SE}_{R}(\hat{\theta}) = \sqrt{\text{diag}(\hat{V}_{R})}.
+I(\hat{\theta}) = -\frac{\partial^2 l(\hat{\theta})}{\partial \theta \partial \theta'}
 \end{equation}
 
-The \verb+bma_prep+ function is the most computationally intensive in the package.
+\noindent where $\hat{\theta}$ are the estimated MLE parameters,
+$I(\hat{\theta})$ is the information matrix
+and $l(\hat{\theta}) = \log L(\hat{\theta})$ is the natural logarithm of the likelihood function.
+The variance covariance matrix is given by:
+
+\begin{equation}
+Var(\hat{\theta}) = I(\hat{\theta})^{-1},
+\end{equation}
+
+\noindent and the standard errors by
+
+\begin{equation}
+\text{SE}(\hat{\theta}) = \sqrt{\text{diag}(Var(\hat{\theta}))}.
+\end{equation}
+
+\noindent where the square root is obviously applied separately to each coordinate of the vector with diagonal values.
+The second type are the robust standard errors or heteroscedasticity consistent standard errors.
+To understand how they work, we first have to rewrite the equation \autoref{eq17} in a form
+which will display the contribution of each entity on the likelihood value.
+First note that:
+
+\begin{equation}
+    L(\theta) \propto - \frac{1}{2} tr \{ \Sigma_{11}^{-1} U_1' U_1 \} - \sum_{i=1}^{N} \frac{1}{2} \log \det \Sigma_{11} - \frac{1}{2} \log \det (\frac{H}{N})
+\end{equation}
+
+\noindent Now, because of the cyclic property of the trace we can rewrite the first term as:
+
+\begin{equation}
+    - \frac{1}{2} tr \{ \Sigma_{11}^{-1} U_1' U_1 \} =
+    - \frac{1}{2} tr \{ U_1 \Sigma_{11}^{-1} U_1' \} =
+    - \frac{1}{2} \sum_{i=1}^N u_i \Sigma_{11}^{-1} u_i'
+\end{equation}
+
+\noindent where $u_i$ is a row vector corresponding to the data relating to the single entity $i$.
+Hence, the entire likelihood function can be rewritten as a sum of contributions from each entity:
+
+\begin{equation}
+    L(\theta) \propto \sum_{i=1}^{N} -\frac{1}{2} (\log \det \Sigma_{11} + \log \det (\frac{H}{N}) + u_i \Sigma_{11}^{-1} u_i')
+\end{equation}
+
+\noindent From there we can see that the contribution of a single entity $i$ is:
+
+\begin{equation}
+ l_i(\theta) \propto -\frac{1}{2} (\log \det \Sigma_{11} + \log \det (\frac{H}{N}) + u_i \Sigma_{11}^{-1} u_i').
+\end{equation}
+
+\noindent Now if we consider a multivariate function $\mathbf{l}(\theta)$ of all such contributions
+(with single contributions as its coordinates),
+we can find it's gradient at the MLE: $G(\hat{\theta}) = \frac{\mathbf{l}(\hat{\theta})}{\partial \theta}$.
+Then the robust variance is:
+
+\begin{equation}
+Var_{R}(\hat{\theta}) = I(\hat{\theta})^{-1} \cdot G'(\hat{\theta}) G(\hat{\theta}) \cdot I(\hat{\theta})^{-1}
+\end{equation}
+
+\noindent and the robust standard errors are given by:
+
+\begin{equation}
+\text{SE}_{R}(\hat{\theta}) = \sqrt{\text{diag}(\hat{V}_{R}(\hat{\theta}))}.
+\end{equation}
+
+\noindent where the square root is again applied to each coordinate separately.
+
+The \verb+bma_prep+ function is the most computationally intensive part of the package.
 Therefore, the function provides an option for parallel computing.
 If the user's dataset contains only a few regressors, the sufficient option is
 \begin{Schunk}
@@ -489,13 +546,19 @@ If the user's dataset contains only a few regressors, the sufficient option is
 \end{Sinput}
 \end{Schunk}
 However, for larger datasets, it is better to take advantage of parallel computing.
+Then the numerical optimisation used to find MLEs can be computed in parallel,
+separately for each model.
 To do this, first load the \verb+parallel+ package and set up a cluster.
+
 <<eval=FALSE>>=
 library(parallel)
 cl <- makeCluster(detectCores(), 'FORK')
 setDefaultCluster(cl)
 @
-Then the user just need to set the parameter \verb+run_parallel = TRUE+ and run \verb+bma_prep+ function.
+
+\noindent Then the user just needs to set the parameter \verb+run_parallel = TRUE+
+and run \verb+bma_prep+ function.
+
 \begin{Schunk}
 \begin{Sinput}
 > for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
@@ -503,8 +566,11 @@ Then the user just need to set the parameter \verb+run_parallel = TRUE+ and run 
 +                    init_value = 0.5, run_parallel = TRUE)
 \end{Sinput}
 \end{Schunk}
+
 Even with parallel computing, executing \verb+bma_prep+ may be time-consuming.
-For users who want to practice using the \verb+bdsm+ package, we recommend the \verb+bma_prep+ object included with the package:
+For users who want to practice using the \verb+bdsm+ package,
+we recommend the \verb+bma_prep+ object included with the package:
+
 <<>>=
 ?bma_prep_objects_full
 @
