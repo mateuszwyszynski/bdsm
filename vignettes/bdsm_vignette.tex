@@ -17,7 +17,12 @@
 %\setpapersize{A4}
 % \VignetteIndexEntry{bdsm: Bayesian dynamic systems modelling}
 \maketitle
-\abstract{This manuscript introduces the \verb+bdsm+ package, which enables Bayesian model averaging for dynamic panels with weakly exogenous regressors—a methodology developed by \citet{Moral+2016}. The package allows researchers to simultaneously address model uncertainty and reverse causality. The manuscript includes a hands-on tutorial accessible to users unfamiliar with this approach. In addition to calculating the model space (using parallel computing) and providing key BMA statistics, the package offers flexible options for specifying model priors, including a dilution prior that accounts for multicollinearity. It also provides graphical tools for visualizing prior and posterior model probabilities, as well as functions for plotting histograms and kernel densities of the estimated coefficients. Furthermore, the package enables researchers to compute jointness measures and perform Bayesian model selection to examine the most probable models based on posterior model probabilities.}
+\abstract{This manuscript introduces the \verb+bdsm+ package, which enables Bayesian model averaging for dynamic panels with weakly exogenous regressors—a methodology developed by \citet{Moral+2016}.
+The package allows researchers to simultaneously address model uncertainty and reverse causality.
+The manuscript includes a hands-on tutorial accessible to users unfamiliar with this approach.
+In addition to calculating the model space (using parallel computing) and providing key BMA statistics, the package offers flexible options for specifying model priors, including a dilution prior that accounts for multicollinearity.
+It also provides graphical tools for visualizing prior and posterior model probabilities, as well as functions for plotting histograms and kernel densities of the estimated coefficients.
+Furthermore, the package enables researchers to compute jointness measures and perform Bayesian model selection to examine the most probable models based on posterior model probabilities.}
 
 
 \tableofcontents
@@ -25,15 +30,42 @@
 \clearpage
 \section{Introduction}
 
-Since the seminal works of \citet{Leamer+1978,Leamer+1981,Leamer+1983,Leamer+1985}, there has been an increased focus on reporting the fragility of regression estimates. \citet{Leamer+1983} proposed Extreme Bounds Analysis (EBA) as a remedy for addressing the sensitivity of empirical research findings\footnote{\citet{Hlavac+2016} developed an R package for EBA.}. In economics, growth regressions \citep{Barro+1991} became a central focus of research on economic growth during the 1990s. However, the credibility of these results was challenged when \citet{Levine+1992} applied EBA to cross-country economic growth data. The authors found that investment as a share of GDP was the only variable robust to changes in model specification. In response, EBA was criticized for being too stringent\footnote{\citet{Granger+1990} proposed a less restrictive variant of EBA.}, leading to the proposal of alternative approaches \citep{Sala+1997}.
+Since the seminal works of \citet{Leamer+1978,Leamer+1981,Leamer+1983,Leamer+1985}, there has been an increased focus on reporting the fragility of regression estimates.
+\citet{Leamer+1983} proposed Extreme Bounds Analysis (EBA) as a remedy for addressing the sensitivity of empirical research findings\footnote{\citet{Hlavac+2016} developed an R package for EBA.}.
+In economics, growth regressions \citep{Barro+1991} became a central focus of research on economic growth during the 1990s.
+However, the credibility of these results was challenged when \citet{Levine+1992} applied EBA to cross-country economic growth data.
+The authors found that investment as a share of GDP was the only variable robust to changes in model specification.
+In response, EBA was criticized for being too stringent\footnote{\citet{Granger+1990} proposed a less restrictive variant of EBA.}, leading to the proposal of alternative approaches \citep{Sala+1997}.
 
-Bayesian model averaging (BMA) emerged as a preferred method during a period when studies of economic growth advanced alongside methodological innovations \citep{Fernandez+2001,Fernandez+2001b,Sala+2004,Eicher+2007,Ley+2012,Moser+2014,Fernandez+2001,Fernandez+2001b,Arin+2019}. As a result, BMA became a widely used technique for assessing the robustness of regressors in economics\footnote{For a detailed review of BMA applications in economics, see \citet{Moral+2015,Steel+2020}.} (e.g., \citet{Liu+2009,Ductor+2016,Figini+2017,Beck+2022,DAndrea+2022,Horvath+2024}), as well as in other fields (e.g., \citet{Sloughter+2013,Baran+2015,Aller+2021,Guliyev+2024,Payne+2024}). Moreover, the growing interest in BMA was fueled by the availability of R packages such as \verb+BMA+ \citep{Raftery+2005}, \verb+BAS+ \citep{clyde2011bayesian}, and \verb+BMS+ \citep{Feldkircher+2015}, along with the \verb+gretl+ BMA package developed by \citet{Blazejowski+2015}.
+Bayesian model averaging (BMA) emerged as a preferred method during a period when studies of economic growth advanced alongside methodological innovations \citep{Fernandez+2001,Fernandez+2001b,Sala+2004,Eicher+2007,Ley+2012,Moser+2014,Fernandez+2001,Fernandez+2001b,Arin+2019}.
+As a result, BMA became a widely used technique for assessing the robustness of regressors in economics\footnote{For a detailed review of BMA applications in economics, see \citet{Moral+2015,Steel+2020}.} (e.g., \citet{Liu+2009,Ductor+2016,Figini+2017,Beck+2022,DAndrea+2022,Horvath+2024}), as well as in other fields (e.g., \citet{Sloughter+2013,Baran+2015,Aller+2021,Guliyev+2024,Payne+2024}).
+Moreover, the growing interest in BMA was fueled by the availability of R packages such as \verb+BMA+ \citep{Raftery+2005}, \verb+BAS+ \citep{clyde2011bayesian}, and \verb+BMS+ \citep{Feldkircher+2015}, along with the \verb+gretl+ BMA package developed by \citet{Blazejowski+2015}.
 
-The primary issue with the Bayesian model averaging in the aforementioned studies was its reliance on the assumption of exogenous regressors. In many contexts, particularly in economics, this premise is unsuitable. Instead, the assumption of endogenous variables within a simultaneous equations framework is more fitting. Consequently, a new line of research relaxed the assumption of exogenous regressors \citet{Lenkoski+2014,Leon+2015,Mirestean+2016,Moral+2016,Chen+2018}. However, these methods have not found their way into mainstream research. The code to implement them is only available upon request from the authors and is provided exclusively for \verb+MATLAB+ and \verb+GAUSS+.
+The primary issue with the Bayesian model averaging in the aforementioned studies was its reliance on the assumption of exogenous regressors.
+In many contexts, particularly in economics, this premise is unsuitable.
+Instead, the assumption of endogenous variables within a simultaneous equations framework is more fitting.
+Consequently, a new line of research relaxed the assumption of exogenous regressors \citet{Lenkoski+2014,Leon+2015,Mirestean+2016,Moral+2016,Chen+2018}.
+However, these methods have not found their way into mainstream research.
+The code to implement them is only available upon request from the authors and is provided exclusively for \verb+MATLAB+ and \verb+GAUSS+.
 
-The \verb+bdsm+ package was developed to address this gap. It offers tools for performing Bayesian model averaging on dynamic panels with weakly exogenous regressors. As a result, it enables researchers to address both model uncertainty and reverse causality. The core of the code is based on the methodological approach developed by \citet{Moral+2012,Moral+2013,Moral+2016}. While the main aspects of the method are described in the manuscript, interested readers should refer to the original articles for further details. In addition to the key features developed by \citet{Moral+2016}, the \verb+bdsm+ package offers a wide range of additional functionalities. The package enables users to employ flexible model prior options, along with a dilution prior, which helps account for multicollinearity. The \verb+bdsm+ package provides users with graphical options for plotting prior and posterior model probabilities across model sizes and the model space. Additionally, users can utilize Bayesian model selection to thoroughly examine the best models based on posterior model probability. The package calculates jointness measures developed by \citet{Doppelhofer+2009,Ley+2007,Hofmarcher+2018}. Finally, it offers users the option to plot histograms or kernel densities of the estimated coefficients for the examined regressors.
+The \verb+bdsm+ package was developed to address this gap.
+It offers tools for performing Bayesian model averaging on dynamic panels with weakly exogenous regressors.
+As a result, it enables researchers to address both model uncertainty and reverse causality.
+The core of the code is based on the methodological approach developed by \citet{Moral+2012,Moral+2013,Moral+2016}.
+While the main aspects of the method are described in the manuscript, interested readers should refer to the original articles for further details.
+In addition to the key features developed by \citet{Moral+2016}, the \verb+bdsm+ package offers a wide range of additional functionalities.
+The package enables users to employ flexible model prior options, along with a dilution prior, which helps account for multicollinearity.
+The \verb+bdsm+ package provides users with graphical options for plotting prior and posterior model probabilities across model sizes and the model space.
+Additionally, users can utilize Bayesian model selection to thoroughly examine the best models based on posterior model probability.
+The package calculates jointness measures developed by \citet{Doppelhofer+2009,Ley+2007,Hofmarcher+2018}.
+Finally, it offers users the option to plot histograms or kernel densities of the estimated coefficients for the examined regressors.
 
-The remainder of the manuscript is structured as follows. Section \ref{ms_bma} describes the dynamic panel setup considered by \citet{Moral+2013} and outlines the Bayesian model averaging approach used in the package. Data preparation is detailed in Section \ref{data}, while Section \ref{model_space} addresses the estimation of the model space. Section \ref{using_bma} provides an overview of the \verb+bdsm+ functions related to performing Bayesian model averaging, calculating jointness measures, and presenting the estimation results. The details of the model prior choices are described in Section \ref{priors}. Finally, Section \ref{sum} offers some concluding remarks.
+The remainder of the manuscript is structured as follows.
+Section \ref{ms_bma} describes the dynamic panel setup considered by \citet{Moral+2013} and outlines the Bayesian model averaging approach used in the package.
+Data preparation is detailed in Section \ref{data}, while Section \ref{model_space} addresses the estimation of the model space.
+Section \ref{using_bma} provides an overview of the \verb+bdsm+ functions related to performing Bayesian model averaging, calculating jointness measures, and presenting the estimation results.
+The details of the model prior choices are described in Section \ref{priors}.
+Finally, Section \ref{sum} offers some concluding remarks.
 
 
 
@@ -45,15 +77,20 @@ This section outlines the model setup, describes the approach to Bayesian model 
 \begin{equation}\label{eq1}
     y_{it}=\alpha y_{it-1}+\beta x_{it}+\eta_{i}+\zeta_{t}+v_{it}
 \end{equation}
-\noindent where $y_{it}$ is the dependent variable, $i$ $(=1,...,N)$ indexes entity (ex. country), $t$ $(=1,...,T)$ indexes time, $x_{it}$ is a matrix of growth determinants, $\beta$ is a parameter vector, $\eta_{i}$ is an entity specific fixed effect, $\zeta_{t}$ is a period-specific shock and $v_{it}$ is a shock to the dependent variable. To address the issue of reverse causality the model is build on the assumption of weak exogeneity, that can be formalized as
+\noindent where $y_{it}$ is the dependent variable, $i$ $(=1,...,N)$ indexes entity (ex. country), $t$ $(=1,...,T)$ indexes time, $x_{it}$ is a matrix of growth determinants, $\beta$ is a parameter vector, $\eta_{i}$ is an entity specific fixed effect, $\zeta_{t}$ is a period-specific shock and $v_{it}$ is a shock to the dependent variable.
+To address the issue of reverse causality the model is build on the assumption of weak exogeneity, that can be formalized as
 \begin{equation}\label{eq2}
     E(v_{ij,t}|y^{t-1}_{t},x^{t}_{i},\eta_{i})=0
 \end{equation}
-\noindent where $y^{t-1}_{t}=(y_{ij,0},...,y_{ij,t-1})'$ and $x^t_{i}=(x_{ij,0},...,x_{ij,t})'$. Accordingly, weak exogeneity implies that the current values of the regressors, lagged dependent variable, and fixed effects are uncorrelated with the current shocks, while they are all allowed to be correlated with each other at the same time. On the assumption of weakly exogenous regressors, \citet{Moral+2013} augmented equation (\ref{eq1}) with a reduced-form equation capturing the unrestricted feedback process:
+\noindent where $y^{t-1}_{t}=(y_{ij,0},...,y_{ij,t-1})'$ and $x^t_{i}=(x_{ij,0},...,x_{ij,t})'$.
+Accordingly, weak exogeneity implies that the current values of the regressors, lagged dependent variable, and fixed effects are uncorrelated with the current shocks, while they are all allowed to be correlated with each other at the same time.
+On the assumption of weakly exogenous regressors, \citet{Moral+2013} augmented equation (\ref{eq1}) with a reduced-form equation capturing the unrestricted feedback process:
 \begin{equation}\label{eq3}
 x_{it}=\gamma_{t0}y_{i0}+...+\gamma_{tt-1}y_{it-1}+\Lambda_{t1}x_{i1}+...+\Lambda_{tt-1}x_{it-1}+c_{t}\eta_{i}+\vartheta_{it}
 \end{equation}
-\noindent where $t=2,\dots ,T;$ $c_{t}$ is the $k\times 1$ vector of parameters. For $h<t$, $\gamma_{th}$ is a $k\times 1$ vector $(y_{th}^{1},\dots,y_{th}^{k})'$  $h=0,\dots,T-1$; $\Lambda_{th}$ is a $k\times k$ matrix of parameters, and $\vartheta_{it}$ is a $k\times 1$ of prediction errors. The mean vector and the covariance matrix of the joint distribution of the initial observations and the individual effects $\eta_{i}$ are unrestricted:
+\noindent where $t=2,\dots ,T;$ $c_{t}$ is the $k\times 1$ vector of parameters.
+For $h<t$, $\gamma_{th}$ is a $k\times 1$ vector $(y_{th}^{1},\dots,y_{th}^{k})'$  $h=0,\dots,T-1$; $\Lambda_{th}$ is a $k\times k$ matrix of parameters, and $\vartheta_{it}$ is a $k\times 1$ of prediction errors.
+The mean vector and the covariance matrix of the joint distribution of the initial observations and the individual effects $\eta_{i}$ are unrestricted:
 \begin{equation}\label{eq4}
     y_{i0}=c_{0}\eta_{i}+\upsilon_{it}
 \end{equation}
@@ -66,7 +103,8 @@ x_{it}=\gamma_{t0}y_{i0}+...+\gamma_{tt-1}y_{it-1}+\Lambda_{t1}x_{i1}+...+\Lambd
 \begin{equation}\label{eq6}
     \log f(data|\theta) \propto \frac{N}{2}\log\det(B^{-1}D\Sigma D'B'^{-1})-\frac{1}{2}\sum_{i=1}^{N}\{R'_{i}(B^{-1}D\Sigma D'B'^{-1})^{-1}R_{i}\}
 \end{equation}
-\noindent where $\theta$ denotes parameters to be estimated, $R_{i}=(y_{io},x'_{i1},y_{i1},\dots,x'_{iT},y_{iT})'$ are vectors of observed variables, and $\Sigma=diag[\sigma^{2}_{\eta},\sigma^{2}_{\upsilon_{0}},\Sigma_{\vartheta_{1}},\sigma^{2}_{\upsilon_{1}},...,\Sigma_{\vartheta_{T}},\sigma^{2}_{\upsilon_{T}}]$ is the block-diagonal variance-covariance matrix. Matrix B is given by:
+\noindent where $\theta$ denotes parameters to be estimated, $R_{i}=(y_{io},x'_{i1},y_{i1},\dots,x'_{iT},y_{iT})'$ are vectors of observed variables, and $\Sigma=diag[\sigma^{2}_{\eta},\sigma^{2}_{\upsilon_{0}},\Sigma_{\vartheta_{1}},\sigma^{2}_{\upsilon_{1}},...,\Sigma_{\vartheta_{T}},\sigma^{2}_{\upsilon_{T}}]$ is the block-diagonal variance-covariance matrix.
+Matrix B is given by:
 \begin{equation}\label{eq7}
 B=\begin{bmatrix}
  1&0&0&0&0&\dotsc& 0&0&0\\
@@ -86,7 +124,9 @@ D=\begin{bmatrix}
  \end{bmatrix}.
 \end{equation}
 
-\indent The model setup in equations (\ref{eq1}) and (\ref{eq3}-\ref{eq5}) requires that in addition to the parameters of interest $\alpha$ and $\beta$, the parameters $\gamma_{ij}$ and $\Lambda_{km}$ need to be estimated. To make the optimisation of likelihood computationally feasible, \citet{Moral+2013} developed Simultaneous Equations Model (SEM) setup where the parameters of non-central interest are incorporated in the variance-covariance matrix. In the SEM setup, the model is defined by $1 + (T - 1)k + T$ equations:
+\indent The model setup in equations (\ref{eq1}) and (\ref{eq3}-\ref{eq5}) requires that in addition to the parameters of interest $\alpha$ and $\beta$, the parameters $\gamma_{ij}$ and $\Lambda_{km}$ need to be estimated.
+To make the optimisation of likelihood computationally feasible, \citet{Moral+2013} developed Simultaneous Equations Model (SEM) setup where the parameters of non-central interest are incorporated in the variance-covariance matrix.
+In the SEM setup, the model is defined by $1 + (T - 1)k + T$ equations:
 \[
 \begin{cases}
     \eta_i = \phi_i y_{i0} + x'_{i1} \phi_1 + \epsilon_i &  \\
@@ -109,7 +149,9 @@ is the vector of strictly exogenous variables,
 \begin{equation}\label{eq12}
     U_i = [\epsilon_i + v_{i1}, \epsilon_i + v_{i2}, ..., \epsilon_i + v_{iT}, \xi'_{i2}, \xi'_{i3}, ..., \xi'_{iT}]'
 \end{equation}
-\noindent and matrices $B$ and $C$ contain coefficients $\alpha$, $\beta$, $\phi_0$, $\phi_1$. Since these matrices are not connected to the error, we simply note that they are defined in such a way that the equation (\ref{eq9}) is equivalent to the SEM setup. The main difference of the SEM setup is that equations for $x_{it}$ now depend only on $y_{i0}$ and $x_{i1}$ and not on $y_{is}$ and $x_{is}$ for other periods $s$.\\
+\noindent and matrices $B$ and $C$ contain coefficients $\alpha$, $\beta$, $\phi_0$, $\phi_1$.
+Since these matrices are not connected to the error, we simply note that they are defined in such a way that the equation (\ref{eq9}) is equivalent to the SEM setup.
+The main difference of the SEM setup is that equations for $x_{it}$ now depend only on $y_{i0}$ and $x_{i1}$ and not on $y_{is}$ and $x_{is}$ for other periods $s$.\\
 \indent Following \citet{Moral+2013}, we can then define the likelihood function as:
 \begin{equation}\label{eq13}
     L \propto - \frac{N}{2} \log \det \Omega(\theta) - \frac{1}{2} tr \{ \Omega(\theta)^{-1} (R - Z \Pi(\theta))' (R - Z \Pi(\theta)) \}
@@ -124,7 +166,8 @@ where $R$ and $Z$ are matrices containing vectors $R_i$ and $z_i$ respectively a
 \begin{equation}\label{eq16}
     \Omega(\theta) = Var(U^*_i) = B^{-1} \cdot Var(U_i) \cdot  B'^{-1} = B^{-1} \Sigma B'^{-1}
 \end{equation}
-It is possible to find analytical solution for MLE for some of the parameters. Then the formula for the likelihood function can be simplified to:
+It is possible to find analytical solution for MLE for some of the parameters.
+Then the formula for the likelihood function can be simplified to:
 \begin{equation}\label{eq17}
     L(\theta) \propto - \frac{N}{2} \log \det \Sigma_{11} - \frac{1}{2} tr \{ \Sigma_{11}^{-1} U_1' U_1 \} - \frac{N}{2} \log \det (\frac{H}{N})
 \end{equation}
@@ -139,16 +182,22 @@ It is possible to find analytical solution for MLE for some of the parameters. T
 \noindent and $H = (R_2 + U_1 F_{12})' Q (R_2 + U_1 F_{12})$ with $R_2$ being a matrix of regressor vectors $[x'_{i2}, x'_{i3}, ..., x'_{iT}]$ and $F_{12} = - \Sigma_{11}^{-1} \Sigma_{12}$.
 
 \subsection{Bayesian model averaging}
-\noindent Given the likelihood function in (\ref{eq17}), henceforth denoted as $L(\text{data}|\theta_{i}, M_{i})$ for a specific model $i$, it is possible to utilize Bayesian model averaging\footnote{For an introduction to BMA see \citet{Raftery+1995,Raftery+1997,Kass+1995b,Doppelhofer+2009,amini2011bayesian,Beck+2017,Fragoso+2018}.} (BMA). To achieve that, we first estimate all possible variants of equation:
+\noindent Given the likelihood function in (\ref{eq17}), henceforth denoted as $L(\text{data}|\theta_{i}, M_{i})$ for a specific model $i$, it is possible to utilize Bayesian model averaging\footnote{For an introduction to BMA see \citet{Raftery+1995,Raftery+1997,Kass+1995b,Doppelhofer+2009,amini2011bayesian,Beck+2017,Fragoso+2018}.} (BMA).
+To achieve that, we first estimate all possible variants of equation:
 \begin{equation}\label{eq19}
    Y=X\beta+\epsilon
 \end{equation}
-\noindent where $Y$ is a vector of dependent variable, $X$ is a matrix of potential determinants, $\theta$ is a parameter vector, and $\epsilon$ is a stochastic term. All the variants include a lagged dependent variable; therefore, with $K$ regressors, there are $2^{K}$ possible models that can be estimated. Each of these models can be assigned a posterior model probability; however, the marginal (integrated) likelihood, $L(\text{data}|M_{i})$, must first be computed. \citet{Moral+2012} utilizes approach of developed by \citet{Raftery+1995} and \citet{Sala+2004} based on the Bayesian information criterion (BIC) approximation.\\
+\noindent where $Y$ is a vector of dependent variable, $X$ is a matrix of potential determinants, $\theta$ is a parameter vector, and $\epsilon$ is a stochastic term.
+All the variants include a lagged dependent variable; therefore, with $K$ regressors, there are $2^{K}$ possible models that can be estimated.
+Each of these models can be assigned a posterior model probability; however, the marginal (integrated) likelihood, $L(\text{data}|M_{i})$, must first be computed.
+\citet{Moral+2012} utilizes approach of developed by \citet{Raftery+1995} and \citet{Sala+2004} based on the Bayesian information criterion (BIC) approximation.\\
 \indent The Bayes factor for models $M_{i}$ and $M_{i}$, $B_{ij}=\frac{L(\text{data}|M_{i})}{L(\text{data}|M_{j})}$, can be approximated using Schwartz criterion:
 \begin{equation}\label{eq20}
 S=\log L(\text{data} \mid\hat{\theta_{i}},M_{i})-\log L(\text{data}|\hat{\theta_{j}},M_{j})-\frac{k_{i}-k_{j}}{2}\log (N)
 \end{equation}
-where $L(\text{data}|\hat{\theta}_{i}, M_{i})$ and $L(\text{data}|\hat{\theta}_{j}, M_{j})$ are the maximum likelihood values for models $i$ and $j$, respectively. The terms $k_{i}$ and $k_{j}$ denote the number of regressors in models $i$ and $j$. Bayesian information criterion is given by:
+where $L(\text{data}|\hat{\theta}_{i}, M_{i})$ and $L(\text{data}|\hat{\theta}_{j}, M_{j})$ are the maximum likelihood values for models $i$ and $j$, respectively.
+The terms $k_{i}$ and $k_{j}$ denote the number of regressors in models $i$ and $j$.
+Bayesian information criterion is given by:
 \begin{equation}\label{eq21}
     BIC=-2S=-2\log B_{ij}.
 \end{equation}
@@ -164,7 +213,9 @@ The posterior model probability (PMP) of model $j$ given the data is
 \begin{equation}\label{eq24}
     P(M_{j}|y)=\frac{L(\text{data}|M_{j})P(M_{j})}{\sum_{i=1}^{2^K}L(\text{data}|M_{i})P(M_{i})}
 \end{equation}
-where $P(M_{j})$ denotes prior model probability. In other words, the PMP represents the share of model $j$ in the total posterior probability mass. Combining, equations (\ref{eq21}-\ref{eq24}) we get:
+where $P(M_{j})$ denotes prior model probability.
+In other words, the PMP represents the share of model $j$ in the total posterior probability mass.
+Combining, equations (\ref{eq21}-\ref{eq24}) we get:
 \begin{equation}\label{eq25}
 \fontsize{9pt}{12pt} \selectfont
 \begin{split}
@@ -189,22 +240,27 @@ we can calculate posterior model probability as
 \end{equation}
 
 \subsection{BMA statistics}
-\noindent With PMPs, it is possible to calculate BMA statistics. The probability that a given variable should be included in a model after seeing the data, i.e. the posterior inclusion probability (PIP) is given by:
+\noindent With PMPs, it is possible to calculate BMA statistics.
+The probability that a given variable should be included in a model after seeing the data, i.e.
+the posterior inclusion probability (PIP) is given by:
 \begin{equation}
 P(x_{k}|\text{data})=\sum_{j=1}^{2^K}1(\pi_{jk}=1|\text{data}, M_{j})\times P(M_{j}|\text{data})
 \end{equation}
-where $x_{k}$ is regressor $k$ $(k=1, \dots, K)$, $\pi_{j}$ is $(K\times 1)$ binary vector, where 1 indicates presence of a regressor in a model, and $1(\pi_{jk}|\text{data}, M_{j})$ is an indicator function that takes the value 1 when regressor $x_{k}$ is present in model $j$ and 0 otherwise.  Posterior mean (PM) is calculated as:
+where $x_{k}$ is regressor $k$ $(k=1, \dots, K)$, $\pi_{j}$ is $(K\times 1)$ binary vector, where 1 indicates presence of a regressor in a model, and $1(\pi_{jk}|\text{data}, M_{j})$ is an indicator function that takes the value 1 when regressor $x_{k}$ is present in model $j$ and 0 otherwise.
+Posterior mean (PM) is calculated as:
 \begin{equation}\label{pm}
 E(\beta_{k}|\text{data})=\sum_{j=1}^{2^K}\widehat{\beta}_{k,j}\times P(M_{j}|\text{data})
 \end{equation}
-\noindent where $\widehat{\beta}_{k,j}$ is the value of the coefficient $\beta_{k}$ in model $j$. The posterior standard deviation (PSD) is equal to:
+\noindent where $\widehat{\beta}_{k,j}$ is the value of the coefficient $\beta_{k}$ in model $j$.
+The posterior standard deviation (PSD) is equal to:
 \begin{equation}\label{psd}
 \fontsize{7.5pt}{9pt}\selectfont
 SD(\beta_{k}|\text{data})=\sqrt{\sum_{j=1}^{2^K}V(\beta_{k,j}|\text{data},M_{j})\times P(M_{j}|\text{data})+\sum_{j=1}^{2^K}[\widehat{\beta}_{k,j}-E(\beta_{k}|\text{data})]^{2}\times P(M_{j}|\text{data})}
 \end{equation}
 \noindent where $V(\beta_{k,j}|data,M_{j})$ denotes the conditional variance of the coefficient $\beta_{k}$ in model $M_{j}$.
 
-\indent Alternatively, one might be interested in the values of the coefficients and variances on the condition of inclusion of a given regressor in a model. The conditional posterior mean (PMcon) is given by:
+\indent Alternatively, one might be interested in the values of the coefficients and variances on the condition of inclusion of a given regressor in a model.
+The conditional posterior mean (PMcon) is given by:
 \begin{equation}
 E(\beta_{k}|\pi_{jk}=1,\text{data})=\frac{E(\beta_{k}|\text{data})}{P(x_{k}|\text{data})}.
 \end{equation}
@@ -212,14 +268,21 @@ The conditional standard deviation (PSDcon) is:
 \begin{equation}
     SD(\beta_{k}|\pi_{j}=1,\text{data})=\sqrt{\frac{SD(\beta_{k}|\text{data})^2+E(\beta_{k}|\text{data})^2}{P(x_{k}|\text{data})}-E(\beta_{k}|\pi_{jk}=1,\text{data})^2}.
 \end{equation}
-\indent The BMA statistics allow the assessment of the robustness of the examined regressors. \citet{Raftery+1995}, classifies a variable as weak, positive, strong, and very strong when the posterior inclusion probability (PIP) is between 0.5 and 0.75, between 0.75 and 0.95, between 0.95 and 0.99, and above 0.99, respectively. \citet{Raftery+1995} also refers to the variable as robust when the absolute value of the ratio of posterior mean (PM) to posterior standard deviation (PSD) is above 1, indicating that the regressor improves the power of the regression. \citet{Masanjala+2008} propose a more stringent criterion, where they require the statistic to be higher than 1.3, while \citet{Sala+2004} argue for 2, corresponding to $90\%$ and $95\%$, respectively.
+\indent The BMA statistics allow the assessment of the robustness of the examined regressors.
+\citet{Raftery+1995}, classifies a variable as weak, positive, strong, and very strong when the posterior inclusion probability (PIP) is between 0.5 and 0.75, between 0.75 and 0.95, between 0.95 and 0.99, and above 0.99, respectively.
+\citet{Raftery+1995} also refers to the variable as robust when the absolute value of the ratio of posterior mean (PM) to posterior standard deviation (PSD) is above 1, indicating that the regressor improves the power of the regression.
+\citet{Masanjala+2008} propose a more stringent criterion, where they require the statistic to be higher than 1.3, while \citet{Sala+2004} argue for 2, corresponding to $90\%$ and $95\%$, respectively.
 
 \subsection{Model priors and jointness}\label{prior_joint}
-\noindent To perform BMA one needs to specify prior model probability\footnote{For a thorough discussion of model priors see \citet{Sala+2004,Ley+2009,George+2010,Eicher+2011}.}. The package offers two main options. The first is binomial model prior \citep{Sala+2004}:
+\noindent To perform BMA one needs to specify prior model probability\footnote{For a thorough discussion of model priors see \citet{Sala+2004,Ley+2009,George+2010,Eicher+2011}.}.
+The package offers two main options.
+The first is binomial model prior \citep{Sala+2004}:
 \begin{equation}
     P(M_{j})=(\frac{EMS}{K})^{k_{j}}(1-\frac{EMS}{K})^{K-k_{j}}
 \end{equation}
-where $EMS$ is the expected model size and $k_{j}$ is a number of regressors in model $j$. If $EMS = \frac{EMS}{K}$, the binomial model prior simplifies to a uniform model prior with $P(M_{j}) \propto 1$, meaning that all models are assumed to have equal probabilities. The second option is binomial-beta model prior \citet{Ley+2009} given by:
+where $EMS$ is the expected model size and $k_{j}$ is a number of regressors in model $j$.
+If $EMS = \frac{EMS}{K}$, the binomial model prior simplifies to a uniform model prior with $P(M_{j}) \propto 1$, meaning that all models are assumed to have equal probabilities.
+The second option is binomial-beta model prior \citet{Ley+2009} given by:
 \begin{equation}
     P(M_{j}) \propto \Gamma(1+k_{j})\Gamma(\frac{K-EMS}{EMS}+K-k_{j}).
 \end{equation}
@@ -229,24 +292,33 @@ In the context of binomial-beta prior $EMS = \frac{EMS}{K}$ corresponds to equal
 \begin{equation}
     P_{D}(M_{j}) \propto P(M_{j})|COR_{j}|^{\omega}
 \end{equation}
-where $P_{D}(M_{j})$ is the diluted model prior, $|COR_{j}|$ is the determinant of the correlation matrix of regressors in model $j$, and $\omega$ is the dilution parameter. The lower the correlation between regressors, the closer $|COR_{j}|$ is to one, resulting in a smaller degree of dilution.
+where $P_{D}(M_{j})$ is the diluted model prior, $|COR_{j}|$ is the determinant of the correlation matrix of regressors in model $j$, and $\omega$ is the dilution parameter.
+The lower the correlation between regressors, the closer $|COR_{j}|$ is to one, resulting in a smaller degree of dilution.
 
-\indent To determine whether regressors are substitutes or complements, various authors have developed jointness measures\footnote{To learn more about jointness measures, we recommend reading \citet{Doppelhofer+2009, Ley+2007, Hofmarcher+2018} in that order.}. Assuming two different covariates $a$ and $b$, let $P(a\cap b)$ be the posterior probability of the inclusion of both variables, $P(\overline{a}\cap \overline{b})$ the posterior probability of the exclusion of both variables, $P(\overline{a}\cap b)$ and $P(a\cap \overline{b})$ denote the posterior probability of including each variable separately. The first measure of jointness is simply $P(a\cap b)$. However, this measure ignores much of the information about the relationships between the regressors. \citet{Doppelhofer+2009} measure if defined as:
+\indent To determine whether regressors are substitutes or complements, various authors have developed jointness measures\footnote{To learn more about jointness measures, we recommend reading \citet{Doppelhofer+2009, Ley+2007, Hofmarcher+2018} in that order.}.
+Assuming two different covariates $a$ and $b$, let $P(a\cap b)$ be the posterior probability of the inclusion of both variables, $P(\overline{a}\cap \overline{b})$ the posterior probability of the exclusion of both variables, $P(\overline{a}\cap b)$ and $P(a\cap \overline{b})$ denote the posterior probability of including each variable separately.
+The first measure of jointness is simply $P(a\cap b)$.
+However, this measure ignores much of the information about the relationships between the regressors.
+\citet{Doppelhofer+2009} measure if defined as:
 \begin{equation}
     J_{DW}=\text{log}\left[\frac{P(a\cap b)*P(\overline{a}\cap \overline{b})}{P(\overline{a}\cap b)*P(a\cap \overline{b})}\right].
 \end{equation}
-If $J_{DW} < -2$, $-2 < J_{DW} < -1$, $-1 < J_{DW} < 1$, $1 < J_{DW} < 2$, and $J_{DW} > 2$, the authors classify the regressors as strong substitutes, significant substitutes, not significantly related, significant complements, and strong complements, respectively. Jointness measure proposed by \citet{Ley+2007} is given by:
+If $J_{DW} < -2$, $-2 < J_{DW} < -1$, $-1 < J_{DW} < 1$, $1 < J_{DW} < 2$, and $J_{DW} > 2$, the authors classify the regressors as strong substitutes, significant substitutes, not significantly related, significant complements, and strong complements, respectively.
+Jointness measure proposed by \citet{Ley+2007} is given by:
 \begin{equation}
     J_{LS}=\frac{P(a\cap b)}{P(\overline{a}\cap b)+P(a\cap \overline{b})}.
 \end{equation}
-The measure takes values in the range $[0, \infty)$, with higher values indicating a stronger complementary relationship. Finally, \citet{Hofmarcher+2018} measure of jointness is:
+The measure takes values in the range $[0, \infty)$, with higher values indicating a stronger complementary relationship.
+Finally, \citet{Hofmarcher+2018} measure of jointness is:
 \begin{equation}
     J_{HCGHM}=\frac{(P(a\cap b)+\rho)*P(\overline{a}\cap \overline{b})+\rho)-(P(\overline{a}\cap b)+\rho)*P(a\cap \overline{b})+\rho)}{(P(a\cap b)+\rho)*P(\overline{a}\cap \overline{b})+\rho)+(P(\overline{a}\cap b)+\rho)*P(a\cap \overline{b})+\rho)+\rho}.
 \end{equation}
-\citet{Hofmarcher+2018} advocate the use of the \citet{Jeffreys+1946} prior, which results in $\rho=\frac{1}{2}$. The measure takes values from -1 to 1, where values close to -1 indicate substitutes, and those close to 1 complements.
+\citet{Hofmarcher+2018} advocate the use of the \citet{Jeffreys+1946} prior, which results in $\rho=\frac{1}{2}$.
+The measure takes values from -1 to 1, where values close to -1 indicate substitutes, and those close to 1 complements.
 
 \section{Data preparation}\label{data}
-This section demonstrates how to prepare the data for estimation. The first step involves installing the package and subsequently loading it into the R session.
+This section demonstrates how to prepare the data for estimation.
+The first step involves installing the package and subsequently loading it into the R session.
 \begin{Schunk}
 \begin{Sinput}
 > install.packages("bdsm")
@@ -258,14 +330,18 @@ This section demonstrates how to prepare the data for estimation. The first step
 \end{Sinput}
 \end{Schunk}
 % This part below will be changed when CRAN version is up to date
-Throughout the manuscript, we use the data from \citet{Moral+2016} on the determinants of economic growth. The package includes the data along with a detailed description of all variables.
+Throughout the manuscript, we use the data from \citet{Moral+2016} on the determinants of economic growth.
+The package includes the data along with a detailed description of all variables.
 \begin{Schunk}
 \begin{Sinput}
 > ?economic_growth
 \end{Sinput}
 \end{Schunk}
 
-The data used for estimation must be in a specific format. The first two columns should specify time and the entity (e.g., country) and time. The dependent variable should be placed in the third column, while the regressors should occupy the remaining columns. The data should be arranged as follows:
+The data used for estimation must be in a specific format.
+The first two columns should specify time and the entity (e.g., country) and time.
+The dependent variable should be placed in the third column, while the regressors should occupy the remaining columns.
+The data should be arranged as follows:
 \begin{Schunk}
 \begin{Sinput}
 > economic_growth[1:12,1:10]
@@ -311,7 +387,8 @@ However, it is common for researchers to store their data in alternative format:
 12       3  2000 10.2     9.92 0.234 3     0.0125  16.9  95.6 0.380 
 \end{Soutput}
 \end{Schunk}
-In this case, the user can use the \verb+join_lagged_col+ function to transform the dataset into the desired format. The user needs to specify the dependent variable column (\verb+col+), the lagged dependent variable column (\verb+col_lagged+), the column identifying the cross-section (\verb+entity_col+), the column with the time index (\verb+timestamp_col+), and the change in the number of time units from period to period (\verb+timestep+).
+In this case, the user can use the \verb+join_lagged_col+ function to transform the dataset into the desired format.
+The user needs to specify the dependent variable column (\verb+col+), the lagged dependent variable column (\verb+col_lagged+), the column identifying the cross-section (\verb+entity_col+), the column with the time index (\verb+timestamp_col+), and the change in the number of time units from period to period (\verb+timestep+).
 
 \begin{Schunk}
 \begin{Sinput}
@@ -322,7 +399,16 @@ In this case, the user can use the \verb+join_lagged_col+ function to transform 
 \end{Sinput}
 \end{Schunk}
 
-Once the data is in the correct format, the user can perform further data transformations using the \verb+data_prep+ function. The user might want to prepare the data for a fixed effects model. For time fixed effects, the user can perform cross-sectional demeaning (\verb+time_effects = TRUE+), while for cross-section effects, the user can perform time demeaning (\verb+entity_effects = TRUE+). Moreover, the user can scale the data by the standard deviation within cross-sections (\verb+time_scale = TRUE+) and within time periods (\verb+entity_scale = TRUE+). The user can also perform regular standardization by subtracting the mean from each column (\verb+standardize = TRUE+) and dividing it by the standard deviation (\verb+scale = TRUE+). Standardization is preferred because it improves the computational efficiency of the likelihood optimization. Finally, the user can specify the order in which demeaning and/or scaling should be applied using the \verb+order+ parameter. This parameter takes a vector with three elements, where the order of the elements determines the sequence of operations. Here, \texttt{S}, \texttt{T}, \texttt{E}, and \texttt{0} denote standardization, preparation for time effects, preparation for entity effects, and skipping an operation, respectively. For example, to apply the entity effect first and then standardization, use:
+Once the data is in the correct format, the user can perform further data transformations using the \verb+data_prep+ function.
+The user might want to prepare the data for a fixed effects model.
+For time fixed effects, the user can perform cross-sectional demeaning (\verb+time_effects = TRUE+), while for cross-section effects, the user can perform time demeaning (\verb+entity_effects = TRUE+).
+Moreover, the user can scale the data by the standard deviation within cross-sections (\verb+time_scale = TRUE+) and within time periods (\verb+entity_scale = TRUE+).
+The user can also perform regular standardization by subtracting the mean from each column (\verb+standardize = TRUE+) and dividing it by the standard deviation (\verb+scale = TRUE+).
+Standardization is preferred because it improves the computational efficiency of the likelihood optimization.
+Finally, the user can specify the order in which demeaning and/or scaling should be applied using the \verb+order+ parameter.
+This parameter takes a vector with three elements, where the order of the elements determines the sequence of operations.
+Here, \texttt{S}, \texttt{T}, \texttt{E}, and \texttt{0} denote standardization, preparation for time effects, preparation for entity effects, and skipping an operation, respectively.
+For example, to apply the entity effect first and then standardization, use:
 \begin{Schunk}
 \begin{Sinput}
 > data_prepared <- data_prep(df = economic_growth, timestamp_col = year,
@@ -332,7 +418,8 @@ Once the data is in the correct format, the user can perform further data transf
 \end{Sinput}
 \end{Schunk}
 
-\citet{Moral+2016} first standardized the regressors, leaving the dependent variable unchanged, and then introduced time fixed effects. To achieve this effect, use:
+\citet{Moral+2016} first standardized the regressors, leaving the dependent variable unchanged, and then introduced time fixed effects.
+To achieve this effect, use:
 \begin{Schunk}
 \begin{Sinput}
 > data_prepared <- economic_growth |>
@@ -346,11 +433,17 @@ Once the data is in the correct format, the user can perform further data transf
 \end{Schunk}
 
 \section{Estimation of the model space}\label{model_space}
-The prepared data can be used in the \verb+bma_prep+ function. This function creates a list with two main objects. The first table contains the parameters of all possible models with $K$ regressors, estimated via maximum likelihood. The second is a table with the values of the likelihood function, the Bayesian information criterion, and the standard errors for all considered models. Two types of standard errors are provided, both derived from the Hessian of the maximized log-likelihood function. The first type consists of the regular standard errors, calculated using the inverse of the observed information matrix:
+The prepared data can be used in the \verb+bma_prep+ function.
+This function creates a list with two main objects.
+The first table contains the parameters of all possible models with $K$ regressors, estimated via maximum likelihood.
+The second is a table with the values of the likelihood function, the Bayesian information criterion, and the standard errors for all considered models.
+Two types of standard errors are provided, both derived from the Hessian of the maximized log-likelihood function.
+The first type consists of the regular standard errors, calculated using the inverse of the observed information matrix:
 \begin{equation}
 I(\hat{\theta}) = -\frac{\partial^2 \log L(\theta)}{\partial \theta \partial \theta'}
 \end{equation}
-where $I(\hat{\theta})$ is the information matrix and $\log L(\theta)$ is the natural logarithm of the likelihood function. the variance covariance matrix is given by
+where $I(\hat{\theta})$ is the information matrix and $\log L(\theta)$ is the natural logarithm of the likelihood function.
+The variance covariance matrix is given by
 \begin{equation}
 \hat{V} = I(\hat{\theta})^{-1},
 \end{equation}
@@ -370,7 +463,9 @@ The robust standard errors are given by:
 \text{SE}_{R}(\hat{\theta}) = \sqrt{\text{diag}(\hat{V}_{R})}.
 \end{equation}
 
-The \verb+bma_prep+ function is the most computationally intensive in the package. Therefore, the function provides an option for parallel computing. If the user's dataset contains only a few regressors, the sufficient option is
+The \verb+bma_prep+ function is the most computationally intensive in the package.
+Therefore, the function provides an option for parallel computing.
+If the user's dataset contains only a few regressors, the sufficient option is
 \begin{Schunk}
 \begin{Sinput}
 > for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
@@ -378,7 +473,8 @@ The \verb+bma_prep+ function is the most computationally intensive in the packag
 +                    init_value = 0.5)
 \end{Sinput}
 \end{Schunk}
-However, for larger datasets, it is better to take advantage of parallel computing. To do this, first load the \verb+parallel+ package and set up a cluster.
+However, for larger datasets, it is better to take advantage of parallel computing.
+To do this, first load the \verb+parallel+ package and set up a cluster.
 \begin{Schunk}
 \begin{Sinput}
 > library(parallel)
@@ -394,7 +490,8 @@ Then the user just need to set the parameter \verb+run_parallel = TRUE+ and run 
 +                    init_value = 0.5, run_parallel = TRUE)
 \end{Sinput}
 \end{Schunk}
-Even with parallel computing, executing \verb+bma_prep+ may be time-consuming. For users who want to practice using the \verb+bdsm+ package, we recommend the \verb+bma_prep+ object included with the package:
+Even with parallel computing, executing \verb+bma_prep+ may be time-consuming.
+For users who want to practice using the \verb+bdsm+ package, we recommend the \verb+bma_prep+ object included with the package:
 \begin{Schunk}
 \begin{Sinput}
 > ?bma_prep_objects_full
@@ -404,13 +501,17 @@ Even with parallel computing, executing \verb+bma_prep+ may be time-consuming. F
 \section{Performing Bayesian model averaging}\label{using_bma}
 % HERE WE NEED TEXT
 \subsection{Bayesian model averaging: The \texttt{bma} function}
-The \verb+bma+ function enables users to perform Bayesian model averaging using the \verb+bma_prep+ object and the corresponding prepared data frame. The \verb+app+ parameter specifies the decimal place to which the BMA statistics should be rounded in the results.
+The \verb+bma+ function enables users to perform Bayesian model averaging using the \verb+bma_prep+ object and the corresponding prepared data frame.
+The \verb+app+ parameter specifies the decimal place to which the BMA statistics should be rounded in the results.
 \begin{Schunk}
 \begin{Sinput}
 > bma_results <- bma(bma_prep_objects_full, df = data_prepared, app = 3)
 \end{Sinput}
 \end{Schunk}
-The \verb+bma+ function returns a list containing 16 elements, each described in detail. However, most of these elements are only required for other functions. The main objects of interest are two table with the BMA statistics. The results obtained with binomial model prior are first on the list.
+The \verb+bma+ function returns a list containing 16 elements, each described in detail.
+However, most of these elements are only required for other functions.
+The main objects of interest are two table with the BMA statistics.
+The results obtained with binomial model prior are first on the list.
 \begin{Schunk}
 \begin{Sinput}
 > bma_results[[1]]
@@ -430,9 +531,20 @@ polity  0.678 -0.056 0.046 0.052 -0.083  0.030   0.043   0.000
 \end{Soutput}
 \end{Schunk}
 
-PIP denotes the posterior inclusion probability, PM denotes the posterior mean, PSD denotes the posterior standard deviation, and PSDR denotes the posterior standard deviation calculated using robust standard errors. These are the four main results of BMA with respect to the assessment of individual regressors. PMcon, PSDcon, and PSDRcon denote the posterior mean, posterior standard deviation, and posterior standard deviation based on robust standard errors, respectively, conditional on the inclusion of the variable in a model. Users should base their interpretation of the results on conditional BMA statistics only when they believe that certain regressors must be included in a model. $\%(+)$ denotes the percentage of positive coefficients on a given regressor across all models that include that regressor. A value of $\%(+)$ equal to $0\%$ or $100\%$ indicates coefficient sign stability.
+PIP denotes the posterior inclusion probability, PM denotes the posterior mean, PSD denotes the posterior standard deviation, and PSDR denotes the posterior standard deviation calculated using robust standard errors.
+These are the four main results of BMA with respect to the assessment of individual regressors.
+PMcon, PSDcon, and PSDRcon denote the posterior mean, posterior standard deviation, and posterior standard deviation based on robust standard errors, respectively, conditional on the inclusion of the variable in a model.
+Users should base their interpretation of the results on conditional BMA statistics only when they believe that certain regressors must be included in a model.
+$\%(+)$ denotes the percentage of positive coefficients on a given regressor across all models that include that regressor.
+A value of $\%(+)$ equal to $0\%$ or $100\%$ indicates coefficient sign stability.
 
-The PIP for all the regressors shows that none of them can be considered very strong according to the classification by \citet{Raftery+1995}. This also applies to the population variable (\verb+pop+), which has a PIP of 0.990 due solely to approximation. These results are corroborated by the ratios of PM to PSD and PSDR. In particular, for the absolute value of the PM to PSDR ratio, only the population variable exceeds 1.3, while investment (\verb+ish+) and the democracy index (\verb+polity+) are above 1. This finding led \citet{Moral+2016} to emphasize the fragility of economic growth determinants. The only variable that can be considered robust across all metrics is the lagged GDP (\verb+gdp_lag+). However, the results change when using the binomial-beta model prior, which is included as the second object in the \verb+bma+ list.
+The PIP for all the regressors shows that none of them can be considered very strong according to the classification by \citet{Raftery+1995}.
+This also applies to the population variable (\verb+pop+), which has a PIP of 0.990 due solely to approximation.
+These results are corroborated by the ratios of PM to PSD and PSDR.
+In particular, for the absolute value of the PM to PSDR ratio, only the population variable exceeds 1.3, while investment (\verb+ish+) and the democracy index (\verb+polity+) are above 1.
+This finding led \citet{Moral+2016} to emphasize the fragility of economic growth determinants.
+The only variable that can be considered robust across all metrics is the lagged GDP (\verb+gdp_lag+).
+However, the results change when using the binomial-beta model prior, which is included as the second object in the \verb+bma+ list.
 \begin{Schunk}
 \begin{Sinput}
 > bma_results[[2]]
@@ -452,9 +564,16 @@ polity  0.929 -0.077 0.036 0.046 -0.083  0.030   0.042   0.000
 \end{Soutput}
 \end{Schunk}
 
-In the case of the binomial-beta model prior, the PIPs for all the regressors increase. Population is classified as very strong, while all other regressors are classified as strong or positive according to posterior inclusion probabilities. There are also considerable changes in the PM to PSD and PSD\_R ratios. The absolute value of the PM to PSD ratio exceeds two for investment and the democracy index, and is above 1.3 for population, investment price (\verb+ipr+), trade openness (\verb+open+), and life expectancy (\verb+lnlex+). However, these results are less pronounced when using robust standard errors, with only population, trade openness, and the democracy index remaining above 1.3. Consequently, the results are not robust with respect to the choice of prior model specification. The reasons behind these differences will become clear once other functionalities of the package are explored.
+In the case of the binomial-beta model prior, the PIPs for all the regressors increase.
+Population is classified as very strong, while all other regressors are classified as strong or positive according to posterior inclusion probabilities.
+There are also considerable changes in the PM to PSD and PSD\_R ratios.
+The absolute value of the PM to PSD ratio exceeds two for investment and the democracy index, and is above 1.3 for population, investment price (\verb+ipr+), trade openness (\verb+open+), and life expectancy (\verb+lnlex+).
+However, these results are less pronounced when using robust standard errors, with only population, trade openness, and the democracy index remaining above 1.3.
+Consequently, the results are not robust with respect to the choice of prior model specification.
+The reasons behind these differences will become clear once other functionalities of the package are explored.
 
-The last object in the list is a table containing the prior and posterior expected model sizes for the binomial and binomial-beta model priors. Importantly, these numbers reflect only the number of regressors in a model and do not include the lagged dependent variable, which is present in every model by construction.
+The last object in the list is a table containing the prior and posterior expected model sizes for the binomial and binomial-beta model priors.
+Importantly, these numbers reflect only the number of regressors in a model and do not include the lagged dependent variable, which is present in every model by construction.
 \begin{Schunk}
 \begin{Sinput}
 > bma_results[[16]]
@@ -466,10 +585,14 @@ Binomial-beta               4.5                8.558
 \end{Soutput}
 \end{Schunk}
 
-The results show that, after observing the data, the researcher should expect around six and eight regressors in the model under the binomial and binomial-beta model priors, respectively. These numbers may seem high; however, they are driven by relatively substantial PIPs. This illustrates the importance of focusing on both posterior inclusion probabilities and the ratios of posterior mean to posterior standard deviation when assessing the robustness of the regressors.
+The results show that, after observing the data, the researcher should expect around six and eight regressors in the model under the binomial and binomial-beta model priors, respectively.
+These numbers may seem high; however, they are driven by relatively substantial PIPs.
+This illustrates the importance of focusing on both posterior inclusion probabilities and the ratios of posterior mean to posterior standard deviation when assessing the robustness of the regressors.
 
 \subsection{Prior and posterior model probabilities}
-The \verb+model_pmp+ function allows the user to compare prior and posterior model probabilities over the entire model space in the form of a graph. The models are ranked from the one with the highest to the one with the lowest posterior model probability. The function returns a list with three objects:
+The \verb+model_pmp+ function allows the user to compare prior and posterior model probabilities over the entire model space in the form of a graph.
+The models are ranked from the one with the highest to the one with the lowest posterior model probability.
+The function returns a list with three objects:
 \begin{enumerate}
     \item a graph for the binomial model prior;
     \item a graph for the binomial-beta model prior;
@@ -483,7 +606,8 @@ The user can retrieve each graph separately from the list; however, the function
 \end{Schunk}
 \includegraphics{bdsm_vignette-014}
 
-The graphs demonstrate that most of the posterior probability mass is concentrated within just a couple of models. To view the results for only the best models, the user can use the \verb+top+ parameter.
+The graphs demonstrate that most of the posterior probability mass is concentrated within just a couple of models.
+To view the results for only the best models, the user can use the \verb+top+ parameter.
 \begin{Schunk}
 \begin{Sinput}
 > for_models <- model_pmp(bma_results, top = 10)
@@ -491,9 +615,14 @@ The graphs demonstrate that most of the posterior probability mass is concentrat
 \end{Schunk}
 \includegraphics{bdsm_vignette-015}
 
-The last graph for the binomial-beta prior is particularly illuminating in terms of explaining the very high values of posterior inclusion probabilities. Almost 70\% of the posterior probability mass is concentrated in just one model; therefore, variables included in this model will have very high PIP values. The model in question will be identified after implementing \verb+model_sizes+ (and \verb+best_models+, which is covered in section XXXX). Nevertheless, the results from the graph suggest that the best model is the one that includes all the regressors.
+The last graph for the binomial-beta prior is particularly illuminating in terms of explaining the very high values of posterior inclusion probabilities.
+Almost 70\% of the posterior probability mass is concentrated in just one model; therefore, variables included in this model will have very high PIP values.
+The model in question will be identified after implementing \verb+model_sizes+ (and \verb+best_models+, which is covered in section XXXX).
+Nevertheless, the results from the graph suggest that the best model is the one that includes all the regressors.
 
-The \verb+model_sizes+ function displays prior and posterior model probabilities on a graph for models of different sizes. The graphs exclude the lagged dependent variable; therefore, the model with zero regressors still includes the lagged dependent variable. Similarly to the \verb+model_pmp+ function is returns a list with three objects:
+The \verb+model_sizes+ function displays prior and posterior model probabilities on a graph for models of different sizes.
+The graphs exclude the lagged dependent variable; therefore, the model with zero regressors still includes the lagged dependent variable.
+Similarly to the \verb+model_pmp+ function is returns a list with three objects:
 \begin{enumerate}
     \item a graph for the binomial model prior;
     \item a graph for the binomial-beta model prior;
@@ -507,10 +636,14 @@ Again, the user can retrieve each graph separately from the list; however, the f
 \end{Schunk}
 \includegraphics{bdsm_vignette-016}
 
-The graph in panel b) explains why PIPs are so high in the case of the binomial-beta model prior. The model with all the regressors accounts for almost 70\% of the total posterior probability mass, while the remaining portion is concentrated on models with a high number of regressors. In contrast, the posterior probability mass for the binomial model prior is centered around models with seven regressors. This graph clearly illustrates the impact of changes in the model prior on posterior probabilities.
+The graph in panel b) explains why PIPs are so high in the case of the binomial-beta model prior.
+The model with all the regressors accounts for almost 70\% of the total posterior probability mass, while the remaining portion is concentrated on models with a high number of regressors.
+In contrast, the posterior probability mass for the binomial model prior is centered around models with seven regressors.
+This graph clearly illustrates the impact of changes in the model prior on posterior probabilities.
 
 \subsection{Selecting the best models}
-The \verb+best_models+ function allows the user to view a chosen number of the best models in terms of posterior model probability. The function returns a list containing nine objects:
+The \verb+best_models+ function allows the user to view a chosen number of the best models in terms of posterior model probability.
+The function returns a list containing nine objects:
 \begin{enumerate}
     \item An inclusion table stored as an array object;
     \item A table with estimation results using regular standard errors, stored as an array object;
@@ -522,7 +655,9 @@ The \verb+best_models+ function allows the user to view a chosen number of the b
     \item A table with estimation results using regular standard errors, stored as a gTree object;
     \item A table with estimation results using robust standard errors, stored as a gTree object;
 \end{enumerate}
-The parameters \verb+estimate+ and \verb+robust+ pertain only to the results that will be automatically displayed after running the function. The parameter \verb+criterion+ determines whether the models should be ranked according to posterior model probabilities calculated using the binomial (1) or binomial-beta (2) model prior. To obtain the inclusion array for the 10 best models ranked with the binomial model prior, the user needs to run:
+The parameters \verb+estimate+ and \verb+robust+ pertain only to the results that will be automatically displayed after running the function.
+The parameter \verb+criterion+ determines whether the models should be ranked according to posterior model probabilities calculated using the binomial (1) or binomial-beta (2) model prior.
+To obtain the inclusion array for the 10 best models ranked with the binomial model prior, the user needs to run:
 \begin{Schunk}
 \begin{Sinput}
 > best_8_models <- best_models(bma_results, criterion = 1, best = 8)
@@ -543,7 +678,8 @@ polity     1.00   1.000   0.000   1.000   1.000   1.000   1.000   1.000
 PMP        0.09   0.044   0.042   0.036   0.035   0.029   0.026   0.025
 \end{Soutput}
 \end{Schunk}
-1 indicates the presence of a given regressor in a model, while the last row displays the posterior model probability of that model. To obtain a knitr table with estimation output with regular standard errors for best 5 models ranked with binomial-beta model prior, the user needs to run:
+1 indicates the presence of a given regressor in a model, while the last row displays the posterior model probability of that model.
+To obtain a knitr table with estimation output with regular standard errors for best 5 models ranked with binomial-beta model prior, the user needs to run:
 \begin{Schunk}
 \begin{Sinput}
 > best_3_models <- best_models(bma_results, criterion = 2, best = 3)
@@ -565,7 +701,9 @@ PMP        0.09   0.044   0.042   0.036   0.035   0.029   0.026   0.025
 |PMP     |       0.692       |       0.038       |       0.035       |
 \end{Soutput}
 \end{Schunk}
-The comparison of these two tables further highlights the importance of the model prior. The best model under the binomial model prior accounts for around 9\% of the posterior probability mass, while the best model under the binomial-beta model prior accounts for over 69\%. Finally, to obtain a gTree table with estimation output using robust standard errors for the top 5 models ranked by the binomial-beta model prior, the user needs to run:
+The comparison of these two tables further highlights the importance of the model prior.
+The best model under the binomial model prior accounts for around 9\% of the posterior probability mass, while the best model under the binomial-beta model prior accounts for over 69\%.
+Finally, to obtain a gTree table with estimation output using robust standard errors for the top 5 models ranked by the binomial-beta model prior, the user needs to run:
 
 \begin{Schunk}
 \begin{Sinput}
@@ -581,7 +719,10 @@ gTree[GRID.gTree.2013]
 The comparison of the estimation outputs with regular and robust standard errors demonstrates how the results change when switching between the two variance estimators.
 
 \subsection{Calculating jointness measures}
-Within the BMA framework, it is possible to establish the nature of the relationship between pairs of examined regressors using the jointness measures. This can be accomplished using the \verb+jointness+ function. The latest jointness measure, introduced by \citet{Hofmarcher+2018}, has been shown to outperform older alternatives developed by \citet{Ley+2007} and \citet{Doppelhofer+2009}\footnote{See section \ref{prior_joint} for the interpretations of jointness measures.}. Therefore, the \citet{Hofmarcher+2018} measure is the default option in the \verb+jointness+ function.
+Within the BMA framework, it is possible to establish the nature of the relationship between pairs of examined regressors using the jointness measures.
+This can be accomplished using the \verb+jointness+ function.
+The latest jointness measure, introduced by \citet{Hofmarcher+2018}, has been shown to outperform older alternatives developed by \citet{Ley+2007} and \citet{Doppelhofer+2009}\footnote{See section \ref{prior_joint} for the interpretations of jointness measures.}.
+Therefore, the \citet{Hofmarcher+2018} measure is the default option in the \verb+jointness+ function.
 \begin{Schunk}
 \begin{Sinput}
 > jointness(bma_results)
@@ -599,7 +740,11 @@ lnlex  0.865 0.836 0.836 0.944 0.811 0.863 0.854    NA  0.227
 polity 0.791 0.764 0.765 0.856 0.745 0.788 0.780 0.818     NA
 \end{Soutput}
 \end{Schunk}
-Above the main diagonal are the results for the binomial model prior, and below it are the results for the binomial-beta model prior. All the values in the table are positive, indicating complementary relationships between the regressors. Notably, the values for the binomial-beta prior are substantially higher than those for the binomial prior. This result is not surprising, as the model with all the regressors accounts for almost $70\%$ of the total posterior probability mass. To obtain the results for the \citet{Ley+2007} measure, the user should run:
+Above the main diagonal are the results for the binomial model prior, and below it are the results for the binomial-beta model prior.
+All the values in the table are positive, indicating complementary relationships between the regressors.
+Notably, the values for the binomial-beta prior are substantially higher than those for the binomial prior.
+This result is not surprising, as the model with all the regressors accounts for almost $70\%$ of the total posterior probability mass.
+To obtain the results for the \citet{Ley+2007} measure, the user should run:
 \begin{Schunk}
 \begin{Sinput}
 > jointness(bma_results, measure = "LS")
@@ -617,7 +762,9 @@ lnlex  14.094 11.424 11.425 35.099 9.745 13.898 12.960     NA  1.566
 polity  8.777  7.686  7.724 12.875 7.014  8.630  8.293 10.198     NA
 \end{Soutput}
 \end{Schunk}
-The values of the \citet{Ley+2007} measure corroborate the results obtained using the \citet{Hofmarcher+2018} measure. All the regressors exhibit complementary relationships, which are visibly stronger under the binomial-beta model prior. However, using the \citet{Doppelhofer+2009} measure yields a slightly different outcome:
+The values of the \citet{Ley+2007} measure corroborate the results obtained using the \citet{Hofmarcher+2018} measure.
+All the regressors exhibit complementary relationships, which are visibly stronger under the binomial-beta model prior.
+However, using the \citet{Doppelhofer+2009} measure yields a slightly different outcome:
 \begin{Schunk}
 \begin{Sinput}
 > jointness(bma_results, measure = "DW")
@@ -635,11 +782,18 @@ lnlex  0.983 0.957  0.954  1.173  0.985  1.105 1.001     NA -0.056
 polity 1.013 0.903  0.939  0.994  0.967  0.980 0.934  0.906     NA
 \end{Soutput}
 \end{Schunk}
-In this case, some pairs of regressors have negative values of the jointness measure under the binomial model prior; however, these values are very close to zero, indicating unrelated variables. Once again, the values for the binomial-beta model prior are higher, demonstrating how the results are influenced by the choice of model prior.
+In this case, some pairs of regressors have negative values of the jointness measure under the binomial model prior; however, these values are very close to zero, indicating unrelated variables.
+Once again, the values for the binomial-beta model prior are higher, demonstrating how the results are influenced by the choice of model prior.
 
 \subsection{Visualizing model coefficients}
-The \verb+coef_hist+ function allows the user to plot the distribution of estimated coefficients. It returns a list containing a number of objects equal to the number of regressors plus one. The first object in the list is a graph of the coefficients for the lagged dependent variable, while the remaining objects are graphs of the coefficients for the other regressors. The graph for the lagged dependent variable collects coefficients from the entire model space, whereas the graphs for the other regressors only collect coefficients from the models that include the given regressor (half of the model space). There are two main options for visualizing the coefficient distributions. The first option uses a histogram.
-The \verb+coef_hist+ function provides the user with options for controlling the bin widths of the histogram (\verb+BW+, \verb+binW+, \verb+BN+, and \verb+num+). The default is \verb+BW = FD+, which selects bin widths using the Freedman-Diaconis method.
+The \verb+coef_hist+ function allows the user to plot the distribution of estimated coefficients.
+It returns a list containing a number of objects equal to the number of regressors plus one.
+The first object in the list is a graph of the coefficients for the lagged dependent variable, while the remaining objects are graphs of the coefficients for the other regressors.
+The graph for the lagged dependent variable collects coefficients from the entire model space, whereas the graphs for the other regressors only collect coefficients from the models that include the given regressor (half of the model space).
+There are two main options for visualizing the coefficient distributions.
+The first option uses a histogram.
+The \verb+coef_hist+ function provides the user with options for controlling the bin widths of the histogram (\verb+BW+, \verb+binW+, \verb+BN+, and \verb+num+).
+The default is \verb+BW = FD+, which selects bin widths using the Freedman-Diaconis method.
 \begin{Schunk}
 \begin{Sinput}
 > coef_plots <- coef_hist(bma_results)
@@ -668,10 +822,16 @@ The choice of appropriate plotting options is left to the user's preferences reg
 \includegraphics{bdsm_vignette-025}
 
 \section{Changes in model priors}\label{priors}
-This section provides a more detailed description of the available model prior options. Subsection \ref{ems} discusses the consequences of changes in the expected model size, while subsection \ref{dil} describes the dilution prior.
+This section provides a more detailed description of the available model prior options.
+Subsection \ref{ems} discusses the consequences of changes in the expected model size, while subsection \ref{dil} describes the dilution prior.
 
 \subsection{Changing expected model size}\label{ems}
-The \verb+bma+ function calculates BMA statistics using both the binomial and binomial-beta model priors. By default, the \verb+bma+ function sets the expected model size (EMS) to $K/2$, where $K$ denotes the total number of regressors. The binomial model prior with $EMS = K/2$ leads to a uniform model prior, assigning equal probabilities to all models. In contrast, the binomial-beta model prior with $EMS = K/2$ assumes equal probabilities across all model sizes. However, the user can modify the prior model specification by changing the \verb+EMS+ parameter. First, consider the consequence of concentrating prior probability mass on small models by setting $EMS = 2$.
+The \verb+bma+ function calculates BMA statistics using both the binomial and binomial-beta model priors.
+By default, the \verb+bma+ function sets the expected model size (EMS) to $K/2$, where $K$ denotes the total number of regressors.
+The binomial model prior with $EMS = K/2$ leads to a uniform model prior, assigning equal probabilities to all models.
+In contrast, the binomial-beta model prior with $EMS = K/2$ assumes equal probabilities across all model sizes.
+However, the user can modify the prior model specification by changing the \verb+EMS+ parameter.
+First, consider the consequence of concentrating prior probability mass on small models by setting $EMS = 2$.
 \begin{Schunk}
 \begin{Sinput}
 > bma_results2 <- bma(bma_prep_objects_full, df = data_prepared,
@@ -689,7 +849,8 @@ Binomial                      2                4.560
 Binomial-beta                 2                7.502
 \end{Soutput}
 \end{Schunk}
-The results show that decreasing the prior expected model size led to a considerable decline in the posterior expected model size. The consequences of this change in the prior expected model size are best illustrated using the prior and posterior probability mass over model sizes.
+The results show that decreasing the prior expected model size led to a considerable decline in the posterior expected model size.
+The consequences of this change in the prior expected model size are best illustrated using the prior and posterior probability mass over model sizes.
 \begin{Schunk}
 \begin{Sinput}
 > size_graphs2 <- model_sizes(bma_results2)
@@ -697,7 +858,10 @@ The results show that decreasing the prior expected model size led to a consider
 \end{Schunk}
 \includegraphics{bdsm_vignette-028}
 
-For both the binomial and binomial-beta model priors, the prior probability mass is more concentrated on small model sizes. However, for the binomial model prior, the center of the posterior probability mass shifted to medium-sized models, while it remained on large models for the binomial-beta model prior. Nevertheless, the posterior model probability for the model with all regressors decreased from nearly 0.7 for $EMS = 4.5$ to less than 0.3. There are also substantial changes in the distribution of the posterior probability mass over the model space.
+For both the binomial and binomial-beta model priors, the prior probability mass is more concentrated on small model sizes.
+However, for the binomial model prior, the center of the posterior probability mass shifted to medium-sized models, while it remained on large models for the binomial-beta model prior.
+Nevertheless, the posterior model probability for the model with all regressors decreased from nearly 0.7 for $EMS = 4.5$ to less than 0.3.
+There are also substantial changes in the distribution of the posterior probability mass over the model space.
 \begin{Schunk}
 \begin{Sinput}
 > model_graphs2 <- model_pmp(bma_results2)
@@ -705,7 +869,10 @@ For both the binomial and binomial-beta model priors, the prior probability mass
 \end{Schunk}
 \includegraphics{bdsm_vignette-029}
 
-Both panels of the graph show that the prior and posterior model probabilities have substantially decoupled from each other. This strongly indicates that the prior and the data are suggesting vastly different model choices. The tall blue spike represents the model with no regressors. The main BMA posterior statistic for the binomial model prior also experienced a significant change.
+Both panels of the graph show that the prior and posterior model probabilities have substantially decoupled from each other.
+This strongly indicates that the prior and the data are suggesting vastly different model choices.
+The tall blue spike represents the model with no regressors.
+The main BMA posterior statistic for the binomial model prior also experienced a significant change.
 \begin{Schunk}
 \begin{Sinput}
 > bma_results2[[1]]
@@ -724,7 +891,11 @@ lnlex   0.637  0.052 0.068 0.087  0.082  0.069   0.096 100.000
 polity  0.372 -0.029 0.042 0.046 -0.079  0.031   0.043   0.000
 \end{Soutput}
 \end{Schunk}
-Posterior inclusion probabilities drop considerably for all the regressors, except for population, which remains almost unchanged. Interestingly, the ratios for all variables declined, with population being the exception. The ratio for population remains above two for regular standard errors and 1.7 for robust standard errors. This outcome indicates that population performs relatively better in smaller models. The results for binomial-beta model prior are  given below.
+Posterior inclusion probabilities drop considerably for all the regressors, except for population, which remains almost unchanged.
+Interestingly, the ratios for all variables declined, with population being the exception.
+The ratio for population remains above two for regular standard errors and 1.7 for robust standard errors.
+This outcome indicates that population performs relatively better in smaller models.
+The results for binomial-beta model prior are  given below.
 \begin{Schunk}
 \begin{Sinput}
 > bma_results2[[2]]
@@ -743,7 +914,10 @@ lnlex   0.902  0.097 0.071 0.094  0.107  0.066   0.093 100.000
 polity  0.769 -0.064 0.044 0.051 -0.083  0.030   0.043   0.000
 \end{Soutput}
 \end{Schunk}
-The change in PIPs is again significant, though not as pronounced as in the case of the binomial model prior. Changes in the ratios are relatively small and irregular for both regular and robust standard errors. The most pronounced change is the drop in the value of the ratios for the democracy index (\verb+polity+), indicating that this regressor performs better in larger models. It is also very instructive to examine the jointness measures calculated under the new prior specification.
+The change in PIPs is again significant, though not as pronounced as in the case of the binomial model prior.
+Changes in the ratios are relatively small and irregular for both regular and robust standard errors.
+The most pronounced change is the drop in the value of the ratios for the democracy index (\verb+polity+), indicating that this regressor performs better in larger models.
+It is also very instructive to examine the jointness measures calculated under the new prior specification.
 \begin{Schunk}
 \begin{Sinput}
 > jointness(bma_results2, measure = "HCGHM", rho = 0.5, app = 3)
@@ -761,7 +935,9 @@ lnlex  0.559 0.497 0.495  0.793  0.439  0.562  0.538     NA -0.072
 polity 0.413 0.364 0.369  0.532  0.340  0.405  0.390  0.453     NA
 \end{Soutput}
 \end{Schunk}
-On the one hand, the results obtained with the binomial-beta model prior did not change in any significant manner. On the other hand, the results obtained with the binomial model prior changed substantially. The measure indicates that population is a substitute for both the investment price (\verb+ipr+) and the democracy index, as well as, to a lesser extent, secondary education (\verb+sed+) and population growth (\verb+pgrw+).
+On the one hand, the results obtained with the binomial-beta model prior did not change in any significant manner.
+On the other hand, the results obtained with the binomial model prior changed substantially.
+The measure indicates that population is a substitute for both the investment price (\verb+ipr+) and the democracy index, as well as, to a lesser extent, secondary education (\verb+sed+) and population growth (\verb+pgrw+).
 
 Next, to consider the consequences of concentrating prior probability mass on large models, \verb+EMS+ was set to eight.
 \begin{Schunk}
@@ -776,7 +952,8 @@ Binomial                      8                8.666
 Binomial-beta                 8                8.944
 \end{Soutput}
 \end{Schunk}
-The posterior model size increased for the binomial prior; however, it remained almost unchanged for the binomial-beta model prior. The most interesting aspect is the new graphs of prior and posterior probability mass over the model sizes.
+The posterior model size increased for the binomial prior; however, it remained almost unchanged for the binomial-beta model prior.
+The most interesting aspect is the new graphs of prior and posterior probability mass over the model sizes.
 \begin{Schunk}
 \begin{Sinput}
 > size_graphs8 <- model_sizes(bma_results8)
@@ -784,7 +961,9 @@ The posterior model size increased for the binomial prior; however, it remained 
 \end{Schunk}
 \includegraphics{bdsm_vignette-034}
 
-In both cases, the posterior probability mass has concentrated near the models with all the regressors. However, in the case of the binomial-beta model prior, the model with all the regressors captures most of the posterior probability mass (almost $96\%$). This conclusion is further supported by the graphs of posterior model probability across the entire model space.
+In both cases, the posterior probability mass has concentrated near the models with all the regressors.
+However, in the case of the binomial-beta model prior, the model with all the regressors captures most of the posterior probability mass (almost $96\%$).
+This conclusion is further supported by the graphs of posterior model probability across the entire model space.
 \begin{Schunk}
 \begin{Sinput}
 > model_graphs8 <- model_pmp(bma_results8)
@@ -792,7 +971,9 @@ In both cases, the posterior probability mass has concentrated near the models w
 \end{Schunk}
 \includegraphics{bdsm_vignette-035}
 
-Panel (a) demonstrates that the change in the expected model size led to a substantial increase in the posterior model probability for the model with all regressors under the binomial model prior. It now accounts for over $70\%$ of the total posterior probability mass. The increase in the expected model size also influenced the main BMA statistics.
+Panel (a) demonstrates that the change in the expected model size led to a substantial increase in the posterior model probability for the model with all regressors under the binomial model prior.
+It now accounts for over $70\%$ of the total posterior probability mass.
+The increase in the expected model size also influenced the main BMA statistics.
 \begin{Schunk}
 \begin{Sinput}
 > bma_results8[[1]]
@@ -811,7 +992,10 @@ lnlex   0.981  0.117 0.062 0.088  0.119  0.061   0.088 100.000
 polity  0.945 -0.078 0.034 0.045 -0.083  0.030   0.043   0.000
 \end{Soutput}
 \end{Schunk}
-The PIPs increased considerably. Population is classified as very strong, while the other regressors are classified as strong or positive. Interestingly, all the ratios have improved as well, except for population. The change in the results for the binomial-beta model prior is less pronounced.
+The PIPs increased considerably.
+Population is classified as very strong, while the other regressors are classified as strong or positive.
+Interestingly, all the ratios have improved as well, except for population.
+The change in the results for the binomial-beta model prior is less pronounced.
 \begin{Schunk}
 \begin{Sinput}
 > bma_results8[[2]]
@@ -830,7 +1014,9 @@ lnlex   0.997  0.123 0.058 0.086  0.123  0.058   0.086 100.000
 polity  0.991 -0.082 0.030 0.043 -0.083  0.029   0.042   0.000
 \end{Soutput}
 \end{Schunk}
-With the increase in expected model size, population is classified as very strong, and all the other regressors are classified as strong in terms of the posterior inclusion probability criterion. Similarly to the case of the binomial prior, all the ratios increased except for population. It is also instructive to examine the jointness measures.
+With the increase in expected model size, population is classified as very strong, and all the other regressors are classified as strong in terms of the posterior inclusion probability criterion.
+Similarly to the case of the binomial prior, all the ratios increased except for population.
+It is also instructive to examine the jointness measures.
 \begin{Schunk}
 \begin{Sinput}
 > jointness(bma_results8, measure = "HCGHM", rho = 0.5, app = 3)
@@ -848,10 +1034,18 @@ lnlex  0.983 0.979 0.979 0.993 0.976 0.983 0.982    NA  0.854
 polity 0.973 0.969 0.969 0.982 0.966 0.972 0.971 0.977     NA
 \end{Soutput}
 \end{Schunk}
-The values of the measures show that all the regressors exhibit a very strong complementary relationship. This outcome, once again, underscores the importance of carefully considering the prior when interpreting jointness measures.
+The values of the measures show that all the regressors exhibit a very strong complementary relationship.
+This outcome, once again, underscores the importance of carefully considering the prior when interpreting jointness measures.
 
 \subsection{Dilution prior}\label{dil}
-One of the main issues associated with identifying robust regressors is multicollinearity. Some regressors may approximate the same underlying factor influencing the dependent variable. Multicollinearity may result from the absence of observable variables associated with a specific theory or from a theory failing to provide a unique candidate for a regressor. Moreover, some regressors may share a common determinant. Although \citet{Moral+2013, Moral+2016} address this issue to some extent, researchers have another option to mitigate multicollinearity: the dilution prior proposed by \citet{George+2010} and described in detail in subsection \ref{prior_joint}. To apply the dilution prior, the user must set \verb+dilution = 1+ in the \verb+bma+ function. The user can also manipulate the dilution parameter $\omega$. The default option is \verb+dil.Par = 0.5+, as recommended by \citet{George+2010}.
+One of the main issues associated with identifying robust regressors is multicollinearity.
+Some regressors may approximate the same underlying factor influencing the dependent variable.
+Multicollinearity may result from the absence of observable variables associated with a specific theory or from a theory failing to provide a unique candidate for a regressor.
+Moreover, some regressors may share a common determinant.
+Although \citet{Moral+2013, Moral+2016} address this issue to some extent, researchers have another option to mitigate multicollinearity: the dilution prior proposed by \citet{George+2010} and described in detail in subsection \ref{prior_joint}.
+To apply the dilution prior, the user must set \verb+dilution = 1+ in the \verb+bma+ function.
+The user can also manipulate the dilution parameter $\omega$.
+The default option is \verb+dil.Par = 0.5+, as recommended by \citet{George+2010}.
 \begin{Schunk}
 \begin{Sinput}
 > bma_results_dil <- bma(bma_prep_objects_full, df = data_prepared,
@@ -866,7 +1060,11 @@ The effect of implementing the dilution prior is well depicted by the distributi
 \end{Schunk}
 \includegraphics{bdsm_vignette-040}
 
-On the one hand, the change in the prior distribution is barely visible for the binomial model prior. On the other hand, the change is more pronounced for the binomial-beta model prior. In panel b), the prior probability mass has decreased for larger models and increased for smaller models. However, this change is not uniform, as models characterized by the highest degree of multicollinearity are subject to the greatest penalty in terms of prior probability mass. Before moving to the BMA statistics, it is instructive to examine the change in the \verb+dil.Par+ parameter.
+On the one hand, the change in the prior distribution is barely visible for the binomial model prior.
+On the other hand, the change is more pronounced for the binomial-beta model prior.
+In panel b, the prior probability mass has decreased for larger models and increased for smaller models.
+However, this change is not uniform, as models characterized by the highest degree of multicollinearity are subject to the greatest penalty in terms of prior probability mass.
+Before moving to the BMA statistics, it is instructive to examine the change in the \verb+dil.Par+ parameter.
 \begin{Schunk}
 \begin{Sinput}
 > bma_results_dil01 <- bma(bma_prep_objects_full, df = data_prepared,
@@ -876,7 +1074,8 @@ On the one hand, the change in the prior distribution is barely visible for the 
 \end{Schunk}
 \includegraphics{bdsm_vignette-041}
 
-Decreasing the value of $\omega$ diminishes the impact of dilution on the model prior. Conversely, raising the \verb+dil.Par+ parameter increases the degree of dilution.
+Decreasing the value of $\omega$ diminishes the impact of dilution on the model prior.
+Conversely, raising the \verb+dil.Par+ parameter increases the degree of dilution.
 \begin{Schunk}
 \begin{Sinput}
 > bma_results_dil2 <- bma(bma_prep_objects_full, df = data_prepared,
@@ -886,7 +1085,8 @@ Decreasing the value of $\omega$ diminishes the impact of dilution on the model 
 \end{Schunk}
 \includegraphics{bdsm_vignette-042}
 
-Raising the dilution parameter has an especially strong impact on the prior probability mass under the binomial-beta prior. However, even giving such priority to the penalty for multicollinearity does not change the main BMA statistics.
+Raising the dilution parameter has an especially strong impact on the prior probability mass under the binomial-beta prior.
+However, even giving such priority to the penalty for multicollinearity does not change the main BMA statistics.
 \begin{Schunk}
 \begin{Sinput}
 > bma_results_dil2[[2]]
@@ -908,9 +1108,22 @@ polity  0.613 -0.050 0.046 0.052 -0.081  0.030   0.043   0.000
 \citet{Moral+2016}’s claim about the fragility of growth regressors withstands the test of various manipulations in the model prior.
 
 \section{Concluding remarks}\label{sum}
-This manuscript introduces the \verb+bdsm+ package, which enables Bayesian model averaging for dynamic panels with weakly exogenous regressors — a methodology developed by \citet{Moral+2012,Moral+2013,Moral+2016}. This package allows researchers to simultaneously address model uncertainty and reverse causality and is the only \verb+R+ package offering these capabilities. It provides flexible options for specifying model priors, including dilution prior that accounts for multicollinearity. The package also includes graphical tools for visualizing prior and posterior model probabilities across model space and model sizes, as well as functions for plotting histograms and kernel densities of the estimated coefficients. Additionally, it allows researchers to compute jointness measures introduced by \citet{Doppelhofer+2009,Ley+2007,Hofmarcher+2018} to assess whether pairs of regressors act as substitutes or complements. Users can also perform Bayesian model selection to examine in detail the most probable models based on posterior model probability.
+This manuscript introduces the \verb+bdsm+ package, which enables Bayesian model averaging for dynamic panels with weakly exogenous regressors — a methodology developed by \citet{Moral+2012,Moral+2013,Moral+2016}.
+This package allows researchers to simultaneously address model uncertainty and reverse causality and is the only \verb+R+ package offering these capabilities.
+It provides flexible options for specifying model priors, including dilution prior that accounts for multicollinearity.
+The package also includes graphical tools for visualizing prior and posterior model probabilities across model space and model sizes, as well as functions for plotting histograms and kernel densities of the estimated coefficients.
+Additionally, it allows researchers to compute jointness measures introduced by \citet{Doppelhofer+2009,Ley+2007,Hofmarcher+2018} to assess whether pairs of regressors act as substitutes or complements.
+Users can also perform Bayesian model selection to examine in detail the most probable models based on posterior model probability.
 
-The manuscript outlines the methodological approach, while the detailed explanation can be found in \citet{Moral+2012,Moral+2013,Moral+2016}. Users unfamiliar with this approach can easily learn to apply it through the hands-on tutorial provided in the manuscript. The package’s functionalities are illustrated using the original dataset from \citet{Moral+2016} in the context of analyzing the determinants of economic growth. On the one hand, the results of the examination illustrate that fragility of growth determinants is a persistent feature of the data, confirming \citet{Moral+2016} claims. The various empirical exercises underscore two important features of analysis within the Bayesian model averaging framework. On the one hand, the results of the analysis indicate that the fragility of growth determinants is a persistent feature of the data, supporting the claims of \citet{Moral+2016}. Additionally, the empirical exercises highlight two key aspects of analysis within the Bayesian model averaging framework. First, the results should always be validated through extensive changes in prior specifications. Second, the robustness of the regressors must be evaluated using both posterior inclusion probabilities and the ratios of the posterior mean to the posterior standard deviation, as these measures can often lead to differing conclusions.
+The manuscript outlines the methodological approach, while the detailed explanation can be found in \citet{Moral+2012,Moral+2013,Moral+2016}.
+Users unfamiliar with this approach can easily learn to apply it through the hands-on tutorial provided in the manuscript.
+The package’s functionalities are illustrated using the original dataset from \citet{Moral+2016} in the context of analyzing the determinants of economic growth.
+On the one hand, the results of the examination illustrate that fragility of growth determinants is a persistent feature of the data, confirming \citet{Moral+2016} claims.
+The various empirical exercises underscore two important features of analysis within the Bayesian model averaging framework.
+On the one hand, the results of the analysis indicate that the fragility of growth determinants is a persistent feature of the data, supporting the claims of \citet{Moral+2016}.
+Additionally, the empirical exercises highlight two key aspects of analysis within the Bayesian model averaging framework.
+First, the results should always be validated through extensive changes in prior specifications.
+Second, the robustness of the regressors must be evaluated using both posterior inclusion probabilities and the ratios of the posterior mean to the posterior standard deviation, as these measures can often lead to differing conclusions.
 
 
 \addcontentsline{toc}{section}{References}
