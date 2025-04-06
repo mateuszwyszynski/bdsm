@@ -29,7 +29,7 @@ Since the seminal works of \citet{Leamer+1978,Leamer+1981,Leamer+1983,Leamer+198
 
 Bayesian model averaging (BMA) emerged as a preferred method during a period when studies of economic growth advanced alongside methodological innovations \citep{Fernandez+2001,Fernandez+2001b,Sala+2004,Eicher+2007,Ley+2012,Moser+2014,Fernandez+2001,Fernandez+2001b,Arin+2019}. As a result, BMA became a widely used technique for assessing the robustness of regressors in economics\footnote{For a detailed review of BMA applications in economics, see \citet{Moral+2015,Steel+2020}.} (e.g., \citet{Liu+2009,Ductor+2016,Figini+2017,Beck+2022,DAndrea+2022,Horvath+2024}), as well as in other fields (e.g., \citet{Sloughter+2013,Baran+2015,Aller+2021,Guliyev+2024,Payne+2024}). Moreover, the growing interest in BMA was fueled by the availability of R packages such as \verb+BMA+ \citep{Raftery+2005}, \verb+BAS+ \citep{clyde2011bayesian}, and \verb+BMS+ \citep{Feldkircher+2015}, along with the \verb+gretl+ BMA package developed by \citet{Blazejowski+2015}.
 
-The primary issue with the Bayesian model averaging in the aforementioned studies was its reliance on the assumption of exogenous regressors.In many contexts, particularly in economics, this premise is unsuitable. Instead, the assumption of endogenous variables within a simultaneous equations framework is more fitting. Consequently, a new line of research relaxed the assumption of exogenous regressors \citet{Lenkoski+2014,Leon+2015,Mirestean+2016,Moral+2016,Chen+2018}. However, these methods have not found their way into mainstream research. The code to implement them is only available upon request from the authors and is provided exclusively for \verb+MATLAB+ and \verb+GAUSS+.
+The primary issue with the Bayesian model averaging in the aforementioned studies was its reliance on the assumption of exogenous regressors. In many contexts, particularly in economics, this premise is unsuitable. Instead, the assumption of endogenous variables within a simultaneous equations framework is more fitting. Consequently, a new line of research relaxed the assumption of exogenous regressors \citet{Lenkoski+2014,Leon+2015,Mirestean+2016,Moral+2016,Chen+2018}. However, these methods have not found their way into mainstream research. The code to implement them is only available upon request from the authors and is provided exclusively for \verb+MATLAB+ and \verb+GAUSS+.
 
 The \verb+bdsm+ package was developed to address this gap. It offers tools for performing Bayesian model averaging on dynamic panels with weakly exogenous regressors. As a result, it enables researchers to address both model uncertainty and reverse causality. The core of the code is based on the methodological approach developed by \citet{Moral+2012,Moral+2013,Moral+2016}. While the main aspects of the method are described in the manuscript, interested readers should refer to the original articles for further details. In addition to the key features developed by \citet{Moral+2016}, the \verb+bdsm+ package offers a wide range of additional functionalities. The package enables users to employ flexible model prior options, along with a dilution prior, which helps account for multicollinearity. The \verb+bdsm+ package provides users with graphical options for plotting prior and posterior model probabilities across model sizes and the model space. Additionally, users can utilize Bayesian model selection to thoroughly examine the best models based on posterior model probability. The package calculates jointness measures developed by \citet{Doppelhofer+2009,Ley+2007,Hofmarcher+2018}. Finally, it offers users the option to plot histograms or kernel densities of the estimated coefficients for the examined regressors.
 
@@ -45,11 +45,11 @@ This section outlines the model setup, describes the approach to Bayesian model 
 \begin{equation}\label{eq1}
     y_{it}=\alpha y_{it-1}+\beta x_{it}+\eta_{i}+\zeta_{t}+v_{it}
 \end{equation}
-\noindent where $y_{it}$ is the dependent variable, $i$ $(=1,...,N)$ indexes entity (ex. country), $t$ $(=1,...,T)$ indexes time , $x_{it}$ is a matrix of growth determinants, $\beta$ is a parameter vector, $\eta_{i}$ is an entity specific fixed effect, $\zeta_{t}$ is a period-specific shock and $v_{it}$ is a shock to the dependent variable. To address the issue of reverse causality the model is build on the assumption of weak exogeneity, that can be formalized as
+\noindent where $y_{it}$ is the dependent variable, $i$ $(=1,...,N)$ indexes entity (ex. country), $t$ $(=1,...,T)$ indexes time, $x_{it}$ is a matrix of growth determinants, $\beta$ is a parameter vector, $\eta_{i}$ is an entity specific fixed effect, $\zeta_{t}$ is a period-specific shock and $v_{it}$ is a shock to the dependent variable. To address the issue of reverse causality the model is build on the assumption of weak exogeneity, that can be formalized as
 \begin{equation}\label{eq2}
     E(v_{ij,t}|y^{t-1}_{t},x^{t}_{i},\eta_{i})=0
 \end{equation}
-\noindent where $y^{t-1}_{t}=(y_{ij,0},...,y_{ij,t-1})'$ and $x_{t}=(x_{ij,0},...,x_{ij,t})'$. Accordingly, weak exogeneity implies that the current values of the regressors, lagged dependent variable, and fixed effects are uncorrelated with the current shocks, while they are all allowed to be correlated with each other at the same time. On the assumption of weakly exogenous regressors, \citet{Moral+2013} augmented equation (\ref{eq1}) with a reduced-form equation capturing the unrestricted feedback process:
+\noindent where $y^{t-1}_{t}=(y_{ij,0},...,y_{ij,t-1})'$ and $x^t_{i}=(x_{ij,0},...,x_{ij,t})'$. Accordingly, weak exogeneity implies that the current values of the regressors, lagged dependent variable, and fixed effects are uncorrelated with the current shocks, while they are all allowed to be correlated with each other at the same time. On the assumption of weakly exogenous regressors, \citet{Moral+2013} augmented equation (\ref{eq1}) with a reduced-form equation capturing the unrestricted feedback process:
 \begin{equation}\label{eq3}
 x_{it}=\gamma_{t0}y_{i0}+...+\gamma_{tt-1}y_{it-1}+\Lambda_{t1}x_{i1}+...+\Lambda_{tt-1}x_{it-1}+c_{t}\eta_{i}+\vartheta_{it}
 \end{equation}
@@ -139,7 +139,7 @@ It is possible to find analytical solution for MLE for some of the parameters. T
 \noindent and $H = (R_2 + U_1 F_{12})' Q (R_2 + U_1 F_{12})$ with $R_2$ being a matrix of regressor vectors $[x'_{i2}, x'_{i3}, ..., x'_{iT}]$ and $F_{12} = - \Sigma_{11}^{-1} \Sigma_{12}$.
 
 \subsection{Bayesian model averaging}
-\noindent Given the likelihood function in (\ref{eq17}), henceforth denoted as $L(\text{data}|\theta_{i}, M_{j})$ for a specific model $i$, it is possible to utilize Bayesian model averaging\footnote{For an introduction to BMA see \citet{Raftery+1995,Raftery+1997,Kass+1995b,Doppelhofer+2009,amini2011bayesian,Beck+2017,Fragoso+2018}.} (BMA). To achieve that, we first estimate all possible variants of equation:
+\noindent Given the likelihood function in (\ref{eq17}), henceforth denoted as $L(\text{data}|\theta_{i}, M_{i})$ for a specific model $i$, it is possible to utilize Bayesian model averaging\footnote{For an introduction to BMA see \citet{Raftery+1995,Raftery+1997,Kass+1995b,Doppelhofer+2009,amini2011bayesian,Beck+2017,Fragoso+2018}.} (BMA). To achieve that, we first estimate all possible variants of equation:
 \begin{equation}\label{eq19}
    Y=X\beta+\epsilon
 \end{equation}
@@ -407,7 +407,7 @@ Even with parallel computing, executing \verb+bma_prep+ may be time-consuming. F
 The \verb+bma+ function enables users to perform Bayesian model averaging using the \verb+bma_prep+ object and the corresponding prepared data frame. The \verb+app+ parameter specifies the decimal place to which the BMA statistics should be rounded in the results.
 \begin{Schunk}
 \begin{Sinput}
-> bma_results <- bma(bma_prep_objects_full, df = data_prepared, round= 3)
+> bma_results <- bma(bma_prep_objects_full, df = data_prepared, app = 3)
 \end{Sinput}
 \end{Schunk}
 The \verb+bma+ function returns a list containing 16 elements, each described in detail. However, most of these elements are only required for other functions. The main objects of interest are two table with the BMA statistics. The results obtained with binomial model prior are first on the list.
@@ -667,7 +667,7 @@ The choice of appropriate plotting options is left to the user's preferences reg
 \end{Schunk}
 \includegraphics{bdsm_vignette-025}
 
-\section{Chages in model priors}\label{priors}
+\section{Changes in model priors}\label{priors}
 This section provides a more detailed description of the available model prior options. Subsection \ref{ems} discusses the consequences of changes in the expected model size, while subsection \ref{dil} describes the dilution prior.
 
 \subsection{Changing expected model size}\label{ems}
@@ -675,7 +675,7 @@ The \verb+bma+ function calculates BMA statistics using both the binomial and bi
 \begin{Schunk}
 \begin{Sinput}
 > bma_results2 <- bma(bma_prep_objects_full, df = data_prepared,
-+                     round= 3, EMS = 2)
++                     app = 3, EMS = 2)
 \end{Sinput}
 \end{Schunk}
 Before turning to the main BMA results, let us focus on the changes in the posterior probability mass with respect to model sizes.
@@ -746,7 +746,7 @@ polity  0.769 -0.064 0.044 0.051 -0.083  0.030   0.043   0.000
 The change in PIPs is again significant, though not as pronounced as in the case of the binomial model prior. Changes in the ratios are relatively small and irregular for both regular and robust standard errors. The most pronounced change is the drop in the value of the ratios for the democracy index (\verb+polity+), indicating that this regressor performs better in larger models. It is also very instructive to examine the jointness measures calculated under the new prior specification.
 \begin{Schunk}
 \begin{Sinput}
-> jointness(bma_results2, measure = "HCGHM", rho = 0.5, round= 3)
+> jointness(bma_results2, measure = "HCGHM", rho = 0.5, app = 3)
 \end{Sinput}
 \begin{Soutput}
          ish   sed  pgrw    pop    ipr   opem    gsh  lnlex polity
@@ -767,7 +767,7 @@ Next, to consider the consequences of concentrating prior probability mass on la
 \begin{Schunk}
 \begin{Sinput}
 > bma_results8 <- bma(bma_prep_objects_full, df = data_prepared,
-+                     round= 3, EMS = 8)
++                     app = 3, EMS = 8)
 > bma_results8[[16]]
 \end{Sinput}
 \begin{Soutput}
@@ -833,7 +833,7 @@ polity  0.991 -0.082 0.030 0.043 -0.083  0.029   0.042   0.000
 With the increase in expected model size, population is classified as very strong, and all the other regressors are classified as strong in terms of the posterior inclusion probability criterion. Similarly to the case of the binomial prior, all the ratios increased except for population. It is also instructive to examine the jointness measures.
 \begin{Schunk}
 \begin{Sinput}
-> jointness(bma_results8, measure = "HCGHM", rho = 0.5, round= 3)
+> jointness(bma_results8, measure = "HCGHM", rho = 0.5, app = 3)
 \end{Sinput}
 \begin{Soutput}
          ish   sed  pgrw   pop   ipr  opem   gsh lnlex polity
@@ -855,7 +855,7 @@ One of the main issues associated with identifying robust regressors is multicol
 \begin{Schunk}
 \begin{Sinput}
 > bma_results_dil <- bma(bma_prep_objects_full, df = data_prepared,
-+                        round= 3, dilution = 1)
++                        app = 3, dilution = 1)
 \end{Sinput}
 \end{Schunk}
 The effect of implementing the dilution prior is well depicted by the distribution of prior probability mass over the model sizes.
@@ -870,7 +870,7 @@ On the one hand, the change in the prior distribution is barely visible for the 
 \begin{Schunk}
 \begin{Sinput}
 > bma_results_dil01 <- bma(bma_prep_objects_full, df = data_prepared,
-+                        round= 3, dilution = 1, dil.Par = 0.1)
++                        app = 3, dilution = 1, dil.Par = 0.1)
 > size_graphs_dil01 <- model_sizes(bma_results_dil01)
 \end{Sinput}
 \end{Schunk}
@@ -880,7 +880,7 @@ Decreasing the value of $\omega$ diminishes the impact of dilution on the model 
 \begin{Schunk}
 \begin{Sinput}
 > bma_results_dil2 <- bma(bma_prep_objects_full, df = data_prepared,
-+                        round= 3, dilution = 1, dil.Par = 2)
++                        app = 3, dilution = 1, dil.Par = 2)
 > size_graphs_dil2 <- model_sizes(bma_results_dil2)
 \end{Sinput}
 \end{Schunk}

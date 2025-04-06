@@ -12,7 +12,7 @@
 \contentsline {subsection}{\numberline {5.3}Selecting the best models}{14}{}%
 \contentsline {subsection}{\numberline {5.4}Calculating jointness measures}{16}{}%
 \contentsline {subsection}{\numberline {5.5}Visualizing model coefficients}{17}{}%
-\contentsline {section}{\numberline {6}Chages in model priors}{20}{}%
+\contentsline {section}{\numberline {6}Changes in model priors}{20}{}%
 \contentsline {subsection}{\numberline {6.1}Changing expected model size}{20}{}%
 \contentsline {subsection}{\numberline {6.2}Dilution prior}{26}{}%
 \contentsline {section}{\numberline {7}Concluding remarks}{29}{}%
