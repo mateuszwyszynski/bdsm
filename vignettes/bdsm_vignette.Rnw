@@ -308,42 +308,64 @@ SD(\beta | \pi_{k}=1,\text{data}) = \sqrt{ Var(\beta | \pi_{k}=1,\text{data}) }
 \noindent To perform BMA one needs to specify prior model probability\footnote{For a thorough discussion of model priors see \citet{Sala+2004,Ley+2009,George+2010,Eicher+2011}.}.
 The package offers two main options.
 The first is binomial model prior \citep{Sala+2004}:
+
 \begin{equation}
     \mathbb{P}(M_{j})=(\frac{EMS}{K})^{k_{j}}(1-\frac{EMS}{K})^{K-k_{j}}
 \end{equation}
+
 where $EMS$ is the expected model size and $k_{j}$ is a number of regressors in model $j$.
-If $EMS = \frac{EMS}{K}$, the binomial model prior simplifies to a uniform model prior with $\mathbb{P}(M_{j}) \propto 1$, meaning that all models are assumed to have equal probabilities.
-The second option is binomial-beta model prior \citet{Ley+2009} given by:
-\begin{equation}
-    \mathbb{P}(M_{j}) \propto \Gamma(1+k_{j})\Gamma(\frac{K-EMS}{EMS}+K-k_{j}).
-\end{equation}
-In the context of binomial-beta prior $EMS = \frac{EMS}{K}$ corresponds to equal probabilities on model sizes.
+If $EMS = \frac{K}{2}$, the binomial model prior simplifies to a uniform model prior with $\mathbb{P}(M_{j}) = \frac{1}{2^K}$ for every $j$, meaning that all models are assumed to have equal probabilities.
+The second is binomial-beta model prior \citet{Ley+2009} given by:
 
-\indent In order to account for potential multicolinearity between regressors one can use dilution prior introduce by \citet{George+2010}.The dilution prior involves augmenting the model prior (binomial or binomial-beta) with a function that accounts for multicollinearity:
 \begin{equation}
-    P_{D}(M_{j}) \propto \mathbb{P}(M_{j})|COR_{j}|^{\omega}
+    \mathbb{P}(M_{j}) \propto \Gamma(1+k_{j}) \cdot \Gamma(\frac{K-EMS}{EMS}+K-k_{j}).
 \end{equation}
-where $P_{D}(M_{j})$ is the diluted model prior, $|COR_{j}|$ is the determinant of the correlation matrix of regressors in model $j$, and $\omega$ is the dilution parameter.
-The lower the correlation between regressors, the closer $|COR_{j}|$ is to one, resulting in a smaller degree of dilution.
 
-\indent To determine whether regressors are substitutes or complements, various authors have developed jointness measures\footnote{To learn more about jointness measures, we recommend reading \citet{Doppelhofer+2009, Ley+2007, Hofmarcher+2018} in that order.}.
-Assuming two different covariates $a$ and $b$, let $\mathbb{P}(a\cap b)$ be the posterior probability of the inclusion of both variables, $\mathbb{P}(\overline{a}\cap \overline{b})$ the posterior probability of the exclusion of both variables, $\mathbb{P}(\overline{a}\cap b)$ and $\mathbb{P}(a\cap \overline{b})$ denote the posterior probability of including each variable separately.
+\noindent where $\Gamma$ is the gamma function.
+In the context of the binomial-beta prior $EMS = \frac{K}{2}$ corresponds to equal probabilities on model sizes.
+
+\indent In order to account for potential multicolinearity between regressors one can use dilution prior introduced by \citet{George+2010}.
+The dilution prior involves augmenting the model prior (binomial or binomial-beta) with a function that accounts for multicollinearity:
+
+\begin{equation}
+    \mathbb{P}_{D}(M_{j}) \propto \mathbb{P}(M_{j})|COR_{j}|^{\omega}
+\end{equation}
+
+where $\mathbb{P}_{D}(M_{j})$ is the diluted model prior, $|COR_{j}|$ is the determinant of the correlation matrix of regressors in model $j$,
+and $\omega$ is the dilution parameter.
+The lower the correlation between regressors,
+the closer $|COR_{j}|$ is to one, resulting in a smaller degree of dilution.
+
+\indent To determine whether regressors are substitutes or complements,
+various authors have developed jointness measures\footnote{
+To learn more about jointness measures, we recommend reading \citet{Doppelhofer+2009, Ley+2007, Hofmarcher+2018} in that order.
+}.
+Assuming two different covariates $a$ and $b$,
+let $\mathbb{P}(a\cap b)$ be the posterior probability of the inclusion of both variables,
+$\mathbb{P}(\overline{a}\cap \overline{b})$ the posterior probability of the exclusion of both variables,
+$\mathbb{P}(\overline{a}\cap b)$ and $\mathbb{P}(a\cap \overline{b})$ denote the posterior probability of including each variable separately.
 The first measure of jointness is simply $\mathbb{P}(a\cap b)$.
 However, this measure ignores much of the information about the relationships between the regressors.
-\citet{Doppelhofer+2009} measure if defined as:
+\citet{Doppelhofer+2009} measure is defined as:
+
 \begin{equation}
-    J_{DW}=\text{log}\left[\frac{\mathbb{P}(a\cap b)*\mathbb{P}(\overline{a}\cap \overline{b})}{\mathbb{P}(\overline{a}\cap b)*\mathbb{P}(a\cap \overline{b})}\right].
+    J_{DW}=\text{log}\left[\frac{\mathbb{P}(a\cap b) \cdot \mathbb{P}(\overline{a}\cap \overline{b})}{\mathbb{P}(\overline{a}\cap b) \cdot \mathbb{P}(a\cap \overline{b})}\right].
 \end{equation}
+
 If $J_{DW} < -2$, $-2 < J_{DW} < -1$, $-1 < J_{DW} < 1$, $1 < J_{DW} < 2$, and $J_{DW} > 2$, the authors classify the regressors as strong substitutes, significant substitutes, not significantly related, significant complements, and strong complements, respectively.
 Jointness measure proposed by \citet{Ley+2007} is given by:
+
 \begin{equation}
     J_{LS}=\frac{\mathbb{P}(a\cap b)}{\mathbb{P}(\overline{a}\cap b)+\mathbb{P}(a\cap \overline{b})}.
 \end{equation}
+
 The measure takes values in the range $[0, \infty)$, with higher values indicating a stronger complementary relationship.
 Finally, \citet{Hofmarcher+2018} measure of jointness is:
+
 \begin{equation}
-    J_{HCGHM}=\frac{(\mathbb{P}(a\cap b)+\rho)*\mathbb{P}(\overline{a}\cap \overline{b})+\rho)-(\mathbb{P}(\overline{a}\cap b)+\rho)*\mathbb{P}(a\cap \overline{b})+\rho)}{(\mathbb{P}(a\cap b)+\rho)*\mathbb{P}(\overline{a}\cap \overline{b})+\rho)+(\mathbb{P}(\overline{a}\cap b)+\rho)*\mathbb{P}(a\cap \overline{b})+\rho)+\rho}.
+    J_{HCGHM}=\frac{(\mathbb{P}(a\cap b)+\rho) \cdot \mathbb{P}(\overline{a}\cap \overline{b})+\rho)-(\mathbb{P}(\overline{a}\cap b)+\rho) \cdot \mathbb{P}(a\cap \overline{b})+\rho)}{(\mathbb{P}(a\cap b)+\rho) \cdot \mathbb{P}(\overline{a}\cap \overline{b})+\rho)+(\mathbb{P}(\overline{a}\cap b)+\rho) \cdot \mathbb{P}(a\cap \overline{b})+\rho)+\rho}.
 \end{equation}
+
 \citet{Hofmarcher+2018} advocate the use of the \citet{Jeffreys+1946} prior, which results in $\rho=\frac{1}{2}$.
 The measure takes values from -1 to 1, where values close to -1 indicate substitutes, and those close to 1 complements.
 

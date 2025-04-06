@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.22)  6 APR 2025 13:41
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.22)  6 APR 2025 14:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -376,7 +376,7 @@ File: Udsrom.fd 1995/08/01 v0.1 Double stroke roman font definitions
 
 [7]
 LaTeX Font Info:    Trying to load font information for TS1+lmtt on input line 
-382.
+404.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/lm/ts1lmtt.fd
 File: ts1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
@@ -385,7 +385,7 @@ File: ts1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 
 [9]
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <12> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 535.
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 557.
 
 
 [10]
@@ -394,7 +394,7 @@ LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <12> not available
 <bdsm_vignette-014.pdf, id=71, 433.62pt x 433.62pt>
 File: bdsm_vignette-014.pdf Graphic file (type pdf)
 <use bdsm_vignette-014.pdf>
-Package pdftex.def Info: bdsm_vignette-014.pdf  used on input line 639.
+Package pdftex.def Info: bdsm_vignette-014.pdf  used on input line 661.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
@@ -402,12 +402,12 @@ Package pdftex.def Info: bdsm_vignette-014.pdf  used on input line 639.
 <bdsm_vignette-015.pdf, id=81, 433.62pt x 433.62pt>
 File: bdsm_vignette-015.pdf Graphic file (type pdf)
 <use bdsm_vignette-015.pdf>
-Package pdftex.def Info: bdsm_vignette-015.pdf  used on input line 648.
+Package pdftex.def Info: bdsm_vignette-015.pdf  used on input line 670.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 <bdsm_vignette-016.pdf, id=82, 433.62pt x 433.62pt>
 File: bdsm_vignette-016.pdf Graphic file (type pdf)
 <use bdsm_vignette-016.pdf>
-Package pdftex.def Info: bdsm_vignette-016.pdf  used on input line 669.
+Package pdftex.def Info: bdsm_vignette-016.pdf  used on input line 691.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
@@ -417,7 +417,7 @@ Package pdftex.def Info: bdsm_vignette-016.pdf  used on input line 669.
 <bdsm_vignette-019.pdf, id=102, 433.62pt x 433.62pt>
 File: bdsm_vignette-019.pdf Graphic file (type pdf)
 <use bdsm_vignette-019.pdf>
-Package pdftex.def Info: bdsm_vignette-019.pdf  used on input line 749.
+Package pdftex.def Info: bdsm_vignette-019.pdf  used on input line 771.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
@@ -427,7 +427,7 @@ Package pdftex.def Info: bdsm_vignette-019.pdf  used on input line 749.
 <bdsm_vignette-023.pdf, id=116, 433.62pt x 433.62pt>
 File: bdsm_vignette-023.pdf Graphic file (type pdf)
 <use bdsm_vignette-023.pdf>
-Package pdftex.def Info: bdsm_vignette-023.pdf  used on input line 835.
+Package pdftex.def Info: bdsm_vignette-023.pdf  used on input line 857.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
@@ -435,7 +435,7 @@ Package pdftex.def Info: bdsm_vignette-023.pdf  used on input line 835.
 <bdsm_vignette-024.pdf, id=120, 433.62pt x 433.62pt>
 File: bdsm_vignette-024.pdf Graphic file (type pdf)
 <use bdsm_vignette-024.pdf>
-Package pdftex.def Info: bdsm_vignette-024.pdf  used on input line 844.
+Package pdftex.def Info: bdsm_vignette-024.pdf  used on input line 866.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
@@ -443,7 +443,7 @@ Package pdftex.def Info: bdsm_vignette-024.pdf  used on input line 844.
 <bdsm_vignette-025.pdf, id=133, 433.62pt x 433.62pt>
 File: bdsm_vignette-025.pdf Graphic file (type pdf)
 <use bdsm_vignette-025.pdf>
-Package pdftex.def Info: bdsm_vignette-025.pdf  used on input line 854.
+Package pdftex.def Info: bdsm_vignette-025.pdf  used on input line 876.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
@@ -453,12 +453,12 @@ Package pdftex.def Info: bdsm_vignette-025.pdf  used on input line 854.
 <bdsm_vignette-028.pdf, id=160, 433.62pt x 433.62pt>
 File: bdsm_vignette-028.pdf Graphic file (type pdf)
 <use bdsm_vignette-028.pdf>
-Package pdftex.def Info: bdsm_vignette-028.pdf  used on input line 891.
+Package pdftex.def Info: bdsm_vignette-028.pdf  used on input line 913.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 <bdsm_vignette-029.pdf, id=161, 433.62pt x 433.62pt>
 File: bdsm_vignette-029.pdf Graphic file (type pdf)
 <use bdsm_vignette-029.pdf>
-Package pdftex.def Info: bdsm_vignette-029.pdf  used on input line 902.
+Package pdftex.def Info: bdsm_vignette-029.pdf  used on input line 924.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
@@ -468,7 +468,7 @@ Package pdftex.def Info: bdsm_vignette-029.pdf  used on input line 902.
 <bdsm_vignette-034.pdf, id=180, 433.62pt x 433.62pt>
 File: bdsm_vignette-034.pdf Graphic file (type pdf)
 <use bdsm_vignette-034.pdf>
-Package pdftex.def Info: bdsm_vignette-034.pdf  used on input line 994.
+Package pdftex.def Info: bdsm_vignette-034.pdf  used on input line 1016.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
@@ -476,7 +476,7 @@ Package pdftex.def Info: bdsm_vignette-034.pdf  used on input line 994.
 <bdsm_vignette-035.pdf, id=185, 433.62pt x 433.62pt>
 File: bdsm_vignette-035.pdf Graphic file (type pdf)
 <use bdsm_vignette-035.pdf>
-Package pdftex.def Info: bdsm_vignette-035.pdf  used on input line 1004.
+Package pdftex.def Info: bdsm_vignette-035.pdf  used on input line 1026.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
@@ -486,7 +486,7 @@ Package pdftex.def Info: bdsm_vignette-035.pdf  used on input line 1004.
 <bdsm_vignette-040.pdf, id=205, 433.62pt x 433.62pt>
 File: bdsm_vignette-040.pdf Graphic file (type pdf)
 <use bdsm_vignette-040.pdf>
-Package pdftex.def Info: bdsm_vignette-040.pdf  used on input line 1093.
+Package pdftex.def Info: bdsm_vignette-040.pdf  used on input line 1115.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
@@ -494,7 +494,7 @@ Package pdftex.def Info: bdsm_vignette-040.pdf  used on input line 1093.
 <bdsm_vignette-041.pdf, id=209, 433.62pt x 433.62pt>
 File: bdsm_vignette-041.pdf Graphic file (type pdf)
 <use bdsm_vignette-041.pdf>
-Package pdftex.def Info: bdsm_vignette-041.pdf  used on input line 1107.
+Package pdftex.def Info: bdsm_vignette-041.pdf  used on input line 1129.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
@@ -502,7 +502,7 @@ Package pdftex.def Info: bdsm_vignette-041.pdf  used on input line 1107.
 <bdsm_vignette-042.pdf, id=219, 433.62pt x 433.62pt>
 File: bdsm_vignette-042.pdf Graphic file (type pdf)
 <use bdsm_vignette-042.pdf>
-Package pdftex.def Info: bdsm_vignette-042.pdf  used on input line 1118.
+Package pdftex.def Info: bdsm_vignette-042.pdf  used on input line 1140.
 (pdftex.def)             Requested size: 341.94652pt x 341.96056pt.
 
 
@@ -555,7 +555,7 @@ msy9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lmtk10.pfb><
 025/texmf-dist/fonts/type1/public/lm/lmtt9.pfb></usr/local/texlive/2025/texmf-d
 ist/fonts/type1/public/lm/lmtto10.pfb></usr/local/texlive/2025/texmf-dist/fonts
 /type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on bdsm_vignette.pdf (33 pages, 698795 bytes).
+Output written on bdsm_vignette.pdf (33 pages, 698271 bytes).
 PDF statistics:
  386 PDF objects out of 1000 (max. 8388607)
  257 compressed objects within 3 object streams
