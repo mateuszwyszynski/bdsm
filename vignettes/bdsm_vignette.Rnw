@@ -735,28 +735,38 @@ The comparison of the last two tables and the estimation outputs with regular an
 how the results change when switching between these two variance estimators.
 
 \subsection{Calculating jointness measures}
+
 Within the BMA framework, it is possible to establish the nature of the relationship between pairs of examined regressors using the jointness measures.
 This can be accomplished using the \verb+jointness+ function.
 The latest jointness measure, introduced by \citet{Hofmarcher+2018}, has been shown to outperform older alternatives developed by \citet{Ley+2007} and \citet{Doppelhofer+2009}\footnote{See section \ref{prior_joint} for the interpretations of jointness measures.}.
 Therefore, the \citet{Hofmarcher+2018} measure is the default option in the \verb+jointness+ function.
+
 <<>>=
 jointness(bma_results)
 @
-Above the main diagonal are the results for the binomial model prior, and below it are the results for the binomial-beta model prior.
+
+\noindent Above the main diagonal the user can find the results for the binomial model prior, and below the results for the binomial-beta model prior.
 All the values in the table are positive, indicating complementary relationships between the regressors.
 Notably, the values for the binomial-beta prior are substantially higher than those for the binomial prior.
 This result is not surprising, as the model with all the regressors accounts for almost $70\%$ of the total posterior probability mass.
+
 To obtain the results for the \citet{Ley+2007} measure, the user should run:
+
 <<>>=
 jointness(bma_results, measure = "LS")
 @
-The values of the \citet{Ley+2007} measure corroborate the results obtained using the \citet{Hofmarcher+2018} measure.
+
+\noindent The values corroborate the results obtained using the \citet{Hofmarcher+2018} measure.
 All the regressors exhibit complementary relationships, which are visibly stronger under the binomial-beta model prior.
-However, using the \citet{Doppelhofer+2009} measure yields a slightly different outcome:
+
+However, the \citet{Doppelhofer+2009} measure yields a slightly different outcome:
+
 <<>>=
 jointness(bma_results, measure = "DW")
 @
-In this case, some pairs of regressors have negative values of the jointness measure under the binomial model prior; however, these values are very close to zero, indicating unrelated variables.
+
+\noindent In this case, some pairs of regressors have negative values of the jointness measure under the binomial model prior;
+however, these values are very close to zero, indicating unrelated variables.
 Once again, the values for the binomial-beta model prior are higher, demonstrating how the results are influenced by the choice of model prior.
 
 \subsection{Visualizing model coefficients}

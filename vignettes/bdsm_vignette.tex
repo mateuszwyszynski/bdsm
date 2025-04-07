@@ -875,10 +875,12 @@ The comparison of the last two tables and the estimation outputs with regular an
 how the results change when switching between these two variance estimators.
 
 \subsection{Calculating jointness measures}
+
 Within the BMA framework, it is possible to establish the nature of the relationship between pairs of examined regressors using the jointness measures.
 This can be accomplished using the \verb+jointness+ function.
 The latest jointness measure, introduced by \citet{Hofmarcher+2018}, has been shown to outperform older alternatives developed by \citet{Ley+2007} and \citet{Doppelhofer+2009}\footnote{See section \ref{prior_joint} for the interpretations of jointness measures.}.
 Therefore, the \citet{Hofmarcher+2018} measure is the default option in the \verb+jointness+ function.
+
 \begin{Schunk}
 \begin{Sinput}
 > jointness(bma_results)
@@ -896,11 +898,14 @@ lnlex  0.865 0.836 0.836 0.944 0.811 0.863 0.854    NA  0.227
 polity 0.791 0.764 0.765 0.856 0.745 0.788 0.780 0.818     NA
 \end{Soutput}
 \end{Schunk}
-Above the main diagonal are the results for the binomial model prior, and below it are the results for the binomial-beta model prior.
+
+\noindent Above the main diagonal the user can find the results for the binomial model prior, and below the results for the binomial-beta model prior.
 All the values in the table are positive, indicating complementary relationships between the regressors.
 Notably, the values for the binomial-beta prior are substantially higher than those for the binomial prior.
 This result is not surprising, as the model with all the regressors accounts for almost $70\%$ of the total posterior probability mass.
+
 To obtain the results for the \citet{Ley+2007} measure, the user should run:
+
 \begin{Schunk}
 \begin{Sinput}
 > jointness(bma_results, measure = "LS")
@@ -918,9 +923,12 @@ lnlex  14.094 11.424 11.425 35.099 9.745 13.898 12.960     NA  1.566
 polity  8.777  7.686  7.724 12.875 7.014  8.630  8.293 10.198     NA
 \end{Soutput}
 \end{Schunk}
-The values of the \citet{Ley+2007} measure corroborate the results obtained using the \citet{Hofmarcher+2018} measure.
+
+\noindent The values corroborate the results obtained using the \citet{Hofmarcher+2018} measure.
 All the regressors exhibit complementary relationships, which are visibly stronger under the binomial-beta model prior.
-However, using the \citet{Doppelhofer+2009} measure yields a slightly different outcome:
+
+However, the \citet{Doppelhofer+2009} measure yields a slightly different outcome:
+
 \begin{Schunk}
 \begin{Sinput}
 > jointness(bma_results, measure = "DW")
@@ -938,7 +946,9 @@ lnlex  0.983 0.957  0.954  1.173  0.985  1.105 1.001     NA -0.056
 polity 1.013 0.903  0.939  0.994  0.967  0.980 0.934  0.906     NA
 \end{Soutput}
 \end{Schunk}
-In this case, some pairs of regressors have negative values of the jointness measure under the binomial model prior; however, these values are very close to zero, indicating unrelated variables.
+
+\noindent In this case, some pairs of regressors have negative values of the jointness measure under the binomial model prior;
+however, these values are very close to zero, indicating unrelated variables.
 Once again, the values for the binomial-beta model prior are higher, demonstrating how the results are influenced by the choice of model prior.
 
 \subsection{Visualizing model coefficients}
