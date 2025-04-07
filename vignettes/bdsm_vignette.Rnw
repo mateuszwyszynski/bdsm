@@ -799,26 +799,34 @@ grid.arrange(coef_plots[[1]], coef_plots[[2]], coef_plots2[[1]],
 @
 
 \section{Changes in model priors}\label{priors}
+
 This section provides a more detailed description of the available model prior options.
 Subsection \ref{ems} discusses the consequences of changes in the expected model size, while subsection \ref{dil} describes the dilution prior.
 
 \subsection{Changing expected model size}\label{ems}
+
 The \verb+bma+ function calculates BMA statistics using both the binomial and binomial-beta model priors.
 By default, the \verb+bma+ function sets the expected model size (EMS) to $K/2$, where $K$ denotes the total number of regressors.
 The binomial model prior with $EMS = K/2$ leads to a uniform model prior, assigning equal probabilities to all models.
 In contrast, the binomial-beta model prior with $EMS = K/2$ assumes equal probabilities across all model sizes.
 However, the user can modify the prior model specification by changing the \verb+EMS+ parameter.
+
 First, consider the consequence of concentrating prior probability mass on small models by setting $EMS = 2$.
+
 <<>>=
 bma_results2 <- bma(bma_prep_objects_full, df = data_prepared,
                     app = 3, EMS = 2)
 @
-Before turning to the main BMA results, let us focus on the changes in the posterior probability mass with respect to model sizes.
+
+\noindent Before turning to the main BMA results, let us focus on the changes in the posterior probability mass with respect to model sizes.
+
 <<>>=
 bma_results2[[16]]
 @
-The results show that decreasing the prior expected model size led to a considerable decline in the posterior expected model size.
+
+\noindent The results show that decreasing the prior expected model size led to a considerable decline in the posterior expected model size.
 The consequences of this change in the prior expected model size are best illustrated using the prior and posterior probability mass over model sizes.
+
 <<fig=TRUE>>=
 size_graphs2 <- model_sizes(bma_results2)
 @
@@ -849,6 +857,7 @@ bma_results2[[2]]
 The change in PIPs is again significant, though not as pronounced as in the case of the binomial model prior.
 Changes in the ratios are relatively small and irregular for both regular and robust standard errors.
 The most pronounced change is the drop in the value of the ratios for the democracy index (\verb+polity+), indicating that this regressor performs better in larger models.
+
 It is also very instructive to examine the jointness measures calculated under the new prior specification.
 <<>>=
 jointness(bma_results2, measure = "HCGHM", rho = 0.5, app = 3)
@@ -891,7 +900,8 @@ bma_results8[[2]]
 @
 With the increase in expected model size, population is classified as very strong, and all the other regressors are classified as strong in terms of the posterior inclusion probability criterion.
 Similarly to the case of the binomial prior, all the ratios increased except for population.
-It is also instructive to examine the jointness measures.
+
+Again, it is instructive to examine the jointness measures.
 <<>>=
 jointness(bma_results8, measure = "HCGHM", rho = 0.5, app = 3)
 @
