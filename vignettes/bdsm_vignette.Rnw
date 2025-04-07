@@ -586,7 +586,7 @@ the object obtained with the \verb+bma_prep+ function.
 The \verb+app+ parameter specifies the decimal place to which the BMA statistics should be rounded in the results.
 
 <<>>=
-bma_results <- bma(bma_prep_objects_full, df = data_prepared, app = 3)
+bma_results <- bma(bma_prep_objects_full, df = data_prepared, round = 3)
 @
 
 The \verb+bma+ function returns a list containing 16 elements.
@@ -815,7 +815,7 @@ First, consider the consequence of concentrating prior probability mass on small
 
 <<>>=
 bma_results2 <- bma(bma_prep_objects_full, df = data_prepared,
-                    app = 3, EMS = 2)
+                    round = 3, EMS = 2)
 @
 
 \noindent Before turning to the main BMA results, let us focus on the changes in the posterior probability mass with respect to model sizes.
@@ -862,7 +862,7 @@ The most pronounced change is the drop in the value of the ratios for the democr
 
 It is also very instructive to examine the jointness measures calculated under the new prior specification.
 <<>>=
-jointness(bma_results2, measure = "HCGHM", rho = 0.5, app = 3)
+jointness(bma_results2, measure = "HCGHM", rho = 0.5, round = 3)
 @
 On the one hand, the results obtained with the binomial-beta model prior did not change in any significant manner.
 On the other hand, the results obtained with the binomial model prior changed substantially.
@@ -871,7 +871,7 @@ The measure indicates that population is a substitute for both the investment pr
 Next, to consider the consequences of concentrating prior probability mass on large models, \verb+EMS+ was set to eight.
 <<>>=
 bma_results8 <- bma(bma_prep_objects_full, df = data_prepared,
-                    app = 3, EMS = 8)
+                    round = 3, EMS = 8)
 bma_results8[[16]]
 @
 
@@ -909,7 +909,7 @@ Similarly to the case of the binomial prior, all the ratios increased except for
 
 Again, it is instructive to examine the jointness measures.
 <<>>=
-jointness(bma_results8, measure = "HCGHM", rho = 0.5, app = 3)
+jointness(bma_results8, measure = "HCGHM", rho = 0.5, round = 3)
 @
 
 \noindent The values of the measures show that all the regressors exhibit a very strong complementary relationship.
@@ -927,7 +927,7 @@ The user can also manipulate the dilution parameter $\omega$.
 The default option is \verb+dil.Par = 0.5+, as recommended by \citet{George+2010}.
 <<>>=
 bma_results_dil <- bma(bma_prep_objects_full, df = data_prepared,
-                       app = 3, dilution = 1)
+                       round = 3, dilution = 1)
 @
 
 \noindent The effect of implementing the dilution prior is well depicted by the distribution of prior probability mass over the model sizes.
@@ -943,7 +943,7 @@ However, this change is not uniform, as models characterized by the highest degr
 Before moving to the BMA statistics, it is instructive to examine the change in the \verb+dil.Par+ parameter.
 <<fig=TRUE>>=
 bma_results_dil01 <- bma(bma_prep_objects_full, df = data_prepared,
-                       app = 3, dilution = 1, dil.Par = 0.1)
+                       round = 3, dilution = 1, dil.Par = 0.1)
 size_graphs_dil01 <- model_sizes(bma_results_dil01)
 @
 
@@ -951,7 +951,7 @@ size_graphs_dil01 <- model_sizes(bma_results_dil01)
 Conversely, raising the \verb+dil.Par+ parameter increases the degree of dilution.
 <<fig=TRUE>>=
 bma_results_dil2 <- bma(bma_prep_objects_full, df = data_prepared,
-                       app = 3, dilution = 1, dil.Par = 2)
+                       round = 3, dilution = 1, dil.Par = 2)
 size_graphs_dil2 <- model_sizes(bma_results_dil2)
 @
 
