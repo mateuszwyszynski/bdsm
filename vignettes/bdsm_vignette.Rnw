@@ -91,16 +91,14 @@ On the assumption of weakly exogenous regressors, \citet{Moral+2013} augmented e
 x_{it}=\gamma_{t0}y_{i0}+...+\gamma_{tt-1}y_{it-1}+\Lambda_{t1}x_{i1}+...+\Lambda_{tt-1}x_{it-1}+c_{t}\eta_{i}+\vartheta_{it}
 \end{equation}
 \noindent where $t=2,\dots ,T;$ $c_{t}$ is the $k\times 1$ vector of parameters.
-For $h<t$, $\gamma_{th}$ is a $k\times 1$ vector $(y_{th}^{1},\dots,y_{th}^{k})'$  $h=0,\dots,T-1$; $\Lambda_{th}$ is a $k\times k$ matrix of parameters, and $\vartheta_{it}$ is a $k\times 1$ of prediction errors.
-The mean vector and the covariance matrix of the joint distribution of the initial observations and the individual effects $\eta_{i}$ are unrestricted:
+For $h<t$, $\gamma_{th}$ is a $k\times 1$ vector $(y_{th}^{1},\dots,y_{th}^{k})'$  $h=0,\dots,T-1$; $\Lambda_{th}$ is a $k\times k$ matrix of parameters, and $\vartheta_{it}$ is a $k\times 1$ of prediction errors. The initial observations are defined with
 \begin{equation}\label{eq4}
     y_{i0}=c_{0}\eta_{i}+\upsilon_{it}
 \end{equation}
 \begin{equation}\label{eq5}
     x_{i1}=\gamma_{10}y_{i0}+c_{1}\eta_{i}+\vartheta_{it}
 \end{equation}
-\noindent where $c_{0}$ is a scalar, and $c_{1}$ and $\gamma_{10}$ are $k\times 1$ vectors.\footnote{The method outperforms the Arellano--Bond estimator \citep{Moral+2019}.}
-
+\noindent where $c_{0}$ is a scalar, $c_{1}$ and $\gamma_{10}$ are $k\times 1$ vectors and $\eta_{i}$ are the individual effects. The mean vector and the covariance matrix of the joint distribution of the initial observations and the individual effects are unrestricted.\footnote{The method outperforms the Arellano--Bond estimator \citep{Moral+2019}.}
 \indent For the model setup given in equations (\ref{eq1}) and (\ref{eq3}-\ref{eq5}), \citet{Moral+2013} derived the log-likelihood function:
 \begin{equation}\label{eq6}
     \log f(data|\theta) \propto \frac{N}{2}\log\det(B^{-1}D\Sigma D'B'^{-1})-\frac{1}{2}\sum_{i=1}^{N}\{R'_{i}(B^{-1}D\Sigma D'B'^{-1})^{-1}R_{i}\}
