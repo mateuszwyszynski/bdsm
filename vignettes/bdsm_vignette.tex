@@ -83,9 +83,9 @@ This section outlines the model setup, describes the approach to Bayesian model 
 \noindent where $y_{it}$ is the dependent variable, $i$ $(=1,...,N)$ indexes entity (ex. country), $t$ $(=1,...,T)$ indexes time, $x_{it}$ is a matrix of growth determinants, $\beta$ is a parameter vector, $\eta_{i}$ is an entity specific fixed effect, $\zeta_{t}$ is a period-specific shock and $v_{it}$ is a shock to the dependent variable.
 To address the issue of reverse causality the model is build on the assumption of weak exogeneity, that can be formalized as
 \begin{equation}\label{eq2}
-    \mathbb{E}(v_{ij,t}|y^{t-1}_{t},x^{t}_{i},\eta_{i})=0
+    \mathbb{E}(v_{i,t}|y^{t-1}_{t},x^{t}_{i},\eta_{i})=0
 \end{equation}
-\noindent where $y^{t-1}_{t}=(y_{ij,0},...,y_{ij,t-1})'$ and $x^t_{i}=(x_{ij,0},...,x_{ij,t})'$.
+\noindent where $y^{t-1}_{t}=(y_{i,0},...,y_{i,t-1})'$ and $x^t_{i}=(x_{i,0},...,x_{i,t})'$.
 Accordingly, weak exogeneity implies that the current values of the regressors, lagged dependent variable, and fixed effects are uncorrelated with the current shocks, while they are all allowed to be correlated with each other at the same time.
 On the assumption of weakly exogenous regressors, \citet{Moral+2013} augmented equation (\ref{eq1}) with a reduced-form equation capturing the unrestricted feedback process:
 \begin{equation}\label{eq3}
