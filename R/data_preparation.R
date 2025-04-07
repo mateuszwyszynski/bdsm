@@ -152,15 +152,18 @@ data_prep <- function(df, timestamp_col, entity_col,
   apply_transformation <- function(df, effect) {
     if (effect == "S" && standardize) {
       df <- df %>%
-        dplyr::mutate(dplyr::across(-c({{ timestamp_col }}, {{ entity_col }}),
-                                    ~ scale(.x, scale = scale)))
+        dplyr::reframe("{{entity_col}}" := {{ entity_col }},
+                       "{{timestamp_col}}" := {{ timestamp_col }},
+                       dplyr::across(-c({{ timestamp_col }}, {{ entity_col }}),
+                                     function(x) c(scale(x, scale = scale))))
     }
 
     if (effect == "T" && time_effects) {
       df <- df %>%
         dplyr::group_by({{ timestamp_col }}) %>%
-        dplyr::mutate(dplyr::across(-{{ entity_col }},
-                                    ~ scale(.x, scale = time_scale))) %>%
+        dplyr::reframe("{{entity_col}}" := {{ entity_col }},
+                       dplyr::across(!{{ entity_col }},
+                                     function(x) c(scale(x, scale = scale)))) %>%
         dplyr::ungroup() %>%
         dplyr::arrange({{ entity_col }})
     }
@@ -168,8 +171,9 @@ data_prep <- function(df, timestamp_col, entity_col,
     if (effect == "E" && entity_effects) {
       df <- df %>%
         dplyr::group_by({{ entity_col }}) %>%
-        dplyr::mutate(dplyr::across(-{{ timestamp_col }},
-                                    ~ scale(.x, scale = entity_scale))) %>%
+        dplyr::reframe("{{timestamp_col}}" := {{ timestamp_col }},
+                       dplyr::across(!{{ timestamp_col }},
+                                     function(x) c(scale(x, scale = scale)))) %>%
         dplyr::ungroup() %>%
         dplyr::arrange({{ entity_col }})
     }
