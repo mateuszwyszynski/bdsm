@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2025.2.27)  7 APR 2025 19:22
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2025.2.27)  7 APR 2025 20:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -164,7 +164,7 @@ File: ts1enc.def 2001/06/05 v3.0e (jk/car/fm) Standard LaTeX file
 LaTeX Font Info:    Redeclaring font encoding TS1 on input line 47.
 ))
 
-! LaTeX Error: File `dsfont.sty' not found.
+! LaTeX Error: File `bbm.sty' not found.
 
 Type X to quit or <RETURN> to proceed,
 or enter new name. (Default extension: sty)
@@ -180,7 +180,7 @@ l.10 \usepackage
  
 Here is how much of TeX's memory you used:
  2048 strings out of 475172
- 30988 string characters out of 5765189
+ 30976 string characters out of 5765189
  411246 words of memory out of 5000000
  25078 multiletter control sequences out of 15000+600000
  558837 words of font info for 36 fonts, out of 8000000 for 9000
