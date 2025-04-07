@@ -952,10 +952,12 @@ however, these values are very close to zero, indicating unrelated variables.
 Once again, the values for the binomial-beta model prior are higher, demonstrating how the results are influenced by the choice of model prior.
 
 \subsection{Visualizing model coefficients}
+
 The \verb+coef_hist+ function allows the user to plot the distribution of estimated coefficients.
 It returns a list containing a number of objects equal to the number of regressors plus one.
 The first object in the list is a graph of the coefficients for the lagged dependent variable, while the remaining objects are graphs of the coefficients for the other regressors.
 The graph for the lagged dependent variable collects coefficients from the entire model space, whereas the graphs for the other regressors only collect coefficients from the models that include the given regressor (half of the model space).
+
 There are two main options for visualizing the coefficient distributions.
 The first option uses a histogram.
 The \verb+coef_hist+ function provides the user with options for controlling the bin widths of the histogram (\verb+BW+, \verb+binW+, \verb+BN+, and \verb+num+).
