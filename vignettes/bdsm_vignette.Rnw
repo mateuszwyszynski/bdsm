@@ -846,7 +846,8 @@ The main BMA posterior statistic for the binomial model prior also experienced a
 <<>>=
 bma_results2[[1]]
 @
-Posterior inclusion probabilities drop considerably for all the regressors, except for population, which remains almost unchanged.
+
+\noindent Posterior inclusion probabilities drop considerably for all the regressors, except for population, which remains almost unchanged.
 Interestingly, the ratios for all variables declined, with population being the exception.
 The ratio for population remains above two for regular standard errors and 1.7 for robust standard errors.
 This outcome indicates that population performs relatively better in smaller models.
@@ -854,7 +855,8 @@ The results for binomial-beta model prior are  given below.
 <<>>=
 bma_results2[[2]]
 @
-The change in PIPs is again significant, though not as pronounced as in the case of the binomial model prior.
+
+\noindent The change in PIPs is again significant, though not as pronounced as in the case of the binomial model prior.
 Changes in the ratios are relatively small and irregular for both regular and robust standard errors.
 The most pronounced change is the drop in the value of the ratios for the democracy index (\verb+polity+), indicating that this regressor performs better in larger models.
 
@@ -872,7 +874,8 @@ bma_results8 <- bma(bma_prep_objects_full, df = data_prepared,
                     app = 3, EMS = 8)
 bma_results8[[16]]
 @
-The posterior model size increased for the binomial prior; however, it remained almost unchanged for the binomial-beta model prior.
+
+\noindent The posterior model size increased for the binomial prior; however, it remained almost unchanged for the binomial-beta model prior.
 The most interesting aspect is the new graphs of prior and posterior probability mass over the model sizes.
 <<fig=TRUE>>=
 size_graphs8 <- model_sizes(bma_results8)
@@ -891,21 +894,25 @@ The increase in the expected model size also influenced the main BMA statistics.
 <<>>=
 bma_results8[[1]]
 @
-The PIPs increased considerably.
+
+\noindent The PIPs increased considerably.
 Population is classified as very strong, while the other regressors are classified as strong or positive.
 Interestingly, all the ratios have improved as well, except for population.
 The change in the results for the binomial-beta model prior is less pronounced.
 <<>>=
 bma_results8[[2]]
 @
-With the increase in expected model size, population is classified as very strong, and all the other regressors are classified as strong in terms of the posterior inclusion probability criterion.
+
+\noindent With the increase in expected model size, population is classified as very strong,
+and all the other regressors are classified as strong in terms of the posterior inclusion probability criterion.
 Similarly to the case of the binomial prior, all the ratios increased except for population.
 
 Again, it is instructive to examine the jointness measures.
 <<>>=
 jointness(bma_results8, measure = "HCGHM", rho = 0.5, app = 3)
 @
-The values of the measures show that all the regressors exhibit a very strong complementary relationship.
+
+\noindent The values of the measures show that all the regressors exhibit a very strong complementary relationship.
 This outcome, once again, underscores the importance of carefully considering the prior when interpreting jointness measures.
 
 \subsection{Dilution prior}\label{dil}
@@ -922,7 +929,9 @@ The default option is \verb+dil.Par = 0.5+, as recommended by \citet{George+2010
 bma_results_dil <- bma(bma_prep_objects_full, df = data_prepared,
                        app = 3, dilution = 1)
 @
-The effect of implementing the dilution prior is well depicted by the distribution of prior probability mass over the model sizes.
+
+\noindent The effect of implementing the dilution prior is well depicted by the distribution of prior probability mass over the model sizes.
+
 <<fig=TRUE>>=
 size_graphs_dil <- model_sizes(bma_results_dil)
 @
@@ -937,14 +946,16 @@ bma_results_dil01 <- bma(bma_prep_objects_full, df = data_prepared,
                        app = 3, dilution = 1, dil.Par = 0.1)
 size_graphs_dil01 <- model_sizes(bma_results_dil01)
 @
-As we can see, decreasing the value of $\omega$ diminishes the impact of dilution on the model prior.
+
+\noindent As we can see, decreasing the value of $\omega$ diminishes the impact of dilution on the model prior.
 Conversely, raising the \verb+dil.Par+ parameter increases the degree of dilution.
 <<fig=TRUE>>=
 bma_results_dil2 <- bma(bma_prep_objects_full, df = data_prepared,
                        app = 3, dilution = 1, dil.Par = 2)
 size_graphs_dil2 <- model_sizes(bma_results_dil2)
 @
-An especially strong impact can be seen for the binomial-beta prior.
+
+\noindent An especially strong impact can be seen for the binomial-beta prior.
 
 However, even after giving such priority to the penalty for multicollinearity,
 the main BMA statistics remain stable.

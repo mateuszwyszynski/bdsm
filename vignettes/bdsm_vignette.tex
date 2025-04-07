@@ -1067,7 +1067,8 @@ lnlex   0.637  0.052 0.068 0.087  0.082  0.069   0.096 100.000
 polity  0.372 -0.029 0.042 0.046 -0.079  0.031   0.043   0.000
 \end{Soutput}
 \end{Schunk}
-Posterior inclusion probabilities drop considerably for all the regressors, except for population, which remains almost unchanged.
+
+\noindent Posterior inclusion probabilities drop considerably for all the regressors, except for population, which remains almost unchanged.
 Interestingly, the ratios for all variables declined, with population being the exception.
 The ratio for population remains above two for regular standard errors and 1.7 for robust standard errors.
 This outcome indicates that population performs relatively better in smaller models.
@@ -1090,7 +1091,8 @@ lnlex   0.902  0.097 0.071 0.094  0.107  0.066   0.093 100.000
 polity  0.769 -0.064 0.044 0.051 -0.083  0.030   0.043   0.000
 \end{Soutput}
 \end{Schunk}
-The change in PIPs is again significant, though not as pronounced as in the case of the binomial model prior.
+
+\noindent The change in PIPs is again significant, though not as pronounced as in the case of the binomial model prior.
 Changes in the ratios are relatively small and irregular for both regular and robust standard errors.
 The most pronounced change is the drop in the value of the ratios for the democracy index (\verb+polity+), indicating that this regressor performs better in larger models.
 
@@ -1129,7 +1131,8 @@ Binomial                      8                8.666
 Binomial-beta                 8                8.944
 \end{Soutput}
 \end{Schunk}
-The posterior model size increased for the binomial prior; however, it remained almost unchanged for the binomial-beta model prior.
+
+\noindent The posterior model size increased for the binomial prior; however, it remained almost unchanged for the binomial-beta model prior.
 The most interesting aspect is the new graphs of prior and posterior probability mass over the model sizes.
 \begin{Schunk}
 \begin{Sinput}
@@ -1169,7 +1172,8 @@ lnlex   0.981  0.117 0.062 0.088  0.119  0.061   0.088 100.000
 polity  0.945 -0.078 0.034 0.045 -0.083  0.030   0.043   0.000
 \end{Soutput}
 \end{Schunk}
-The PIPs increased considerably.
+
+\noindent The PIPs increased considerably.
 Population is classified as very strong, while the other regressors are classified as strong or positive.
 Interestingly, all the ratios have improved as well, except for population.
 The change in the results for the binomial-beta model prior is less pronounced.
@@ -1191,7 +1195,9 @@ lnlex   0.997  0.123 0.058 0.086  0.123  0.058   0.086 100.000
 polity  0.991 -0.082 0.030 0.043 -0.083  0.029   0.042   0.000
 \end{Soutput}
 \end{Schunk}
-With the increase in expected model size, population is classified as very strong, and all the other regressors are classified as strong in terms of the posterior inclusion probability criterion.
+
+\noindent With the increase in expected model size, population is classified as very strong,
+and all the other regressors are classified as strong in terms of the posterior inclusion probability criterion.
 Similarly to the case of the binomial prior, all the ratios increased except for population.
 
 Again, it is instructive to examine the jointness measures.
@@ -1212,7 +1218,8 @@ lnlex  0.983 0.979 0.979 0.993 0.976 0.983 0.982    NA  0.854
 polity 0.973 0.969 0.969 0.982 0.966 0.972 0.971 0.977     NA
 \end{Soutput}
 \end{Schunk}
-The values of the measures show that all the regressors exhibit a very strong complementary relationship.
+
+\noindent The values of the measures show that all the regressors exhibit a very strong complementary relationship.
 This outcome, once again, underscores the importance of carefully considering the prior when interpreting jointness measures.
 
 \subsection{Dilution prior}\label{dil}
@@ -1231,7 +1238,9 @@ The default option is \verb+dil.Par = 0.5+, as recommended by \citet{George+2010
 +                        app = 3, dilution = 1)
 \end{Sinput}
 \end{Schunk}
-The effect of implementing the dilution prior is well depicted by the distribution of prior probability mass over the model sizes.
+
+\noindent The effect of implementing the dilution prior is well depicted by the distribution of prior probability mass over the model sizes.
+
 \begin{Schunk}
 \begin{Sinput}
 > size_graphs_dil <- model_sizes(bma_results_dil)
@@ -1252,7 +1261,8 @@ Before moving to the BMA statistics, it is instructive to examine the change in 
 \end{Sinput}
 \end{Schunk}
 \includegraphics{bdsm_vignette-041}
-As we can see, decreasing the value of $\omega$ diminishes the impact of dilution on the model prior.
+
+\noindent As we can see, decreasing the value of $\omega$ diminishes the impact of dilution on the model prior.
 Conversely, raising the \verb+dil.Par+ parameter increases the degree of dilution.
 \begin{Schunk}
 \begin{Sinput}
@@ -1262,7 +1272,8 @@ Conversely, raising the \verb+dil.Par+ parameter increases the degree of dilutio
 \end{Sinput}
 \end{Schunk}
 \includegraphics{bdsm_vignette-042}
-An especially strong impact can be seen for the binomial-beta prior.
+
+\noindent An especially strong impact can be seen for the binomial-beta prior.
 
 However, even after giving such priority to the penalty for multicollinearity,
 the main BMA statistics remain stable.
