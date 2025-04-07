@@ -830,7 +830,7 @@ PMP        0.09   0.044   0.042   0.036   0.035   0.029   0.026   0.025
 \end{Schunk}
 
 1 indicates the presence of a given regressor in a model, while the last row displays the posterior model probability of that model.
-To obtain a knitr table with estimation output with regular standard errors for best 5 models ranked with binomial-beta model prior, the user needs to run:
+To obtain a knitr table with estimation output with regular standard errors for best 3 models ranked with binomial-beta model prior, the user needs to run:
 
 \begin{Schunk}
 \begin{Sinput}
@@ -854,9 +854,11 @@ To obtain a knitr table with estimation output with regular standard errors for 
 \end{Soutput}
 \end{Schunk}
 
-The comparison of these two tables further highlights the importance of the model prior.
-The best model under the binomial model prior accounts for around 9\% of the posterior probability mass, while the best model under the binomial-beta model prior accounts for over 69\%.
-Finally, to obtain a gTree table with estimation output using robust standard errors for the top 5 models ranked by the binomial-beta model prior, the user needs to run:
+The comparison of the last two tables further highlights the importance of the model prior.
+The best model under the binomial model prior accounts for around 9\% of the posterior probability mass,
+while the best model under the binomial-beta model prior accounts for over 69\%.
+Finally, to obtain a gTree table with estimation output using robust standard errors for the top 3 models ranked by the binomial-beta model prior,
+the user needs to run:
 
 \begin{Schunk}
 \begin{Sinput}
@@ -869,7 +871,8 @@ gTree[GRID.gTree.2013]
 \end{Schunk}
 \includegraphics{bdsm_vignette-019}
 
-The comparison of the estimation outputs with regular and robust standard errors demonstrates how the results change when switching between the two variance estimators.
+The comparison of the last two tables and the estimation outputs with regular and robust standard errors demonstrates
+how the results change when switching between these two variance estimators.
 
 \subsection{Calculating jointness measures}
 Within the BMA framework, it is possible to establish the nature of the relationship between pairs of examined regressors using the jointness measures.
