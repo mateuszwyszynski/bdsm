@@ -954,6 +954,7 @@ bma_results_dil2[[2]]
 Hence, we see that \citet{Moral+2016}’s claim about the fragility of growth regressors withstands the test of various manipulations in the model prior.
 
 \section{Concluding remarks}\label{sum}
+
 This manuscript introduces the \verb+bdsm+ package, which enables Bayesian model averaging for dynamic panels with weakly exogenous regressors — a methodology developed by \citet{Moral+2012,Moral+2013,Moral+2016}.
 This package allows researchers to simultaneously address model uncertainty and reverse causality and is the only \verb+R+ package offering these capabilities.
 It provides flexible options for specifying model priors, including dilution prior that accounts for multicollinearity.
@@ -964,12 +965,12 @@ Users can also perform Bayesian model selection to examine in detail the most pr
 The manuscript outlines the methodological approach, while the detailed explanation can be found in \citet{Moral+2012,Moral+2013,Moral+2016}.
 Users unfamiliar with this approach can easily learn to apply it through the hands-on tutorial provided in the manuscript.
 The package’s functionalities are illustrated using the original dataset from \citet{Moral+2016} in the context of analyzing the determinants of economic growth.
-On the one hand, the results of the examination illustrate that fragility of growth determinants is a persistent feature of the data, confirming \citet{Moral+2016} claims.
-The various empirical exercises underscore two important features of analysis within the Bayesian model averaging framework.
-On the one hand, the results of the analysis indicate that the fragility of growth determinants is a persistent feature of the data, supporting the claims of \citet{Moral+2016}.
-Additionally, the empirical exercises highlight two key aspects of analysis within the Bayesian model averaging framework.
+The results of the examination illustrate that fragility of growth determinants is a persistent feature of the data, confirming \citet{Moral+2016} claims.
+The various empirical exercises underscore two important aspects of any BMA analysis.
 First, the results should always be validated through extensive changes in prior specifications.
-Second, the robustness of the regressors must be evaluated using both posterior inclusion probabilities and the ratios of the posterior mean to the posterior standard deviation, as these measures can often lead to differing conclusions.
+Second, the robustness of the regressors must be evaluated using both
+posterior inclusion probabilities and the ratios of the posterior mean to the posterior standard deviation,
+as these measures can often lead to differing conclusions.
 
 
 \addcontentsline{toc}{section}{References}
