@@ -171,7 +171,7 @@ data_prep <- function(df, timestamp_col, entity_col,
         dplyr::mutate(dplyr::across(-{{ timestamp_col }},
                                     ~ scale(.x, scale = entity_scale))) %>%
         dplyr::ungroup() %>%
-        dplyr::arrange({{ timestamp_col }})
+        dplyr::arrange({{ entity_col }})
     }
 
     return(df)
