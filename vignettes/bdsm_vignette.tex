@@ -1220,7 +1220,8 @@ One of the main issues associated with identifying robust regressors is multicol
 Some regressors may approximate the same underlying factor influencing the dependent variable.
 Multicollinearity may result from the absence of observable variables associated with a specific theory or from a theory failing to provide a unique candidate for a regressor.
 Moreover, some regressors may share a common determinant.
-Although \citet{Moral+2013, Moral+2016} address this issue to some extent, researchers have another option to mitigate multicollinearity: the dilution prior proposed by \citet{George+2010} and described in detail in subsection \ref{prior_joint}.
+Although \citet{Moral+2013, Moral+2016} addressed this issue to some extent, researchers have another option to mitigate multicollinearity: the dilution prior proposed by \citet{George+2010} which was described in detail in \autoref{prior_joint}.
+
 To apply the dilution prior, the user must set \verb+dilution = 1+ in the \verb+bma+ function.
 The user can also manipulate the dilution parameter $\omega$.
 The default option is \verb+dil.Par = 0.5+, as recommended by \citet{George+2010}.
@@ -1238,10 +1239,10 @@ The effect of implementing the dilution prior is well depicted by the distributi
 \end{Schunk}
 \includegraphics{bdsm_vignette-040}
 
-On the one hand, the change in the prior distribution is barely visible for the binomial model prior.
-On the other hand, the change is more pronounced for the binomial-beta model prior.
+The change in the prior distribution is more visible for the binomial-beta model prior.
 In panel b, the prior probability mass has decreased for larger models and increased for smaller models.
 However, this change is not uniform, as models characterized by the highest degree of multicollinearity are subject to the greatest penalty in terms of prior probability mass.
+
 Before moving to the BMA statistics, it is instructive to examine the change in the \verb+dil.Par+ parameter.
 \begin{Schunk}
 \begin{Sinput}
@@ -1251,8 +1252,7 @@ Before moving to the BMA statistics, it is instructive to examine the change in 
 \end{Sinput}
 \end{Schunk}
 \includegraphics{bdsm_vignette-041}
-
-Decreasing the value of $\omega$ diminishes the impact of dilution on the model prior.
+As we can see, decreasing the value of $\omega$ diminishes the impact of dilution on the model prior.
 Conversely, raising the \verb+dil.Par+ parameter increases the degree of dilution.
 \begin{Schunk}
 \begin{Sinput}
@@ -1262,9 +1262,10 @@ Conversely, raising the \verb+dil.Par+ parameter increases the degree of dilutio
 \end{Sinput}
 \end{Schunk}
 \includegraphics{bdsm_vignette-042}
+An especially strong impact can be seen for the binomial-beta prior.
 
-Raising the dilution parameter has an especially strong impact on the prior probability mass under the binomial-beta prior.
-However, even giving such priority to the penalty for multicollinearity does not change the main BMA statistics.
+However, even after giving such priority to the penalty for multicollinearity,
+the main BMA statistics remain stable.
 \begin{Schunk}
 \begin{Sinput}
 > bma_results_dil2[[2]]
@@ -1283,7 +1284,7 @@ lnlex   0.767  0.086 0.075 0.097  0.112  0.066   0.097 100.000
 polity  0.613 -0.050 0.046 0.052 -0.081  0.030   0.043   0.000
 \end{Soutput}
 \end{Schunk}
-\citet{Moral+2016}’s claim about the fragility of growth regressors withstands the test of various manipulations in the model prior.
+Hence, we see that \citet{Moral+2016}’s claim about the fragility of growth regressors withstands the test of various manipulations in the model prior.
 
 \section{Concluding remarks}\label{sum}
 This manuscript introduces the \verb+bdsm+ package, which enables Bayesian model averaging for dynamic panels with weakly exogenous regressors — a methodology developed by \citet{Moral+2012,Moral+2013,Moral+2016}.
