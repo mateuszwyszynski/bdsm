@@ -119,11 +119,11 @@ for_bma <-
 bma_result <- bma(for_bma = for_bma, df = data_prepared)
 
 print(paste("Computation Time:", toc()))
-#> 65.192 sec elapsed
-#> [1] "Computation Time: c(elapsed = 2.106)" 
-#> [2] "Computation Time: c(elapsed = 67.298)"
+#> 65.474 sec elapsed
+#> [1] "Computation Time: c(elapsed = 2.289)" 
+#> [2] "Computation Time: c(elapsed = 67.763)"
 #> [3] "Computation Time: logical(0)"         
-#> [4] "Computation Time: 65.192 sec elapsed"
+#> [4] "Computation Time: 65.474 sec elapsed"
 tic()
 ```
 
@@ -149,7 +149,7 @@ With properly configured system environment everything should work fine.
 # To find the optimal model space with parallel computations
 # replace the STEP 2 with:
 library(parallel)
-cl <- makeCluster(detectCores(), 'FORK')
+cl <- makeCluster(detectCores())
 setDefaultCluster(cl)
 
 for_bma <-
