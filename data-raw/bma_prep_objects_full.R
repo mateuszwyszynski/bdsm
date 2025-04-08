@@ -8,7 +8,8 @@ data_prepared <- bdsm::economic_growth %>%
                           time_effects = TRUE, scale = FALSE)
 
 library(parallel)
-cl <- makeCluster(detectCores(), 'FORK')
+library(bdsm)
+cl <- safeMakeCluster()
 setDefaultCluster(cl)
 
 bma_prep_objects_full <- bma_prep(df = data_prepared, dep_var_col = gdp,

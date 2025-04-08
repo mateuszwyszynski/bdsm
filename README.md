@@ -149,7 +149,7 @@ With properly configured system environment everything should work fine.
 # To find the optimal model space with parallel computations
 # replace the STEP 2 with:
 library(parallel)
-cl <- makeCluster(detectCores())
+cl <- safeMakeCluster()
 setDefaultCluster(cl)
 
 for_bma <-
