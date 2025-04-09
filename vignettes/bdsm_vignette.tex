@@ -480,7 +480,7 @@ For example, to apply the entity effect first and then standardization, use:
 \end{Sinput}
 \end{Schunk}
 
-\noindent However, it is important to point out that the main part of the code assumes fixed effects by default. Therefore, do \textbf{not} use \texttt{E} parameter within \verb+bdsm+ package (e.g. before using \verb+bma+ function). We made this option for the user that wants to use this function for other purposes.
+\noindent However, it is important to point out that the main part of the code assumes fixed effects by default. Therefore, do \textbf{not} recommend using the \texttt{E} parameter within \verb+bdsm+ package\footnote{In theory the results should be the same with and without\texttt{E} parameter. However, because we use numerical methods some changes might be expected} (e.g. before using \verb+bma+ function). We made this option for the user that wants to use this function for other purposes.
 
 \citet{Moral+2016} first standardized the regressors, leaving the dependent variable unchanged, and then introduced time fixed effects.
 To achieve this effect, use:
@@ -547,7 +547,7 @@ First note that:
     L(\theta) \propto - \frac{1}{2} tr \{ \Sigma_{11}^{-1} U_1' U_1 \} - \sum_{i=1}^{N} \frac{1}{2} \log \det \Sigma_{11} - \frac{1}{2} \log \det (\frac{H}{N})
 \end{equation}
 
-\noindent Now, because of the cyclic property of the trace we can rewrite the first term as:
+\noindent Now, because of the cyclical property of the trace we can rewrite the first term as:
 
 \begin{equation}
     - \frac{1}{2} tr \{ \Sigma_{11}^{-1} U_1' U_1 \} =
