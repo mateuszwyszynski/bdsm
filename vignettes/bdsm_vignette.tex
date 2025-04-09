@@ -480,6 +480,8 @@ For example, to apply the entity effect first and then standardization, use:
 \end{Sinput}
 \end{Schunk}
 
+\noindent However, it is important to point out that the main part of the code assumes fixed effects by default. Therefore, do \textbf{not} use \texttt{E} parameter within \verb+bdsm+ package (e.g. before using \verb+bma+ function). We made this option for the user that wants to use this function for other purposes.
+
 \citet{Moral+2016} first standardized the regressors, leaving the dependent variable unchanged, and then introduced time fixed effects.
 To achieve this effect, use:
 
