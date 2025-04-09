@@ -498,7 +498,7 @@ First note that:
     L(\theta) \propto - \frac{1}{2} tr \{ \Sigma_{11}^{-1} U_1' U_1 \} - \sum_{i=1}^{N} \frac{1}{2} \log \det \Sigma_{11} - \frac{1}{2} \log \det (\frac{H}{N})
 \end{equation}
 
-\noindent Now, because of the cyclical property of the trace we can rewrite the first term as:
+\noindent Now, because of the cyclic property of the trace we can rewrite the first term as:
 
 \begin{equation}
     - \frac{1}{2} tr \{ \Sigma_{11}^{-1} U_1' U_1 \} =
