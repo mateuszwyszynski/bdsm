@@ -109,7 +109,15 @@ For larger datasets, you can leverage multiple cores:
 
 ```{r}
 library(parallel)
-cl <- safeMakeCluster()
+
+# Choose an appropriate number of cores, taking into account system-level limits
+cores <- as.integer(Sys.getenv("_R_CHECK_LIMIT_CORES_", unset = NA))
+if (is.na(cores)) {
+  cores <- detectCores()
+} else {
+  cores <- min(cores, detectCores())
+}
+cl <- makeCluster(cores)
 setDefaultCluster(cl)
 
 for_bma <- bdsm::bma_prep(

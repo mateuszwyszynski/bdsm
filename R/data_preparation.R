@@ -188,20 +188,3 @@ data_prep <- function(df, timestamp_col, entity_col,
 
   df
 }
-
-#' Version of parallel::makeCluster that checks cores limits and OS type.
-#'
-#' @return nothing, runs makeCluster
-#' @importFrom parallel makeCluster detectCores
-safeMakeCluster <- function() {
-  cores <- as.integer(Sys.getenv("_R_CHECK_LIMIT_CORES_", unset = NA))
-  if (is.na(cores)) {
-    cores <- detectCores()
-  } else {
-    cores <- min(cores, detectCores())
-  }
-
-  type <- if (.Platform$OS.type == "windows") "PSOCK" else "FORK"
-
-  makeCluster(cores, type = type)
-}

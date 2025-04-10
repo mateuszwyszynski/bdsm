@@ -603,7 +603,10 @@ To do this, first load the \verb+parallel+ package and set up a cluster.
 \begin{Schunk}
 \begin{Sinput}
 > library(parallel)
-> cl <- safeMakeCluster()
+> # Here we try to use all available cores on the system.
+> # You might want to lower the number of cores depending on your system.
+> cores <- detectCores()
+> cl <- makeCluster(cores)
 > setDefaultCluster(cl)
 \end{Sinput}
 \end{Schunk}
