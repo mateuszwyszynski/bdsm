@@ -99,70 +99,6 @@ for_bma <- bdsm::bma_prep(
   entity_col     = country,
   init_value     = 0.5,
 )
-#> initial  value 700.805202 
-#> iter 100 value 63.489964
-#> final  value 62.413224 
-#> converged
-#> initial  value 755.227924 
-#> iter 100 value -7.081746
-#> final  value -9.945489 
-#> converged
-#> initial  value 731.149545 
-#> iter 100 value -5.728710
-#> final  value -7.336652 
-#> converged
-#> initial  value 865.987070 
-#> iter 100 value -75.528524
-#> final  value -81.347491 
-#> converged
-#> initial  value 821.652572 
-#> iter 100 value 12.593978
-#> final  value 9.478839 
-#> converged
-#> initial  value 788.836005 
-#> iter 100 value -61.377699
-#> final  value -62.826938 
-#> converged
-#> initial  value 747.497621 
-#> iter 100 value -56.890341
-#> final  value -58.756416 
-#> converged
-#> initial  value 792.979857 
-#> iter 100 value -127.201548
-#> final  value -132.333776 
-#> converged
-#> initial  value 665.161630 
-#> iter 100 value -242.698752
-#> final  value -256.663454 
-#> converged
-#> initial  value 708.042561 
-#> iter 100 value -326.609584
-#> final  value -328.729156 
-#> converged
-#> initial  value 678.350819 
-#> iter 100 value -315.110317
-#> final  value -323.599046 
-#> converged
-#> initial  value 802.194508 
-#> iter 100 value -392.089550
-#> final  value -397.592119 
-#> converged
-#> initial  value 750.297273 
-#> iter 100 value -296.583891
-#> final  value -309.577948 
-#> converged
-#> initial  value 709.806113 
-#> iter 100 value -375.455174
-#> final  value -381.498968 
-#> converged
-#> initial  value 661.102743 
-#> iter 100 value -365.114246
-#> final  value -375.096037 
-#> converged
-#> initial  value 701.509591 
-#> iter 100 value -436.936673
-#> final  value -448.914323 
-#> converged
 ```
 
 For larger datasets, you can leverage multiple cores:
@@ -338,70 +274,6 @@ prep_obj <- bdsm::bma_prep(
   entity_col    = country,
   init_value     = 0.5,
 )
-#> initial  value 761.409660 
-#> iter 100 value 154.656759
-#> final  value 152.285429 
-#> converged
-#> initial  value 823.376496 
-#> iter 100 value 80.620901
-#> final  value 80.447574 
-#> converged
-#> initial  value 816.762989 
-#> iter 100 value 83.532974
-#> final  value 82.996391 
-#> converged
-#> initial  value 954.565299 
-#> iter 100 value 10.079009
-#> final  value 9.348864 
-#> converged
-#> initial  value 891.143160 
-#> iter 100 value 101.554618
-#> final  value 99.086252 
-#> converged
-#> initial  value 870.107560 
-#> iter 100 value 30.847639
-#> final  value 27.494908 
-#> converged
-#> initial  value 819.683263 
-#> iter 100 value 36.050800
-#> final  value 31.737122 
-#> converged
-#> initial  value 871.895260 
-#> iter 100 value -37.741121
-#> final  value -41.751364 
-#> converged
-#> initial  value 726.686680 
-#> iter 100 value -154.417768
-#> final  value -159.696075 
-#> converged
-#> initial  value 776.294614 
-#> iter 100 value -231.091174
-#> final  value -231.603381 
-#> converged
-#> initial  value 774.228575 
-#> iter 100 value -223.736674
-#> final  value -227.319915 
-#> converged
-#> initial  value 900.489240 
-#> iter 100 value -300.295339
-#> final  value -301.912773 
-#> converged
-#> initial  value 816.359982 
-#> iter 100 value -198.313755
-#> final  value -212.309609 
-#> converged
-#> initial  value 786.328207 
-#> iter 100 value -270.942526
-#> final  value -283.989694 
-#> converged
-#> initial  value 739.460346 
-#> iter 100 value -269.282240
-#> final  value -278.805113 
-#> converged
-#> initial  value 785.477621 
-#> iter 100 value -336.032998
-#> final  value -353.170418 
-#> converged
 
 # 4) Run Bayesian Model Averaging
 bma_obj <- bdsm::bma(prep_obj, df = df_prepared)
@@ -414,21 +286,7 @@ best_3 <- bdsm::best_models(bma_obj, criterion = 1, best = 3)
 
 ``` r
 best_3[[1]]  # Inclusion table
-#>         'No. 1' 'No. 2' 'No. 3'
-#> gdp_lag   1.000   1.000   1.000
-#> ish       1.000   1.000   1.000
-#> sed       1.000   1.000   0.000
-#> pgrw      1.000   0.000   1.000
-#> pop       1.000   1.000   1.000
-#> PMP       0.337   0.173   0.136
 best_3[[2]]  # Coefficients & standard errors
-#>         'No. 1'            'No. 2'            'No. 3'           
-#> gdp_lag "0.742 (0.059)***" "0.745 (0.06)***"  "0.816 (0.043)***"
-#> ish     "0.096 (0.025)***" "0.1 (0.025)***"   "0.09 (0.026)***" 
-#> sed     "0.071 (0.04)*"    "0.062 (0.038)"    NA                
-#> pgrw    "0.024 (0.035)"    NA                 "0.007 (0.034)"   
-#> pop     "0.181 (0.043)***" "0.174 (0.042)***" "0.17 (0.043)***" 
-#> PMP     "0.337"            "0.173"            "0.136"
 ```
 
 ## Troubleshooting
