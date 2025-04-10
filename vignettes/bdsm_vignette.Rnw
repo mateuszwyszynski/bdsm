@@ -553,7 +553,7 @@ To do this, first load the \verb+parallel+ package and set up a cluster.
 
 <<eval=FALSE>>=
 library(parallel)
-cl <- makeCluster(detectCores(), 'FORK')
+cl <- safeMakeCluster()
 setDefaultCluster(cl)
 @
 
