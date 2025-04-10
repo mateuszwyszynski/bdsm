@@ -61,10 +61,13 @@ library(bdsm)
 
 ### Data Preparation
 
-Your data should be in the following format: 1. A **time** column (e.g.,
-`year`), 2. An **entity** column (e.g., `country`), 3. A **dependent
-variable** column (the variable of interest, e.g. `gdp`), 4. Remaining
-columns as potential **regressors**.
+Your data should be in the following format:
+
+1.  A **time** column (e.g., `year`),
+2.  An **entity** column (e.g., `country`),
+3.  A **dependent variable** column (the variable of interest,
+    e.g. `gdp`),
+4.  Remaining columns as potential **regressors**.
 
 A convenience function `join_lagged_col()` can help transform a dataset
 that already contains both a variable and its lagged version into the
@@ -163,7 +166,7 @@ bma_results[[16]]
 Key columns in the BMA output include: - **PIP**: Posterior inclusion
 probability for each regressor. - **PM**: Posterior mean of each
 parameter (averaged over all models). - **PSD/PSDR**: Posterior standard
-deviations (regular/robust) of each parameter. - **%(+)**: Percentage of
+deviations (regular/robust) of each parameter - **%(+)**: Percentage of
 models (among those that include a given regressor) in which the
 parameter estimate is positive.
 

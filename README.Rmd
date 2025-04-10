@@ -23,24 +23,32 @@ knitr::opts_chunk$set(
 
 ## Overview
 
-The **bdsm** package implements Bayesian model averaging (BMA) for dynamic panels with weakly exogenous regressors, following the methodology of [Moral-Benito (2016)](#references). This addresses both:
+The **bdsm** package implements Bayesian model averaging (BMA)
+for dynamic panels with weakly exogenous regressors,
+following the methodology of [Moral-Benito (2016)](#references).
+This addresses both:
 
 1. **Model uncertainty** (selecting among many candidate regressors),
-2. **Reverse causality** (weak exogeneity, which permits current values of regressors to correlate with past shocks and other regressors).
+2. **Reverse causality** (weak exogeneity, which permits current values of
+regressors to correlate with past shocks and other regressors).
 
 The package features:
 
-- Tools to **estimate** the entire model space (via maximum likelihood) and calculate **Bayesian information criterion (BIC)** for each variant.
+- Tools to **estimate** the entire model space (via maximum likelihood)
+and calculate **Bayesian information criterion (BIC)** for each variant.
 - Flexible **model priors** (binomial, binomial-beta, optional dilution prior).
-- Comprehensive **BMA statistics**, including posterior inclusion probabilities (PIPs), posterior means, and posterior standard deviations (regular or robust).
+- Comprehensive **BMA statistics**, including posterior inclusion probabilities
+(PIPs), posterior means, and posterior standard deviations (regular or robust).
 - Functions to **visualize** prior and posterior model probabilities.
-- **Jointness measures** for pairs of regressors, indicating whether they are complements or substitutes.
+- **Jointness measures** for pairs of regressors,
+indicating whether they are complements or substitutes.
 - Support for **parallel computing** to handle large model spaces.
 
 
 ## Installation
 
-You can install the released version of bdsm from [CRAN](https://CRAN.R-project.org) with:
+You can install the released version of bdsm from
+[CRAN](https://CRAN.R-project.org) with:
 
 ``` r
 install.packages("bdsm")
@@ -65,6 +73,7 @@ library(bdsm)
 ### Data Preparation
 
 Your data should be in the following format:
+
 1. A **time** column (e.g., `year`),
 2. An **entity** column (e.g., `country`),
 3. A **dependent variable** column (the variable of interest, e.g. `gdp`),
@@ -93,7 +102,10 @@ data_prepared <- bdsm::economic_growth[,1:7] %>%
 
 ### Estimating the Model Space
 
-The function `bma_prep()` estimates all possible models (each possible subset of regressors) via maximum likelihood, storing the results in a list object. For small to moderately sized datasets:
+The function `bma_prep()` estimates all possible models
+(each possible subset of regressors) via maximum likelihood,
+storing the results in a list object.
+For small to moderately sized datasets:
 
 ```{r, results='hide'}
 for_bma <- bdsm::bma_prep(
@@ -137,8 +149,8 @@ stopCluster(cl = NULL)
 
 After preparing the model space,
 run `bma()` to obtain posterior model probabilities,
-posterior inclusion probabilities (PIPs),
-and other BMA statistics under the **binomial** and **binomial-beta** model priors:
+posterior inclusion probabilities (PIPs), and other BMA statistics
+under the **binomial** and **binomial-beta** model priors:
 
 ```{r}
 bma_results <- bdsm::bma(for_bma, df = data_prepared, round = 3)
@@ -154,13 +166,16 @@ bma_results[[16]]
 Key columns in the BMA output include:
 - **PIP**: Posterior inclusion probability for each regressor.
 - **PM**: Posterior mean of each parameter (averaged over all models).
-- **PSD/PSDR**: Posterior standard deviations (regular/robust) of each parameter.
-- **%(+)**: Percentage of models (among those that include a given regressor) in which the parameter estimate is positive.
+- **PSD/PSDR**: Posterior standard deviations (regular/robust) of each parameter
+- **%(+)**: Percentage of models (among those that include a given regressor)
+in which the parameter estimate is positive.
 
 ### Visualizing Prior and Posterior Probabilities
 
-1. **`model_pmp()`**: Shows prior vs. posterior model probabilities, ranking models from best to worst.
-2. **`model_sizes()`**: Displays how prior vs. posterior probabilities mass is distributed across different model sizes.
+1. **`model_pmp()`**: Shows prior vs. posterior model probabilities,
+ranking models from best to worst.
+2. **`model_sizes()`**: Displays how prior vs. posterior probabilities mass
+is distributed across different model sizes.
 
 ```{r}
 # Plot prior vs. posterior model probabilities
@@ -187,14 +202,17 @@ top5_binom[[6]]
 
 ### Jointness Measures
 
-Assess whether two regressors tend to co-occur (complements) or exclude each other (substitutes) using `jointness()`. By default, it calculates the Hofmarcher et al. (2018) measure:
+Assess whether two regressors tend to co-occur (complements)
+or exclude each other (substitutes) using `jointness()`.
+By default, it calculates the Hofmarcher et al. (2018) measure:
 
 ```{r}
 joint_measures <- bdsm::jointness(bma_results)
 head(joint_measures)
 ```
 
-You can also specify older measures, such as `"LS"` (Ley & Steel) or `"DW"` (Doppelhofer & Weeks):
+You can also specify older measures,
+such as `"LS"` (Ley & Steel) or `"DW"` (Doppelhofer & Weeks):
 
 ```{r}
 joint_measures_ls <- bdsm::jointness(bma_results, measure = "LS")
@@ -268,10 +286,13 @@ With properly configured system environment everything should work fine.
 
 ## Contributions and Issues
 
-We welcome bug reports, feature requests, and contributions. Feel free to open an issue or pull request on [GitHub](https://github.com/mateuszwyszynski/bdsm).
+We welcome bug reports, feature requests, and contributions.
+Feel free to open an issue or pull request on
+[GitHub](https://github.com/mateuszwyszynski/bdsm).
 
 ## License
 
-This package is distributed under the GPL (\(\geq 2\)) license. See the [LICENSE](LICENSE) file for details.
+This package is distributed under the GPL (\(\geq 2\)) license.
+See the [LICENSE](LICENSE) file for details.
 
 ---
