@@ -185,7 +185,7 @@ is distributed across different model sizes.
 
 ```{r}
 # Plot prior vs. posterior model probabilities
-pmp_graphs <- bdsm::model_pmp(bma_results, top = 10)  # Show top 10 models
+pmp_graphs <- bdsm::model_pmp(bma_results, top = 3)  # Show top 3 models
 
 # Plot probabilities by model size
 size_graphs <- bdsm::model_sizes(bma_results)
@@ -197,13 +197,13 @@ Use `best_models()` to extract specific information about the top-ranked models:
 
 ```{r}
 # Retrieve the 5 best models according to binomial prior
-top5_binom <- bdsm::best_models(bma_results, criterion = 1, best = 5)
+top3_binom <- bdsm::best_models(bma_results, criterion = 1, best = 3)
 
-# Print the inclusion matrix for each of the top 5 models
-top5_binom[[1]]
+# Print the inclusion matrix for each of the top 3 models
+top3_binom[[1]]
 
 # Retrieve robust standard errors in a knit-friendly table
-top5_binom[[6]]
+top3_binom[[6]]
 ```
 
 ### Jointness Measures

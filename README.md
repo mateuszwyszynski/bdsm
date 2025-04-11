@@ -182,8 +182,7 @@ parameter estimate is positive.
 
 ``` r
 # Plot prior vs. posterior model probabilities
-pmp_graphs <- bdsm::model_pmp(bma_results, top = 10)  # Show top 10 models
-#> The number of the best models (top) cannot be higher than the total number of models. We set top = R (total number of regressors) and continiue :)
+pmp_graphs <- bdsm::model_pmp(bma_results, top = 3)  # Show top 3 models
 ```
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
@@ -203,32 +202,31 @@ models:
 
 ``` r
 # Retrieve the 5 best models according to binomial prior
-top5_binom <- bdsm::best_models(bma_results, criterion = 1, best = 5)
-#> best > M - number of best models cannot be bigger than the total number of models. We set best = M and continiue :)
+top3_binom <- bdsm::best_models(bma_results, criterion = 1, best = 3)
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 ``` r
 
-# Print the inclusion matrix for each of the top 5 models
-top5_binom[[1]]
-#>         'No. 1' 'No. 2' 'No. 3' 'No. 4'
-#> gdp_lag   1.000   1.000   1.000   1.000
-#> ish       1.000   0.000   1.000   0.000
-#> sed       1.000   1.000   0.000   0.000
-#> PMP       0.508   0.206   0.202   0.084
+# Print the inclusion matrix for each of the top 3 models
+top3_binom[[1]]
+#>         'No. 1' 'No. 2' 'No. 3'
+#> gdp_lag   1.000   1.000   1.000
+#> ish       1.000   0.000   1.000
+#> sed       1.000   1.000   0.000
+#> PMP       0.508   0.206   0.202
 
 # Retrieve robust standard errors in a knit-friendly table
-top5_binom[[6]]
+top3_binom[[6]]
 ```
 
-|  | ‘No. 1’ | ‘No. 2’ | ‘No. 3’ | ‘No. 4’ |
-|:---|:--:|:--:|:--:|:--:|
-| gdp_lag | 1.079 (0.275)\*\*\* | 1.126 (0.151)\*\*\* | 1.027 (0.193)\*\*\* | 1.075 (0.083)\*\*\* |
-| ish | 0.119 (0.086)\*\*\* | NA | 0.121 (0.082)\*\*\* | NA |
-| sed | -0.06 (0.126) | -0.077 (0.128) | NA | NA |
-| PMP | 0.508 | 0.206 | 0.202 | 0.084 |
+|         |       ‘No. 1’       |       ‘No. 2’       |       ‘No. 3’       |
+|:--------|:-------------------:|:-------------------:|:-------------------:|
+| gdp_lag | 1.079 (0.275)\*\*\* | 1.126 (0.151)\*\*\* | 1.027 (0.193)\*\*\* |
+| ish     | 0.119 (0.086)\*\*\* |         NA          | 0.121 (0.082)\*\*\* |
+| sed     |    -0.06 (0.126)    |   -0.077 (0.128)    |         NA          |
+| PMP     |        0.508        |        0.206        |        0.202        |
 
 ### Jointness Measures
 
