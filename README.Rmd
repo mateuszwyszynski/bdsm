@@ -82,7 +82,8 @@ Your data should be in the following format:
 A convenience function `join_lagged_col()` can help transform a dataset
 that already contains both a variable
 and its lagged version into the required format.
-You can also use `data_prep()` to perform mean-centering,
+
+You can also use `feature_standardization()` to perform mean-centering,
 demeaning (entity/time effects), or scaling (standardization) as needed.
 For example:
 
@@ -91,12 +92,17 @@ library(magrittr)
 
 set.seed(20)
 
-# Features are scaled and centralized around the mean.
-# Then they are centralized around the mean within cross-sections (fixed time effects)
-data_prepared <- bdsm::economic_growth[,1:7] %>%
-  bdsm::feature_standardization(timestamp_col = year, entity_col = gdp) %>%
-  bdsm::feature_standardization(timestamp_col = year, entity_col = country,
-                          time_effects = TRUE, scale = FALSE)
+# Features are scaled and demeaned,
+# then centralized around the mean within cross-sections (fixed time effects)
+data_prepared <- bdsm::economic_growth[, 1:5] %>%
+  bdsm::feature_standardization(
+    excluded_cols = c(country, year, gdp)
+  ) %>%
+  bdsm::feature_standardization(
+    group_by_col  = year,
+    excluded_cols = country,
+    scale         = FALSE
+  )
 ```
 
 
@@ -223,32 +229,38 @@ joint_measures_ls <- bdsm::jointness(bma_results, measure = "LS")
 Below is a minimal reproducible workflow:
 
 ```{r, results='hide'}
-# 1) Load data
-data("economic_growth")
+# 1) Data preparation
+data_prepared <- bdsm::economic_growth[, 1:5] %>%
+  bdsm::feature_standardization(
+    excluded_cols = c(country, year, gdp)
+  ) %>%
+  bdsm::feature_standardization(
+    group_by_col  = year,
+    excluded_cols = country,
+    scale         = FALSE
+  )
 
-# 2) Data preparation
-df_prepared <- bdsm::data_prep(
-  df           = economic_growth[, 1:7],
-  timestamp_col= year,
-  entity_col   = country,
-  standardize  = TRUE,
-  time_effects = TRUE,
-)
-
-# 3) Estimate model space
+# 2) Estimate model space
 prep_obj <- bdsm::bma_prep(
-  df            = df_prepared,
+  df            = data_prepared,
   dep_var_col   = gdp,
   timestamp_col = year,
   entity_col    = country,
   init_value     = 0.5,
 )
 
-# 4) Run Bayesian Model Averaging
-bma_obj <- bdsm::bma(prep_obj, df = df_prepared)
+# 3) Run Bayesian Model Averaging
+bma_obj <- bdsm::bma(
+  for_bma = prep_obj,
+  df      = data_prepared
+)
 
-# 5) Inspect the top 3 models under binomial prior
-best_3 <- bdsm::best_models(bma_obj, criterion = 1, best = 3)
+# 4) Inspect the top 3 models under binomial prior
+best_3 <- bdsm::best_models(
+  bma_list = bma_obj,
+  criterion = 1,
+  best = 3
+)
 best_3[[1]]  # Inclusion table
 best_3[[2]]  # Coefficients & standard errors
 ```

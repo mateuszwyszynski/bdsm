@@ -55,13 +55,17 @@ The function gives two types of tables in three different formats: inclusion tab
 \donttest{
 library(magrittr)
 
-data_prepared <- economic_growth[,1:7] \%>\%
-   feature_standardization(timestamp_col = year, entity_col = country) \%>\%
-   feature_standardization(timestamp_col = year, entity_col = country,
-                           time_effects = TRUE, scale = FALSE)
+data_prepared <- bdsm::economic_growth[, 1:7] \%>\%
+  bdsm::feature_standardization(
+    excluded_cols = c(country, year, gdp)
+  ) \%>\%
+  bdsm::feature_standardization(
+    group_by_col  = year,
+    excluded_cols = country,
+    scale         = FALSE
+  )
 
-for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
-timestamp_col = year, entity_col = country, init_value = 0.5)
+for_bma <- bdsm::bma_prep_objects
 
 bma_results <- bma(for_bma, df = data_prepared, round = 3, dilution = 0)
 

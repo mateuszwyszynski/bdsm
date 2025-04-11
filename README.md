@@ -71,21 +71,28 @@ Your data should be in the following format:
 
 A convenience function `join_lagged_col()` can help transform a dataset
 that already contains both a variable and its lagged version into the
-required format. You can also use `data_prep()` to perform
-mean-centering, demeaning (entity/time effects), or scaling
-(standardization) as needed. For example:
+required format.
+
+You can also use `feature_standardization()` to perform mean-centering,
+demeaning (entity/time effects), or scaling (standardization) as needed.
+For example:
 
 ``` r
 library(magrittr)
 
 set.seed(20)
 
-# Features are scaled and centralized around the mean.
-# Then they are centralized around the mean within cross-sections (fixed time effects)
-data_prepared <- bdsm::economic_growth[,1:7] %>%
-  bdsm::feature_standardization(timestamp_col = year, entity_col = gdp) %>%
-  bdsm::feature_standardization(timestamp_col = year, entity_col = country,
-                          time_effects = TRUE, scale = FALSE)
+# Features are scaled and demeaned,
+# then centralized around the mean within cross-sections (fixed time effects)
+data_prepared <- bdsm::economic_growth[, 1:5] %>%
+  bdsm::feature_standardization(
+    excluded_cols = c(country, year, gdp)
+  ) %>%
+  bdsm::feature_standardization(
+    group_by_col  = year,
+    excluded_cols = country,
+    scale         = FALSE
+  )
 ```
 
 ### Estimating the Model Space
@@ -142,25 +149,21 @@ bma_results <- bdsm::bma(for_bma, df = data_prepared, round = 3)
 
 # Inspect the BMA summary (binomial prior results first, binomial-beta second)
 bma_results[[1]]  # BMA stats under binomial prior
-#>           PIP     PM   PSD  PSDR  PMcon PSDcon PSDRcon  %(+)
-#> gdp_lag    NA  1.008 0.111 0.167  1.008  0.111   0.167 100.0
-#> ish     0.724  0.088 0.061 0.086  0.122  0.032   0.078 100.0
-#> sed     0.708  0.000 0.055 0.090 -0.001  0.065   0.107  37.5
-#> pgrw    0.662 -0.018 0.035 0.075 -0.028  0.040   0.091   0.0
-#> pop     0.987  0.140 0.054 0.070  0.142  0.051   0.068 100.0
+#>           PIP     PM   PSD  PSDR  PMcon PSDcon PSDRcon %(+)
+#> gdp_lag    NA  1.078 0.110 0.229  1.078  0.110   0.229  100
+#> ish     0.710  0.085 0.061 0.090  0.120  0.032   0.085  100
+#> sed     0.714 -0.046 0.061 0.111 -0.065  0.064   0.127    0
 bma_results[[2]]  # BMA stats under binomial-beta prior
-#>           PIP     PM   PSD  PSDR  PMcon PSDcon PSDRcon  %(+)
-#> gdp_lag    NA  1.003 0.111 0.182  1.003  0.111   0.182 100.0
-#> ish     0.878  0.107 0.050 0.083  0.122  0.032   0.078 100.0
-#> sed     0.870  0.001 0.059 0.098  0.001  0.064   0.105  37.5
-#> pgrw    0.849 -0.023 0.038 0.083 -0.027  0.039   0.090   0.0
-#> pop     0.994  0.137 0.052 0.070  0.138  0.051   0.069 100.0
+#>           PIP     PM   PSD  PSDR  PMcon PSDcon PSDRcon %(+)
+#> gdp_lag    NA  1.078 0.110 0.239  1.078  0.110   0.239  100
+#> ish     0.765  0.091 0.058 0.090  0.120  0.033   0.085  100
+#> sed     0.768 -0.048 0.062 0.114 -0.063  0.064   0.126    0
 
 # Posterior model sizes:
 bma_results[[16]]
 #>               Prior models size Posterior model size
-#> Binomial                      2                 3.08
-#> Binomial-beta                 2                 3.59
+#> Binomial                      1                1.424
+#> Binomial-beta                 1                1.533
 ```
 
 Key columns in the BMA output include: - **PIP**: Posterior inclusion
@@ -180,6 +183,7 @@ parameter estimate is positive.
 ``` r
 # Plot prior vs. posterior model probabilities
 pmp_graphs <- bdsm::model_pmp(bma_results, top = 10)  # Show top 10 models
+#> The number of the best models (top) cannot be higher than the total number of models. We set top = R (total number of regressors) and continiue :)
 ```
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
@@ -200,6 +204,7 @@ models:
 ``` r
 # Retrieve the 5 best models according to binomial prior
 top5_binom <- bdsm::best_models(bma_results, criterion = 1, best = 5)
+#> best > M - number of best models cannot be bigger than the total number of models. We set best = M and continiue :)
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
@@ -208,26 +213,22 @@ top5_binom <- bdsm::best_models(bma_results, criterion = 1, best = 5)
 
 # Print the inclusion matrix for each of the top 5 models
 top5_binom[[1]]
-#>         'No. 1' 'No. 2' 'No. 3' 'No. 4' 'No. 5'
-#> gdp_lag   1.000   1.000   1.000   1.000    1.00
-#> ish       1.000   1.000   1.000   0.000    1.00
-#> sed       1.000   1.000   0.000   1.000    0.00
-#> pgrw      1.000   0.000   1.000   1.000    0.00
-#> pop       1.000   1.000   1.000   1.000    1.00
-#> PMP       0.335   0.172   0.138   0.127    0.07
+#>         'No. 1' 'No. 2' 'No. 3' 'No. 4'
+#> gdp_lag   1.000   1.000   1.000   1.000
+#> ish       1.000   0.000   1.000   0.000
+#> sed       1.000   1.000   0.000   0.000
+#> PMP       0.508   0.206   0.202   0.084
 
 # Retrieve robust standard errors in a knit-friendly table
 top5_binom[[6]]
 ```
 
-|  | ‘No. 1’ | ‘No. 2’ | ‘No. 3’ | ‘No. 4’ | ‘No. 5’ |
-|:---|:--:|:--:|:--:|:--:|:--:|
-| gdp_lag | 0.999 (0.193)\*\*\* | 0.991 (0.163)\*\*\* | 0.983 (0.136)\*\*\* | 1.064 (0.191)\*\*\* | 0.991 (0.133)\*\*\* |
-| ish | 0.122 (0.078)\*\*\* | 0.125 (0.083)\*\*\* | 0.118 (0.072)\*\*\* | NA | 0.121 (0.078)\*\*\* |
-| sed | 0.002 (0.103) | 0.018 (0.086) | NA | -0.027 (0.132) | NA |
-| pgrw | -0.026 (0.089) | NA | -0.023 (0.085) | -0.037 (0.1) | NA |
-| pop | 0.135 (0.07)\*\*\* | 0.139 (0.065)\*\*\* | 0.14 (0.063)\*\*\* | 0.147 (0.075)\*\*\* | 0.141 (0.063)\*\*\* |
-| PMP | 0.335 | 0.172 | 0.138 | 0.127 | 0.07 |
+|  | ‘No. 1’ | ‘No. 2’ | ‘No. 3’ | ‘No. 4’ |
+|:---|:--:|:--:|:--:|:--:|
+| gdp_lag | 1.079 (0.275)\*\*\* | 1.126 (0.151)\*\*\* | 1.027 (0.193)\*\*\* | 1.075 (0.083)\*\*\* |
+| ish | 0.119 (0.086)\*\*\* | NA | 0.121 (0.082)\*\*\* | NA |
+| sed | -0.06 (0.126) | -0.077 (0.128) | NA | NA |
+| PMP | 0.508 | 0.206 | 0.202 | 0.084 |
 
 ### Jointness Measures
 
@@ -238,11 +239,9 @@ the Hofmarcher et al. (2018) measure:
 ``` r
 joint_measures <- bdsm::jointness(bma_results)
 head(joint_measures)
-#>        ish   sed  pgrw   pop
-#> ish     NA 0.165 0.122 0.432
-#> sed  0.622    NA 0.109 0.400
-#> pgrw 0.595 0.586    NA 0.311
-#> pop  0.751 0.736 0.694    NA
+#>       ish   sed
+#> ish    NA 0.159
+#> sed 0.505    NA
 ```
 
 You can also specify older measures, such as `"LS"` (Ley & Steel) or
@@ -257,32 +256,38 @@ joint_measures_ls <- bdsm::jointness(bma_results, measure = "LS")
 Below is a minimal reproducible workflow:
 
 ``` r
-# 1) Load data
-data("economic_growth")
+# 1) Data preparation
+data_prepared <- bdsm::economic_growth[, 1:5] %>%
+  bdsm::feature_standardization(
+    excluded_cols = c(country, year, gdp)
+  ) %>%
+  bdsm::feature_standardization(
+    group_by_col  = year,
+    excluded_cols = country,
+    scale         = FALSE
+  )
 
-# 2) Data preparation
-df_prepared <- bdsm::data_prep(
-  df           = economic_growth[, 1:7],
-  timestamp_col= year,
-  entity_col   = country,
-  standardize  = TRUE,
-  time_effects = TRUE,
-)
-
-# 3) Estimate model space
+# 2) Estimate model space
 prep_obj <- bdsm::bma_prep(
-  df            = df_prepared,
+  df            = data_prepared,
   dep_var_col   = gdp,
   timestamp_col = year,
   entity_col    = country,
   init_value     = 0.5,
 )
 
-# 4) Run Bayesian Model Averaging
-bma_obj <- bdsm::bma(prep_obj, df = df_prepared)
+# 3) Run Bayesian Model Averaging
+bma_obj <- bdsm::bma(
+  for_bma = prep_obj,
+  df      = data_prepared
+)
 
-# 5) Inspect the top 3 models under binomial prior
-best_3 <- bdsm::best_models(bma_obj, criterion = 1, best = 3)
+# 4) Inspect the top 3 models under binomial prior
+best_3 <- bdsm::best_models(
+  bma_list = bma_obj,
+  criterion = 1,
+  best = 3
+)
 ```
 
 <img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />

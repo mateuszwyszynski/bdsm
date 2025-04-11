@@ -460,42 +460,49 @@ The user needs to specify the dependent variable column (\verb+col+), the lagged
 \end{Sinput}
 \end{Schunk}
 
-Once the data is in the correct format, the user can perform further data transformations using the \verb+data_prep+ function.
-The user might want to prepare the data for a fixed effects model.
-For time fixed effects, the user can perform cross-sectional demeaning (\verb+time_effects = TRUE+), while for cross-section effects, the user can perform time demeaning (\verb+entity_effects = TRUE+).
-Moreover, the user can scale the data by the standard deviation within cross-sections (\verb+time_scale = TRUE+) and within time periods (\verb+entity_scale = TRUE+).
-The user can also perform regular standardization by subtracting the mean from each column (\verb+standardize = TRUE+) and dividing it by the standard deviation (\verb+scale = TRUE+).
-Standardization is preferred because it improves the computational efficiency of the likelihood optimization.
-Finally, the user can specify the order in which demeaning and/or scaling should be applied using the \verb+order+ parameter.
-This parameter takes a vector with three elements, where the order of the elements determines the sequence of operations.
-Here, \texttt{S}, \texttt{T}, \texttt{E}, and \texttt{0} denote standardization, preparation for time effects, preparation for entity effects, and no operation, respectively.
-For example, to apply the entity effect first and then standardization, use:
+Once the data is in the correct format,
+the user can perform further data preparation
+using the \verb+feature_standardization+ function.
+It allows to perform demeaning (entity/time effects)
+or scaling (standardization) as needed.
+Often there are columns to which the transformation should not be applied.
+These can be specified with the  \verb+excluded_cols+.
+It is also possible to group elements of the data frame with respect to a given
+column with the \verb+gropu_by_col+.
+Finally, with the \verb+scale+ parameter we can decide whether we want to apply
+both demeaning and scaling or just demeaning.
+
+For example, we can first standardize all features:
 
 \begin{Schunk}
 \begin{Sinput}
-> data_prepared <- data_prep(df = economic_growth, timestamp_col = year,
-+                            entity_col = country, standardize = TRUE,
-+                            scale = TRUE, entity_effects = TRUE,
-+                            order = c("T", "S", "0"))
+> data_standardized_features <- feature_standardization(
++     df            = economic_growth,
++     excluded_cols = c(country, year, gdp)
++   )
 \end{Sinput}
 \end{Schunk}
 
-\noindent However, it is important to point out that the main part of the code assumes fixed effects by default. Therefore, do \textbf{not} recommend using the \texttt{E} parameter within \verb+bdsm+ package\footnote{In theory the results should be the same with and without\texttt{E} parameter. However, because we use numerical methods some changes might be expected} (e.g. before using \verb+bma+ function). We made this option for the user that wants to use this function for other purposes.
-
-\citet{Moral+2016} first standardized the regressors, leaving the dependent variable unchanged, and then introduced time fixed effects.
-To achieve this effect, use:
+\noindent and then apply cross-sectional demeaning (fixed time effects):
 
 \begin{Schunk}
 \begin{Sinput}
-> data_prepared <- economic_growth |>
-+     data_prep(timestamp_col = year, entity_col = gdp,
-+               order = c("S","0","0")) |>
-+     data_prep(timestamp_col = year, entity_col = country,
-+               standardize = FALSE, scale = FALSE,
-+               time_effects = TRUE, time_scale = FALSE,
-+               order = c("T","0","0"))
+> data_prepared <- feature_standardization(
++     df            = data_standardized_features,
++     group_by_col  = year,
++     excluded_cols = country,
++     scale         = FALSE
++   )
 \end{Sinput}
 \end{Schunk}
+
+\noindent Note that the example below is the data preparation scheme which was
+used in \citet{Moral+2016}.
+There is no need to apply panel demeaning (entity fixed effects)
+in this framework as can be seen in \autoref{eq12}.\footnote{
+In theory the results should be the same with entity fixed effects.
+However, because we use numerical methods some changes might occur}.
+
 
 \section{Estimation of the model space}\label{model_space}
 

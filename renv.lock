@@ -121,7 +121,7 @@
     },
     "Rdpack": {
       "Package": "Rdpack",
-      "Version": "2.6.3",
+      "Version": "2.6.4",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -131,7 +131,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "bf6104ba9f100ca37aee79bbed40b978"
+      "Hash": "1b2ca1972e3b00cd0bb5a98e16403028"
     },
     "SparseM": {
       "Package": "SparseM",
@@ -298,7 +298,7 @@
     },
     "doBy": {
       "Package": "doBy",
-      "Version": "4.6.25",
+      "Version": "4.6.26",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -318,7 +318,7 @@
         "tibble",
         "tidyr"
       ],
-      "Hash": "1068fcff98a77c9326a26e8143cfa10e"
+      "Hash": "dcf435fc286300b02eb341b8670da08a"
     },
     "dplyr": {
       "Package": "dplyr",
@@ -385,7 +385,7 @@
     },
     "ggplot2": {
       "Package": "ggplot2",
-      "Version": "3.5.1",
+      "Version": "3.5.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -406,7 +406,7 @@
         "vctrs",
         "withr"
       ],
-      "Hash": "44c6a2f8202d5b7e878ea274b1092426"
+      "Hash": "7ad64861e028a777d7d67ff83231b548"
     },
     "ggpubr": {
       "Package": "ggpubr",

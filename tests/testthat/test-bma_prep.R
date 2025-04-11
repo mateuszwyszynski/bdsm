@@ -1,10 +1,14 @@
 test_that(paste("bma_prep computes correct bma_prep list"), {
 
   data_prepared <- bdsm::economic_growth[,1:7] %>%
-    feature_standardization(timestamp_col = year, entity_col = country) %>%
-    feature_standardization(timestamp_col = year, entity_col = country,
-                            time_effects = TRUE, scale = FALSE)
-
+    bdsm::feature_standardization(
+      excluded_cols = c(country, year, gdp)
+    ) %>%
+    bdsm::feature_standardization(
+      group_by_col  = year,
+      excluded_cols = country,
+      scale         = FALSE
+    )
 
   for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
                       timestamp_col = year, entity_col = country,
