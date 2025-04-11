@@ -1,4 +1,4 @@
-test_that("optimal_model_space correctly computes economic_growth_ms", {
+test_that("optimal_model_space correctly computes small_economic_growth_ms", {
   skip_on_os(c("windows", "linux"))
   skip_on_cran()
   set.seed(23)
@@ -21,5 +21,5 @@ test_that("optimal_model_space correctly computes economic_growth_ms", {
     init_value    = 0.5
   )
 
-  expect_equal(model_space, economic_growth_ms)
+  expect_equal(model_space, small_economic_growth_ms)
 })

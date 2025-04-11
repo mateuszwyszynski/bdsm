@@ -1,4 +1,4 @@
-# code to prepare `economic_growth_liks` dataset
+# code to prepare `small_economic_growth_ms` dataset
 library(magrittr)
 
 set.seed(23)
@@ -13,12 +13,12 @@ data_prepared <- bdsm::economic_growth[, 1:6] %>%
     scale         = FALSE
   )
 
-economic_growth_liks <- likelihoods_summary(
+small_economic_growth_ms <- optimal_model_space(
   df            = data_prepared,
   dep_var_col   = gdp,
   timestamp_col = year,
   entity_col    = country,
-  model_space   = economic_growth_ms
+  init_value    = 0.5
 )
 
-usethis::use_data(economic_growth_liks, overwrite = TRUE)
+usethis::use_data(small_economic_growth_ms, overwrite = TRUE)

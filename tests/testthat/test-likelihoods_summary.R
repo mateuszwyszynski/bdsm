@@ -1,5 +1,5 @@
 test_that(paste("likelihoods_summary computes correct likelihoods and",
-                "standard deviations based on economic_growth_ms"), {
+                "standard deviations based on small_economic_growth_ms"), {
   set.seed(23)
 
   data_prepared <- bdsm::economic_growth[, 1:6] %>%
@@ -17,8 +17,8 @@ test_that(paste("likelihoods_summary computes correct likelihoods and",
     dep_var_col   = gdp,
     timestamp_col = year,
     entity_col    = country,
-    model_space   = economic_growth_ms
+    model_space   = small_economic_growth_ms
   )
 
-  expect_equal(liks_info, economic_growth_liks)
+  expect_equal(liks_info, small_economic_growth_liks)
 })

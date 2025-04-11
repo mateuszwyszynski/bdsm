@@ -30,18 +30,18 @@
 #' \code{sed}, \code{pgrw} and \code{pop}. Therefore the model space contains
 #' \code{2^4 = 16} models (columns).
 #'
-#' @format ## `economic_growth_ms`
+#' @format ## `small_economic_growth_ms`
 #' A double matrix with 51 rows and 16 columns.
-"economic_growth_ms"
+"small_economic_growth_ms"
 
 #' Example Approximate Likelihoods Summary based on Model Space
 #'
 #' A matrix representing the summary of likelihoods computed with
-#' \code{likelihoods_summary} based on the \code{economic_growth_ms} model
+#' \code{likelihoods_summary} based on the \code{small_economic_growth_ms} model
 #' space. The matrix contains likelihoods, standard deviations and robust
 #' standard deviations
 #'
-#' @format ## `economic_growth_stds`
+#' @format ## `small_economic_growth_liks`
 #' A double matrix with 11 rows and 16 columns.
 #' \describe{
 #'   \item{first row}{Likelihoods for the models}
@@ -50,7 +50,7 @@
 #'   \item{rows 3-7}{Standard deviations}
 #'   \item{rows 8-12}{Robust standard deviations}
 #' }
-"economic_growth_liks"
+"small_economic_growth_liks"
 
 #' Example of bma_prep function result with four regressors
 #'
