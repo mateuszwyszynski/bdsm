@@ -26,7 +26,7 @@ A list with bma objects: \cr
 \item random_table - table with the results under binomial-beta model prior \cr
 \item reg_names - vector with names of the regressors - to be used by the functions \cr
 \item R - total number of regressors \cr
-\item M - size of the mode space \cr
+\item num_of_models - number of models present in the model space \cr
 \item forJointnes - table with model IDs and PMPs for jointness function \cr
 \item forBestModels - table with model IDs, PMPs, coefficients, stds, and, stdRs for best_models function \cr
 \item EMS - expected model size for binomial and binomial-beta model prior specified by the user (default EMS = R/2) \cr
