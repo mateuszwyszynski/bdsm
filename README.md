@@ -135,7 +135,7 @@ if (is.na(cores)) {
 } else {
   cores <- min(cores, detectCores())
 }
-cl <- makeCluster(cores, "FORK")
+cl <- makeCluster(cores)
 
 for_bma <- bdsm::bma_prep(
   df             = data_prepared,
