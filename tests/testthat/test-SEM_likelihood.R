@@ -15,7 +15,10 @@ test_that("SEM likelihood is calculated correctly for default feature standardiz
   set.seed(1)
   sem_value <- SEM_likelihood(
     0.5,
-    generate_test_feature_standard_data(),
+    feature_standardization(
+      df            = generate_test_data(),
+      excluded_cols = c(entities, times)
+    ),
     times, entities, dep_var
   )
   expect_equal(sem_value, 133.223858)
@@ -27,7 +30,11 @@ test_that("SEM likelihood is calculated correctly for time_effects TRUE", {
   set.seed(1)
   sem_value <- SEM_likelihood(
     0.5,
-    generate_test_feature_standard_data(time_effects = TRUE),
+    feature_standardization(
+      df            = generate_test_data(),
+      group_by_col  = times,
+      excluded_cols = entities
+    ),
     times, entities, dep_var
   )
   expect_equal(sem_value, 217.693805)
@@ -39,7 +46,12 @@ test_that("SEM likelihood is calculated correctly for time_effects TRUE and scal
   set.seed(1)
   sem_value <- SEM_likelihood(
     0.5,
-    generate_test_feature_standard_data(time_effects = TRUE, scale = FALSE),
+    feature_standardization(
+      df            = generate_test_data(),
+      group_by_col  = times,
+      excluded_cols = entities,
+      scale = FALSE
+    ),
     times, entities, dep_var
   )
   expect_equal(sem_value, 225.54665)
@@ -51,7 +63,11 @@ test_that("SEM likelihood is calculated correctly for time_effects FALSE and sca
   set.seed(1)
   sem_value <- SEM_likelihood(
     0.5,
-    generate_test_feature_standard_data(time_effects = FALSE, scale = FALSE),
+    feature_standardization(
+      df            = generate_test_data(),
+      excluded_cols = c(times, entities),
+      scale         = FALSE
+    ),
     times, entities, dep_var
   )
   expect_equal(sem_value, 140.498138)
@@ -65,7 +81,11 @@ test_that("SEM likelihood is calculated incorrectly for specific data", {
   testthat::expect_warning(
     sem_value <- SEM_likelihood(
       0.5,
-      generate_test_feature_standard_data(time_effects = FALSE, scale = FALSE),
+      feature_standardization(
+        df            = generate_test_data(),
+        excluded_cols = c(times, entities),
+        scale         = FALSE
+      ),
       times, entities, dep_var
     )
   )

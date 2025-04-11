@@ -55,17 +55,24 @@ model space. Two versions are computed.
 }
 \examples{
 \donttest{
-  data_centered_scaled <-
-    feature_standardization(df = bdsm::economic_growth[,1:7],
-                            timestamp_col = year, entity_col = country)
-  data_cross_sectional_standarized <-
-    feature_standardization(df = data_centered_scaled, timestamp_col = year,
-                            entity_col = country, time_effects = TRUE,
-                            scale = FALSE)
+ library(magrittr)
+ data_prepared <- bdsm::economic_growth[, 1:7] \%>\%
+   bdsm::feature_standardization(
+     excluded_cols = c(country, year, gdp)
+   ) \%>\%
+   bdsm::feature_standardization(
+     group_by_col  = year,
+     excluded_cols = country,
+     scale         = FALSE
+   )
 
-    likelihoods_summary(df = data_cross_sectional_standarized,
-                        dep_var_col = gdp, timestamp_col = year,
-                        entity_col = country, model_space = economic_growth_ms)
+ likelihoods_summary(
+   df            = data_prepared,
+   dep_var_col   = gdp,
+   timestamp_col = year,
+   entity_col    = country,
+   model_space   = economic_growth_ms
+ )
 }
 
 }

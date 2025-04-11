@@ -26,10 +26,15 @@
 #' @examples
 #' library(magrittr)
 #'
-#' data_prepared <- economic_growth[,1:7] %>%
-#'   feature_standardization(timestamp_col = year, entity_col = country) %>%
-#'   feature_standardization(timestamp_col = year, entity_col = country,
-#'                         time_effects = TRUE, scale = FALSE)
+#' data_prepared <- bdsm::economic_growth[, 1:5] %>%
+#'   bdsm::feature_standardization(
+#'     excluded_cols = c(country, year, gdp)
+#'   ) %>%
+#'   bdsm::feature_standardization(
+#'     group_by_col  = year,
+#'     excluded_cols = country,
+#'     scale         = FALSE
+#'   )
 #'
 #' initialize_model_space(data_prepared, year, country, gdp)
 #' @export
@@ -134,10 +139,15 @@ regressor_names_from_params_vector <- function(params) {
 #' \donttest{
 #' library(magrittr)
 #'
-#' data_prepared <- economic_growth[,1:7] %>%
-#'    feature_standardization(timestamp_col = year, entity_col = country) %>%
-#'    feature_standardization(timestamp_col = year, entity_col = country,
-#'                            time_effects = TRUE, scale = FALSE)
+#' data_prepared <- bdsm::economic_growth[, 1:5] %>%
+#'   bdsm::feature_standardization(
+#'     excluded_cols = c(country, year, gdp)
+#'   ) %>%
+#'   bdsm::feature_standardization(
+#'     group_by_col  = year,
+#'     excluded_cols = country,
+#'     scale         = FALSE
+#'   )
 #'
 #' model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
 #'                                    timestamp_col = year, entity_col = country,

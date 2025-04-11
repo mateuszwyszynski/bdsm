@@ -1,5 +1,6 @@
 ---
 output: github_document
+title: "bdsm: Bayesian Dynamic Systems Modeling"
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -13,16 +14,41 @@ knitr::opts_chunk$set(
 )
 ```
 
-# bdsm
+# bdsm: Bayesian Dynamic Systems Modeling
 
-<!-- badges: start -->
-<!-- badges: end -->
+[![CRAN status badge](http://www.r-pkg.org/badges/version/bdsm)](https://CRAN.R-project.org/package=bdsm)
+[![License](https://img.shields.io/badge/license-GPL%20(%3E%3D2)-blue.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
+[![R-CMD-check](https://github.com/mateuszwyszynski/bdsm/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mateuszwyszynski/bdsm/actions)
 
-The goal of bdsm is to provide tools to model panel data.
+
+## Overview
+
+The **bdsm** package implements Bayesian model averaging (BMA)
+for dynamic panels with weakly exogenous regressors,
+following the methodology of [Moral-Benito (2016)](#references).
+This addresses both:
+
+1. **Model uncertainty** (selecting among many candidate regressors),
+2. **Reverse causality** (weak exogeneity, which permits current values of
+regressors to correlate with past shocks and other regressors).
+
+The package features:
+
+- Tools to **estimate** the entire model space (via maximum likelihood)
+and calculate **Bayesian information criterion (BIC)** for each variant.
+- Flexible **model priors** (binomial, binomial-beta, optional dilution prior).
+- Comprehensive **BMA statistics**, including posterior inclusion probabilities
+(PIPs), posterior means, and posterior standard deviations (regular or robust).
+- Functions to **visualize** prior and posterior model probabilities.
+- **Jointness measures** for pairs of regressors,
+indicating whether they are complements or substitutes.
+- Support for **parallel computing** to handle large model spaces.
+
 
 ## Installation
 
-You can install the released version of bdsm from [CRAN](https://CRAN.R-project.org) with:
+You can install the released version of bdsm from
+[CRAN](https://CRAN.R-project.org) with:
 
 ``` r
 install.packages("bdsm")
@@ -35,38 +61,210 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("mateuszwyszynski/bdsm")
 ```
 
-## Basic Usage
+Once installed, simply load the package:
+
+```r
+library(bdsm)
+```
+
+
+## Getting Started
+
+### Data Preparation
+
+Your data should be in the following format:
+
+1. A **time** column (e.g., `year`),
+2. An **entity** column (e.g., `country`),
+3. A **dependent variable** column (the variable of interest, e.g. `gdp`),
+4. Remaining columns as potential **regressors**.
+
+A convenience function `join_lagged_col()` can help transform a dataset
+that already contains both a variable
+and its lagged version into the required format.
+
+You can also use `feature_standardization()` to perform mean-centering,
+demeaning (entity/time effects), or scaling (standardization) as needed.
+For example:
 
 ```{r}
 library(magrittr)
-devtools::load_all()
 
 set.seed(20)
 
-# STEP 1 - Data Preparation
-#
-# Features are scaled and centralized around the mean.
-# Then they are centralized around the mean within cross-sections (fixed time effects)
-data_prepared <- bdsm::economic_growth[,1:7] %>%
-  feature_standardization(timestamp_col = year, entity_col = gdp) %>%
-  feature_standardization(timestamp_col = year, entity_col = country,
-                          time_effects = TRUE, scale = FALSE)
-
-# If needed track computation time
-library(tictoc)
-tic()
-
-# STEP 2 - BMA Analysis
-
-for_bma <-
-  bma_prep(df = data_prepared, timestamp_col = year, entity_col = country,
-           dep_var_col = gdp, init_value = 0.5, exact_value = FALSE)
-
-bma_result <- bma(for_bma = for_bma, df = data_prepared)
-
-print(paste("Computation Time:", toc()))
-tic()
+# Features are scaled and demeaned,
+# then centralized around the mean within cross-sections (fixed time effects)
+data_prepared <- bdsm::economic_growth[, 1:5] %>%
+  bdsm::feature_standardization(
+    excluded_cols = c(country, year, gdp)
+  ) %>%
+  bdsm::feature_standardization(
+    group_by_col  = year,
+    excluded_cols = country,
+    scale         = FALSE
+  )
 ```
+
+
+### Estimating the Model Space
+
+The function `bma_prep()` estimates all possible models
+(each possible subset of regressors) via maximum likelihood,
+storing the results in a list object.
+For small to moderately sized datasets:
+
+```{r, results='hide'}
+for_bma <- bdsm::bma_prep(
+  df             = data_prepared,
+  dep_var_col    = gdp,      # Dependent variable
+  timestamp_col  = year,
+  entity_col     = country,
+  init_value     = 0.5,
+)
+```
+
+For larger datasets, you can leverage multiple cores:
+
+```{r}
+library(parallel)
+
+# Choose an appropriate number of cores, taking into account system-level limits
+cores <- as.integer(Sys.getenv("_R_CHECK_LIMIT_CORES_", unset = NA))
+if (is.na(cores)) {
+  cores <- detectCores()
+} else {
+  cores <- min(cores, detectCores())
+}
+cl <- makeCluster(cores)
+setDefaultCluster(cl)
+
+for_bma <- bdsm::bma_prep(
+  df             = data_prepared,
+  timestamp_col  = year,
+  entity_col     = country,
+  dep_var_col    = gdp,
+  init_value     = 0.5,
+  run_parallel   = TRUE,
+)
+
+stopCluster(cl = NULL)
+```
+
+
+### Performing Bayesian Model Averaging
+
+After preparing the model space,
+run `bma()` to obtain posterior model probabilities,
+posterior inclusion probabilities (PIPs), and other BMA statistics
+under the **binomial** and **binomial-beta** model priors:
+
+```{r}
+bma_results <- bdsm::bma(for_bma, df = data_prepared, round = 3)
+
+# Inspect the BMA summary (binomial prior results first, binomial-beta second)
+bma_results[[1]]  # BMA stats under binomial prior
+bma_results[[2]]  # BMA stats under binomial-beta prior
+
+# Posterior model sizes:
+bma_results[[16]]
+```
+
+Key columns in the BMA output include:
+- **PIP**: Posterior inclusion probability for each regressor.
+- **PM**: Posterior mean of each parameter (averaged over all models).
+- **PSD/PSDR**: Posterior standard deviations (regular/robust) of each parameter
+- **%(+)**: Percentage of models (among those that include a given regressor)
+in which the parameter estimate is positive.
+
+### Visualizing Prior and Posterior Probabilities
+
+1. **`model_pmp()`**: Shows prior vs. posterior model probabilities,
+ranking models from best to worst.
+2. **`model_sizes()`**: Displays how prior vs. posterior probabilities mass
+is distributed across different model sizes.
+
+```{r}
+# Plot prior vs. posterior model probabilities
+pmp_graphs <- bdsm::model_pmp(bma_results, top = 3)  # Show top 3 models
+
+# Plot probabilities by model size
+size_graphs <- bdsm::model_sizes(bma_results)
+```
+
+### Selecting the Best Models
+
+Use `best_models()` to extract specific information about the top-ranked models:
+
+```{r}
+# Retrieve the 5 best models according to binomial prior
+top3_binom <- bdsm::best_models(bma_results, criterion = 1, best = 3)
+
+# Print the inclusion matrix for each of the top 3 models
+top3_binom[[1]]
+
+# Retrieve robust standard errors in a knit-friendly table
+top3_binom[[6]]
+```
+
+### Jointness Measures
+
+Assess whether two regressors tend to co-occur (complements)
+or exclude each other (substitutes) using `jointness()`.
+By default, it calculates the Hofmarcher et al. (2018) measure:
+
+```{r}
+joint_measures <- bdsm::jointness(bma_results)
+head(joint_measures)
+```
+
+You can also specify older measures,
+such as `"LS"` (Ley & Steel) or `"DW"` (Doppelhofer & Weeks):
+
+```{r}
+joint_measures_ls <- bdsm::jointness(bma_results, measure = "LS")
+```
+
+## Example
+
+Below is a minimal reproducible workflow:
+
+```{r, results='hide'}
+# 1) Data preparation
+data_prepared <- bdsm::economic_growth[, 1:5] %>%
+  bdsm::feature_standardization(
+    excluded_cols = c(country, year, gdp)
+  ) %>%
+  bdsm::feature_standardization(
+    group_by_col  = year,
+    excluded_cols = country,
+    scale         = FALSE
+  )
+
+# 2) Estimate model space
+prep_obj <- bdsm::bma_prep(
+  df            = data_prepared,
+  dep_var_col   = gdp,
+  timestamp_col = year,
+  entity_col    = country,
+  init_value     = 0.5,
+)
+
+# 3) Run Bayesian Model Averaging
+bma_obj <- bdsm::bma(
+  for_bma = prep_obj,
+  df      = data_prepared
+)
+
+# 4) Inspect the top 3 models under binomial prior
+best_3 <- bdsm::best_models(
+  bma_list = bma_obj,
+  criterion = 1,
+  best = 3
+)
+best_3[[1]]  # Inclusion table
+best_3[[2]]  # Coefficients & standard errors
+```
+
 
 ## Troubleshooting
 
@@ -87,21 +285,26 @@ In such case you should first try installing the recommended packages.
 With properly configured system environment everything should work fine.
 
 
-## Advanced Usage: parallel computing
+## References
 
-```{r}
-# To find the optimal model space with parallel computations
-# replace the STEP 2 with:
-library(parallel)
-cl <- safeMakeCluster()
-setDefaultCluster(cl)
+<div id="references"></div>
 
-for_bma <-
-  bma_prep(df = data_prepared, timestamp_col = year, entity_col = country,
-           dep_var_col = gdp, init_value = 0.5, exact_value = FALSE,
-           run_parallel = TRUE)
+- Moral-Benito, E. (2016). "Model Averaging in Economics: An Overview." *Journal of Economic Surveys*.
+- Ley, E. and Steel, M. F. J. (2007). "Jointness in Bayesian Variable Selection with Applications to Growth Regression." *Journal of Macroeconomics*.
+- Doppelhofer, G. and Weeks, M. (2009). "Jointness of Growth Determinants." *Journal of Applied Econometrics*.
+- Hofmarcher, P., Crespo Cuaresma, J., Huber, F., and Moser, M. (2018). "Forecasting with Bayesian Model Averaging: New Classical and Bayesian Perspectives." *Journal of Applied Econometrics*.
 
-bma_result <- bma(for_bma = for_bma, df = data_prepared)
+(Additional references related to the methodology can be found in the package vignette.)
 
-stopCluster(cl = NULL)
-```
+## Contributions and Issues
+
+We welcome bug reports, feature requests, and contributions.
+Feel free to open an issue or pull request on
+[GitHub](https://github.com/mateuszwyszynski/bdsm).
+
+## License
+
+This package is distributed under the GPL (\(\geq 2\)) license.
+See the [LICENSE](LICENSE) file for details.
+
+---
