@@ -34,7 +34,7 @@
 #' \donttest{
 #' library(magrittr)
 #'
-#' data_prepared <- bdsm::economic_growth[, 1:7] %>%
+#' data_prepared <- bdsm::economic_growth[, 1:6] %>%
 #'   bdsm::feature_standardization(
 #'     excluded_cols = c(country, year, gdp)
 #'   ) %>%

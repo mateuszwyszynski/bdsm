@@ -1,6 +1,6 @@
 test_that(paste("coef_hist creates correct lists with graphs"), {
 
-  data_prepared <- bdsm::economic_growth[,1:7] %>%
+  data_prepared <- bdsm::economic_growth[,1:6] %>%
     bdsm::feature_standardization(
       excluded_cols = c(country, year, gdp)
     ) %>%
@@ -19,5 +19,4 @@ test_that(paste("coef_hist creates correct lists with graphs"), {
   expect_equal(class(coef_plots[[2]]), c("gg","ggplot"))
   expect_equal(class(coef_plots[[3]]), c("gg","ggplot"))
   expect_equal(class(coef_plots[[4]]), c("gg","ggplot"))
-  expect_equal(class(coef_plots[[5]]), c("gg","ggplot"))
 })

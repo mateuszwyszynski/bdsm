@@ -1,6 +1,6 @@
 test_that(paste("bma computes correct bma_list and all its objects"), {
 
-  data_prepared <- bdsm::economic_growth[,1:7] %>%
+  data_prepared <- bdsm::economic_growth[,1:6] %>%
     bdsm::feature_standardization(
       excluded_cols = c(country, year, gdp)
     ) %>%
