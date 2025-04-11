@@ -50,7 +50,6 @@
 #'
 #' bma_results <- bma(for_bma, df = data_prepared, round = 3, dilution = 0)
 #' }
-
 bma <- function(for_bma, df, round = 4, EMS = NULL, dilution = 0, dil.Par = 0.5){
 
   reg_names <- colnames(df)
@@ -60,10 +59,9 @@ bma <- function(for_bma, df, round = 4, EMS = NULL, dilution = 0, dil.Par = 0.5)
   K <- length(reg_names)
   # Regressors without lag
   R <- K-1
-  # Model space size
+
   num_of_models <- 2^R
-  # Number of observations
-  N <- nrow((na.omit(df[,4])))
+  observations_num <- nrow((na.omit(df[,4])))
 
   model_space <- for_bma[[1]]
   like_table <- for_bma[[2]]
@@ -225,7 +223,7 @@ bma <- function(for_bma, df, round = 4, EMS = NULL, dilution = 0, dil.Par = 0.5)
   reg_sums <- matrix(rowSums(reg_ID), nrow = num_of_models, ncol = 1)
 
   for (i in 1:num_of_models){
-    d_free[i,1] = N - reg_sums[i,1] - 1
+    d_free[i,1] = observations_num - reg_sums[i,1] - 1
     if(alphas[i,1]>0){
       Positive_alpha <- 1/num_of_models + Positive_alpha
     }
