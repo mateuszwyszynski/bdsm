@@ -29,10 +29,9 @@
 #' standard errors for all estimated models
 #'
 #' @examples
-#' \donttest{
 #' library(magrittr)
 #'
-#' data_prepared <- bdsm::economic_growth[, 1:7] %>%
+#' data_prepared <- bdsm::economic_growth[, 1:5] %>%
 #'   bdsm::feature_standardization(
 #'     excluded_cols = c(country, year, gdp)
 #'   ) %>%
@@ -42,13 +41,16 @@
 #'     scale         = FALSE
 #'   )
 #'
-#' for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
-#' timestamp_col = year, entity_col = country, init_value = 0.5)
-#' }
+#' for_bma <- bma_prep(
+#'   df            = data_prepared,
+#'   dep_var_col   = gdp,
+#'   timestamp_col = year,
+#'   entity_col    = country,
+#'   init_value    = 0.5
+#'  )
 #'
 #' @export
-#'
-
+#
 bma_prep <-
   function(df, timestamp_col, entity_col, dep_var_col, init_value,
            exact_value = TRUE, cl = NULL,

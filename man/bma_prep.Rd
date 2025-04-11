@@ -53,10 +53,9 @@ This function calculates model space, values of the maximized likelihood functio
 standard deviations of the parameters that will be used in Bayesian model averaging.
 }
 \examples{
-\donttest{
 library(magrittr)
 
-data_prepared <- bdsm::economic_growth[, 1:7] \%>\%
+data_prepared <- bdsm::economic_growth[, 1:5] \%>\%
   bdsm::feature_standardization(
     excluded_cols = c(country, year, gdp)
   ) \%>\%
@@ -66,8 +65,12 @@ data_prepared <- bdsm::economic_growth[, 1:7] \%>\%
     scale         = FALSE
   )
 
-for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
-timestamp_col = year, entity_col = country, init_value = 0.5)
-}
+for_bma <- bma_prep(
+  df            = data_prepared,
+  dep_var_col   = gdp,
+  timestamp_col = year,
+  entity_col    = country,
+  init_value    = 0.5
+ )
 
 }
