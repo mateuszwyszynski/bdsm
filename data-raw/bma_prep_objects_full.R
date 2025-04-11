@@ -3,17 +3,35 @@
 library(magrittr)
 
 data_prepared <- bdsm::economic_growth %>%
-  feature_standardization(timestamp_col = year, entity_col = country) %>%
-  feature_standardization(timestamp_col = year, entity_col = country,
-                          time_effects = TRUE, scale = FALSE)
+  bdsm::feature_standardization(
+    excluded_cols = c(country, year, gdp)
+  ) %>%
+  bdsm::feature_standardization(
+    group_by_col  = year,
+    excluded_cols = country,
+    scale         = FALSE
+  )
 
 library(parallel)
-library(bdsm)
-cl <- safeMakeCluster()
-setDefaultCluster(cl)
 
-bma_prep_objects_full <- bma_prep(df = data_prepared, dep_var_col = gdp,
-                             timestamp_col = year, entity_col = country,
-                             init_value = 0.5, run_parallel = TRUE)
+# Choose an appropriate number of cores, taking into account system-level limits
+cores <- as.integer(Sys.getenv("_R_CHECK_LIMIT_CORES_", unset = NA))
+if (is.na(cores)) {
+  cores <- detectCores()
+} else {
+  cores <- min(cores, detectCores())
+}
+cl <- makeCluster(cores)
+
+bma_prep_objects <- bma_prep(
+  df            = data_prepared,
+  dep_var_col   = gdp,
+  timestamp_col = year,
+  entity_col    = country,
+  init_value    = 0.5,
+  cl = cl
+)
+
+stopCluster(cl)
 
 usethis::use_data(bma_prep_objects_full, overwrite = TRUE)

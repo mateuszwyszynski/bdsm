@@ -57,8 +57,20 @@
 #' @format ## `bma_prep_objects_full`
 #' A list with two objects.
 #' \describe{
-#'    \item{model space}{Table with the parameters for the entire model space}
-#'    \item{likelihood summmary}{Table with likelihoods, BICs, and standard deviations, and robust standard deviations}
+#'    \item{model space}{
+#'      A double matrix with 106 rows and 512 columns with the
+#'      parameters for the model space built using all 9 regressors from
+#'      the \code{economic_growth} dataset. Therefore the model space
+#'      contains \code{2^9 = 512} models (columns).
+#'    }
+#'    \item{likelihood summmary}{
+#'      A matrix representing the summary of likelihoods computed with
+#'      \code{likelihoods_summary} based on the model space. The first row
+#'      contains likelihoods for the models. The second row are almost
+#'      1/2 * BIC_k as in Raftery's Bayesian Model Selection in Social Research,
+#'      eq. 19. The rows 3-7 are standard deviations. Finally, the rows 8-12 are
+#'      robust standard deviations
+#'    }
 #' }
 "bma_prep_objects_full"
 
