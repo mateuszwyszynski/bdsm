@@ -12,10 +12,9 @@
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 #' \link[bdsm]{SEM_likelihood} for details.
-#' @param run_parallel If \code{TRUE} the optimization is run in parallel using
-#' the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
-#' base apply function is used. Note that using the parallel computing requires
-#' setting the default cluster. See README.
+#' @param cl An optional cluster object. If supplied, the function will use this
+#' cluster for parallel processing. If \code{NULL} (the default),
+#' \code{pbapply::pblapply} will run sequentially.
 #' @param control a list of control parameters for the optimization which are
 #' passed to \link[stats]{optim}. Default is
 #' \code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100, scale = 0.05)}, but note
@@ -52,17 +51,28 @@
 
 bma_prep <-
   function(df, timestamp_col, entity_col, dep_var_col, init_value,
-           exact_value = TRUE, run_parallel = FALSE,
+           exact_value = TRUE, cl = NULL,
            control = list(trace = 2, maxit = 10000, fnscale = -1,
                           REPORT = 100, scale = 0.05)){
-    model_space <- optimal_model_space(df=df, timestamp_col = {{timestamp_col}}, entity_col = {{entity_col}},
-                                       dep_var_col = {{dep_var_col}}, init_value = init_value,
-                                       exact_value = exact_value, run_parallel = run_parallel,
-                                       control = control)
+    model_space <- optimal_model_space(
+      df            = df,
+      timestamp_col = {{timestamp_col}},
+      entity_col    = {{entity_col}},
+      dep_var_col   = {{dep_var_col}},
+      init_value    = init_value,
+      exact_value   = exact_value,
+      cl            = cl,
+      control       = control
+    )
 
-    like_table <- likelihoods_summary(df = df, dep_var_col = {{dep_var_col}}, timestamp_col = {{timestamp_col}},
-                                      entity_col = {{entity_col}}, model_space = model_space,
-                                      run_parallel = run_parallel)
+    like_table <- likelihoods_summary(
+      df            = df,
+      dep_var_col   = {{dep_var_col}},
+      timestamp_col = {{timestamp_col}},
+      entity_col    = {{entity_col}},
+      model_space   = model_space,
+      cl            = cl
+    )
 
     for_bma <- list(model_space, like_table)
   }

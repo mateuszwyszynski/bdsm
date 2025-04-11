@@ -553,28 +553,29 @@ If the user's dataset contains only a few regressors, the sufficient option is
 +                    init_value = 0.5)
 \end{Sinput}
 \end{Schunk}
-However, for larger datasets, it is better to take advantage of parallel computing.
-Then the numerical optimization used to find MLEs can be computed in parallel,
-separately for each model.
+
+\noindent However, for larger datasets,
+it is better to take advantage of parallel computing.
+Then the numerical optimization used to find MLEs
+can be computed on separate threads for each model.
 To do this, first load the \verb+parallel+ package and set up a cluster.
 
 <<eval=FALSE>>=
 library(parallel)
 # Here we try to use all available cores on the system.
-# You might want to lower the number of cores depending on your system.
+# You might want to lower the number of cores depending on your needs.
 cores <- detectCores()
 cl <- makeCluster(cores)
 setDefaultCluster(cl)
 @
 
-\noindent Then the user just needs to set the parameter \verb+run_parallel = TRUE+
-and run \verb+bma_prep+ function.
+\noindent Then the user just needs to provide this cluster to the function:
 
 \begin{Schunk}
 \begin{Sinput}
 > for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
 +                    timestamp_col = year, entity_col = country,
-+                    init_value = 0.5, run_parallel = TRUE)
++                    init_value = 0.5, cl = cl)
 \end{Sinput}
 \end{Schunk}
 

@@ -108,110 +108,78 @@ regressor_names_from_params_vector <- function(params) {
 #' Finds MLE parameters for each model in the given model space
 #'
 #' Given a dataset and an initial value for parameters, initializes a model
-#' space with parameters equal to initial value for each model. Then for each
+#' space with parameters equal to the initial value for each model. Then for each
 #' model performs a numerical optimization and finds parameters which maximize
 #' the likelihood.
 #'
 #' @param df Data frame with data for the analysis.
-#' @param timestamp_col The name of the column with time stamps
-#' @param entity_col Column with entities (e.g. countries)
-#' @param dep_var_col Column with the dependent variable
+#' @param timestamp_col The name of the column with time stamps.
+#' @param entity_col Column with entities (e.g. countries).
+#' @param dep_var_col Column with the dependent variable.
 #' @param init_value The value with which the model space will be initialized.
 #' This will be the starting point for the numerical optimization.
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 #' \link[bdsm]{SEM_likelihood} for details.
-#' @param run_parallel If \code{TRUE} the optimization is run in parallel using
-#' the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
-#' base apply function is used. Note that using the parallel computing requires
-#' setting the default cluster. See README.
+#' @param cl An optional cluster object. If supplied, the function will use this
+#' cluster for parallel processing. If \code{NULL} (the default),
+#' \code{pbapply::pblapply} will run sequentially.
 #' @param control a list of control parameters for the optimization which are
 #' passed to \link[stats]{optim}. Default is
-#' \code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100, scale = 0.05)}, but note
-#' that \code{scale} is used only for adjusting the \code{parscale} element added later in the function code.
-#'
-#' @importFrom parallel parApply
+#' \code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100, scale = 0.05)}.
 #'
 #' @return
-#' List of parameters describing analyzed models
+#' List (or matrix) of parameters describing analyzed models.
 #'
-#' @examples
-#' \donttest{
-#' library(magrittr)
-#'
-#' data_prepared <- bdsm::economic_growth[, 1:5] %>%
-#'   bdsm::feature_standardization(
-#'     excluded_cols = c(country, year, gdp)
-#'   ) %>%
-#'   bdsm::feature_standardization(
-#'     group_by_col  = year,
-#'     excluded_cols = country,
-#'     scale         = FALSE
-#'   )
-#'
-#' model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
-#'                                    timestamp_col = year, entity_col = country,
-#'                                    init_value = 0.5)
-#' }
+#' @importFrom pbapply pbapply
 #'
 #' @export
-optimal_model_space <-
-  function(df, timestamp_col, entity_col, dep_var_col, init_value,
-           exact_value = TRUE, run_parallel = FALSE,
-           control = list(trace = 2, maxit = 10000, fnscale = -1,
-                          REPORT = 100, scale = 0.05)) {
-    matrices_shared_across_models <- df %>%
+optimal_model_space <- function(df, timestamp_col, entity_col, dep_var_col, init_value,
+                                exact_value = TRUE, cl = NULL,
+                                control = list(trace = 2, maxit = 10000,
+                                               fnscale = -1, REPORT = 100,
+                                               scale = 0.05)) {
+  matrices_shared_across_models <- df %>%
+    matrices_from_df(timestamp_col = {{ timestamp_col }},
+                     entity_col = {{ entity_col }},
+                     dep_var_col = {{ dep_var_col }},
+                     which_matrices = c("Y1", "Y2", "Z", "res_maker_matrix"))
+
+  model_space <- df %>%
+    initialize_model_space(timestamp_col = {{ timestamp_col }},
+                           entity_col = {{ entity_col }},
+                           dep_var_col = {{ dep_var_col }},
+                           init_value = init_value)
+
+  optimization_wrapper <- function(params, data) {
+    regressors_subset <- regressor_names_from_params_vector(params)
+
+    model_specific_matrices <- df %>%
       matrices_from_df(timestamp_col = {{ timestamp_col }},
                        entity_col = {{ entity_col }},
                        dep_var_col = {{ dep_var_col }},
-                       which_matrices = c("Y1", "Y2", "Z", "res_maker_matrix"))
+                       lin_related_regressors = regressors_subset,
+                       which_matrices = c("cur_Y2", "cur_Z"))
 
-    model_space <- df %>%
-      initialize_model_space(timestamp_col = {{ timestamp_col }},
-                             entity_col = {{ entity_col}},
-                             dep_var_col = {{ dep_var_col }},
-                             init_value = init_value)
+    data$cur_Z <- model_specific_matrices$cur_Z
+    data$cur_Y2 <- model_specific_matrices$cur_Y2
 
-    optimization_wrapper <- function(params, data) {
-      regressors_subset <-
-        regressor_names_from_params_vector(params)
+    params_no_na <- stats::na.omit(params)
 
-      model_specific_matrices <- df %>%
-        matrices_from_df(timestamp_col = {{ timestamp_col }},
-                         entity_col = {{ entity_col }},
-                         dep_var_col = {{ dep_var_col }},
-                         lin_related_regressors = regressors_subset,
-                         which_matrices = c("cur_Y2", "cur_Z"))
+    # Adjust the optimization control parameters.
+    control$parscale <- control$scale * params_no_na
+    control$scale <- NULL
 
-      data$cur_Z <- model_specific_matrices$cur_Z
-      data$cur_Y2 <- model_specific_matrices$cur_Y2
+    optimized <- stats::optim(params_no_na, SEM_likelihood, data = data,
+                              exact_value = exact_value,
+                              method = "BFGS",
+                              control = control)
 
-      params_no_na <- params %>% stats::na.omit()
+    params[!is.na(params)] <- optimized[[1]]
+    params
+  }
 
-      # parscale argument somehow (don't know yet how) changes step size during
-      # optimization. Most likely optimization methods used in Gauss are
-      # scale-free and these used in R are not
-      # TODO: search for methods (or implement methods) in R which are scale-free
-      control$parscale = control$scale * params_no_na
-      control$scale = NULL
-
-      optimized <- stats::optim(params_no_na, SEM_likelihood, data = data,
-                                exact_value = exact_value,
-                                method = "BFGS",
-                                control = control)
-
-      params[!is.na(params)] <- optimized[[1]]
-      params
-    }
-
-    model_space <- do.call(
-      ifelse(run_parallel, "parApply", "apply"),
-      list(
-        X = model_space, MARGIN = 2,
-        FUN = optimization_wrapper,
-        data = matrices_shared_across_models
-      )
-    )
-
-    model_space
+  pbapply::pbapply(model_space, MARGIN = 2,  function(x) {
+    optimization_wrapper(x, matrices_shared_across_models)
+  }, cl = cl)
 }

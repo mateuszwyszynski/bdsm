@@ -15,10 +15,9 @@
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 #' \link[bdsm]{SEM_likelihood} for details.
-#' @param run_parallel If \code{TRUE} the optimization is run in parallel using
-#' the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
-#' base apply function is used. Note that using the parallel computing requires
-#' setting the default cluster. See README.
+#' @param cl An optional cluster object. If supplied, the function will use this
+#' cluster for parallel processing. If \code{NULL} (the default),
+#' \code{pbapply::pblapply} will run sequentially.
 #'
 #' @return
 #' Matrix with columns describing likelihood and standard deviations for each
@@ -29,7 +28,7 @@
 #' are rows with standard deviations for each parameter. After that we have rows
 #' with robust standard deviation (not sure yet what exactly "robust" means).
 #'
-#' @importFrom parallel parApply
+#' @importFrom pbapply pbapply
 #' @export
 #'
 #' @examples
@@ -55,9 +54,8 @@
 #' }
 #'
 likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
-                                model_space,
-                                exact_value = TRUE, model_prior = 'uniform',
-                                run_parallel = FALSE) {
+                                model_space, exact_value = TRUE,
+                                model_prior = 'uniform', cl = NULL) {
   regressors <- df %>%
     regressor_names(timestamp_col = {{ timestamp_col }},
                     entity_col = {{ entity_col }},
@@ -164,14 +162,7 @@ likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
     c(likelihood, bic, stdh, stdr)
   }
 
-  likelihoods_info <- do.call(
-    ifelse(run_parallel, "parApply", "apply"),
-    list(
-      X = model_space, MARGIN = 2,
-      FUN = std_dev_from_params,
-      data = matrices_shared_across_models
-    )
-  )
-
-  likelihoods_info
+  pbapply::pbapply(model_space, MARGIN = 2,  function(x) {
+    std_dev_from_params(x, matrices_shared_across_models)
+  }, cl = cl)
 }

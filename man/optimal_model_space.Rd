@@ -11,18 +11,18 @@ optimal_model_space(
   dep_var_col,
   init_value,
   exact_value = TRUE,
-  run_parallel = FALSE,
+  cl = NULL,
   control = list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100, scale = 0.05)
 )
 }
 \arguments{
 \item{df}{Data frame with data for the analysis.}
 
-\item{timestamp_col}{The name of the column with time stamps}
+\item{timestamp_col}{The name of the column with time stamps.}
 
-\item{entity_col}{Column with entities (e.g. countries)}
+\item{entity_col}{Column with entities (e.g. countries).}
 
-\item{dep_var_col}{Column with the dependent variable}
+\item{dep_var_col}{Column with the dependent variable.}
 
 \item{init_value}{The value with which the model space will be initialized.
 This will be the starting point for the numerical optimization.}
@@ -31,42 +31,20 @@ This will be the starting point for the numerical optimization.}
 computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
 \link[bdsm]{SEM_likelihood} for details.}
 
-\item{run_parallel}{If \code{TRUE} the optimization is run in parallel using
-the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
-base apply function is used. Note that using the parallel computing requires
-setting the default cluster. See README.}
+\item{cl}{An optional cluster object. If supplied, the function will use this
+cluster for parallel processing. If \code{NULL} (the default),
+\code{pbapply::pblapply} will run sequentially.}
 
 \item{control}{a list of control parameters for the optimization which are
 passed to \link[stats]{optim}. Default is
-\code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100, scale = 0.05)}, but note
-that \code{scale} is used only for adjusting the \code{parscale} element added later in the function code.}
+\code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100, scale = 0.05)}.}
 }
 \value{
-List of parameters describing analyzed models
+List (or matrix) of parameters describing analyzed models.
 }
 \description{
 Given a dataset and an initial value for parameters, initializes a model
-space with parameters equal to initial value for each model. Then for each
+space with parameters equal to the initial value for each model. Then for each
 model performs a numerical optimization and finds parameters which maximize
 the likelihood.
-}
-\examples{
-\donttest{
-library(magrittr)
-
-data_prepared <- bdsm::economic_growth[, 1:5] \%>\%
-  bdsm::feature_standardization(
-    excluded_cols = c(country, year, gdp)
-  ) \%>\%
-  bdsm::feature_standardization(
-    group_by_col  = year,
-    excluded_cols = country,
-    scale         = FALSE
-  )
-
-model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
-                                   timestamp_col = year, entity_col = country,
-                                   init_value = 0.5)
-}
-
 }

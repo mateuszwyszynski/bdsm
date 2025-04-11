@@ -113,7 +113,7 @@ The function `bma_prep()` estimates all possible models
 storing the results in a list object.
 For small to moderately sized datasets:
 
-```{r, results='hide'}
+```{r}
 for_bma <- bdsm::bma_prep(
   df             = data_prepared,
   dep_var_col    = gdp,      # Dependent variable
@@ -135,8 +135,7 @@ if (is.na(cores)) {
 } else {
   cores <- min(cores, detectCores())
 }
-cl <- makeCluster(cores)
-setDefaultCluster(cl)
+cl <- makeCluster(cores, "FORK")
 
 for_bma <- bdsm::bma_prep(
   df             = data_prepared,
@@ -144,10 +143,10 @@ for_bma <- bdsm::bma_prep(
   entity_col     = country,
   dep_var_col    = gdp,
   init_value     = 0.5,
-  run_parallel   = TRUE,
+  cl             = cl
 )
 
-stopCluster(cl = NULL)
+stopCluster(cl)
 ```
 
 
@@ -228,7 +227,7 @@ joint_measures_ls <- bdsm::jointness(bma_results, measure = "LS")
 
 Below is a minimal reproducible workflow:
 
-```{r, results='hide'}
+```{r}
 # 1) Data preparation
 data_prepared <- bdsm::economic_growth[, 1:5] %>%
   bdsm::feature_standardization(
