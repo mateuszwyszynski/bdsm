@@ -149,6 +149,8 @@ for_bma <- bdsm::bma_prep(
 stopCluster(cl)
 ```
 
+A progress bar is displayed to easily track the ongoing computation.
+
 ### Performing Bayesian Model Averaging
 
 After preparing the model space, run `bma()` to obtain posterior model

@@ -580,8 +580,10 @@ setDefaultCluster(cl)
 \end{Schunk}
 
 Even with parallel computing, executing \verb+bma_prep+ may be time-consuming.
-For users who want to practice using the \verb+bdsm+ package,
-we recommend the \verb+bma_prep+ object included with the package:
+Hence, the function displays a progress bar,
+so that the user can easily track the ongoing computation.
+Moreover, for users who want to practice using the \verb+bdsm+ package,
+we provide the already computed objects included with the package:
 
 <<>>=
 ?bma_prep_objects_full
