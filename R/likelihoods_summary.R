@@ -49,7 +49,7 @@
 #'    dep_var_col   = gdp,
 #'    timestamp_col = year,
 #'    entity_col    = country,
-#'    model_space   = small_economic_growth_ms
+#'    model_space   = bma_prep_objects[[1]]
 #'  )
 #' }
 #'

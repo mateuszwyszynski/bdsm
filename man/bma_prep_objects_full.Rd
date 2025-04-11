@@ -3,7 +3,7 @@
 \docType{data}
 \name{bma_prep_objects_full}
 \alias{bma_prep_objects_full}
-\title{Example of bms_prep function result with nine regressors (full Moral-Benito (2016) set)}
+\title{Example of \code{bma_prep} function result with nine regressors (full Moral-Benito (2016) set)}
 \format{
 \subsection{\code{bma_prep_objects_full}}{
 

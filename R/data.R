@@ -23,35 +23,6 @@
 #' @source <http://qed.econ.queensu.ca/jae/datasets/moral-benito001/>
 "economic_growth"
 
-#' Example Model Space
-#'
-#' A matrix representing the model space built using subset of regressors from
-#' the \code{economic_growth} dataset. The included regressors are \code{ish},
-#' \code{sed}, \code{pgrw} and \code{pop}. Therefore the model space contains
-#' \code{2^4 = 16} models (columns).
-#'
-#' @format ## `small_economic_growth_ms`
-#' A double matrix with 51 rows and 16 columns.
-"small_economic_growth_ms"
-
-#' Example Approximate Likelihoods Summary based on Model Space
-#'
-#' A matrix representing the summary of likelihoods computed with
-#' \code{likelihoods_summary} based on the \code{small_economic_growth_ms} model
-#' space. The matrix contains likelihoods, standard deviations and robust
-#' standard deviations
-#'
-#' @format ## `small_economic_growth_liks`
-#' A double matrix with 11 rows and 16 columns.
-#' \describe{
-#'   \item{first row}{Likelihoods for the models}
-#'   \item{second row}{Almost 1/2 * BIC_k as in Raftery's Bayesian Model
-#'   Selection in Social Research eq. 19.}
-#'   \item{rows 3-7}{Standard deviations}
-#'   \item{rows 8-12}{Robust standard deviations}
-#' }
-"small_economic_growth_liks"
-
 #' Example of bma_prep function result with four regressors
 #'
 #' A list with two objects: model space and likelihood summary table computed using
@@ -60,12 +31,25 @@
 #' @format ## `bma_prep_objects`
 #' A list with two objects.
 #' \describe{
-#'    \item{model space}{Table with the parameters for the entire model space}
-#'    \item{likelihood summmary}{Table with likelihoods, BICs, and standard deviations, and robust standard deviations}
+#'    \item{model space}{
+#'      A double matrix with 40 rows and 8 columns with the
+#'      parameters for the model space built using subset of the regressors from
+#'      the \code{economic_growth} dataset. The included regressors are
+#'      \code{ish}, \code{sed} and \code{pgrw}. Therefore the model space
+#'      contains \code{2^3 = 8} models (columns).
+#'    }
+#'    \item{likelihood summmary}{
+#'      A matrix representing the summary of likelihoods computed with
+#'      \code{likelihoods_summary} based on the model space. The first row
+#'      contains likelihoods for the models. The second row are almost
+#'      1/2 * BIC_k as in Raftery's Bayesian Model Selection in Social Research,
+#'      eq. 19. The rows 3-7 are standard deviations. Finally, the rows 8-12 are
+#'      robust standard deviations
+#'    }
 #' }
 "bma_prep_objects"
 
-#' Example of bms_prep function result with nine regressors (full Moral-Benito (2016) set)
+#' Example of \code{bma_prep} function result with nine regressors (full Moral-Benito (2016) set)
 #'
 #' A list with two objects: model space and likelihood summary table computed using
 #' \code{bma_prep} obtained based on the Moral-Benito (2016) data (with 9 regressors).
