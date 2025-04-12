@@ -44,7 +44,7 @@
 #'      scale         = FALSE
 #'    )
 #'
-#'  likelihoods_summary(
+#'  model_space_stats(
 #'    df            = data_prepared,
 #'    dep_var_col   = gdp,
 #'    timestamp_col = year,
@@ -53,7 +53,7 @@
 #'  )
 #' }
 #'
-likelihoods_summary <- function(df, dep_var_col, timestamp_col, entity_col,
+model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col,
                                 model_space, exact_value = TRUE,
                                 model_prior = 'uniform', cl = NULL) {
   regressors <- df %>%

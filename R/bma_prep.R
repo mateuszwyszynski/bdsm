@@ -67,7 +67,7 @@ bma_prep <-
       control       = control
     )
 
-    like_table <- likelihoods_summary(
+    like_table <- model_space_stats(
       df            = df,
       dep_var_col   = {{dep_var_col}},
       timestamp_col = {{timestamp_col}},

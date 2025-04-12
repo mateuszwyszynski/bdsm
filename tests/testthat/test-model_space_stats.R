@@ -1,4 +1,4 @@
-test_that(paste("likelihoods_summary computes correct likelihoods and",
+test_that(paste("model_space_stats computes correct likelihoods and",
                 "standard deviations based on bma_prep_objects"), {
   set.seed(23)
 
@@ -12,7 +12,7 @@ test_that(paste("likelihoods_summary computes correct likelihoods and",
       scale         = FALSE
     )
 
-  liks_info <- likelihoods_summary(
+  liks_info <- model_space_stats(
     df            = data_prepared,
     dep_var_col   = gdp,
     timestamp_col = year,
