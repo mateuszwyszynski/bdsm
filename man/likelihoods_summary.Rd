@@ -26,7 +26,7 @@ likelihoods_summary(
 
 \item{model_space}{A matrix (with named rows) with each column corresponding
 to a model. Each column specifies model parameters. Compare with
-\link[bdsm]{optimal_model_space}}
+\link[bdsm]{optim_model_space_params}}
 
 \item{exact_value}{Whether the exact value of the likelihood should be
 computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check

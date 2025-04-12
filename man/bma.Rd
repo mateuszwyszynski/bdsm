@@ -41,7 +41,7 @@ A list with bma objects: \cr
 }
 }
 \description{
-This function calculates bma object based on the model_space object obtained using optimal_model_space function.
+This function calculates bma object based on the model_space object obtained using optim_model_space_params function.
 It calculates BMA statistics and objects for the use by other functions.
 }
 \examples{

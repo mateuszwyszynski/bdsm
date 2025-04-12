@@ -9,7 +9,7 @@
 #' @param entity_col Column with entities (e.g. countries)
 #' @param model_space A matrix (with named rows) with each column corresponding
 #' to a model. Each column specifies model parameters. Compare with
-#' \link[bdsm]{optimal_model_space}
+#' \link[bdsm]{optim_model_space_params}
 #' @param model_prior Which model prior to use. For now there are two options:
 #' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
 #' @param exact_value Whether the exact value of the likelihood should be

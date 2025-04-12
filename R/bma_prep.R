@@ -56,7 +56,7 @@ bma_prep <-
            exact_value = TRUE, cl = NULL,
            control = list(trace = 2, maxit = 10000, fnscale = -1,
                           REPORT = 100, scale = 0.05)){
-    model_space <- optimal_model_space(
+    model_space <- optim_model_space_params(
       df            = df,
       timestamp_col = {{timestamp_col}},
       entity_col    = {{entity_col}},

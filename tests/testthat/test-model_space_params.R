@@ -1,4 +1,4 @@
-test_that("optimal_model_space correctly computes small_economic_growth_ms", {
+test_that("optim_model_space_params correctly computes small_economic_growth_ms", {
   skip_on_os(c("windows", "linux"))
   skip_on_cran()
   set.seed(23)
@@ -13,7 +13,7 @@ test_that("optimal_model_space correctly computes small_economic_growth_ms", {
       scale         = FALSE
     )
 
-  model_space <- optimal_model_space(
+  model_space <- optim_model_space_params(
     df            = data_prepared,
     dep_var_col   = gdp,
     timestamp_col = year,

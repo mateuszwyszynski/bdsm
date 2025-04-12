@@ -36,9 +36,9 @@
 #'     scale         = FALSE
 #'   )
 #'
-#' initialize_model_space(data_prepared, year, country, gdp)
+#' init_model_space_params(data_prepared, year, country, gdp)
 #' @export
-initialize_model_space <- function(df, timestamp_col, entity_col,
+init_model_space_params <- function(df, timestamp_col, entity_col,
                                    dep_var_col, init_value = 1) {
   regressors <- df %>%
     regressor_names(timestamp_col = {{ timestamp_col }},
@@ -83,7 +83,7 @@ initialize_model_space <- function(df, timestamp_col, entity_col,
 #' regressors and the dependent variable.
 #'
 #' The vector needs to have named rows, i.e. it is assumed it comes from a
-#' model space (see \link[bdsm]{initialize_model_space} for details).
+#' model space (see \link[bdsm]{init_model_space_params} for details).
 #'
 #' @param params a vector with parameters describing the model
 #'
@@ -134,7 +134,7 @@ regressor_names_from_params_vector <- function(params) {
 #' @importFrom pbapply pbapply
 #'
 #' @export
-optimal_model_space <- function(df, timestamp_col, entity_col, dep_var_col, init_value,
+optim_model_space_params <- function(df, timestamp_col, entity_col, dep_var_col, init_value,
                                 exact_value = TRUE, cl = NULL,
                                 control = list(trace = 2, maxit = 10000,
                                                fnscale = -1, REPORT = 100,
@@ -146,7 +146,7 @@ optimal_model_space <- function(df, timestamp_col, entity_col, dep_var_col, init
                      which_matrices = c("Y1", "Y2", "Z", "res_maker_matrix"))
 
   model_space <- df %>%
-    initialize_model_space(timestamp_col = {{ timestamp_col }},
+    init_model_space_params(timestamp_col = {{ timestamp_col }},
                            entity_col = {{ entity_col }},
                            dep_var_col = {{ dep_var_col }},
                            init_value = init_value)
