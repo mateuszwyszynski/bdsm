@@ -400,13 +400,13 @@ compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col
 #'     scale         = FALSE
 #'   )
 #'
-#' for_bma <- model_space(
+#' model_space(
 #'   df            = data_prepared,
 #'   dep_var_col   = gdp,
 #'   timestamp_col = year,
 #'   entity_col    = country,
 #'   init_value    = 0.5
-#'  )
+#' )
 #'
 #' @export
 #

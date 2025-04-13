@@ -65,12 +65,12 @@ data_prepared <- bdsm::economic_growth[, 1:5] \%>\%
     scale         = FALSE
   )
 
-for_bma <- model_space(
+model_space(
   df            = data_prepared,
   dep_var_col   = gdp,
   timestamp_col = year,
   entity_col    = country,
   init_value    = 0.5
- )
+)
 
 }

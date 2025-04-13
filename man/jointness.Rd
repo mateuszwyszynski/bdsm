@@ -51,9 +51,12 @@ data_prepared <- bdsm::economic_growth[, 1:6] \%>\%
     scale         = FALSE
   )
 
-for_bma <- bdsm::small_model_space
-
-bma_results <- bma(for_bma, df = data_prepared, round = 3, dilution = 0)
+bma_results <- bma(
+  bdsm::small_model_space,
+  df       = data_prepared,
+  round    = 3,
+  dilution = 0
+)
 
 jointness_table <- jointness(bma_results, measure = "HCGHM", rho = 0.5, round = 3)
 }
