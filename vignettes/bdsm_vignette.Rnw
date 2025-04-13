@@ -6,8 +6,9 @@
 \usepackage{amsfonts}
 \usepackage{lmodern}
 \usepackage{fix-cm}
-\usepackage{bbm}
 \usepackage{hyperref}
+
+\DeclareMathAlphabet{\mathbbold}{U}{bbold}{m}{n}
 
 
 \title{\texttt{bdsm}: Bayesian dynamic systems modelling. \\
@@ -266,9 +267,9 @@ we can calculate posterior model probability as
 Let's denote by $\pi_k$ the random variable which is equal to one if the $k^{th}$ regressor should be considered as the determinant of the dependent variable.
 The posterior inclusion probability (PIP) for the regressor is given by:
 \begin{equation}
-\mathbb{P}(\pi_k = 1 |\text{data}) = \sum_{j=1}^{2^K} \mathbbm{1} (k^{th} \text{ regressor is in model } M_{j}) \cdot \mathbb{P}(M_{j}|\text{data})
+\mathbb{P}(\pi_k = 1 |\text{data}) = \sum_{j=1}^{2^K} \mathbbold{1} (k^{th} \text{ regressor is in model } M_{j}) \cdot \mathbb{P}(M_{j}|\text{data})
 \end{equation}
-where the indicator function $\mathbbm{1}$ is equal to one if the regressor is part of the model $M_j$ and zero otherwise.
+where the indicator function $\mathbbold{1}$ is equal to one if the regressor is part of the model $M_j$ and zero otherwise.
 In other words, the PIP tells us how likely it is that the given regressor has impact on the variable of interest.
 
 Another interesting statistic is the posterior mean (PM) of a given parameter $\beta$.
