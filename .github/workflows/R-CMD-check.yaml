@@ -67,6 +67,8 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install --cask miktex-console
+          # Ensure the miktex executables are added to the PATH
+          export PATH="/Applications/MiKTeX Console.app/Contents/MacOS:$PATH"
           miktexsetup finish
           initexmf --admin --update-fndb
           initexmf --admin --mkmaps
