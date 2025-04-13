@@ -595,11 +595,15 @@ Var_{R}(\hat{\theta}) = I(\hat{\theta})^{-1} \cdot G'(\hat{\theta}) G(\hat{\thet
 The \verb+model_space+ function is the most computationally intensive part of the package.
 Therefore, the function provides an option for parallel computing.
 If the user's dataset contains only a few regressors, the sufficient option is
+
 \begin{Schunk}
 \begin{Sinput}
-> model_space <- find_model_space(df = data_prepared, dep_var_col = gdp,
-+                    timestamp_col = year, entity_col = country,
-+                    init_value = 0.5)
+> model_space <- find_model_space(
++   df            = data_prepared,
++   dep_var_col   = gdp,
++   timestamp_col = year,
++   entity_col    = country,
++   init_value    = 0.5)
 \end{Sinput}
 \end{Schunk}
 
@@ -624,13 +628,18 @@ To do this, first load the \verb+parallel+ package and set up a cluster.
 
 \begin{Schunk}
 \begin{Sinput}
-> model_space <- find_model_space(df = data_prepared, dep_var_col = gdp,
-+                    timestamp_col = year, entity_col = country,
-+                    init_value = 0.5, cl = cl)
+> model_space <- find_model_space(
++   df            = data_prepared,
++   dep_var_col   = gdp,
++   timestamp_col = year,
++   entity_col    = country,
++   init_value    = 0.5,
++   cl            = cl
++ )
 \end{Sinput}
 \end{Schunk}
 
-Even with parallel computing, executing \verb+model_space+ may be time-consuming.
+Even with parallelization, \verb+find_model_space+ call may be time-consuming.
 Hence, the function displays a progress bar,
 so that the user can easily track the ongoing computation.
 Moreover, for users who want to practice using the \verb+bdsm+ package,
@@ -761,7 +770,7 @@ The user can retrieve each graph separately from the list; however, the function
 > for_models <- model_pmp(bma_results)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-014}
+\includegraphics{bdsm_vignette-017}
 
 The graphs demonstrate that most of the posterior probability mass is concentrated within just a couple of models.
 To view the results for only the best models, the user can use the \verb+top+ parameter.
@@ -771,7 +780,7 @@ To view the results for only the best models, the user can use the \verb+top+ pa
 > for_models <- model_pmp(bma_results, top = 10)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-015}
+\includegraphics{bdsm_vignette-018}
 
 The last graph for the binomial-beta prior is particularly illuminating in terms of explaining the very high values of posterior inclusion probabilities.
 Almost 70\% of the posterior probability mass is concentrated in just one model; therefore, variables included in this model will have very high PIP values.
@@ -794,7 +803,7 @@ Again, the user can retrieve each graph separately from the list; however, the f
 > size_graphs <- model_sizes(bma_results)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-016}
+\includegraphics{bdsm_vignette-019}
 
 The graph in panel b) again explains why PIPs are so high in the case of the binomial-beta model prior.
 The model with all the regressors accounts for almost 70\% of the total posterior probability mass,
@@ -882,7 +891,7 @@ the user needs to run:
 gTree[GRID.gTree.2013] 
 \end{Soutput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-019}
+\includegraphics{bdsm_vignette-022}
 
 The comparison of the last two tables and the estimation outputs with regular and robust standard errors demonstrates
 how the results change when switching between these two variance estimators.
@@ -981,7 +990,7 @@ The default is \verb+BW = FD+, which selects bin widths using the Freedman-Diaco
 > coef_plots[[1]]
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-023}
+\includegraphics{bdsm_vignette-026}
 
 The second option allows the user to plot kernel densities.
 \begin{Schunk}
@@ -990,7 +999,7 @@ The second option allows the user to plot kernel densities.
 > coef_plots2[[1]]
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-024}
+\includegraphics{bdsm_vignette-027}
 
 The choice of appropriate plotting options is left to the user's preferences regarding the style of presentation and the size of the model space.
 \begin{Schunk}
@@ -1000,7 +1009,7 @@ The choice of appropriate plotting options is left to the user's preferences reg
 +              coef_plots2[[2]], nrow = 2, ncol = 2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-025}
+\includegraphics{bdsm_vignette-028}
 
 \section{Changes in model priors}\label{priors}
 
@@ -1045,7 +1054,7 @@ The consequences of this change in the prior expected model size are best illust
 > size_graphs2 <- model_sizes(bma_results2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-028}
+\includegraphics{bdsm_vignette-031}
 
 For both the binomial and binomial-beta model priors, the prior probability mass is more concentrated on small model sizes.
 However, for the binomial model prior, the center of the posterior probability mass shifted to medium-sized models, while it remained on large models for the binomial-beta model prior.
@@ -1056,7 +1065,7 @@ There are also substantial changes in the distribution of the posterior probabil
 > model_graphs2 <- model_pmp(bma_results2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-029}
+\includegraphics{bdsm_vignette-032}
 
 Both panels of the graph show that the prior and posterior model probabilities have substantially decoupled from each other.
 This strongly indicates that the prior and the data are suggesting vastly different model choices.
@@ -1152,7 +1161,7 @@ The most interesting aspect is the new graphs of prior and posterior probability
 > size_graphs8 <- model_sizes(bma_results8)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-034}
+\includegraphics{bdsm_vignette-037}
 
 In both cases, the posterior probability mass has concentrated near the models with all the regressors.
 However, in the case of the binomial-beta model prior, the model with all the regressors captures most of the posterior probability mass (almost $96\%$).
@@ -1162,7 +1171,7 @@ This conclusion is further supported by the graphs of posterior model probabilit
 > model_graphs8 <- model_pmp(bma_results8)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-035}
+\includegraphics{bdsm_vignette-038}
 
 Panel (a) demonstrates that the change in the expected model size led to a substantial increase in the posterior model probability for the model with all regressors under the binomial model prior.
 It now accounts for over $70\%$ of the total posterior probability mass.
@@ -1259,7 +1268,7 @@ The default option is \verb+dil.Par = 0.5+, as recommended by \citet{George+2010
 > size_graphs_dil <- model_sizes(bma_results_dil)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-040}
+\includegraphics{bdsm_vignette-043}
 
 The change in the prior distribution is more visible for the binomial-beta model prior.
 In panel b, the prior probability mass has decreased for larger models and increased for smaller models.
@@ -1273,7 +1282,7 @@ Before moving to the BMA statistics, it is instructive to examine the change in 
 > size_graphs_dil01 <- model_sizes(bma_results_dil01)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-041}
+\includegraphics{bdsm_vignette-044}
 
 \noindent As we can see, decreasing the value of $\omega$ diminishes the impact of dilution on the model prior.
 Conversely, raising the \verb+dil.Par+ parameter increases the degree of dilution.
@@ -1284,7 +1293,7 @@ Conversely, raising the \verb+dil.Par+ parameter increases the degree of dilutio
 > size_graphs_dil2 <- model_sizes(bma_results_dil2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-042}
+\includegraphics{bdsm_vignette-045}
 
 \noindent An especially strong impact can be seen for the binomial-beta prior.
 

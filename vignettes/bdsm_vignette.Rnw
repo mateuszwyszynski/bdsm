@@ -373,11 +373,9 @@ The measure takes values from -1 to 1, where values close to -1 indicate substit
 This section demonstrates how to prepare the data for estimation.
 The first step involves installing the package and subsequently loading it into the R session.
 
-\begin{Schunk}
-\begin{Sinput}
-> install.packages("bdsm")
-\end{Sinput}
-\end{Schunk}
+<<eval=FALSE>>=
+install.packages("bdsm")
+@
 
 <<>>=
 library(bdsm)
@@ -546,13 +544,15 @@ Var_{R}(\hat{\theta}) = I(\hat{\theta})^{-1} \cdot G'(\hat{\theta}) G(\hat{\thet
 The \verb+model_space+ function is the most computationally intensive part of the package.
 Therefore, the function provides an option for parallel computing.
 If the user's dataset contains only a few regressors, the sufficient option is
-\begin{Schunk}
-\begin{Sinput}
-> model_space <- find_model_space(df = data_prepared, dep_var_col = gdp,
-+                    timestamp_col = year, entity_col = country,
-+                    init_value = 0.5)
-\end{Sinput}
-\end{Schunk}
+
+<<eval=FALSE>>=
+model_space <- find_model_space(
+  df            = data_prepared,
+  dep_var_col   = gdp,
+  timestamp_col = year,
+  entity_col    = country,
+  init_value    = 0.5)
+@
 
 \noindent However, for larger datasets,
 it is better to take advantage of parallel computing.
@@ -571,15 +571,18 @@ setDefaultCluster(cl)
 
 \noindent Then the user just needs to provide this cluster to the function:
 
-\begin{Schunk}
-\begin{Sinput}
-> model_space <- find_model_space(df = data_prepared, dep_var_col = gdp,
-+                    timestamp_col = year, entity_col = country,
-+                    init_value = 0.5, cl = cl)
-\end{Sinput}
-\end{Schunk}
+<<eval=FALSE>>=
+model_space <- find_model_space(
+  df            = data_prepared,
+  dep_var_col   = gdp,
+  timestamp_col = year,
+  entity_col    = country,
+  init_value    = 0.5,
+  cl            = cl
+)
+@
 
-Even with parallel computing, executing \verb+model_space+ may be time-consuming.
+Even with parallelization, \verb+find_model_space+ call may be time-consuming.
 Hence, the function displays a progress bar,
 so that the user can easily track the ongoing computation.
 Moreover, for users who want to practice using the \verb+bdsm+ package,
