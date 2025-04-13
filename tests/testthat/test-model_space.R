@@ -1,4 +1,4 @@
-test_that(paste("bma_prep computes correct bma_prep list"), {
+test_that(paste("model_space computes correct model_space list"), {
 
   data_prepared <- bdsm::economic_growth[,1:5] %>%
     bdsm::feature_standardization(
@@ -10,7 +10,7 @@ test_that(paste("bma_prep computes correct bma_prep list"), {
       scale         = FALSE
     )
 
-  for_bma <- bma_prep(
+  for_bma <- model_space(
     df            = data_prepared,
     dep_var_col   = gdp,
     timestamp_col = year,

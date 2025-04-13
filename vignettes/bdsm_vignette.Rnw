@@ -458,7 +458,7 @@ However, because we use numerical methods some changes might occur}.
 \section{Estimation of the model space}\label{model_space}
 
 The prepared data can be used to find MLEs discribed in \autoref{bma}.
-This is done using the core function of the package: \verb+bma_prep+.
+This is done using the core function of the package: \verb+model_space+.
 The function creates a list with two tables.
 We refer to the first as the the model space,
 because it contains the estimated MLEs of the parameters for each considered model.
@@ -543,12 +543,12 @@ Var_{R}(\hat{\theta}) = I(\hat{\theta})^{-1} \cdot G'(\hat{\theta}) G(\hat{\thet
 
 \noindent where the square root is again applied to each coordinate separately.
 
-The \verb+bma_prep+ function is the most computationally intensive part of the package.
+The \verb+model_space+ function is the most computationally intensive part of the package.
 Therefore, the function provides an option for parallel computing.
 If the user's dataset contains only a few regressors, the sufficient option is
 \begin{Schunk}
 \begin{Sinput}
-> for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
+> for_bma <- model_space(df = data_prepared, dep_var_col = gdp,
 +                    timestamp_col = year, entity_col = country,
 +                    init_value = 0.5)
 \end{Sinput}
@@ -573,13 +573,13 @@ setDefaultCluster(cl)
 
 \begin{Schunk}
 \begin{Sinput}
-> for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
+> for_bma <- model_space(df = data_prepared, dep_var_col = gdp,
 +                    timestamp_col = year, entity_col = country,
 +                    init_value = 0.5, cl = cl)
 \end{Sinput}
 \end{Schunk}
 
-Even with parallel computing, executing \verb+bma_prep+ may be time-consuming.
+Even with parallel computing, executing \verb+model_space+ may be time-consuming.
 Hence, the function displays a progress bar,
 so that the user can easily track the ongoing computation.
 Moreover, for users who want to practice using the \verb+bdsm+ package,
@@ -595,7 +595,7 @@ we provide the already computed objects included with the package:
 \subsection{Bayesian model averaging: The \texttt{bma} function}
 
 The \verb+bma+ function enables users to perform Bayesian model averaging using
-the object obtained with the \verb+bma_prep+ function.
+the object obtained with the \verb+model_space+ function.
 The \verb+app+ parameter specifies the decimal place to which the BMA statistics should be rounded in the results.
 
 <<>>=

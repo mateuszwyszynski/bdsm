@@ -1,4 +1,4 @@
-#' Calculation of the bma_prep object
+#' Calculation of the model_space object
 #'
 #' This function calculates model space, values of the maximized likelihood function, BICs, and
 #' standard deviations of the parameters that will be used in Bayesian model averaging.
@@ -41,7 +41,7 @@
 #'     scale         = FALSE
 #'   )
 #'
-#' for_bma <- bma_prep(
+#' for_bma <- model_space(
 #'   df            = data_prepared,
 #'   dep_var_col   = gdp,
 #'   timestamp_col = year,
@@ -51,7 +51,7 @@
 #'
 #' @export
 #
-bma_prep <-
+model_space <-
   function(df, timestamp_col, entity_col, dep_var_col, init_value,
            exact_value = TRUE, cl = NULL,
            control = list(trace = 2, maxit = 10000, fnscale = -1,

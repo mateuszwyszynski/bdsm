@@ -3,7 +3,7 @@
 \docType{data}
 \name{full_model_space}
 \alias{full_model_space}
-\title{Example of \code{bma_prep} function result with nine regressors (full Moral-Benito (2016) set)}
+\title{Example of \code{model_space} function result with nine regressors (full Moral-Benito (2016) set)}
 \format{
 \subsection{\code{full_model_space}}{
 
@@ -31,6 +31,6 @@ full_model_space
 }
 \description{
 A list with two objects: model space and likelihood summary table computed using
-\code{bma_prep} obtained based on the Moral-Benito (2016) data (with 9 regressors).
+\code{model_space} obtained based on the Moral-Benito (2016) data (with 9 regressors).
 }
 \keyword{datasets}

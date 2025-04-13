@@ -23,10 +23,10 @@
 #' @source <http://qed.econ.queensu.ca/jae/datasets/moral-benito001/>
 "economic_growth"
 
-#' Example of bma_prep function result with four regressors
+#' Example of model_space function result with four regressors
 #'
 #' A list with two objects: model space and likelihood summary table computed using
-#' \code{bma_prep} obtained based on the Moral-Benito (2016) data (with four regressors).
+#' \code{model_space} obtained based on the Moral-Benito (2016) data (with four regressors).
 #'
 #' @format ## `small_model_space`
 #' A list with two objects.
@@ -49,10 +49,10 @@
 #' }
 "small_model_space"
 
-#' Example of \code{bma_prep} function result with nine regressors (full Moral-Benito (2016) set)
+#' Example of \code{model_space} function result with nine regressors (full Moral-Benito (2016) set)
 #'
 #' A list with two objects: model space and likelihood summary table computed using
-#' \code{bma_prep} obtained based on the Moral-Benito (2016) data (with 9 regressors).
+#' \code{model_space} obtained based on the Moral-Benito (2016) data (with 9 regressors).
 #'
 #' @format ## `full_model_space`
 #' A list with two objects.

@@ -3,7 +3,7 @@
 #' This function calculates bma object based on the model_space object obtained using optim_model_space_params function.
 #' It calculates BMA statistics and objects for the use by other functions.
 #'
-#' @param for_bma List with model space and likelihood table (the result of bma_prep function).
+#' @param for_bma List with model space and likelihood table (the result of model_space function).
 #' @param df Data frame with data for the SEM analysis.
 #' @param round Parameter indicating the decimal place to which number in the BMA tables and prior and posterior model sizes should be rounded (default round = 4)
 #' @param EMS Expected model size for model binomial and binomial-beta model prior

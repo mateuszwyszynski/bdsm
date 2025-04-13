@@ -7,7 +7,7 @@
 bma(for_bma, df, round = 4, EMS = NULL, dilution = 0, dil.Par = 0.5)
 }
 \arguments{
-\item{for_bma}{List with model space and likelihood table (the result of bma_prep function).}
+\item{for_bma}{List with model space and likelihood table (the result of model_space function).}
 
 \item{df}{Data frame with data for the SEM analysis.}
 

@@ -3,7 +3,7 @@
 \docType{data}
 \name{small_model_space}
 \alias{small_model_space}
-\title{Example of bma_prep function result with four regressors}
+\title{Example of model_space function result with four regressors}
 \format{
 \subsection{\code{small_model_space}}{
 
@@ -32,6 +32,6 @@ small_model_space
 }
 \description{
 A list with two objects: model space and likelihood summary table computed using
-\code{bma_prep} obtained based on the Moral-Benito (2016) data (with four regressors).
+\code{model_space} obtained based on the Moral-Benito (2016) data (with four regressors).
 }
 \keyword{datasets}

@@ -23,7 +23,7 @@ if (is.na(cores)) {
 }
 cl <- makeCluster(cores)
 
-full_model_space <- bma_prep(
+full_model_space <- model_space(
   df            = data_prepared,
   dep_var_col   = gdp,
   timestamp_col = year,
