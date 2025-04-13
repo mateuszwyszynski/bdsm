@@ -108,13 +108,13 @@ data_prepared <- bdsm::economic_growth[, 1:5] %>%
 
 ### Estimating the Model Space
 
-The function `model_space()` estimates all possible models
+The function `find_model_space()` estimates all possible models
 (each possible subset of regressors) via maximum likelihood,
 storing the results in a list object.
 For small to moderately sized datasets:
 
 ```{r}
-for_bma <- bdsm::model_space(
+for_bma <- bdsm::find_model_space(
   df             = data_prepared,
   dep_var_col    = gdp,      # Dependent variable
   timestamp_col  = year,
@@ -137,7 +137,7 @@ if (is.na(cores)) {
 }
 cl <- makeCluster(cores)
 
-for_bma <- bdsm::model_space(
+for_bma <- bdsm::find_model_space(
   df             = data_prepared,
   timestamp_col  = year,
   entity_col     = country,
@@ -241,7 +241,7 @@ data_prepared <- bdsm::economic_growth[, 1:5] %>%
   )
 
 # 2) Estimate model space
-prep_obj <- bdsm::model_space(
+prep_obj <- bdsm::find_model_space(
   df            = data_prepared,
   dep_var_col   = gdp,
   timestamp_col = year,
