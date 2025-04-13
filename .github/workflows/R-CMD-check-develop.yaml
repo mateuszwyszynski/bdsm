@@ -11,6 +11,7 @@ permissions: read-all
 
 jobs:
   R-CMD-check:
+    name: "R CMD check (macOS, develop)"
     runs-on: macos-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
