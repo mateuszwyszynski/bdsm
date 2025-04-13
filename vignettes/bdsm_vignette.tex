@@ -9,23 +9,45 @@
 \usepackage{bbm}
 \usepackage{hyperref}
 
-\title{\texttt{bdsm}: Bayesian dynamic systems modelling. \\ Bayesian model averaging for dynamic panels \\ with weakly exogenous regressors}
-\author{Mateusz Wyszyński \\ Lazarski University \\ University of Warsaw
-\and Krzysztof Beck \\ Lazarski University
-\and Marcin Dubel \\ Lazarski University}
+
+\title{\texttt{bdsm}: Bayesian dynamic systems modelling. \\
+Bayesian model averaging for dynamic panels \\
+with weakly exogenous regressors}
+
+\author{%
+  Mateusz Wyszyński$^{1, 2}$\and
+  Krzysztof Beck$^{1}$ \and
+  Marcin Dubel$^{1}$
+}
+
+\date{}
 
 \usepackage{Sweave}
 \begin{document}
 \input{bdsm_vignette-concordance}
+
+\footnotetext[1]{Lazarski University, $^{2}$University of Warsaw}
 %\setpapersize{A4}
 % \VignetteIndexEntry{bdsm: Bayesian dynamic systems modelling}
 \maketitle
-\abstract{This manuscript introduces the \verb+bdsm+ package, which enables Bayesian model averaging for dynamic panels with weakly exogenous regressors—a methodology developed by \citet{Moral+2016}.
-The package allows researchers to simultaneously address model uncertainty and reverse causality.
-The manuscript includes a hands-on tutorial accessible to users unfamiliar with this approach.
-In addition to calculating the model space (using parallel computing) and providing key BMA statistics, the package offers flexible options for specifying model priors, including a dilution prior that accounts for multicollinearity.
-It also provides graphical tools for visualizing prior and posterior model probabilities, as well as functions for plotting histograms and kernel densities of the estimated coefficients.
-Furthermore, the package enables researchers to compute jointness measures and perform Bayesian model selection to examine the most probable models based on posterior model probabilities.}
+\abstract{This manuscript introduces the \verb+bdsm+ package,
+which enables Bayesian model averaging
+for dynamic panels with weakly exogenous regressors
+— a methodology developed by \citet{Moral+2016}.
+The package allows researchers to simultaneously address
+model uncertainty and reverse causality.
+The manuscript includes a hands-on tutorial
+accessible to users unfamiliar with this approach.
+In addition to calculating the model space and providing key BMA statistics,
+the package offers flexible options for specifying model priors,
+or including a dilution prior that accounts for multicollinearity.
+It also provides graphical tools
+for visualizing prior and posterior model probabilities,
+as well as functions for plotting histograms
+and kernel densities of the estimated coefficients.
+Furthermore, the package enables researchers to compute jointness measures
+and perform Bayesian model selection
+to examine the most probable models based on posterior model probabilities.}
 
 
 \tableofcontents
@@ -128,13 +150,13 @@ D=\begin{bmatrix}
 \indent The model setup in equations (\ref{eq1}) and (\ref{eq3}-\ref{eq5}) requires that in addition to the parameters of interest $\alpha$ and $\beta$, the parameters $\gamma_{ij}$ and $\Lambda_{km}$ need to be estimated.
 To make the optimization of likelihood computationally feasible, \citet{Moral+2013} developed Simultaneous Equations Model (SEM) setup where the parameters of non-central interest are incorporated in the variance-covariance matrix.
 In the SEM setup, the model is defined by $1 + (T - 1)k + T$ equations:
-\[
-\begin{cases}
+\begin{equation}\label{sem-eqs}
+  \begin{cases}
     \eta_i = \phi_i y_{i0} + x'_{i1} \phi_1 + \epsilon_i &  \\
     x_{it} = \pi_{t0} y_{i0} + \pi_{t1} x_{i1} + \pi^w_t x_{i1} + \xi_{it}, & t = 2, ..., T \\
     y_{it} = \alpha y_{it-1} + x'_{it} \beta + \phi_0 y_{i0} + x'_{i1} \phi_1 + w'_i \delta + \epsilon_i + v_{it}, & t = 1, ..., T
-\end{cases}
-\]
+  \end{cases}
+\end{equation}
 This setup can be rewritten in a matrix form:
 \begin{equation}\label{eq9}
     B R_i = C z_i + U_i,
@@ -510,19 +532,108 @@ However, because we use numerical methods some discrepancies might occur}.
 
 \section{Estimation of the model space}\label{model_space}
 
-The prepared data can be used to find MLEs discribed in \autoref{bma}.
-This is done using the core function of the package: \verb+model_space+.
-The function creates a list with two tables.
-We refer to the first as the the model space,
-because it contains the estimated MLEs of the parameters for each considered model.
-The second contains the values of the likelihood function at the estimated MLE,
-the Bayesian information criterion,
-and the standard errors of the parameters of interest for each model.
-In both tables a single column represents a single considered model.
+To perform a BMA analysis, we need values of the parameters
+as well as various statistics for each considered model
+as explained in \autoref{ms_bma}.
+We refer to the object that consolidates both the parameters and the statistics
+as the \textbf{model space}.
+The core function of the package, \verb+find_model_space+,
+is used to estimate the optimal model space using numerical optimization:
 
-The MLEs for the parameters are found through numerical optimization.
-More advanced users can use the \verb+control+ parameter to control the way the numerical optimization is performed.
-We refer to the function manual for more details and \verb+stats+ package for more details.
+\begin{Schunk}
+\begin{Sinput}
+> full_model_space <- find_model_space(
++   df            = data_prepared,
++   dep_var_col   = gdp,
++   timestamp_col = year,
++   entity_col    = country,
++   init_value    = 0.5
++ )
+\end{Sinput}
+\end{Schunk}
+
+\noindent The function returns a list with two named arguments
+which are explained in the subsections below.
+A progress bar is displayed to easily track the ongoing computation.
+
+Since the MLEs for the parameters are found through numerical optimization,
+more advanced users can use the \verb+control+ parameter
+to control the way the optimization is performed.
+We refer to the function manual for more details
+and \verb+stats+ package for more details.
+
+
+\subsection{Model space parameters}
+
+The first element of the list contains the estimated MLEs of the parameters
+for each considered model.
+Each column represents a single model, and rows correspond to the parameters.
+For example, to display the first 10 parameters for 5 models we can call:
+
+\begin{Schunk}
+\begin{Sinput}
+> full_model_space$params[1:10, 1:5]
+\end{Sinput}
+\begin{Soutput}
+                 [,1]        [,2]        [,3]        [,4]        [,5]
+alpha      1.07378465  1.03327423  1.09699068  1.06474399  1.05204753
+phi_0     -0.06464413 -0.05552208 -0.11838487 -0.10693787 -0.06367009
+err_var    0.08591288  0.05245495  0.07283330  0.03292191  0.07995519
+dep_var_1  0.19798629  0.16630341  0.19857386  0.17107350  0.19228224
+dep_var_2  0.17974088  0.18702348  0.18154058  0.18901376  0.17912017
+dep_var_3  0.16966304  0.17027272  0.17096556  0.17184226  0.16944294
+dep_var_4  0.16579188  0.16979908  0.16805065  0.17319513  0.16609665
+beta_ish           NA  0.11977917          NA  0.12528254          NA
+beta_sed           NA          NA -0.02673004 -0.01380084          NA
+beta_pgrw          NA          NA          NA          NA  0.00894421
+\end{Soutput}
+\end{Schunk}
+
+\noindent \verb+NA+ value means that the corresponding parameter is not present
+in the given model.
+
+\subsection{Model space statistics}
+The second element of the list provides:
+\begin{itemize}
+  \item the values of the likelihood function at the estimated MLE (first row),
+  \item the Bayesian information criterion (second row),
+  \item and the standard errors for the parameters describing linear relations,
+  i.e. the beta parameters from \autoref{sem-eqs},
+  for each model (remaining rows).
+\end{itemize}
+
+\begin{Schunk}
+\begin{Sinput}
+> full_model_space$stats[, 1:5]
+\end{Sinput}
+\begin{Soutput}
+               [,1]          [,2]          [,3]          [,4]          [,5]
+ [1,] -4.051096e+02 -318.60683164 -3.331542e+02 -241.95897629 -3.365331e+02
+ [2,]  3.741277e-03    0.01176953  9.643031e-03    0.03234965  9.206861e-03
+ [3,]  8.276070e-02    0.08045785  9.801465e-02    0.10480244  7.889298e-02
+ [4,]  0.000000e+00    0.02915489  0.000000e+00    0.03019487  0.000000e+00
+ [5,]  0.000000e+00    0.00000000  6.478837e-02    0.06405320  0.000000e+00
+ [6,]  0.000000e+00    0.00000000  0.000000e+00    0.00000000  3.613447e-02
+ [7,]  0.000000e+00    0.00000000  0.000000e+00    0.00000000  0.000000e+00
+ [8,]  0.000000e+00    0.00000000  0.000000e+00    0.00000000  0.000000e+00
+ [9,]  0.000000e+00    0.00000000  0.000000e+00    0.00000000  0.000000e+00
+[10,]  0.000000e+00    0.00000000  0.000000e+00    0.00000000  0.000000e+00
+[11,]  0.000000e+00    0.00000000  0.000000e+00    0.00000000  0.000000e+00
+[12,]  0.000000e+00    0.00000000  0.000000e+00    0.00000000  0.000000e+00
+[13,]  7.261087e-02    0.13177084  1.372106e-01    0.23233329  7.911811e-02
+[14,]  0.000000e+00    0.07630241  0.000000e+00    0.08106997  0.000000e+00
+[15,]  0.000000e+00    0.00000000  1.105686e-01    0.11441947  0.000000e+00
+[16,]  0.000000e+00    0.00000000  0.000000e+00    0.00000000  6.200825e-02
+[17,]  0.000000e+00    0.00000000  0.000000e+00    0.00000000  0.000000e+00
+[18,]  0.000000e+00    0.00000000  0.000000e+00    0.00000000  0.000000e+00
+[19,]  0.000000e+00    0.00000000  0.000000e+00    0.00000000  0.000000e+00
+[20,]  0.000000e+00    0.00000000  0.000000e+00    0.00000000  0.000000e+00
+[21,]  0.000000e+00    0.00000000  0.000000e+00    0.00000000  0.000000e+00
+[22,]  0.000000e+00    0.00000000  0.000000e+00    0.00000000  0.000000e+00
+\end{Soutput}
+\end{Schunk}
+
+\noindent Again, each column represents a single considered model.
 
 Two types of standard errors are provided,
 both derived from the Hessian of the maximized log-likelihood function.
@@ -535,7 +646,8 @@ I(\hat{\theta}) = -\frac{\partial^2 l(\hat{\theta})}{\partial \theta \partial \t
 
 \noindent where $\hat{\theta}$ are the estimated MLE parameters,
 $I(\hat{\theta})$ is the information matrix
-and $l(\hat{\theta}) = \log L(\hat{\theta})$ is the natural logarithm of the likelihood function.
+and $l(\hat{\theta}) = \log L(\hat{\theta})$
+is the natural logarithm of the likelihood function.
 The variance covariance matrix is given by:
 
 \begin{equation}
@@ -548,9 +660,12 @@ Var(\hat{\theta}) = I(\hat{\theta})^{-1},
 \text{SE}(\hat{\theta}) = \sqrt{\text{diag}(Var(\hat{\theta}))}.
 \end{equation}
 
-\noindent where the square root is obviously applied separately to each coordinate of the vector with diagonal values.
-The second type are the robust standard errors or heteroscedasticity consistent standard errors.
-To understand how they work, we first have to rewrite the equation \autoref{eq17} in a form
+\noindent where the square root is obviously applied separately
+to each coordinate of the vector with diagonal values.
+The second type are the robust standard errors
+or heteroscedasticity consistent standard errors.
+To understand how they work,
+we first have to rewrite the equation \autoref{eq17} in a form
 which will display the contribution of each entity on the likelihood value.
 First note that:
 
@@ -558,7 +673,8 @@ First note that:
     L(\theta) \propto - \frac{1}{2} tr \{ \Sigma_{11}^{-1} U_1' U_1 \} - \sum_{i=1}^{N} \frac{1}{2} \log \det \Sigma_{11} - \frac{1}{2} \log \det (\frac{H}{N})
 \end{equation}
 
-\noindent Now, because of the cyclic property of the trace we can rewrite the first term as:
+\noindent Now,
+because of the cyclic property of the trace we can rewrite the first term as:
 
 \begin{equation}
     - \frac{1}{2} tr \{ \Sigma_{11}^{-1} U_1' U_1 \} =
@@ -566,8 +682,10 @@ First note that:
     - \frac{1}{2} \sum_{i=1}^N u_i \Sigma_{11}^{-1} u_i'
 \end{equation}
 
-\noindent where $u_i$ is a row vector corresponding to the data relating to the single entity $i$.
-Hence, the entire likelihood function can be rewritten as a sum of contributions from each entity:
+\noindent where $u_i$ is a row vector
+corresponding to the data relating to the single entity $i$.
+Hence, the entire likelihood function can be rewritten
+as a sum of contributions from each entity:
 
 \begin{equation}
     L(\theta) \propto \sum_{i=1}^{N} -\frac{1}{2} (\log \det \Sigma_{11} + \log \det (\frac{H}{N}) + u_i \Sigma_{11}^{-1} u_i')
@@ -579,9 +697,10 @@ Hence, the entire likelihood function can be rewritten as a sum of contributions
  l_i(\theta) \propto -\frac{1}{2} (\log \det \Sigma_{11} + \log \det (\frac{H}{N}) + u_i \Sigma_{11}^{-1} u_i').
 \end{equation}
 
-\noindent Now if we consider a multivariate function $\mathbf{l}(\theta)$ of all such contributions
-(with single contributions as its coordinates),
-we can find it's gradient at the MLE: $G(\hat{\theta}) = \frac{\mathbf{l}(\hat{\theta})}{\partial \theta}$.
+\noindent Now if we consider a multivariate function $\mathbf{l}(\theta)$
+of all such contributions (with single contributions as its coordinates),
+we can find it's gradient at the MLE:
+$G(\hat{\theta}) = \frac{\mathbf{l}(\hat{\theta})}{\partial \theta}$.
 Then the robust variance is:
 
 \begin{equation}
@@ -596,9 +715,13 @@ Var_{R}(\hat{\theta}) = I(\hat{\theta})^{-1} \cdot G'(\hat{\theta}) G(\hat{\thet
 
 \noindent where the square root is again applied to each coordinate separately.
 
-The \verb+model_space+ function is the most computationally intensive part of the package.
+
+\subsection{Parallelization}
+
+The \verb+find_model_space+ function
+is the most computationally intensive part of the package.
 Therefore, the function provides an option for parallel computing.
-If the user's dataset contains only a few regressors, the sufficient option is
+If the user's data contains only a few regressors, the sufficient option is
 
 \begin{Schunk}
 \begin{Sinput}
@@ -607,7 +730,8 @@ If the user's dataset contains only a few regressors, the sufficient option is
 +   dep_var_col   = gdp,
 +   timestamp_col = year,
 +   entity_col    = country,
-+   init_value    = 0.5)
++   init_value    = 0.5
++ )
 \end{Sinput}
 \end{Schunk}
 
@@ -643,17 +767,20 @@ To do this, first load the \verb+parallel+ package and set up a cluster.
 \end{Sinput}
 \end{Schunk}
 
-Even with parallelization, \verb+find_model_space+ call may be time-consuming.
-Hence, the function displays a progress bar,
-so that the user can easily track the ongoing computation.
-Moreover, for users who want to practice using the \verb+bdsm+ package,
-we provide the already computed objects included with the package:
 
-\begin{Schunk}
-\begin{Sinput}
-> ?full_model_space
-\end{Sinput}
-\end{Schunk}
+\subsection{Precomputed model spaces}
+
+Even with parallelization, \verb+find_model_space+ call may be time-consuming.
+Hence, for users who want to quickly start practicing using the \verb+bdsm+,
+we provide already computed model space objects included with the package:
+
+\begin{itemize}
+  \item \verb+full_model_space+ is the model space built with the entire data
+  used by \citet{Moral+2016},
+  \item \verb+small_model_space+ is a smaller model space built with only a
+  subset of regressors.
+\end{itemize}
+
 
 \section{Performing Bayesian model averaging}\label{using_bma}
 % TODO: HERE WE NEED TO ADD SOME TEXT
@@ -661,8 +788,9 @@ we provide the already computed objects included with the package:
 \subsection{Bayesian model averaging: The \texttt{bma} function}
 
 The \verb+bma+ function enables users to perform Bayesian model averaging using
-the object obtained with the \verb+model_space+ function.
-The \verb+app+ parameter specifies the decimal place to which the BMA statistics should be rounded in the results.
+the object obtained with the \verb+find_model_space+ function.
+The \verb+round+ parameter specifies the decimal place
+to which the BMA statistics should be rounded in the results.
 
 \begin{Schunk}
 \begin{Sinput}
@@ -774,7 +902,7 @@ The user can retrieve each graph separately from the list; however, the function
 > for_models <- model_pmp(bma_results)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-016}
+\includegraphics{bdsm_vignette-018}
 
 The graphs demonstrate that most of the posterior probability mass is concentrated within just a couple of models.
 To view the results for only the best models, the user can use the \verb+top+ parameter.
@@ -784,7 +912,7 @@ To view the results for only the best models, the user can use the \verb+top+ pa
 > for_models <- model_pmp(bma_results, top = 10)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-017}
+\includegraphics{bdsm_vignette-019}
 
 The last graph for the binomial-beta prior is particularly illuminating in terms of explaining the very high values of posterior inclusion probabilities.
 Almost 70\% of the posterior probability mass is concentrated in just one model; therefore, variables included in this model will have very high PIP values.
@@ -807,7 +935,7 @@ Again, the user can retrieve each graph separately from the list; however, the f
 > size_graphs <- model_sizes(bma_results)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-018}
+\includegraphics{bdsm_vignette-020}
 
 The graph in panel b) again explains why PIPs are so high in the case of the binomial-beta model prior.
 The model with all the regressors accounts for almost 70\% of the total posterior probability mass,
@@ -895,7 +1023,7 @@ the user needs to run:
 gTree[GRID.gTree.2013] 
 \end{Soutput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-021}
+\includegraphics{bdsm_vignette-023}
 
 The comparison of the last two tables and the estimation outputs with regular and robust standard errors demonstrates
 how the results change when switching between these two variance estimators.
@@ -994,7 +1122,7 @@ The default is \verb+BW = FD+, which selects bin widths using the Freedman-Diaco
 > coef_plots[[1]]
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-025}
+\includegraphics{bdsm_vignette-027}
 
 The second option allows the user to plot kernel densities.
 \begin{Schunk}
@@ -1003,7 +1131,7 @@ The second option allows the user to plot kernel densities.
 > coef_plots2[[1]]
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-026}
+\includegraphics{bdsm_vignette-028}
 
 The choice of appropriate plotting options is left to the user's preferences regarding the style of presentation and the size of the model space.
 \begin{Schunk}
@@ -1013,7 +1141,7 @@ The choice of appropriate plotting options is left to the user's preferences reg
 +              coef_plots2[[2]], nrow = 2, ncol = 2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-027}
+\includegraphics{bdsm_vignette-029}
 
 \section{Changes in model priors}\label{priors}
 
@@ -1057,7 +1185,7 @@ The consequences of this change in the prior expected model size are best illust
 > size_graphs2 <- model_sizes(bma_results2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-030}
+\includegraphics{bdsm_vignette-032}
 
 For both the binomial and binomial-beta model priors, the prior probability mass is more concentrated on small model sizes.
 However, for the binomial model prior, the center of the posterior probability mass shifted to medium-sized models, while it remained on large models for the binomial-beta model prior.
@@ -1068,7 +1196,7 @@ There are also substantial changes in the distribution of the posterior probabil
 > model_graphs2 <- model_pmp(bma_results2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-031}
+\includegraphics{bdsm_vignette-033}
 
 Both panels of the graph show that the prior and posterior model probabilities have substantially decoupled from each other.
 This strongly indicates that the prior and the data are suggesting vastly different model choices.
@@ -1163,7 +1291,7 @@ The most interesting aspect is the new graphs of prior and posterior probability
 > size_graphs8 <- model_sizes(bma_results8)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-036}
+\includegraphics{bdsm_vignette-038}
 
 In both cases, the posterior probability mass has concentrated near the models with all the regressors.
 However, in the case of the binomial-beta model prior, the model with all the regressors captures most of the posterior probability mass (almost $96\%$).
@@ -1173,7 +1301,7 @@ This conclusion is further supported by the graphs of posterior model probabilit
 > model_graphs8 <- model_pmp(bma_results8)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-037}
+\includegraphics{bdsm_vignette-039}
 
 Panel (a) demonstrates that the change in the expected model size led to a substantial increase in the posterior model probability for the model with all regressors under the binomial model prior.
 It now accounts for over $70\%$ of the total posterior probability mass.
@@ -1274,7 +1402,7 @@ The default option is \verb+dil.Par = 0.5+, as recommended by \citet{George+2010
 > size_graphs_dil <- model_sizes(bma_results_dil)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-042}
+\includegraphics{bdsm_vignette-044}
 
 The change in the prior distribution is more visible for the binomial-beta model prior.
 In panel b, the prior probability mass has decreased for larger models and increased for smaller models.
@@ -1293,7 +1421,7 @@ Before moving to the BMA statistics, it is instructive to examine the change in 
 > size_graphs_dil01 <- model_sizes(bma_results_dil01)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-043}
+\includegraphics{bdsm_vignette-045}
 
 \noindent As we can see, decreasing the value of $\omega$ diminishes the impact of dilution on the model prior.
 Conversely, raising the \verb+dil.Par+ parameter increases the degree of dilution.
@@ -1309,7 +1437,7 @@ Conversely, raising the \verb+dil.Par+ parameter increases the degree of dilutio
 > size_graphs_dil2 <- model_sizes(bma_results_dil2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{bdsm_vignette-044}
+\includegraphics{bdsm_vignette-046}
 
 \noindent An especially strong impact can be seen for the binomial-beta prior.
 

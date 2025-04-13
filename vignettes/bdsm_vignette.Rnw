@@ -9,22 +9,44 @@
 \usepackage{bbm}
 \usepackage{hyperref}
 
-\title{\texttt{bdsm}: Bayesian dynamic systems modelling. \\ Bayesian model averaging for dynamic panels \\ with weakly exogenous regressors}
-\author{Mateusz Wyszyński \\ Lazarski University \\ University of Warsaw
-\and Krzysztof Beck \\ Lazarski University
-\and Marcin Dubel \\ Lazarski University}
+
+\title{\texttt{bdsm}: Bayesian dynamic systems modelling. \\
+Bayesian model averaging for dynamic panels \\
+with weakly exogenous regressors}
+
+\author{%
+  Mateusz Wyszyński$^{1, 2}$\and
+  Krzysztof Beck$^{1}$ \and
+  Marcin Dubel$^{1}$
+}
+
+\date{}
 
 \begin{document}
 \SweaveOpts{concordance=TRUE}
+
+\footnotetext[1]{Lazarski University, $^{2}$University of Warsaw}
 %\setpapersize{A4}
 % \VignetteIndexEntry{bdsm: Bayesian dynamic systems modelling}
 \maketitle
-\abstract{This manuscript introduces the \verb+bdsm+ package, which enables Bayesian model averaging for dynamic panels with weakly exogenous regressors—a methodology developed by \citet{Moral+2016}.
-The package allows researchers to simultaneously address model uncertainty and reverse causality.
-The manuscript includes a hands-on tutorial accessible to users unfamiliar with this approach.
-In addition to calculating the model space (using parallel computing) and providing key BMA statistics, the package offers flexible options for specifying model priors, including a dilution prior that accounts for multicollinearity.
-It also provides graphical tools for visualizing prior and posterior model probabilities, as well as functions for plotting histograms and kernel densities of the estimated coefficients.
-Furthermore, the package enables researchers to compute jointness measures and perform Bayesian model selection to examine the most probable models based on posterior model probabilities.}
+\abstract{This manuscript introduces the \verb+bdsm+ package,
+which enables Bayesian model averaging
+for dynamic panels with weakly exogenous regressors
+— a methodology developed by \citet{Moral+2016}.
+The package allows researchers to simultaneously address
+model uncertainty and reverse causality.
+The manuscript includes a hands-on tutorial
+accessible to users unfamiliar with this approach.
+In addition to calculating the model space and providing key BMA statistics,
+the package offers flexible options for specifying model priors,
+or including a dilution prior that accounts for multicollinearity.
+It also provides graphical tools
+for visualizing prior and posterior model probabilities,
+as well as functions for plotting histograms
+and kernel densities of the estimated coefficients.
+Furthermore, the package enables researchers to compute jointness measures
+and perform Bayesian model selection
+to examine the most probable models based on posterior model probabilities.}
 
 
 \tableofcontents
@@ -127,13 +149,13 @@ D=\begin{bmatrix}
 \indent The model setup in equations (\ref{eq1}) and (\ref{eq3}-\ref{eq5}) requires that in addition to the parameters of interest $\alpha$ and $\beta$, the parameters $\gamma_{ij}$ and $\Lambda_{km}$ need to be estimated.
 To make the optimization of likelihood computationally feasible, \citet{Moral+2013} developed Simultaneous Equations Model (SEM) setup where the parameters of non-central interest are incorporated in the variance-covariance matrix.
 In the SEM setup, the model is defined by $1 + (T - 1)k + T$ equations:
-\[
-\begin{cases}
+\begin{equation}\label{sem-eqs}
+  \begin{cases}
     \eta_i = \phi_i y_{i0} + x'_{i1} \phi_1 + \epsilon_i &  \\
     x_{it} = \pi_{t0} y_{i0} + \pi_{t1} x_{i1} + \pi^w_t x_{i1} + \xi_{it}, & t = 2, ..., T \\
     y_{it} = \alpha y_{it-1} + x'_{it} \beta + \phi_0 y_{i0} + x'_{i1} \phi_1 + w'_i \delta + \epsilon_i + v_{it}, & t = 1, ..., T
-\end{cases}
-\]
+  \end{cases}
+\end{equation}
 This setup can be rewritten in a matrix form:
 \begin{equation}\label{eq9}
     B R_i = C z_i + U_i,
@@ -461,19 +483,64 @@ However, because we use numerical methods some discrepancies might occur}.
 
 \section{Estimation of the model space}\label{model_space}
 
-The prepared data can be used to find MLEs discribed in \autoref{bma}.
-This is done using the core function of the package: \verb+model_space+.
-The function creates a list with two tables.
-We refer to the first as the the model space,
-because it contains the estimated MLEs of the parameters for each considered model.
-The second contains the values of the likelihood function at the estimated MLE,
-the Bayesian information criterion,
-and the standard errors of the parameters of interest for each model.
-In both tables a single column represents a single considered model.
+To perform a BMA analysis, we need values of the parameters
+as well as various statistics for each considered model
+as explained in \autoref{ms_bma}.
+We refer to the object that consolidates both the parameters and the statistics
+as the \textbf{model space}.
+The core function of the package, \verb+find_model_space+,
+is used to estimate the optimal model space using numerical optimization:
 
-The MLEs for the parameters are found through numerical optimization.
-More advanced users can use the \verb+control+ parameter to control the way the numerical optimization is performed.
-We refer to the function manual for more details and \verb+stats+ package for more details.
+<<eval=FALSE>>=
+full_model_space <- find_model_space(
+  df            = data_prepared,
+  dep_var_col   = gdp,
+  timestamp_col = year,
+  entity_col    = country,
+  init_value    = 0.5
+)
+@
+
+\noindent The function returns a list with two named arguments
+which are explained in the subsections below.
+A progress bar is displayed to easily track the ongoing computation.
+
+Since the MLEs for the parameters are found through numerical optimization,
+more advanced users can use the \verb+control+ parameter
+to control the way the optimization is performed.
+We refer to the function manual for more details
+and \verb+stats+ package for more details.
+
+
+\subsection{Model space parameters}
+
+The first element of the list contains the estimated MLEs of the parameters
+for each considered model.
+Each column represents a single model, and rows correspond to the parameters.
+For example, to display the first 10 parameters for 5 models we can call:
+
+<<>>=
+full_model_space$params[1:10, 1:5]
+@
+
+\noindent \verb+NA+ value means that the corresponding parameter is not present
+in the given model.
+
+\subsection{Model space statistics}
+The second element of the list provides:
+\begin{itemize}
+  \item the values of the likelihood function at the estimated MLE (first row),
+  \item the Bayesian information criterion (second row),
+  \item and the standard errors for the parameters describing linear relations,
+  i.e. the beta parameters from \autoref{sem-eqs},
+  for each model (remaining rows).
+\end{itemize}
+
+<<>>=
+full_model_space$stats[, 1:5]
+@
+
+\noindent Again, each column represents a single considered model.
 
 Two types of standard errors are provided,
 both derived from the Hessian of the maximized log-likelihood function.
@@ -486,7 +553,8 @@ I(\hat{\theta}) = -\frac{\partial^2 l(\hat{\theta})}{\partial \theta \partial \t
 
 \noindent where $\hat{\theta}$ are the estimated MLE parameters,
 $I(\hat{\theta})$ is the information matrix
-and $l(\hat{\theta}) = \log L(\hat{\theta})$ is the natural logarithm of the likelihood function.
+and $l(\hat{\theta}) = \log L(\hat{\theta})$
+is the natural logarithm of the likelihood function.
 The variance covariance matrix is given by:
 
 \begin{equation}
@@ -499,9 +567,12 @@ Var(\hat{\theta}) = I(\hat{\theta})^{-1},
 \text{SE}(\hat{\theta}) = \sqrt{\text{diag}(Var(\hat{\theta}))}.
 \end{equation}
 
-\noindent where the square root is obviously applied separately to each coordinate of the vector with diagonal values.
-The second type are the robust standard errors or heteroscedasticity consistent standard errors.
-To understand how they work, we first have to rewrite the equation \autoref{eq17} in a form
+\noindent where the square root is obviously applied separately
+to each coordinate of the vector with diagonal values.
+The second type are the robust standard errors
+or heteroscedasticity consistent standard errors.
+To understand how they work,
+we first have to rewrite the equation \autoref{eq17} in a form
 which will display the contribution of each entity on the likelihood value.
 First note that:
 
@@ -509,7 +580,8 @@ First note that:
     L(\theta) \propto - \frac{1}{2} tr \{ \Sigma_{11}^{-1} U_1' U_1 \} - \sum_{i=1}^{N} \frac{1}{2} \log \det \Sigma_{11} - \frac{1}{2} \log \det (\frac{H}{N})
 \end{equation}
 
-\noindent Now, because of the cyclic property of the trace we can rewrite the first term as:
+\noindent Now,
+because of the cyclic property of the trace we can rewrite the first term as:
 
 \begin{equation}
     - \frac{1}{2} tr \{ \Sigma_{11}^{-1} U_1' U_1 \} =
@@ -517,8 +589,10 @@ First note that:
     - \frac{1}{2} \sum_{i=1}^N u_i \Sigma_{11}^{-1} u_i'
 \end{equation}
 
-\noindent where $u_i$ is a row vector corresponding to the data relating to the single entity $i$.
-Hence, the entire likelihood function can be rewritten as a sum of contributions from each entity:
+\noindent where $u_i$ is a row vector
+corresponding to the data relating to the single entity $i$.
+Hence, the entire likelihood function can be rewritten
+as a sum of contributions from each entity:
 
 \begin{equation}
     L(\theta) \propto \sum_{i=1}^{N} -\frac{1}{2} (\log \det \Sigma_{11} + \log \det (\frac{H}{N}) + u_i \Sigma_{11}^{-1} u_i')
@@ -530,9 +604,10 @@ Hence, the entire likelihood function can be rewritten as a sum of contributions
  l_i(\theta) \propto -\frac{1}{2} (\log \det \Sigma_{11} + \log \det (\frac{H}{N}) + u_i \Sigma_{11}^{-1} u_i').
 \end{equation}
 
-\noindent Now if we consider a multivariate function $\mathbf{l}(\theta)$ of all such contributions
-(with single contributions as its coordinates),
-we can find it's gradient at the MLE: $G(\hat{\theta}) = \frac{\mathbf{l}(\hat{\theta})}{\partial \theta}$.
+\noindent Now if we consider a multivariate function $\mathbf{l}(\theta)$
+of all such contributions (with single contributions as its coordinates),
+we can find it's gradient at the MLE:
+$G(\hat{\theta}) = \frac{\mathbf{l}(\hat{\theta})}{\partial \theta}$.
 Then the robust variance is:
 
 \begin{equation}
@@ -547,9 +622,13 @@ Var_{R}(\hat{\theta}) = I(\hat{\theta})^{-1} \cdot G'(\hat{\theta}) G(\hat{\thet
 
 \noindent where the square root is again applied to each coordinate separately.
 
-The \verb+model_space+ function is the most computationally intensive part of the package.
+
+\subsection{Parallelization}
+
+The \verb+find_model_space+ function
+is the most computationally intensive part of the package.
 Therefore, the function provides an option for parallel computing.
-If the user's dataset contains only a few regressors, the sufficient option is
+If the user's data contains only a few regressors, the sufficient option is
 
 <<eval=FALSE>>=
 model_space <- find_model_space(
@@ -557,7 +636,8 @@ model_space <- find_model_space(
   dep_var_col   = gdp,
   timestamp_col = year,
   entity_col    = country,
-  init_value    = 0.5)
+  init_value    = 0.5
+)
 @
 
 \noindent However, for larger datasets,
@@ -588,15 +668,20 @@ model_space <- find_model_space(
 )
 @
 
-Even with parallelization, \verb+find_model_space+ call may be time-consuming.
-Hence, the function displays a progress bar,
-so that the user can easily track the ongoing computation.
-Moreover, for users who want to practice using the \verb+bdsm+ package,
-we provide the already computed objects included with the package:
 
-<<>>=
-?full_model_space
-@
+\subsection{Precomputed model spaces}
+
+Even with parallelization, \verb+find_model_space+ call may be time-consuming.
+Hence, for users who want to quickly start practicing using the \verb+bdsm+,
+we provide already computed model space objects included with the package:
+
+\begin{itemize}
+  \item \verb+full_model_space+ is the model space built with the entire data
+  used by \citet{Moral+2016},
+  \item \verb+small_model_space+ is a smaller model space built with only a
+  subset of regressors.
+\end{itemize}
+
 
 \section{Performing Bayesian model averaging}\label{using_bma}
 % TODO: HERE WE NEED TO ADD SOME TEXT
@@ -604,8 +689,9 @@ we provide the already computed objects included with the package:
 \subsection{Bayesian model averaging: The \texttt{bma} function}
 
 The \verb+bma+ function enables users to perform Bayesian model averaging using
-the object obtained with the \verb+model_space+ function.
-The \verb+app+ parameter specifies the decimal place to which the BMA statistics should be rounded in the results.
+the object obtained with the \verb+find_model_space+ function.
+The \verb+round+ parameter specifies the decimal place
+to which the BMA statistics should be rounded in the results.
 
 <<>>=
 bma_results <- bma(full_model_space, df = data_prepared, round = 3)
