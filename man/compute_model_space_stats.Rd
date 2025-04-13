@@ -10,7 +10,7 @@ compute_model_space_stats(
   timestamp_col,
   entity_col,
   params,
-  exact_value = TRUE,
+  exact_value = FALSE,
   model_prior = "uniform",
   cl = NULL
 )

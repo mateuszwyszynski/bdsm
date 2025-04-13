@@ -137,7 +137,7 @@ regressor_names_from_params_vector <- function(params) {
 #'
 #' @export
 optim_model_space_params <- function(df, timestamp_col, entity_col, dep_var_col, init_value,
-                                     exact_value = TRUE, cl = NULL,
+                                     exact_value = FALSE, cl = NULL,
                                      control = list(trace = 2, maxit = 10000,
                                                     fnscale = -1, REPORT = 100,
                                                     scale = 0.05)) {
@@ -243,7 +243,7 @@ optim_model_space_params <- function(df, timestamp_col, entity_col, dep_var_col,
 #' }
 #'
 compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col,
-                              params, exact_value = TRUE,
+                              params, exact_value = FALSE,
                               model_prior = 'uniform', cl = NULL) {
   regressors <- df %>%
     regressor_names(timestamp_col = {{ timestamp_col }},
@@ -292,7 +292,7 @@ compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col
 
     likelihood <-
       SEM_likelihood(params = params_no_na, data = data,
-                     exact_value = exact_value)
+                     exact_value = TRUE)
 
     hess <- hessian(SEM_likelihood, theta = params_no_na, data = data)
 
@@ -412,7 +412,7 @@ compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col
 #
 find_model_space <-
   function(df, timestamp_col, entity_col, dep_var_col, init_value,
-           exact_value = TRUE, cl = NULL,
+           exact_value = FALSE, cl = NULL,
            control = list(trace = 2, maxit = 10000, fnscale = -1,
                           REPORT = 100, scale = 0.05)){
     params <- optim_model_space_params(
