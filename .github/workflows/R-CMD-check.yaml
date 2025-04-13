@@ -51,6 +51,7 @@ jobs:
       - name: Install missing LaTeX packages
         run: |
           tlmgr install vmargin || tlmgr info vmargin
+          tlmgr install dsfont || tlmgr info dsfont
 
       - uses: r-lib/actions/check-r-package@v2
         with:
