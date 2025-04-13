@@ -279,7 +279,7 @@ data_prepared <- bdsm::economic_growth[, 1:5] %>%
   )
 
 # 2) Estimate model space
-prep_obj <- bdsm::find_model_space(
+model_space <- bdsm::find_model_space(
   df            = data_prepared,
   dep_var_col   = gdp,
   timestamp_col = year,
@@ -301,8 +301,8 @@ prep_obj <- bdsm::find_model_space(
 
 # 3) Run Bayesian Model Averaging
 bma_obj <- bdsm::bma(
-  for_bma = prep_obj,
-  df      = data_prepared
+  model_space = model_space,
+  df          = data_prepared
 )
 
 # 4) Inspect the top 3 models under binomial prior

@@ -3,7 +3,7 @@
 #' This function calculates bma object based on the model_space object obtained using optim_model_space_params function.
 #' It calculates BMA statistics and objects for the use by other functions.
 #'
-#' @param for_bma List with model space and likelihood table (the result of model_space function).
+#' @param model_space List with params and stats from the model space
 #' @param df Data frame with data for the SEM analysis.
 #' @param round Parameter indicating the decimal place to which number in the BMA tables and prior and posterior model sizes should be rounded (default round = 4)
 #' @param EMS Expected model size for model binomial and binomial-beta model prior
@@ -47,13 +47,20 @@
 #'   )
 #'
 #' bma_results <- bma(
-#'   bdsm::small_model_space,
-#'   df       = data_prepared,
-#'   round    = 3,
-#'   dilution = 0
+#'   model_space = bdsm::small_model_space,
+#'   df          = data_prepared,
+#'   round       = 3,
+#'   dilution    = 0
 #' )
 #' }
-bma <- function(for_bma, df, round = 4, EMS = NULL, dilution = 0, dil.Par = 0.5){
+bma <- function(
+    model_space,
+    df,
+    round = 4,
+    EMS = NULL,
+    dilution = 0,
+    dil.Par = 0.5
+  ){
 
   reg_names <- colnames(df)
   reg_names <- reg_names[-(1:2)]
@@ -66,8 +73,8 @@ bma <- function(for_bma, df, round = 4, EMS = NULL, dilution = 0, dil.Par = 0.5)
   num_of_models <- 2^R
   observations_num <- nrow((na.omit(df[,4])))
 
-  model_space_params <- for_bma[[1]]
-  like_table <- for_bma[[2]]
+  model_space_params <- model_space[[1]]
+  like_table <- model_space[[2]]
 
   likes <- matrix(like_table[2,], nrow = 1, ncol = num_of_models)
   std <- like_table[3:(2+K),]

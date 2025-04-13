@@ -37,10 +37,10 @@
 #'   )
 #'
 #' bma_results <- bma(
-#'   bdsm::small_model_space,
-#'   df       = data_prepared,
-#'   round    = 3,
-#'   dilution = 0
+#'   model_space = bdsm::small_model_space,
+#'   df          = data_prepared,
+#'   round       = 3,
+#'   dilution    = 0
 #' )
 #'
 #' coef_plots <- coef_hist(bma_results, kernel = 1)

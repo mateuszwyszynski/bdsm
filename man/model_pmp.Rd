@@ -37,10 +37,10 @@ data_prepared <- bdsm::economic_growth[, 1:6] \%>\%
   )
 
 bma_results <- bma(
-  bdsm::small_model_space,
-  df       = data_prepared,
-  round    = 3,
-  dilution = 0
+  model_space = bdsm::small_model_space,
+  df          = data_prepared,
+  round       = 3,
+  dilution    = 0
 )
 
 model_graphs <- model_pmp(bma_results, top = 16)

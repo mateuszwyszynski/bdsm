@@ -28,10 +28,10 @@
 #'   )
 #'
 #' bma_results <- bma(
-#'   bdsm::small_model_space,
-#'   df       = data_prepared,
-#'   round    = 3,
-#'   dilution = 0
+#'   model_space = bdsm::small_model_space,
+#'   df          = data_prepared,
+#'   round       = 3,
+#'   dilution    = 0
 #' )
 #'
 #' size_graphs <- model_sizes(bma_results)

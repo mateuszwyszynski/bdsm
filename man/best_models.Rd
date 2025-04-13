@@ -66,10 +66,10 @@ data_prepared <- bdsm::economic_growth[, 1:6] \%>\%
   )
 
 bma_results <- bma(
-  bdsm::small_model_space,
-  df       = data_prepared,
-  round    = 3,
-  dilution = 0
+  model_space = bdsm::small_model_space,
+  df          = data_prepared,
+  round       = 3,
+  dilution    = 0
 )
 
 best_5_models <- best_models(bma_results, criterion = 1, best = 5, estimate = TRUE, robust = TRUE)
