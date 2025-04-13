@@ -49,7 +49,9 @@ jobs:
       - run: tlmgr --version
 
       - name: Install missing LaTeX package
-        run: tlmgr install vmargin
+        run: |
+          tlmgr install vmargin
+          tlmgr install grfext
 
       - uses: r-lib/actions/check-r-package@v2
         with:
