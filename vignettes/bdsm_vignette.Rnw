@@ -382,29 +382,31 @@ library(bdsm)
 @
 
 % This part below will be changed when CRAN version is up to date
-Throughout the manuscript, we use the data from \citet{Moral+2016} on the determinants of economic growth.
-The package includes the data along with a detailed description of all variables.
-<<>>=
-?economic_growth
-@
-
-The data used for estimation must be in a specific format.
-The first two columns should specify time and the entity (e.g., country).
-The dependent variable should be placed in the third column, while the regressors should occupy the remaining columns.
-The data should be arranged as follows:
+Throughout the manuscript,
+we use the data from \citet{Moral+2016} on the determinants of economic growth.
+The package includes the data
+along with a detailed description of all variables.
 
 <<>>=
 economic_growth[1:12,1:10]
 @
 
-However, it is common for researchers to store their data in alternative format:
+Since it is common for researchers to store their data in an alternative format:
 
 <<>>=
 original_economic_growth[1:12,1:10]
 @
 
-In this case, the user can use the \verb+join_lagged_col+ function to transform the dataset into the desired format.
-The user needs to specify the dependent variable column (\verb+col+), the lagged dependent variable column (\verb+col_lagged+), the column identifying the cross-section (\verb+entity_col+), the column with the time index (\verb+timestamp_col+), and the change in the number of time units from period to period (\verb+timestep+).
+\noindent where there is an already existing column
+with the lagged dependent variable,
+we provide the \verb+join_lagged_col+ function
+to transform the data into the desired format.
+The user needs to specify the dependent variable column (\verb+col+),
+the lagged dependent variable column (\verb+col_lagged+),
+the column identifying the cross-sections (\verb+entity_col+),
+the column with the time index (\verb+timestamp_col+),
+and the change in the number of time units from period to period
+(\verb+timestep+).
 
 <<>>=
 economic_growth <- join_lagged_col(
