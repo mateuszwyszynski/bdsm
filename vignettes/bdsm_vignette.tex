@@ -638,7 +638,7 @@ we provide the already computed objects included with the package:
 
 \begin{Schunk}
 \begin{Sinput}
-> ?bma_prep_objects_full
+> ?full_model_space
 \end{Sinput}
 \end{Schunk}
 
@@ -653,7 +653,7 @@ The \verb+app+ parameter specifies the decimal place to which the BMA statistics
 
 \begin{Schunk}
 \begin{Sinput}
-> bma_results <- bma(bma_prep_objects_full, df = data_prepared, round = 3)
+> bma_results <- bma(full_model_space, df = data_prepared, round = 3)
 \end{Sinput}
 \end{Schunk}
 
@@ -1019,7 +1019,7 @@ First, consider the consequence of concentrating prior probability mass on small
 
 \begin{Schunk}
 \begin{Sinput}
-> bma_results2 <- bma(bma_prep_objects_full, df = data_prepared,
+> bma_results2 <- bma(full_model_space, df = data_prepared,
 +                     round = 3, EMS = 2)
 \end{Sinput}
 \end{Schunk}
@@ -1134,7 +1134,7 @@ The measure indicates that population is a substitute for both the investment pr
 Next, to consider the consequences of concentrating prior probability mass on large models, \verb+EMS+ was set to eight.
 \begin{Schunk}
 \begin{Sinput}
-> bma_results8 <- bma(bma_prep_objects_full, df = data_prepared,
+> bma_results8 <- bma(full_model_space, df = data_prepared,
 +                     round = 3, EMS = 8)
 > bma_results8[[16]]
 \end{Sinput}
@@ -1247,7 +1247,7 @@ The user can also manipulate the dilution parameter $\omega$.
 The default option is \verb+dil.Par = 0.5+, as recommended by \citet{George+2010}.
 \begin{Schunk}
 \begin{Sinput}
-> bma_results_dil <- bma(bma_prep_objects_full, df = data_prepared,
+> bma_results_dil <- bma(full_model_space, df = data_prepared,
 +                        round = 3, dilution = 1)
 \end{Sinput}
 \end{Schunk}
@@ -1268,7 +1268,7 @@ However, this change is not uniform, as models characterized by the highest degr
 Before moving to the BMA statistics, it is instructive to examine the change in the \verb+dil.Par+ parameter.
 \begin{Schunk}
 \begin{Sinput}
-> bma_results_dil01 <- bma(bma_prep_objects_full, df = data_prepared,
+> bma_results_dil01 <- bma(full_model_space, df = data_prepared,
 +                        round = 3, dilution = 1, dil.Par = 0.1)
 > size_graphs_dil01 <- model_sizes(bma_results_dil01)
 \end{Sinput}
@@ -1279,7 +1279,7 @@ Before moving to the BMA statistics, it is instructive to examine the change in 
 Conversely, raising the \verb+dil.Par+ parameter increases the degree of dilution.
 \begin{Schunk}
 \begin{Sinput}
-> bma_results_dil2 <- bma(bma_prep_objects_full, df = data_prepared,
+> bma_results_dil2 <- bma(full_model_space, df = data_prepared,
 +                        round = 3, dilution = 1, dil.Par = 2)
 > size_graphs_dil2 <- model_sizes(bma_results_dil2)
 \end{Sinput}

@@ -54,7 +54,7 @@
 #' A list with two objects: model space and likelihood summary table computed using
 #' \code{bma_prep} obtained based on the Moral-Benito (2016) data (with 9 regressors).
 #'
-#' @format ## `bma_prep_objects_full`
+#' @format ## `full_model_space`
 #' A list with two objects.
 #' \describe{
 #'    \item{model space}{
@@ -72,7 +72,7 @@
 #'      robust standard deviations
 #'    }
 #' }
-"bma_prep_objects_full"
+"full_model_space"
 
 #' Economic Growth Data in original from
 #'

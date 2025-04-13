@@ -1,4 +1,4 @@
-"bma_prep_objects_full"
+"full_model_space"
 
 library(magrittr)
 
@@ -23,7 +23,7 @@ if (is.na(cores)) {
 }
 cl <- makeCluster(cores)
 
-bma_prep_objects <- bma_prep(
+full_model_space <- bma_prep(
   df            = data_prepared,
   dep_var_col   = gdp,
   timestamp_col = year,
@@ -34,4 +34,4 @@ bma_prep_objects <- bma_prep(
 
 stopCluster(cl)
 
-usethis::use_data(bma_prep_objects_full, overwrite = TRUE)
+usethis::use_data(full_model_space, overwrite = TRUE)
