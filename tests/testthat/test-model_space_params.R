@@ -21,5 +21,5 @@ test_that("optim_model_space_params correctly computes small_economic_growth_ms"
     init_value    = 0.5
   )
 
-  expect_equal(model_space, bma_prep_objects[[1]])
+  expect_equal(model_space, small_model_space[[1]])
 })

@@ -28,7 +28,7 @@
 #' A list with two objects: model space and likelihood summary table computed using
 #' \code{bma_prep} obtained based on the Moral-Benito (2016) data (with four regressors).
 #'
-#' @format ## `bma_prep_objects`
+#' @format ## `small_model_space`
 #' A list with two objects.
 #' \describe{
 #'    \item{model space}{
@@ -47,7 +47,7 @@
 #'      robust standard deviations
 #'    }
 #' }
-"bma_prep_objects"
+"small_model_space"
 
 #' Example of \code{bma_prep} function result with nine regressors (full Moral-Benito (2016) set)
 #'

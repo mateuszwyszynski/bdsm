@@ -1,4 +1,4 @@
-"bma_prep_objects"
+"small_model_space"
 
 library(magrittr)
 
@@ -12,7 +12,7 @@ data_prepared <- bdsm::economic_growth[, 1:6] %>%
     scale         = FALSE
   )
 
-bma_prep_objects <- bma_prep(
+small_model_space <- bma_prep(
   df            = data_prepared,
   dep_var_col   = gdp,
   timestamp_col = year,
@@ -20,4 +20,4 @@ bma_prep_objects <- bma_prep(
   init_value    = 0.5
 )
 
-usethis::use_data(bma_prep_objects, overwrite = TRUE)
+usethis::use_data(small_model_space, overwrite = TRUE)
