@@ -435,5 +435,5 @@ model_space <-
       cl            = cl
     )
 
-    for_bma <- list(params = params, stats = stats)
+    list(params = params, stats = stats)
   }
