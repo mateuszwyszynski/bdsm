@@ -1,7 +1,7 @@
 #' Calculation of the bma object
 #'
-#' This function calculates bma object based on the model_space object obtained using optim_model_space_params function.
-#' It calculates BMA statistics and objects for the use by other functions.
+#' This function calculates BMA statistics based on the provided model space.
+#' Other objects for furhter analysis are also returned.
 #'
 #' @param model_space List with params and stats from the model space
 #' @param df Data frame with data for the SEM analysis.
@@ -10,23 +10,26 @@
 #' @param dilution Binary parameter: 0 - NO application of a dilution prior; 1 - application of a dilution prior (George 2010).
 #' @param dil.Par Parameter associated with dilution prior - the exponent of the determinant (George 2010). Used only if parameter dilution = 1.
 #'
-#' @return A list with bma objects: \cr
-#' 1. uniform_table - table with the results under binomial model prior \cr
-#' 2. random_table - table with the results under binomial-beta model prior \cr
-#' 3. reg_names - vector with names of the regressors - to be used by the functions \cr
-#' 4. R - total number of regressors \cr
-#' 5. num_of_models - number of models present in the model space \cr
-#' 6. forJointnes - table with model IDs and PMPs for jointness function \cr
-#' 7. forBestModels - table with model IDs, PMPs, coefficients, stds, and, stdRs for best_models function \cr
-#' 8. EMS - expected model size for binomial and binomial-beta model prior specified by the user (default EMS = R/2) \cr
-#' 9. sizePriors - table with uniform and random model priors spread over model sizes for model_sizes function \cr
-#' 10. PMPs - table with posterior model probabilities for model_sizes function \cr
-#' 11. modelPriors - table with priors on models for model_pmp function \cr
-#' 12. dilution - parameter indication if priors were diluted for model_sizes function \cr
-#' 13. alphas - coefficients on lagged dependent variable for coef_hist function\cr
-#' 14. betas_nonzero - nonzero coefficients on the regressors for coef_hist function \cr
-#' 15. d_free - table with degrees of freedom of estimated models for best_models function \cr
-#' 16. PMStable - table with prior and posterior expected model size for binomial and binomial-beta model prior
+#' @return A list with 16 elements.
+#'
+#' \describe{
+#'   \item{uniform_table}{A table containing the results based on the binomialmodel prior.}
+#'   \item{random_table}{A table containing the results based on the binomial-beta model prior.}
+#'   \item{reg_names}{A vector containing the names of the regressors, used by the functions.}
+#'   \item{R}{The total number of regressors.}
+#'   \item{num_of_models}{The number of models present in the model space.}
+#'   \item{forJointnes}{A table containing model IDs and posterior model probabilities (PMPs) for the jointness function.}
+#'   \item{forBestModels}{A table containing model IDs, PMPs, coefficients, standard deviations,and standardized regression coefficients (stdRs) for the best_models function.}
+#'   \item{EMS}{The expected model size for the binomial and binomial-beta model priors, as specified by the user (default is EMS = R/2).}
+#'   \item{sizePriors}{A table of uniform and random model priors distributed over model sizes for the model_sizes function.}
+#'   \item{PMPs}{A table containing the posterior model probabilities for use in the model_sizes function.}
+#'   \item{modelPriors}{A table containing the model priors, used by the model_pmp function.}
+#'   \item{dilution}{A parameter indicating whether the priors were diluted, used in the model_sizes function.}
+#'   \item{alphas}{A vector of coefficients for the lagged dependent variable in the coef_hist function.}
+#'   \item{betas_nonzero}{A vector of nonzero coefficients for the regressors in the coef_hist function.}
+#'   \item{d_free}{A table containing the degrees of freedom for the estimated models in the best_models function.}
+#'   \item{PMStable}{A table containing the prior and posterior expected model sizes for the binomial and binomial-beta model priors.}
+#' }
 #'
 #' @export
 #'
