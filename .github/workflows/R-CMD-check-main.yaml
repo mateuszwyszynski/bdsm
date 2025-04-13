@@ -4,8 +4,9 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
 
-name: R-CMD-check.yaml
+name: R-CMD-check-main.yaml
 
 permissions: read-all
 
