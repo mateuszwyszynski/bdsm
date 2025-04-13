@@ -18,7 +18,7 @@ contains \code{2^3 = 8} models (columns).
 }
 \item{likelihood summmary}{
 A matrix representing the summary of likelihoods computed with
-\code{model_space_stats} based on the model space. The first row
+\code{compute_model_space_stats} based on the model space. The first row
 contains likelihoods for the models. The second row are almost
 1/2 * BIC_k as in Raftery's Bayesian Model Selection in Social Research,
 eq. 19. The rows 3-7 are standard deviations. Finally, the rows 8-12 are

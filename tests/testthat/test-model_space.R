@@ -25,7 +25,7 @@ test_that("optim_model_space_params correctly computes small_economic_growth_ms"
 })
 
 
-test_that(paste("model_space_stats computes correct likelihoods and",
+test_that(paste("compute_model_space_stats computes correct likelihoods and",
                 "standard deviations based on small_model_space"), {
   set.seed(23)
 
@@ -39,7 +39,7 @@ test_that(paste("model_space_stats computes correct likelihoods and",
       scale         = FALSE
     )
 
-  liks_info <- model_space_stats(
+  liks_info <- compute_model_space_stats(
     df            = data_prepared,
     dep_var_col   = gdp,
     timestamp_col = year,

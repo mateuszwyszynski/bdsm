@@ -233,7 +233,7 @@ optim_model_space_params <- function(df, timestamp_col, entity_col, dep_var_col,
 #'      scale         = FALSE
 #'    )
 #'
-#'  model_space_stats(
+#'  compute_model_space_stats(
 #'    df            = data_prepared,
 #'    dep_var_col   = gdp,
 #'    timestamp_col = year,
@@ -242,7 +242,7 @@ optim_model_space_params <- function(df, timestamp_col, entity_col, dep_var_col,
 #'  )
 #' }
 #'
-model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col,
+compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col,
                               model_space, exact_value = TRUE,
                               model_prior = 'uniform', cl = NULL) {
   regressors <- df %>%
@@ -426,7 +426,7 @@ model_space <-
       control       = control
     )
 
-    like_table <- model_space_stats(
+    like_table <- compute_model_space_stats(
       df            = df,
       dep_var_col   = {{dep_var_col}},
       timestamp_col = {{timestamp_col}},
