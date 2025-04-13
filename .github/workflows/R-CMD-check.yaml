@@ -48,10 +48,13 @@ jobs:
       - uses: r-lib/actions/setup-tinytex@v2
       - run: tlmgr --version
 
-      - name: Install missing LaTeX package
+      - name: Update TeX Live
+        run: tlmgr update --self --all
+
+      - name: Install missing LaTeX packages
         run: |
-          tlmgr install bbm
-          tlmgr install vmargin
+          tlmgr install bbm || tlmgr info bbm
+          tlmgr install vmargin || tlmgr info vmargin
 
       - uses: r-lib/actions/check-r-package@v2
         with:
