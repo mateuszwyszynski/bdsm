@@ -45,31 +45,11 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
-      - name: Install TeX Live (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y texlive texlive-latex-extra texlive-fonts-recommended
+      - uses: r-lib/actions/setup-tinytex@v2
+      - run: tlmgr --version
 
-      - name: Install TeX Live (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          choco install texlive
-
-      - name: Install TeX Live (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          brew install --cask mactex
-
-      - name: Update PATH for MacTeX
-        if: runner.os == 'macOS'
-        run: echo "/Library/TeX/texbin" >> $GITHUB_PATH
-
-      - name: Install TeX Live (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          brew install --cask mactex
-          sudo tlmgr update --self --all
+      - name: Install missing LaTeX package
+        run: tlmgr install vmargin
 
       - uses: r-lib/actions/check-r-package@v2
         with:
