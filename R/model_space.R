@@ -384,7 +384,7 @@ compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col
 #' @return
 #' List with two objects: \cr
 #' 1) params - table with parameters of all estimated models \cr
-#' 2) like_table - table with the value of maximized likelihood function, BIC, and
+#' 2) stats - table with the value of maximized likelihood function, BIC, and
 #' standard errors for all estimated models
 #'
 #' @examples
@@ -426,7 +426,7 @@ model_space <-
       control       = control
     )
 
-    like_table <- compute_model_space_stats(
+    stats <- compute_model_space_stats(
       df            = df,
       dep_var_col   = {{dep_var_col}},
       timestamp_col = {{timestamp_col}},
@@ -435,5 +435,5 @@ model_space <-
       cl            = cl
     )
 
-    for_bma <- list(params = params, like_table)
+    for_bma <- list(params = params, stats = stats)
   }

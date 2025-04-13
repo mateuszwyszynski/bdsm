@@ -39,7 +39,7 @@ test_that(paste("compute_model_space_stats computes correct likelihoods and",
       scale         = FALSE
     )
 
-  liks_info <- compute_model_space_stats(
+  model_space_stats <- compute_model_space_stats(
     df            = data_prepared,
     dep_var_col   = gdp,
     timestamp_col = year,
@@ -47,7 +47,7 @@ test_that(paste("compute_model_space_stats computes correct likelihoods and",
     params        = small_model_space[[1]]
   )
 
-  expect_equal(liks_info, small_model_space[[2]])
+  expect_equal(model_space_stats, small_model_space[[2]])
 })
 
 

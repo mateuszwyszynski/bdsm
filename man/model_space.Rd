@@ -44,7 +44,7 @@ that \code{scale} is used only for adjusting the \code{parscale} element added l
 List with two objects: \cr
 \enumerate{
 \item params - table with parameters of all estimated models \cr
-\item like_table - table with the value of maximized likelihood function, BIC, and
+\item stats - table with the value of maximized likelihood function, BIC, and
 standard errors for all estimated models
 }
 }
