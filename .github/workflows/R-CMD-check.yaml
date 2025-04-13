@@ -60,6 +60,15 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install --cask mactex
+
+      - name: Update PATH for MacTeX
+        if: runner.os == 'macOS'
+        run: echo "/Library/TeX/texbin" >> $GITHUB_PATH
+
+      - name: Install TeX Live (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install --cask mactex
           sudo tlmgr update --self --all
 
       - uses: r-lib/actions/check-r-package@v2
