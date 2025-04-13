@@ -99,6 +99,6 @@ df <- data.frame(
   dep_var = stats::rnorm(20), a = stats::rnorm(20), b = stats::rnorm(20)
 )
 df <-
-  feature_standardization(df, excluded_cols = c(times, entities))
+  feature_standardization(df, timestamp_col = times, entity_col = entities)
 SEM_likelihood(0.5, df, times, entities, dep_var)
 }

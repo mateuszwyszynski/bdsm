@@ -4,14 +4,37 @@
 \alias{bma}
 \title{Calculation of the bma object}
 \usage{
-bma(model_space, df, round = 4, EMS = NULL, dilution = 0, dil.Par = 0.5)
+bma(
+  df,
+  dep_var_col,
+  timestamp_col,
+  entity_col,
+  model_space,
+  run_parallel = FALSE,
+  app = 4,
+  EMS = NULL,
+  dilution = 0,
+  dil.Par = 0.5
+)
 }
 \arguments{
-\item{model_space}{List with params and stats from the model space}
-
 \item{df}{Data frame with data for the SEM analysis.}
 
-\item{round}{Parameter indicating the decimal place to which number in the BMA tables and prior and posterior model sizes should be rounded (default round = 4)}
+\item{dep_var_col}{Column with the dependent variable}
+
+\item{timestamp_col}{The name of the column with timestamps}
+
+\item{entity_col}{Column with entities (e.g. countries)}
+
+\item{model_space}{The result of the optimal_model_space function. A matrix (with named rows)
+with each column corresponding to a model. Each column specifies model parameters. Compare with \link[bdsm]{optimal_model_space}}
+
+\item{run_parallel}{If \code{TRUE} the optimization is run in parallel using
+the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
+base apply function is used. Note that using the parallel computing requires
+setting the default cluster. See README.}
+
+\item{app}{Parameter indicating the decimal place to which number in the BMA tables should be rounded (default app = 4)}
 
 \item{EMS}{Expected model size for model binomial and binomial-beta model prior}
 
@@ -26,7 +49,7 @@ A list with bma objects: \cr
 \item random_table - table with the results under binomial-beta model prior \cr
 \item reg_names - vector with names of the regressors - to be used by the functions \cr
 \item R - total number of regressors \cr
-\item num_of_models - number of models present in the model space \cr
+\item M - size of the mode space \cr
 \item forJointnes - table with model IDs and PMPs for jointness function \cr
 \item forBestModels - table with model IDs, PMPs, coefficients, stds, and, stdRs for best_models function \cr
 \item EMS - expected model size for binomial and binomial-beta model prior specified by the user (default EMS = R/2) \cr
@@ -41,28 +64,23 @@ A list with bma objects: \cr
 }
 }
 \description{
-This function calculates bma object based on the model_space object obtained using optim_model_space_params function.
+This function calculates bma object for the model_space object obtained using optimal_model_space function.
 It calculates BMA statistics and objects for the use by other functions.
 }
 \examples{
 \donttest{
 library(magrittr)
 
-data_prepared <- bdsm::economic_growth[, 1:6] \%>\%
-  bdsm::feature_standardization(
-    excluded_cols = c(country, year, gdp)
-  ) \%>\%
-  bdsm::feature_standardization(
-    group_by_col  = year,
-    excluded_cols = country,
-    scale         = FALSE
-  )
+data_prepared <- economic_growth[,1:7] \%>\%
+   feature_standardization(timestamp_col = year, entity_col = country) \%>\%
+   feature_standardization(timestamp_col = year, entity_col = country,
+                           time_effects = TRUE, scale = FALSE)
 
-bma_results <- bma(
-  model_space = bdsm::small_model_space,
-  df          = data_prepared,
-  round       = 3,
-  dilution    = 0
-)
+model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
+                                   timestamp_col = year, entity_col = country,
+                                   init_value = 0.5)
+
+bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
+entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
 }
 }

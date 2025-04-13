@@ -4,7 +4,7 @@
 #' Exogeneity (Moral-Benito, 2016, Journal of Applied Econometrics).
 #'
 #' @format ## `economic_growth`
-#' A data frame with 365 rows and 12 columns (73 countries and 4 periods + extra one for lagged dependent variable):
+#' A data frame with 365 rows and 12 columns:
 #' \describe{
 #'   \item{year}{Year}
 #'   \item{country}{Country ID}
@@ -23,79 +23,74 @@
 #' @source <http://qed.econ.queensu.ca/jae/datasets/moral-benito001/>
 "economic_growth"
 
-#' Example of model_space function result with four regressors
+#' Example Model Space
 #'
-#' A list with two objects: model space and likelihood summary table computed using
-#' \code{model_space} obtained based on the Moral-Benito (2016) data (with four regressors).
+#' A matrix representing the model space built using subset of regressors from
+#' the \code{economic_growth} dataset. The included regressors are \code{ish},
+#' \code{sed}, \code{pgrw} and \code{pop}. Therefore the model space contains
+#' \code{2^4 = 16} models (columns).
 #'
-#' @format ## `small_model_space`
-#' A list with two objects.
-#' \describe{
-#'    \item{model space}{
-#'      A double matrix with 40 rows and 8 columns with the
-#'      parameters for the model space built using subset of the regressors from
-#'      the \code{economic_growth} dataset. The included regressors are
-#'      \code{ish}, \code{sed} and \code{pgrw}. Therefore the model space
-#'      contains \code{2^3 = 8} models (columns).
-#'    }
-#'    \item{likelihood summmary}{
-#'      A matrix representing the summary of likelihoods computed with
-#'      \code{compute_model_space_stats} based on the model space. The first row
-#'      contains likelihoods for the models. The second row are almost
-#'      1/2 * BIC_k as in Raftery's Bayesian Model Selection in Social Research,
-#'      eq. 19. The rows 3-7 are standard deviations. Finally, the rows 8-12 are
-#'      robust standard deviations
-#'    }
-#' }
-"small_model_space"
+#' @format ## `economic_growth_ms`
+#' A double matrix with 51 rows and 16 columns.
+"economic_growth_ms"
 
-#' Example of \code{model_space} function result with nine regressors (full Moral-Benito (2016) set)
+#' Full Model Space with Varying Projection Matrix
 #'
-#' A list with two objects: model space and likelihood summary table computed using
-#' \code{model_space} obtained based on the Moral-Benito (2016) data (with 9 regressors).
+#' A matrix representing the model space built using all regressors from
+#' the \code{economic_growth} dataset. Therefore the model space contains
+#' \code{2^9 = 512} models (columns). This model space generates Posterior
+#' Inclusion Probabilities which are consistent with the results presented by
+#' Moral-Benito. The original results were approximated up to the 4th decimal
+#' place. The results obtained using this model space lead to exactly the same
+#' approximations. A different projection matrix is used for each model.
 #'
-#' @format ## `full_model_space`
-#' A list with two objects.
-#' \describe{
-#'    \item{model space}{
-#'      A double matrix with 106 rows and 512 columns with the
-#'      parameters for the model space built using all 9 regressors from
-#'      the \code{economic_growth} dataset. Therefore the model space
-#'      contains \code{2^9 = 512} models (columns).
-#'    }
-#'    \item{likelihood summmary}{
-#'      A matrix representing the summary of likelihoods computed with
-#'      \code{compute_model_space_stats} based on the model space. The first row
-#'      contains likelihoods for the models. The second row are almost
-#'      1/2 * BIC_k as in Raftery's Bayesian Model Selection in Social Research,
-#'      eq. 19. The rows 3-7 are standard deviations. Finally, the rows 8-12 are
-#'      robust standard deviations
-#'    }
-#' }
-"full_model_space"
+#' @format ## `economic_growth_ms_full_proj_var`
+#' A double matrix with 106 rows and 512 columns.
+"economic_growth_ms_full_proj_var"
 
-#' Economic Growth Data in original from
+#' Full Model Space with Constant Projection Matrix
 #'
-#' Data used in Growth Empirics in Panel Data under Model Uncertainty and Weak
-#' Exogeneity (Moral-Benito, 2016, Journal of Applied Econometrics).
+#' A matrix representing the model space built using all regressors from
+#' the \code{economic_growth} dataset. Therefore the model space contains
+#' \code{2^9 = 512} models (columns). The same projection matrix is used for
+#' each model.
 #'
-#' @format ## `original_economic_growth`
-#' A data frame with 292 rows and 13 columns (73 countries and 4 periods + extra one for lagged dependent variable):
+#' TODO: to avoid NaNs when computing estimates of standard deviations, the step
+#' size in the hessian function has to be increased to 1e-2. This is most likely
+#' cause by the fact that the likelihood values are much closer to each other
+#' after the correction for the projection matrix is introduced. Hence we have
+#' to either increase the relative tolerance of the optimization algorithm or
+#' loosen the precision when computing approximate hessian.
+#'
+#' @format ## `economic_growth_ms_full_proj_const`
+#' A double matrix with 106 rows and 512 columns.
+"economic_growth_ms_full_proj_const"
+
+#' Example Approximate Likelihoods Summary based on Model Space
+#'
+#' A matrix representing the summary of likelihoods computed with
+#' \code{likelihoods_summary} based on the \code{economic_growth_ms} model
+#' space. The matrix contains likelihoods, standard deviations and robust
+#' standard deviations
+#'
+#' @format ## `economic_growth_stds`
+#' A double matrix with 11 rows and 16 columns.
 #' \describe{
-#'   \item{year}{Year}
-#'   \item{country}{Country ID}
-#'   \item{gdp}{Logarithm of GDP per capita (2000 US dollars at PP)}
-#'   \item{gdp_lag}{Lagged logarithm of GDP per capita (2000 US dollars at PP)}
-#'   \item{ish}{Ratio of real domestic investment to GDP}
-#'   \item{sed}{Stock of years of secondary education in the total population}
-#'   \item{pgrw}{Average growth rate of population}
-#'   \item{pop}{Population in millions of people}
-#'   \item{ipr}{Purchasing-power-parity numbers for investment goods}
-#'   \item{opem}{Exports plus imports as a share of GDP}
-#'   \item{gsh}{Ratio of government consumption to GDP}
-#'   \item{lnlex}{Logarithm of the life expectancy at birth}
-#'   \item{polity}{Composite index given by the democracy score minus the
-#'   autocracy score}
+#'   \item{first row}{Likelihoods for the models}
+#'   \item{second row}{Almost 1/2 * BIC_k as in Raftery's Bayesian Model
+#'   Selection in Social Research eq. 19.}
+#'   \item{rows 3-7}{Standard deviations}
+#'   \item{rows 8-12}{Robust standard deviations}
 #' }
-#' @source <http://qed.econ.queensu.ca/jae/datasets/moral-benito001/>
-"original_economic_growth"
+"economic_growth_liks"
+
+#' Example Approximate Summary of Parameters of Interest Based on Model Space
+#'
+#' A matrix representing the summary of parameters computed with
+#' \code{parameters_summary} based on the \code{economic_growth_ms} model
+#' space. TODO: describe the matrix properly after cleaning up the code of the
+#' function \code{parameters_summary}.
+#'
+#' @format ## `economic_growth_bma_params`
+#' A double matrix with 5 rows and 8 columns
+"economic_growth_bma_params"
