@@ -147,7 +147,7 @@ optim_model_space_params <- function(df, timestamp_col, entity_col, dep_var_col,
                      dep_var_col = {{ dep_var_col }},
                      which_matrices = c("Y1", "Y2", "Z", "res_maker_matrix"))
 
-  model_space <- df %>%
+  init_params <- df %>%
     init_model_space_params(timestamp_col = {{ timestamp_col }},
                             entity_col = {{ entity_col }},
                             dep_var_col = {{ dep_var_col }},
@@ -181,7 +181,7 @@ optim_model_space_params <- function(df, timestamp_col, entity_col, dep_var_col,
     params
   }
 
-  pbapply::pbapply(model_space, MARGIN = 2,  function(x) {
+  pbapply::pbapply(init_params, MARGIN = 2,  function(x) {
     optimization_wrapper(x, matrices_shared_across_models)
   }, cl = cl)
 }
@@ -196,7 +196,7 @@ optim_model_space_params <- function(df, timestamp_col, entity_col, dep_var_col,
 #' @param dep_var_col Column with the dependent variable
 #' @param timestamp_col The name of the column with timestamps
 #' @param entity_col Column with entities (e.g. countries)
-#' @param model_space A matrix (with named rows) with each column corresponding
+#' @param params A matrix (with named rows) with each column corresponding
 #' to a model. Each column specifies model parameters. Compare with
 #' \link[bdsm]{optim_model_space_params}
 #' @param model_prior Which model prior to use. For now there are two options:
@@ -238,12 +238,12 @@ optim_model_space_params <- function(df, timestamp_col, entity_col, dep_var_col,
 #'    dep_var_col   = gdp,
 #'    timestamp_col = year,
 #'    entity_col    = country,
-#'    model_space   = small_model_space[[1]]
+#'    params        = small_model_space[[1]]
 #'  )
 #' }
 #'
 compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col,
-                              model_space, exact_value = TRUE,
+                              params, exact_value = TRUE,
                               model_prior = 'uniform', cl = NULL) {
   regressors <- df %>%
     regressor_names(timestamp_col = {{ timestamp_col }},
@@ -351,7 +351,7 @@ compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col
     c(likelihood, bic, stdh, stdr)
   }
 
-  pbapply::pbapply(model_space, MARGIN = 2,  function(x) {
+  pbapply::pbapply(params, MARGIN = 2,  function(x) {
     std_dev_from_params(x, matrices_shared_across_models)
   }, cl = cl)
 }
@@ -383,7 +383,7 @@ compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col
 #'
 #' @return
 #' List with two objects: \cr
-#' 1) model_space - table with parameters of all estimated models \cr
+#' 1) params - table with parameters of all estimated models \cr
 #' 2) like_table - table with the value of maximized likelihood function, BIC, and
 #' standard errors for all estimated models
 #'
@@ -415,7 +415,7 @@ model_space <-
            exact_value = TRUE, cl = NULL,
            control = list(trace = 2, maxit = 10000, fnscale = -1,
                           REPORT = 100, scale = 0.05)){
-    model_space <- optim_model_space_params(
+    params <- optim_model_space_params(
       df            = df,
       timestamp_col = {{timestamp_col}},
       entity_col    = {{entity_col}},
@@ -431,9 +431,9 @@ model_space <-
       dep_var_col   = {{dep_var_col}},
       timestamp_col = {{timestamp_col}},
       entity_col    = {{entity_col}},
-      model_space   = model_space,
+      params        = params,
       cl            = cl
     )
 
-    for_bma <- list(model_space, like_table)
+    for_bma <- list(params = params, like_table)
   }

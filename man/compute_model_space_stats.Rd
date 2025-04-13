@@ -9,7 +9,7 @@ compute_model_space_stats(
   dep_var_col,
   timestamp_col,
   entity_col,
-  model_space,
+  params,
   exact_value = TRUE,
   model_prior = "uniform",
   cl = NULL
@@ -24,7 +24,7 @@ compute_model_space_stats(
 
 \item{entity_col}{Column with entities (e.g. countries)}
 
-\item{model_space}{A matrix (with named rows) with each column corresponding
+\item{params}{A matrix (with named rows) with each column corresponding
 to a model. Each column specifies model parameters. Compare with
 \link[bdsm]{optim_model_space_params}}
 
@@ -70,7 +70,7 @@ model space. Two versions are computed.
    dep_var_col   = gdp,
    timestamp_col = year,
    entity_col    = country,
-   model_space   = small_model_space[[1]]
+   params        = small_model_space[[1]]
  )
 }
 

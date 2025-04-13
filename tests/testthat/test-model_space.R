@@ -13,7 +13,7 @@ test_that("optim_model_space_params correctly computes small_economic_growth_ms"
       scale         = FALSE
     )
 
-  model_space <- optim_model_space_params(
+  params <- optim_model_space_params(
     df            = data_prepared,
     dep_var_col   = gdp,
     timestamp_col = year,
@@ -21,7 +21,7 @@ test_that("optim_model_space_params correctly computes small_economic_growth_ms"
     init_value    = 0.5
   )
 
-  expect_equal(model_space, small_model_space[[1]])
+  expect_equal(params, small_model_space[[1]])
 })
 
 
@@ -44,7 +44,7 @@ test_that(paste("compute_model_space_stats computes correct likelihoods and",
     dep_var_col   = gdp,
     timestamp_col = year,
     entity_col    = country,
-    model_space   = small_model_space[[1]]
+    params        = small_model_space[[1]]
   )
 
   expect_equal(liks_info, small_model_space[[2]])
