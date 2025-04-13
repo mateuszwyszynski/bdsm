@@ -456,7 +456,7 @@ used in \citet{Moral+2016}.
 There is no need to apply panel demeaning (entity fixed effects)
 in this framework as can be seen in \autoref{eq12}.\footnote{
 In theory the results should be the same with entity fixed effects.
-However, because we use numerical methods some changes might occur}.
+However, because we use numerical methods some discrepancies might occur}.
 
 
 \section{Estimation of the model space}\label{model_space}
