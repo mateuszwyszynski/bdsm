@@ -45,34 +45,22 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
-      - name: Install MiKTeX (Linux)
+      - name: Install TeX Live (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y miktex
-          miktexsetup finish
-          initexmf --admin --update-fndb
-          initexmf --admin --mkmaps
-          mpm --admin --update-db
+          sudo apt-get install -y texlive texlive-latex-extra texlive-fonts-recommended
 
-      - name: Install MiKTeX (Windows)
+      - name: Install TeX Live (Windows)
         if: runner.os == 'Windows'
         run: |
-          choco install miktex
-          miktexsetup finish
-          initexmf --update-fndb
-          initexmf --mkmaps
+          choco install texlive
 
-      - name: Install MiKTeX (macOS)
+      - name: Install TeX Live (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install --cask miktex-console
-          # Add MiKTeX binaries to PATH
-          export PATH="/Library/TeX/texbin:/Applications/MiKTeX Console.app/Contents/MacOS:$PATH"
-          miktexsetup finish
-          initexmf --admin --update-fndb
-          initexmf --admin --mkmaps
-          mpm --admin --update-db
+          brew install --cask mactex
+          sudo tlmgr update --self --all
 
       - uses: r-lib/actions/check-r-package@v2
         with:
