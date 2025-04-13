@@ -3,26 +3,25 @@
 \docType{data}
 \name{small_model_space}
 \alias{small_model_space}
-\title{Example of model_space function result with four regressors}
+\title{Example output of the find_model_space function (small version)}
 \format{
 \subsection{\code{small_model_space}}{
 
-A list with two objects.
+A list with two elements.
 \describe{
-\item{model space}{
-A double matrix with 40 rows and 8 columns with the
-parameters for the model space built using subset of the regressors from
-the \code{economic_growth} dataset. The included regressors are
-\code{ish}, \code{sed} and \code{pgrw}. Therefore the model space
-contains \code{2^3 = 8} models (columns).
+\item{params}{
+A double matrix with 40 rows and \code{2^3 = 8} columns with the
+parameters for the model space.
+Each column represents a different model.
 }
-\item{likelihood summmary}{
-A matrix representing the summary of likelihoods computed with
-\code{compute_model_space_stats} based on the model space. The first row
-contains likelihoods for the models. The second row are almost
-1/2 * BIC_k as in Raftery's Bayesian Model Selection in Social Research,
-eq. 19. The rows 3-7 are standard deviations. Finally, the rows 8-12 are
-robust standard deviations
+\item{stats}{
+A matrix representing the statistics computed with
+\code{compute_model_space_stats} based on \code{params}.
+The first row contains likelihoods for the models.
+The second row are almost 1/2 * BIC_k
+as in Raftery's Bayesian Model Selection in Social Research, eq. 19.
+The rows 3-7 are standard deviations.
+Finally, the rows 8-12 are robust standard deviations.
 }
 }
 }
@@ -31,7 +30,8 @@ robust standard deviations
 small_model_space
 }
 \description{
-A list with two objects: model space and likelihood summary table computed using
-\code{model_space} obtained based on the Moral-Benito (2016) data (with four regressors).
+A list with two elements: \code{params} and \code{stats} computed using the
+\code{find_model_space} function and the \code{economic_growth} dataset, but
+using only three regressors: \code{ish}, \code{sed} and \code{pgrw}.
 }
 \keyword{datasets}
