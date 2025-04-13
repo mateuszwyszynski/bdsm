@@ -29,7 +29,7 @@ This will be the starting point for the numerical optimization.}
 
 \item{exact_value}{Whether the exact value of the likelihood should be
 computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
-\link[bdsm]{SEM_likelihood} for details.}
+\link[bdsm]{sem_likelihood} for details.}
 
 \item{cl}{An optional cluster object. If supplied, the function will use this
 cluster for parallel processing. If \code{NULL} (the default),

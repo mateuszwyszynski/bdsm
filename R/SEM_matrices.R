@@ -39,8 +39,8 @@ determine_min_timestamps <- function(df, timestamp_col) {
 #'   times = rep(seq(1960, 2000, 10), each = 4),
 #'   dep_var = stats::rnorm(20), a = stats::rnorm(20), b = stats::rnorm(20)
 #' )
-#' SEM_dep_var_matrix(df, times, entities, dep_var)
-SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
+#' sem_dep_var_matrix(df, times, entities, dep_var)
+sem_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
   min_timestamps <-
     determine_min_timestamps(df = df, timestamp_col = {{ timestamp_col }})
   timestamp_1 <- min_timestamps$timestamp_1
@@ -80,8 +80,8 @@ SEM_dep_var_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
 #'   times = rep(seq(1960, 2000, 10), each = 4),
 #'   dep_var = stats::rnorm(20), a = stats::rnorm(20), b = stats::rnorm(20)
 #' )
-#' SEM_regressors_matrix(df, times, entities, dep_var)
-SEM_regressors_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
+#' sem_regressors_matrix(df, times, entities, dep_var)
+sem_regressors_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
   regressors <- df %>%
     regressor_names(timestamp_col = {{ timestamp_col }},
                     entity_col = {{ entity_col }},
@@ -193,8 +193,8 @@ residual_maker_matrix <- function(m) {
 #' @export
 #'
 #' @examples
-#' SEM_B_matrix(3, 4, 4:6)
-SEM_B_matrix <- function(alpha, periods_n, beta = c()) {
+#' sem_B_matrix(3, 4, 4:6)
+sem_B_matrix <- function(alpha, periods_n, beta = c()) {
   alpha_matrix <- diag(rep(-alpha, periods_n-1))
   B11 <- diag(periods_n)
   B11[2:periods_n, 1:(periods_n - 1)] <-
@@ -241,8 +241,8 @@ SEM_B_matrix <- function(alpha, periods_n, beta = c()) {
 #' beta <- 11:15
 #' phi_1 <- 21:25
 #' periods_n <- 4
-#' SEM_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
-SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
+#' sem_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
+sem_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
   C1 <- matrix(rep(phi_0, periods_n))
   C1[1, 1] <- C1[1, 1] + alpha
   if (length(beta) != 0) {
@@ -269,8 +269,8 @@ SEM_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
 #' @export
 #'
 #' @examples
-#' SEM_psi_matrix(1:30, 4, 5)
-SEM_psi_matrix <- function(psis, timestamps_n, features_n) {
+#' sem_psi_matrix(1:30, 4, 5)
+sem_psi_matrix <- function(psis, timestamps_n, features_n) {
   matrix_row_n <- timestamps_n
   psi_matrix_row <- function(row_ind) {
     psi_start_ind_in_row <- row_ind * (row_ind - 1) * features_n / 2 +
@@ -309,8 +309,8 @@ SEM_psi_matrix <- function(psis, timestamps_n, features_n) {
 #' dep_vars <- c(2, 2, 2, 2)
 #' phis <- c(10, 10, 20, 20, 30, 30)
 #' psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
-#' SEM_sigma_matrix(err_var, dep_vars, phis, psis)
-SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(), psis = c()) {
+#' sem_sigma_matrix(err_var, dep_vars, phis, psis)
+sem_sigma_matrix <- function(err_var, dep_vars, phis = c(), psis = c()) {
   periods_n <- length(dep_vars)
 
   O11 <- err_var^2*optimbase::ones(periods_n, periods_n) +
@@ -320,7 +320,7 @@ SEM_sigma_matrix <- function(err_var, dep_vars, phis = c(), psis = c()) {
     regressors_n <- length(phis)/(periods_n - 1)
 
     phi_matrix <- matrix(rep(phis, periods_n), nrow = periods_n, byrow = TRUE)
-    psi_matrix <- SEM_psi_matrix(psis = psis, timestamps_n = periods_n,
+    psi_matrix <- sem_psi_matrix(psis = psis, timestamps_n = periods_n,
                                  features_n = regressors_n)
 
     phi_matrix + psi_matrix

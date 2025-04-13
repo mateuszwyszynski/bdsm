@@ -122,7 +122,7 @@ regressor_names_from_params_vector <- function(params) {
 #' This will be the starting point for the numerical optimization.
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
-#' \link[bdsm]{SEM_likelihood} for details.
+#' \link[bdsm]{sem_likelihood} for details.
 #' @param cl An optional cluster object. If supplied, the function will use this
 #' cluster for parallel processing. If \code{NULL} (the default),
 #' \code{pbapply::pblapply} will run sequentially.
@@ -172,7 +172,7 @@ optim_model_space_params <- function(df, timestamp_col, entity_col, dep_var_col,
     control$parscale <- control$scale * params_no_na
     control$scale <- NULL
 
-    optimized <- stats::optim(params_no_na, SEM_likelihood, data = data,
+    optimized <- stats::optim(params_no_na, sem_likelihood, data = data,
                               exact_value = exact_value,
                               method = "BFGS",
                               control = control)
@@ -203,7 +203,7 @@ optim_model_space_params <- function(df, timestamp_col, entity_col, dep_var_col,
 #' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
-#' \link[bdsm]{SEM_likelihood} for details.
+#' \link[bdsm]{sem_likelihood} for details.
 #' @param cl An optional cluster object. If supplied, the function will use this
 #' cluster for parallel processing. If \code{NULL} (the default),
 #' \code{pbapply::pblapply} will run sequentially.
@@ -291,16 +291,16 @@ compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col
     params_no_na <- params %>% stats::na.omit()
 
     likelihood <-
-      SEM_likelihood(params = params_no_na, data = data,
+      sem_likelihood(params = params_no_na, data = data,
                      exact_value = TRUE)
 
-    hess <- hessian(SEM_likelihood, theta = params_no_na, data = data)
+    hess <- hessian(sem_likelihood, theta = params_no_na, data = data)
 
     likelihood_per_entity <-
-      SEM_likelihood(params_no_na, data = data, per_entity = TRUE)
+      sem_likelihood(params_no_na, data = data, per_entity = TRUE)
 
     # TODO: how to interpret the Gmat and Imat
-    Gmat <- rootSolve::gradient(SEM_likelihood, params_no_na, data = data,
+    Gmat <- rootSolve::gradient(sem_likelihood, params_no_na, data = data,
                                 per_entity = TRUE)
     Imat <- crossprod(Gmat)
 
@@ -370,7 +370,7 @@ compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col
 #' This will be the starting point for the numerical optimization.
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
-#' \link[bdsm]{SEM_likelihood} for details.
+#' \link[bdsm]{sem_likelihood} for details.
 #' @param cl An optional cluster object. If supplied, the function will use this
 #' cluster for parallel processing. If \code{NULL} (the default),
 #' \code{pbapply::pblapply} will run sequentially.

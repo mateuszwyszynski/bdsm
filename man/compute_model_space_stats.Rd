@@ -30,7 +30,7 @@ to a model. Each column specifies model parameters. Compare with
 
 \item{exact_value}{Whether the exact value of the likelihood should be
 computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
-\link[bdsm]{SEM_likelihood} for details.}
+\link[bdsm]{sem_likelihood} for details.}
 
 \item{model_prior}{Which model prior to use. For now there are two options:
 \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.}

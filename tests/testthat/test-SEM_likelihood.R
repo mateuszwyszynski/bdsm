@@ -1,5 +1,5 @@
 # microbenchmark(
-#   SEM_likelihood(
+#   sem_likelihood(
 #     0.5,
 #     generate_test_feature_standard_data(),
 #     times, entities, dep_var
@@ -13,7 +13,7 @@ test_that("SEM likelihood is calculated correctly for default feature standardiz
   skip_on_os(c("windows", "linux"))
   skip_on_cran()
   set.seed(1)
-  sem_value <- SEM_likelihood(
+  sem_value <- sem_likelihood(
     0.5,
     feature_standardization(
       df            = generate_test_data(),
@@ -28,7 +28,7 @@ test_that("SEM likelihood is calculated correctly for time_effects TRUE", {
   skip_on_os(c("windows", "linux"))
   skip_on_cran()
   set.seed(1)
-  sem_value <- SEM_likelihood(
+  sem_value <- sem_likelihood(
     0.5,
     feature_standardization(
       df            = generate_test_data(),
@@ -44,7 +44,7 @@ test_that("SEM likelihood is calculated correctly for time_effects TRUE and scal
   skip_on_os(c("windows", "linux"))
   skip_on_cran()
   set.seed(1)
-  sem_value <- SEM_likelihood(
+  sem_value <- sem_likelihood(
     0.5,
     feature_standardization(
       df            = generate_test_data(),
@@ -61,7 +61,7 @@ test_that("SEM likelihood is calculated correctly for time_effects FALSE and sca
   skip_on_os(c("windows", "linux"))
   skip_on_cran()
   set.seed(1)
-  sem_value <- SEM_likelihood(
+  sem_value <- sem_likelihood(
     0.5,
     feature_standardization(
       df            = generate_test_data(),
@@ -79,7 +79,7 @@ test_that("SEM likelihood is calculated incorrectly for specific data", {
   set.seed(2)
   # TODO: That produces NaN for that particular seed.
   testthat::expect_warning(
-    sem_value <- SEM_likelihood(
+    sem_value <- sem_likelihood(
       0.5,
       feature_standardization(
         df            = generate_test_data(),
