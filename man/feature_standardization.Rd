@@ -2,37 +2,29 @@
 % Please edit documentation in R/data_preparation.R
 \name{feature_standardization}
 \alias{feature_standardization}
-\title{Perform feature standarization}
+\title{Perform feature standardization}
 \usage{
-feature_standardization(
-  df,
-  timestamp_col,
-  entity_col,
-  time_effects = FALSE,
-  scale = TRUE
-)
+feature_standardization(df, excluded_cols, group_by_col, scale = TRUE)
 }
 \arguments{
-\item{df}{Dataframe with data that should be prepared for LIML estimation}
+\item{df}{Data frame with the data.}
 
-\item{timestamp_col}{Column with timestamps (e.g. years)}
+\item{excluded_cols}{Unquoted column names to exclude from standardization.
+If missing, all columns are standardized.}
 
-\item{entity_col}{Column with entities (e.g. countries)}
+\item{group_by_col}{Unquoted column names to group the data by
+before applying standardization. If missing, no grouping is performed.}
 
-\item{time_effects}{Whether to introduce time fixed effects
-(by cross-sectional demeaning)}
-
-\item{scale}{Whether to divide by the standard deviation \code{TRUE} or not
-\code{FALSE}. Default is \code{TRUE}.}
+\item{scale}{Logical. If \code{TRUE} (default) scales by the standard deviation.}
 }
 \value{
-A dataframe with standardized features
+A data frame with standardized features.
 }
 \description{
 This function performs
-\href{https://en.wikipedia.org/wiki/Feature_scaling}{feature standarization}
-(also known as z-score normalization), i.e. the features are centered around
-the mean and scaled with standard deviation.
+\href{https://en.wikipedia.org/wiki/Feature_scaling}{feature standardization}
+(also known as z-score normalization) by centering the features around their
+mean and scaling by their standard deviation.
 }
 \examples{
 df <- data.frame(
@@ -43,6 +35,17 @@ df <- data.frame(
   sed = c(3, 4, 5, 6, 7)
 )
 
-feature_standardization(df, year, country)
+# Standardize every column
+df_with_only_numeric_values <- df[, setdiff(names(df), "country")]
+feature_standardization(df_with_only_numeric_values)
+
+# Standardize all columns except 'country'
+feature_standardization(df, excluded_cols = country)
+
+# Standardize across countries (grouped by 'country')
+feature_standardization(df, group_by_col = country)
+
+# Standardize, excluding 'country' and group-wise by 'year'
+feature_standardization(df, excluded_cols = country, group_by_col = year)
 
 }

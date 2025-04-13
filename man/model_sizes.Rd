@@ -23,17 +23,22 @@ b) The results with binomial-beta model prior (based on PMP - posterior model pr
 \donttest{
 library(magrittr)
 
-data_prepared <- economic_growth[,1:7] \%>\%
-   feature_standardization(timestamp_col = year, entity_col = country) \%>\%
-   feature_standardization(timestamp_col = year, entity_col = country,
-                           time_effects = TRUE, scale = FALSE)
+data_prepared <- bdsm::economic_growth[, 1:6] \%>\%
+  bdsm::feature_standardization(
+    excluded_cols = c(country, year, gdp)
+  ) \%>\%
+  bdsm::feature_standardization(
+    group_by_col  = year,
+    excluded_cols = country,
+    scale         = FALSE
+  )
 
-model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
-                                   timestamp_col = year, entity_col = country,
-                                   init_value = 0.5)
-
-bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
-entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
+bma_results <- bma(
+  model_space = bdsm::small_model_space,
+  df          = data_prepared,
+  round       = 3,
+  dilution    = 0
+)
 
 size_graphs <- model_sizes(bma_results)
 }

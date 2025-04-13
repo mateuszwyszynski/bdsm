@@ -8,9 +8,8 @@
 #' 1 - binomial model prior \cr
 #' 2 - binomial-beta model prior
 #' @param best The number of the best models to be considered
-#' @param app Parameter indicating the decimal place to which number in the tables should be rounded (default app = 3)
+#' @param round Parameter indicating the decimal place to which number in the tables should be rounded (default round = 3)
 #' @param estimate A parameter with values TRUE or FALSE indicating which table should be displayed when
-#' the function finishes calculations. Works well when best is small.\cr
 #' TRUE - table with estimation to the results \cr
 #' FALSE - table with the inclusion of regressors in the best models
 #' @param robust A parameter with values TRUE or FALSE indicating which type of stanrdard errors should be displayed
@@ -35,22 +34,27 @@
 #' \donttest{
 #' library(magrittr)
 #'
-#' data_prepared <- economic_growth[,1:7] %>%
-#'    feature_standardization(timestamp_col = year, entity_col = country) %>%
-#'    feature_standardization(timestamp_col = year, entity_col = country,
-#'                            time_effects = TRUE, scale = FALSE)
+#' data_prepared <- bdsm::economic_growth[, 1:6] %>%
+#'   bdsm::feature_standardization(
+#'     excluded_cols = c(country, year, gdp)
+#'   ) %>%
+#'   bdsm::feature_standardization(
+#'     group_by_col  = year,
+#'     excluded_cols = country,
+#'     scale         = FALSE
+#'   )
 #'
-#' model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
-#'                                    timestamp_col = year, entity_col = country,
-#'                                    init_value = 0.5)
-#'
-#' bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
-#' entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
+#' bma_results <- bma(
+#'   model_space = bdsm::small_model_space,
+#'   df          = data_prepared,
+#'   round       = 3,
+#'   dilution    = 0
+#' )
 #'
 #' best_5_models <- best_models(bma_results, criterion = 1, best = 5, estimate = TRUE, robust = TRUE)
 #' }
 
-best_models = function(bma_list, criterion = 1, best = 5, app = 3, estimate = TRUE, robust = TRUE){
+best_models <- function(bma_list, criterion = 1, best = 5, round = 3, estimate = TRUE, robust = TRUE){
 
   R <- bma_list[[4]] # number of regressors from bma object
   K <- R+1 # number of variables
@@ -79,13 +83,13 @@ best_models = function(bma_list, criterion = 1, best = 5, app = 3, estimate = TR
   Ranks <- matrix(round(Ranking[1:best, 1], digits = 3), nrow = best, ncol = 1) # PMPs of the first 'best' models
   bestBetas <- Ranking[1:best, (R+2):(R+K+1)] # coefficients
   bestBetas[bestBetas == 0] <- NA
-  bestBetas <- t(round(bestBetas,app))
+  bestBetas <- t(round(bestBetas,round))
   bestSTDs <- Ranking[1:best, (R+K+2):(R+2*K+1)] # standard errors
   bestSTDs[bestSTDs == 0] <- NA
-  bestSTDs <- t(round(bestSTDs,app))
+  bestSTDs <- t(round(bestSTDs,round))
   bestSTDRs <- Ranking[1:best, (R+2*K+2):(R+3*K+1)] # robust standard errors
   bestSTDRs[bestSTDRs == 0] <- NA
-  bestSTDRs <- t(round(bestSTDRs,app))
+  bestSTDRs <- t(round(bestSTDRs,round))
   best_d_free <- matrix( Ranking[1:best, R+3*K+2], nrow = best, ncol = 1)
 
   inclusion_table <- t(cbind(matrix(1, nrow = best, ncol = 1), Best_models, Ranks))
@@ -152,6 +156,8 @@ best_models = function(bma_list, criterion = 1, best = 5, app = 3, estimate = TR
     for (j in 1:best){
       if (!is.na(asterisks[i,j])){
         models_std[i,j] = paste0(models_std[i,j],asterisks[i,j])
+      }
+      if (!is.na(asterisksR[i,j])){
         models_stdR[i,j] = paste0(models_stdR[i,j],asterisksR[i,j])
       }
     }

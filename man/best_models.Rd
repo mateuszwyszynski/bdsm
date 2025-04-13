@@ -8,7 +8,7 @@ best_models(
   bma_list,
   criterion = 1,
   best = 5,
-  app = 3,
+  round = 3,
   estimate = TRUE,
   robust = TRUE
 )
@@ -22,10 +22,9 @@ best_models(
 
 \item{best}{The number of the best models to be considered}
 
-\item{app}{Parameter indicating the decimal place to which number in the tables should be rounded (default app = 3)}
+\item{round}{Parameter indicating the decimal place to which number in the tables should be rounded (default round = 3)}
 
 \item{estimate}{A parameter with values TRUE or FALSE indicating which table should be displayed when
-the function finishes calculations. Works well when best is small.\cr
 TRUE - table with estimation to the results \cr
 FALSE - table with the inclusion of regressors in the best models}
 
@@ -56,17 +55,22 @@ The function gives two types of tables in three different formats: inclusion tab
 \donttest{
 library(magrittr)
 
-data_prepared <- economic_growth[,1:7] \%>\%
-   feature_standardization(timestamp_col = year, entity_col = country) \%>\%
-   feature_standardization(timestamp_col = year, entity_col = country,
-                           time_effects = TRUE, scale = FALSE)
+data_prepared <- bdsm::economic_growth[, 1:6] \%>\%
+  bdsm::feature_standardization(
+    excluded_cols = c(country, year, gdp)
+  ) \%>\%
+  bdsm::feature_standardization(
+    group_by_col  = year,
+    excluded_cols = country,
+    scale         = FALSE
+  )
 
-model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
-                                   timestamp_col = year, entity_col = country,
-                                   init_value = 0.5)
-
-bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
-entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
+bma_results <- bma(
+  model_space = bdsm::small_model_space,
+  df          = data_prepared,
+  round       = 3,
+  dilution    = 0
+)
 
 best_5_models <- best_models(bma_results, criterion = 1, best = 5, estimate = TRUE, robust = TRUE)
 }

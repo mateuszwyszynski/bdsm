@@ -27,6 +27,7 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests:
+    rmarkdown,
     spelling,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
@@ -40,6 +41,7 @@ Imports:
     magrittr,
     optimbase,
     parallel,
+    pbapply,
     rje,
     rlang,
     rootSolve,
@@ -47,5 +49,6 @@ Imports:
     tidyr,
     tidyselect
 Depends:
-    R (>= 2.10)
+    R (>= 3.5)
 Language: en-US
+VignetteBuilder: knitr
