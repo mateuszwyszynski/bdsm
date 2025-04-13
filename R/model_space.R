@@ -238,7 +238,7 @@ optim_model_space_params <- function(df, timestamp_col, entity_col, dep_var_col,
 #'    dep_var_col   = gdp,
 #'    timestamp_col = year,
 #'    entity_col    = country,
-#'    params        = small_model_space[[1]]
+#'    params        = small_model_space$params
 #'  )
 #' }
 #'

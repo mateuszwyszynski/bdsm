@@ -70,7 +70,7 @@ model space. Two versions are computed.
    dep_var_col   = gdp,
    timestamp_col = year,
    entity_col    = country,
-   params        = small_model_space[[1]]
+   params        = small_model_space$params
  )
 }
 

@@ -21,7 +21,7 @@ test_that("optim_model_space_params correctly computes small_economic_growth_ms"
     init_value    = 0.5
   )
 
-  expect_equal(params, small_model_space[[1]])
+  expect_equal(params, small_model_space$params)
 })
 
 
@@ -44,10 +44,10 @@ test_that(paste("compute_model_space_stats computes correct likelihoods and",
     dep_var_col   = gdp,
     timestamp_col = year,
     entity_col    = country,
-    params        = small_model_space[[1]]
+    params        = small_model_space$params
   )
 
-  expect_equal(model_space_stats, small_model_space[[2]])
+  expect_equal(model_space_stats, small_model_space$stats)
 })
 
 
