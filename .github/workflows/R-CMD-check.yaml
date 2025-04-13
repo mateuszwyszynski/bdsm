@@ -49,7 +49,9 @@ jobs:
       - run: tlmgr --version
 
       - name: Install missing LaTeX package
-        run: Rscript -e 'tinytex::tlmgr_install("vmargin")'
+        run: |
+          tlmgr install bbm
+          tlmgr install vmargin
 
       - uses: r-lib/actions/check-r-package@v2
         with:
