@@ -48,6 +48,9 @@ jobs:
       - uses: r-lib/actions/setup-tinytex@v2
       - run: tlmgr --version
 
+      - name: Install missing LaTeX package
+        run: Rscript -e 'tinytex::tlmgr_install("vmargin")'
+
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
