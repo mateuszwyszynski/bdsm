@@ -6,7 +6,7 @@ test_df <- data.frame(
   b = 301:315
 )
 
-test_that(paste("SEM_dep_var_matrix creates a correct matrix"), {
+test_that(paste("sem_dep_var_matrix creates a correct matrix"), {
   m_expected_data <- c(
     104, 107, 110, 113,
     105, 108, 111, 114,
@@ -14,13 +14,13 @@ test_that(paste("SEM_dep_var_matrix creates a correct matrix"), {
   )
   m_expected <- matrix(m_expected_data, nrow = 3, byrow = TRUE)
 
-  m <- SEM_dep_var_matrix(df = test_df, timestamp_col = times,
+  m <- sem_dep_var_matrix(df = test_df, timestamp_col = times,
                           entity_col = entities, dep_var_col = dep_var)
 
   expect_equal(m, m_expected, ignore_attr = TRUE)
 })
 
-test_that(paste("SEM_regressors_matrix uses all regressors if",
+test_that(paste("sem_regressors_matrix uses all regressors if",
                 "regressors_subset argument is not given"), {
   m_expected_data <- c(
     207, 307, 210, 310, 213, 313,
@@ -29,15 +29,15 @@ test_that(paste("SEM_regressors_matrix uses all regressors if",
   )
   m_expected <- matrix(m_expected_data, nrow = 3, byrow = TRUE)
 
-  m <- SEM_regressors_matrix(df = test_df, timestamp_col = times,
+  m <- sem_regressors_matrix(df = test_df, timestamp_col = times,
                              entity_col = entities, dep_var_col = dep_var)
 
   expect_equal(m, m_expected, ignore_attr = TRUE)
 })
 
-test_that("SEM_B_matrix computes proper matrix", {
+test_that("sem_B_matrix computes proper matrix", {
   periods_n <- 4
-  B <- SEM_B_matrix(3, periods_n, 4:6)
+  B <- sem_B_matrix(3, periods_n, 4:6)
   B11_expected_data <- c(
     1, 0, 0, 0,
     -3, 1, 0, 0,
@@ -61,13 +61,13 @@ test_that("SEM_B_matrix computes proper matrix", {
   expect_equal(as.matrix(B[[2]]), B12_expected, ignore_attr = TRUE)
 })
 
-test_that("SEM_C_matrix computes proper matrix", {
+test_that("sem_C_matrix computes proper matrix", {
   alpha <- 9
   phi_0 <- 19
   beta <- 11:15
   phi_1 <- 21:25
   periods_n <- 4
-  C <- as.matrix(SEM_C_matrix(alpha, phi_0, periods_n, beta, phi_1))
+  C <- as.matrix(sem_C_matrix(alpha, phi_0, periods_n, beta, phi_1))
 
   C_expected_data <- c(
     alpha + phi_0, rep(phi_0, periods_n-1),
@@ -81,12 +81,12 @@ test_that("SEM_C_matrix computes proper matrix", {
   expect_equal(C, C_expected, ignore_attr = TRUE)
 })
 
-test_that("SEM_psi_matrix computes proper matrix", {
+test_that("sem_psi_matrix computes proper matrix", {
   psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
   timestamps_n <- 3
   feature_n <- 4
 
-  psi_m <- SEM_psi_matrix(psis = psis, timestamps_n = timestamps_n,
+  psi_m <- sem_psi_matrix(psis = psis, timestamps_n = timestamps_n,
                           features_n = feature_n)
 
   psi_m_expected_data <- c(
@@ -98,12 +98,12 @@ test_that("SEM_psi_matrix computes proper matrix", {
   expect_equal(psi_m, psi_m_expected)
 })
 
-test_that("SEM_sigma_matrix computes proper matrix", {
+test_that("sem_sigma_matrix computes proper matrix", {
   err_var <- 1
   dep_vars <- c(2, 2, 2, 2)
   phis <- c(10, 10, 20, 20, 30, 30)
   psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
-  sigma <- as.matrix(SEM_sigma_matrix(err_var, dep_vars, phis, psis))
+  sigma <- as.matrix(sem_sigma_matrix(err_var, dep_vars, phis, psis))
 
   err_var_sq <- err_var^2
   dep_vars_sq <- dep_vars^2

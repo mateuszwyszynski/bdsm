@@ -41,6 +41,7 @@ Imports:
     magrittr,
     optimbase,
     parallel,
+    pbapply,
     rje,
     rlang,
     rootSolve,

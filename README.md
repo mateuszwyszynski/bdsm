@@ -97,18 +97,30 @@ data_prepared <- bdsm::economic_growth[, 1:5] %>%
 
 ### Estimating the Model Space
 
-The function `bma_prep()` estimates all possible models (each possible
-subset of regressors) via maximum likelihood, storing the results in a
-list object. For small to moderately sized datasets:
+The function `find_model_space()` estimates all possible models (each
+possible subset of regressors) via maximum likelihood, storing the
+results in a list object. For small to moderately sized datasets:
 
 ``` r
-for_bma <- bdsm::bma_prep(
+model_space <- bdsm::find_model_space(
   df             = data_prepared,
   dep_var_col    = gdp,      # Dependent variable
   timestamp_col  = year,
   entity_col     = country,
   init_value     = 0.5,
 )
+#> initial  value 462.081140 
+#> final  value 172.229588 
+#> converged
+#> initial  value 523.025755 
+#> final  value 105.304510 
+#> converged
+#> initial  value 493.599417 
+#> final  value 103.833343 
+#> converged
+#> initial  value 651.539389 
+#> final  value 35.153594 
+#> converged
 ```
 
 For larger datasets, you can leverage multiple cores:
@@ -124,19 +136,20 @@ if (is.na(cores)) {
   cores <- min(cores, detectCores())
 }
 cl <- makeCluster(cores)
-setDefaultCluster(cl)
 
-for_bma <- bdsm::bma_prep(
+model_space <- bdsm::find_model_space(
   df             = data_prepared,
   timestamp_col  = year,
   entity_col     = country,
   dep_var_col    = gdp,
   init_value     = 0.5,
-  run_parallel   = TRUE,
+  cl             = cl
 )
 
-stopCluster(cl = NULL)
+stopCluster(cl)
 ```
+
+A progress bar is displayed to easily track the ongoing computation.
 
 ### Performing Bayesian Model Averaging
 
@@ -145,7 +158,7 @@ probabilities, posterior inclusion probabilities (PIPs), and other BMA
 statistics under the **binomial** and **binomial-beta** model priors:
 
 ``` r
-bma_results <- bdsm::bma(for_bma, df = data_prepared, round = 3)
+bma_results <- bdsm::bma(model_space, df = data_prepared, round = 3)
 
 # Inspect the BMA summary (binomial prior results first, binomial-beta second)
 bma_results[[1]]  # BMA stats under binomial prior
@@ -266,18 +279,30 @@ data_prepared <- bdsm::economic_growth[, 1:5] %>%
   )
 
 # 2) Estimate model space
-prep_obj <- bdsm::bma_prep(
+model_space <- bdsm::find_model_space(
   df            = data_prepared,
   dep_var_col   = gdp,
   timestamp_col = year,
   entity_col    = country,
   init_value     = 0.5,
 )
+#> initial  value 462.081140 
+#> final  value 172.229588 
+#> converged
+#> initial  value 523.025755 
+#> final  value 105.304510 
+#> converged
+#> initial  value 493.599417 
+#> final  value 103.833343 
+#> converged
+#> initial  value 651.539389 
+#> final  value 35.153594 
+#> converged
 
 # 3) Run Bayesian Model Averaging
 bma_obj <- bdsm::bma(
-  for_bma = prep_obj,
-  df      = data_prepared
+  model_space = model_space,
+  df          = data_prepared
 )
 
 # 4) Inspect the top 3 models under binomial prior
@@ -292,7 +317,17 @@ best_3 <- bdsm::best_models(
 
 ``` r
 best_3[[1]]  # Inclusion table
+#>         'No. 1' 'No. 2' 'No. 3'
+#> gdp_lag   1.000   1.000   1.000
+#> ish       1.000   0.000   1.000
+#> sed       1.000   1.000   0.000
+#> PMP       0.508   0.206   0.202
 best_3[[2]]  # Coefficients & standard errors
+#>         'No. 1'            'No. 2'            'No. 3'           
+#> gdp_lag "1.079 (0.111)***" "1.126 (0.106)***" "1.027 (0.093)***"
+#> ish     "0.119 (0.033)***" NA                 "0.121 (0.03)***" 
+#> sed     "-0.06 (0.063)"    "-0.077 (0.063)"   NA                
+#> PMP     "0.508"            "0.206"            "0.202"
 ```
 
 ## Troubleshooting

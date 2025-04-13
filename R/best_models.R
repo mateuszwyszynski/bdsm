@@ -34,7 +34,7 @@
 #' \donttest{
 #' library(magrittr)
 #'
-#' data_prepared <- bdsm::economic_growth[, 1:7] %>%
+#' data_prepared <- bdsm::economic_growth[, 1:6] %>%
 #'   bdsm::feature_standardization(
 #'     excluded_cols = c(country, year, gdp)
 #'   ) %>%
@@ -44,9 +44,12 @@
 #'     scale         = FALSE
 #'   )
 #'
-#' for_bma <- bdsm::bma_prep_objects
-#'
-#' bma_results <- bma(for_bma, df = data_prepared, round = 3, dilution = 0)
+#' bma_results <- bma(
+#'   model_space = bdsm::small_model_space,
+#'   df          = data_prepared,
+#'   round       = 3,
+#'   dilution    = 0
+#' )
 #'
 #' best_5_models <- best_models(bma_results, criterion = 1, best = 5, estimate = TRUE, robust = TRUE)
 #' }

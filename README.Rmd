@@ -108,13 +108,13 @@ data_prepared <- bdsm::economic_growth[, 1:5] %>%
 
 ### Estimating the Model Space
 
-The function `bma_prep()` estimates all possible models
+The function `find_model_space()` estimates all possible models
 (each possible subset of regressors) via maximum likelihood,
 storing the results in a list object.
 For small to moderately sized datasets:
 
-```{r, results='hide'}
-for_bma <- bdsm::bma_prep(
+```{r}
+model_space <- bdsm::find_model_space(
   df             = data_prepared,
   dep_var_col    = gdp,      # Dependent variable
   timestamp_col  = year,
@@ -136,20 +136,20 @@ if (is.na(cores)) {
   cores <- min(cores, detectCores())
 }
 cl <- makeCluster(cores)
-setDefaultCluster(cl)
 
-for_bma <- bdsm::bma_prep(
+model_space <- bdsm::find_model_space(
   df             = data_prepared,
   timestamp_col  = year,
   entity_col     = country,
   dep_var_col    = gdp,
   init_value     = 0.5,
-  run_parallel   = TRUE,
+  cl             = cl
 )
 
-stopCluster(cl = NULL)
+stopCluster(cl)
 ```
 
+A progress bar is displayed to easily track the ongoing computation.
 
 ### Performing Bayesian Model Averaging
 
@@ -159,7 +159,7 @@ posterior inclusion probabilities (PIPs), and other BMA statistics
 under the **binomial** and **binomial-beta** model priors:
 
 ```{r}
-bma_results <- bdsm::bma(for_bma, df = data_prepared, round = 3)
+bma_results <- bdsm::bma(model_space, df = data_prepared, round = 3)
 
 # Inspect the BMA summary (binomial prior results first, binomial-beta second)
 bma_results[[1]]  # BMA stats under binomial prior
@@ -228,7 +228,7 @@ joint_measures_ls <- bdsm::jointness(bma_results, measure = "LS")
 
 Below is a minimal reproducible workflow:
 
-```{r, results='hide'}
+```{r}
 # 1) Data preparation
 data_prepared <- bdsm::economic_growth[, 1:5] %>%
   bdsm::feature_standardization(
@@ -241,7 +241,7 @@ data_prepared <- bdsm::economic_growth[, 1:5] %>%
   )
 
 # 2) Estimate model space
-prep_obj <- bdsm::bma_prep(
+model_space <- bdsm::find_model_space(
   df            = data_prepared,
   dep_var_col   = gdp,
   timestamp_col = year,
@@ -251,8 +251,8 @@ prep_obj <- bdsm::bma_prep(
 
 # 3) Run Bayesian Model Averaging
 bma_obj <- bdsm::bma(
-  for_bma = prep_obj,
-  df      = data_prepared
+  model_space = model_space,
+  df          = data_prepared
 )
 
 # 4) Inspect the top 3 models under binomial prior

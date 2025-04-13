@@ -9,22 +9,44 @@
 \usepackage{bbm}
 \usepackage{hyperref}
 
-\title{\texttt{bdsm}: Bayesian dynamic systems modelling. \\ Bayesian model averaging for dynamic panels \\ with weakly exogenous regressors}
-\author{Mateusz Wyszyński \\ Lazarski University \\ University of Warsaw
-\and Krzysztof Beck \\ Lazarski University
-\and Marcin Dubel \\ Lazarski University}
+
+\title{\texttt{bdsm}: Bayesian dynamic systems modelling. \\
+Bayesian model averaging for dynamic panels \\
+with weakly exogenous regressors}
+
+\author{%
+  Mateusz Wyszyński$^{1, 2}$\and
+  Krzysztof Beck$^{1}$ \and
+  Marcin Dubel$^{1}$
+}
+
+\date{}
 
 \begin{document}
 \SweaveOpts{concordance=TRUE}
+
+\footnotetext[1]{Lazarski University, $^{2}$University of Warsaw}
 %\setpapersize{A4}
 % \VignetteIndexEntry{bdsm: Bayesian dynamic systems modelling}
 \maketitle
-\abstract{This manuscript introduces the \verb+bdsm+ package, which enables Bayesian model averaging for dynamic panels with weakly exogenous regressors—a methodology developed by \citet{Moral+2016}.
-The package allows researchers to simultaneously address model uncertainty and reverse causality.
-The manuscript includes a hands-on tutorial accessible to users unfamiliar with this approach.
-In addition to calculating the model space (using parallel computing) and providing key BMA statistics, the package offers flexible options for specifying model priors, including a dilution prior that accounts for multicollinearity.
-It also provides graphical tools for visualizing prior and posterior model probabilities, as well as functions for plotting histograms and kernel densities of the estimated coefficients.
-Furthermore, the package enables researchers to compute jointness measures and perform Bayesian model selection to examine the most probable models based on posterior model probabilities.}
+\abstract{This manuscript introduces the \verb+bdsm+ package,
+which enables Bayesian model averaging
+for dynamic panels with weakly exogenous regressors
+— a methodology developed by \citet{Moral+2016}.
+The package allows researchers to simultaneously address
+model uncertainty and reverse causality.
+The manuscript includes a hands-on tutorial
+accessible to users unfamiliar with this approach.
+In addition to calculating the model space and providing key BMA statistics,
+the package offers flexible options for specifying model priors,
+or including a dilution prior that accounts for multicollinearity.
+It also provides graphical tools
+for visualizing prior and posterior model probabilities,
+as well as functions for plotting histograms
+and kernel densities of the estimated coefficients.
+Furthermore, the package enables researchers to compute jointness measures
+and perform Bayesian model selection
+to examine the most probable models based on posterior model probabilities.}
 
 
 \tableofcontents
@@ -127,13 +149,13 @@ D=\begin{bmatrix}
 \indent The model setup in equations (\ref{eq1}) and (\ref{eq3}-\ref{eq5}) requires that in addition to the parameters of interest $\alpha$ and $\beta$, the parameters $\gamma_{ij}$ and $\Lambda_{km}$ need to be estimated.
 To make the optimization of likelihood computationally feasible, \citet{Moral+2013} developed Simultaneous Equations Model (SEM) setup where the parameters of non-central interest are incorporated in the variance-covariance matrix.
 In the SEM setup, the model is defined by $1 + (T - 1)k + T$ equations:
-\[
-\begin{cases}
+\begin{equation}\label{sem-eqs}
+  \begin{cases}
     \eta_i = \phi_i y_{i0} + x'_{i1} \phi_1 + \epsilon_i &  \\
     x_{it} = \pi_{t0} y_{i0} + \pi_{t1} x_{i1} + \pi^w_t x_{i1} + \xi_{it}, & t = 2, ..., T \\
     y_{it} = \alpha y_{it-1} + x'_{it} \beta + \phi_0 y_{i0} + x'_{i1} \phi_1 + w'_i \delta + \epsilon_i + v_{it}, & t = 1, ..., T
-\end{cases}
-\]
+  \end{cases}
+\end{equation}
 This setup can be rewritten in a matrix form:
 \begin{equation}\label{eq9}
     B R_i = C z_i + U_i,
@@ -373,46 +395,50 @@ The measure takes values from -1 to 1, where values close to -1 indicate substit
 This section demonstrates how to prepare the data for estimation.
 The first step involves installing the package and subsequently loading it into the R session.
 
-\begin{Schunk}
-\begin{Sinput}
-> install.packages("bdsm")
-\end{Sinput}
-\end{Schunk}
+<<eval=FALSE>>=
+install.packages("bdsm")
+@
 
 <<>>=
 library(bdsm)
 @
 
 % This part below will be changed when CRAN version is up to date
-Throughout the manuscript, we use the data from \citet{Moral+2016} on the determinants of economic growth.
-The package includes the data along with a detailed description of all variables.
-<<>>=
-?economic_growth
-@
-
-The data used for estimation must be in a specific format.
-The first two columns should specify time and the entity (e.g., country).
-The dependent variable should be placed in the third column, while the regressors should occupy the remaining columns.
-The data should be arranged as follows:
+Throughout the manuscript,
+we use the data from \citet{Moral+2016} on the determinants of economic growth.
+The package includes the data
+along with a detailed description of all variables.
 
 <<>>=
 economic_growth[1:12,1:10]
 @
 
-However, it is common for researchers to store their data in alternative format:
+Since it is common for researchers to store their data in an alternative format:
 
 <<>>=
 original_economic_growth[1:12,1:10]
 @
 
-In this case, the user can use the \verb+join_lagged_col+ function to transform the dataset into the desired format.
-The user needs to specify the dependent variable column (\verb+col+), the lagged dependent variable column (\verb+col_lagged+), the column identifying the cross-section (\verb+entity_col+), the column with the time index (\verb+timestamp_col+), and the change in the number of time units from period to period (\verb+timestep+).
+\noindent where there is an already existing column
+with the lagged dependent variable,
+we provide the \verb+join_lagged_col+ function
+to transform the data into the desired format.
+The user needs to specify the dependent variable column (\verb+col+),
+the lagged dependent variable column (\verb+col_lagged+),
+the column identifying the cross-sections (\verb+entity_col+),
+the column with the time index (\verb+timestamp_col+),
+and the change in the number of time units from period to period
+(\verb+timestep+).
 
 <<>>=
-economic_growth <- join_lagged_col(df = original_economic_growth,
-                        col = gdp, col_lagged = lag_gdp,
-                        timestamp_col = year,
-                        entity_col = country, timestep = 10)
+economic_growth <- join_lagged_col(
+  df            = original_economic_growth,
+  col           = gdp,
+  col_lagged    = lag_gdp,
+  timestamp_col = year,
+  entity_col    = country,
+  timestep      = 10
+)
 @
 
 Once the data is in the correct format,
@@ -452,24 +478,69 @@ used in \citet{Moral+2016}.
 There is no need to apply panel demeaning (entity fixed effects)
 in this framework as can be seen in \autoref{eq12}.\footnote{
 In theory the results should be the same with entity fixed effects.
-However, because we use numerical methods some changes might occur}.
+However, because we use numerical methods some discrepancies might occur}.
 
 
 \section{Estimation of the model space}\label{model_space}
 
-The prepared data can be used to find MLEs discribed in \autoref{bma}.
-This is done using the core function of the package: \verb+bma_prep+.
-The function creates a list with two tables.
-We refer to the first as the the model space,
-because it contains the estimated MLEs of the parameters for each considered model.
-The second contains the values of the likelihood function at the estimated MLE,
-the Bayesian information criterion,
-and the standard errors of the parameters of interest for each model.
-In both tables a single column represents a single considered model.
+To perform a BMA analysis, we need values of the parameters
+as well as various statistics for each considered model
+as explained in \autoref{ms_bma}.
+We refer to the object that consolidates both the parameters and the statistics
+as the \textbf{model space}.
+The core function of the package, \verb+find_model_space+,
+is used to estimate the optimal model space using numerical optimization:
 
-The MLEs for the parameters are found through numerical optimization.
-More advanced users can use the \verb+control+ parameter to control the way the numerical optimization is performed.
-We refer to the function manual for more details and \verb+stats+ package for more details.
+<<eval=FALSE>>=
+full_model_space <- find_model_space(
+  df            = data_prepared,
+  dep_var_col   = gdp,
+  timestamp_col = year,
+  entity_col    = country,
+  init_value    = 0.5
+)
+@
+
+\noindent The function returns a list with two named arguments
+which are explained in the subsections below.
+A progress bar is displayed to easily track the ongoing computation.
+
+Since the MLEs for the parameters are found through numerical optimization,
+more advanced users can use the \verb+control+ parameter
+to control the way the optimization is performed.
+We refer to the function manual for more details
+and \verb+stats+ package for more details.
+
+
+\subsection{Model space parameters}
+
+The first element of the list contains the estimated MLEs of the parameters
+for each considered model.
+Each column represents a single model, and rows correspond to the parameters.
+For example, to display the first 10 parameters for 5 models we can call:
+
+<<>>=
+full_model_space$params[1:10, 1:5]
+@
+
+\noindent \verb+NA+ value means that the corresponding parameter is not present
+in the given model.
+
+\subsection{Model space statistics}
+The second element of the list provides:
+\begin{itemize}
+  \item the values of the likelihood function at the estimated MLE (first row),
+  \item the Bayesian information criterion (second row),
+  \item and the standard errors for the parameters describing linear relations,
+  i.e. the beta parameters from \autoref{sem-eqs},
+  for each model (remaining rows).
+\end{itemize}
+
+<<>>=
+full_model_space$stats[, 1:5]
+@
+
+\noindent Again, each column represents a single considered model.
 
 Two types of standard errors are provided,
 both derived from the Hessian of the maximized log-likelihood function.
@@ -482,7 +553,8 @@ I(\hat{\theta}) = -\frac{\partial^2 l(\hat{\theta})}{\partial \theta \partial \t
 
 \noindent where $\hat{\theta}$ are the estimated MLE parameters,
 $I(\hat{\theta})$ is the information matrix
-and $l(\hat{\theta}) = \log L(\hat{\theta})$ is the natural logarithm of the likelihood function.
+and $l(\hat{\theta}) = \log L(\hat{\theta})$
+is the natural logarithm of the likelihood function.
 The variance covariance matrix is given by:
 
 \begin{equation}
@@ -495,9 +567,12 @@ Var(\hat{\theta}) = I(\hat{\theta})^{-1},
 \text{SE}(\hat{\theta}) = \sqrt{\text{diag}(Var(\hat{\theta}))}.
 \end{equation}
 
-\noindent where the square root is obviously applied separately to each coordinate of the vector with diagonal values.
-The second type are the robust standard errors or heteroscedasticity consistent standard errors.
-To understand how they work, we first have to rewrite the equation \autoref{eq17} in a form
+\noindent where the square root is obviously applied separately
+to each coordinate of the vector with diagonal values.
+The second type are the robust standard errors
+or heteroscedasticity consistent standard errors.
+To understand how they work,
+we first have to rewrite the equation \autoref{eq17} in a form
 which will display the contribution of each entity on the likelihood value.
 First note that:
 
@@ -505,7 +580,8 @@ First note that:
     L(\theta) \propto - \frac{1}{2} tr \{ \Sigma_{11}^{-1} U_1' U_1 \} - \sum_{i=1}^{N} \frac{1}{2} \log \det \Sigma_{11} - \frac{1}{2} \log \det (\frac{H}{N})
 \end{equation}
 
-\noindent Now, because of the cyclic property of the trace we can rewrite the first term as:
+\noindent Now,
+because of the cyclic property of the trace we can rewrite the first term as:
 
 \begin{equation}
     - \frac{1}{2} tr \{ \Sigma_{11}^{-1} U_1' U_1 \} =
@@ -513,8 +589,10 @@ First note that:
     - \frac{1}{2} \sum_{i=1}^N u_i \Sigma_{11}^{-1} u_i'
 \end{equation}
 
-\noindent where $u_i$ is a row vector corresponding to the data relating to the single entity $i$.
-Hence, the entire likelihood function can be rewritten as a sum of contributions from each entity:
+\noindent where $u_i$ is a row vector
+corresponding to the data relating to the single entity $i$.
+Hence, the entire likelihood function can be rewritten
+as a sum of contributions from each entity:
 
 \begin{equation}
     L(\theta) \propto \sum_{i=1}^{N} -\frac{1}{2} (\log \det \Sigma_{11} + \log \det (\frac{H}{N}) + u_i \Sigma_{11}^{-1} u_i')
@@ -526,9 +604,10 @@ Hence, the entire likelihood function can be rewritten as a sum of contributions
  l_i(\theta) \propto -\frac{1}{2} (\log \det \Sigma_{11} + \log \det (\frac{H}{N}) + u_i \Sigma_{11}^{-1} u_i').
 \end{equation}
 
-\noindent Now if we consider a multivariate function $\mathbf{l}(\theta)$ of all such contributions
-(with single contributions as its coordinates),
-we can find it's gradient at the MLE: $G(\hat{\theta}) = \frac{\mathbf{l}(\hat{\theta})}{\partial \theta}$.
+\noindent Now if we consider a multivariate function $\mathbf{l}(\theta)$
+of all such contributions (with single contributions as its coordinates),
+we can find it's gradient at the MLE:
+$G(\hat{\theta}) = \frac{\mathbf{l}(\hat{\theta})}{\partial \theta}$.
 Then the robust variance is:
 
 \begin{equation}
@@ -543,48 +622,66 @@ Var_{R}(\hat{\theta}) = I(\hat{\theta})^{-1} \cdot G'(\hat{\theta}) G(\hat{\thet
 
 \noindent where the square root is again applied to each coordinate separately.
 
-The \verb+bma_prep+ function is the most computationally intensive part of the package.
+
+\subsection{Parallelization}
+
+The \verb+find_model_space+ function
+is the most computationally intensive part of the package.
 Therefore, the function provides an option for parallel computing.
-If the user's dataset contains only a few regressors, the sufficient option is
-\begin{Schunk}
-\begin{Sinput}
-> for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
-+                    timestamp_col = year, entity_col = country,
-+                    init_value = 0.5)
-\end{Sinput}
-\end{Schunk}
-However, for larger datasets, it is better to take advantage of parallel computing.
-Then the numerical optimization used to find MLEs can be computed in parallel,
-separately for each model.
+If the user's data contains only a few regressors, the sufficient option is
+
+<<eval=FALSE>>=
+model_space <- find_model_space(
+  df            = data_prepared,
+  dep_var_col   = gdp,
+  timestamp_col = year,
+  entity_col    = country,
+  init_value    = 0.5
+)
+@
+
+\noindent However, for larger datasets,
+it is better to take advantage of parallel computing.
+Then the numerical optimization used to find MLEs
+can be computed on separate threads for each model.
 To do this, first load the \verb+parallel+ package and set up a cluster.
 
 <<eval=FALSE>>=
 library(parallel)
 # Here we try to use all available cores on the system.
-# You might want to lower the number of cores depending on your system.
+# You might want to lower the number of cores depending on your needs.
 cores <- detectCores()
 cl <- makeCluster(cores)
 setDefaultCluster(cl)
 @
 
-\noindent Then the user just needs to set the parameter \verb+run_parallel = TRUE+
-and run \verb+bma_prep+ function.
+\noindent Then the user just needs to provide this cluster to the function:
 
-\begin{Schunk}
-\begin{Sinput}
-> for_bma <- bma_prep(df = data_prepared, dep_var_col = gdp,
-+                    timestamp_col = year, entity_col = country,
-+                    init_value = 0.5, run_parallel = TRUE)
-\end{Sinput}
-\end{Schunk}
-
-Even with parallel computing, executing \verb+bma_prep+ may be time-consuming.
-For users who want to practice using the \verb+bdsm+ package,
-we recommend the \verb+bma_prep+ object included with the package:
-
-<<>>=
-?bma_prep_objects_full
+<<eval=FALSE>>=
+model_space <- find_model_space(
+  df            = data_prepared,
+  dep_var_col   = gdp,
+  timestamp_col = year,
+  entity_col    = country,
+  init_value    = 0.5,
+  cl            = cl
+)
 @
+
+
+\subsection{Precomputed model spaces}
+
+Even with parallelization, \verb+find_model_space+ call may be time-consuming.
+Hence, for users who want to quickly start practicing using the \verb+bdsm+,
+we provide already computed model space objects included with the package:
+
+\begin{itemize}
+  \item \verb+full_model_space+ is the model space built with the entire data
+  used by \citet{Moral+2016},
+  \item \verb+small_model_space+ is a smaller model space built with only a
+  subset of regressors.
+\end{itemize}
+
 
 \section{Performing Bayesian model averaging}\label{using_bma}
 % TODO: HERE WE NEED TO ADD SOME TEXT
@@ -592,11 +689,12 @@ we recommend the \verb+bma_prep+ object included with the package:
 \subsection{Bayesian model averaging: The \texttt{bma} function}
 
 The \verb+bma+ function enables users to perform Bayesian model averaging using
-the object obtained with the \verb+bma_prep+ function.
-The \verb+app+ parameter specifies the decimal place to which the BMA statistics should be rounded in the results.
+the object obtained with the \verb+find_model_space+ function.
+The \verb+round+ parameter specifies the decimal place
+to which the BMA statistics should be rounded in the results.
 
 <<>>=
-bma_results <- bma(bma_prep_objects_full, df = data_prepared, round = 3)
+bma_results <- bma(full_model_space, df = data_prepared, round = 3)
 @
 
 The \verb+bma+ function returns a list containing 16 elements.
@@ -824,8 +922,7 @@ However, the user can modify the prior model specification by changing the \verb
 First, consider the consequence of concentrating prior probability mass on small models by setting $EMS = 2$.
 
 <<>>=
-bma_results2 <- bma(bma_prep_objects_full, df = data_prepared,
-                    round = 3, EMS = 2)
+bma_results2 <- bma(full_model_space, df = data_prepared, round = 3, EMS = 2)
 @
 
 \noindent Before turning to the main BMA results, let us focus on the changes in the posterior probability mass with respect to model sizes.
@@ -880,8 +977,7 @@ The measure indicates that population is a substitute for both the investment pr
 
 Next, to consider the consequences of concentrating prior probability mass on large models, \verb+EMS+ was set to eight.
 <<>>=
-bma_results8 <- bma(bma_prep_objects_full, df = data_prepared,
-                    round = 3, EMS = 8)
+bma_results8 <- bma(full_model_space, df = data_prepared, round = 3, EMS = 8)
 bma_results8[[16]]
 @
 
@@ -936,8 +1032,12 @@ To apply the dilution prior, the user must set \verb+dilution = 1+ in the \verb+
 The user can also manipulate the dilution parameter $\omega$.
 The default option is \verb+dil.Par = 0.5+, as recommended by \citet{George+2010}.
 <<>>=
-bma_results_dil <- bma(bma_prep_objects_full, df = data_prepared,
-                       round = 3, dilution = 1)
+bma_results_dil <- bma(
+  model_space = full_model_space,
+  df          = data_prepared,
+  round       = 3,
+  dilution    = 1
+  )
 @
 
 \noindent The effect of implementing the dilution prior is well depicted by the distribution of prior probability mass over the model sizes.
@@ -952,16 +1052,26 @@ However, this change is not uniform, as models characterized by the highest degr
 
 Before moving to the BMA statistics, it is instructive to examine the change in the \verb+dil.Par+ parameter.
 <<fig=TRUE>>=
-bma_results_dil01 <- bma(bma_prep_objects_full, df = data_prepared,
-                       round = 3, dilution = 1, dil.Par = 0.1)
+bma_results_dil01 <- bma(
+  model_space = full_model_space,
+  df          = data_prepared,
+  round       = 3,
+  dilution    = 1,
+  dil.Par     = 0.1
+)
 size_graphs_dil01 <- model_sizes(bma_results_dil01)
 @
 
 \noindent As we can see, decreasing the value of $\omega$ diminishes the impact of dilution on the model prior.
 Conversely, raising the \verb+dil.Par+ parameter increases the degree of dilution.
 <<fig=TRUE>>=
-bma_results_dil2 <- bma(bma_prep_objects_full, df = data_prepared,
-                       round = 3, dilution = 1, dil.Par = 2)
+bma_results_dil2 <- bma(
+  model_space = full_model_space,
+  df          = data_prepared,
+  round       = 3,
+  dilution    = 1,
+  dil.Par     = 2
+)
 size_graphs_dil2 <- model_sizes(bma_results_dil2)
 @
 

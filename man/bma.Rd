@@ -4,10 +4,10 @@
 \alias{bma}
 \title{Calculation of the bma object}
 \usage{
-bma(for_bma, df, round = 4, EMS = NULL, dilution = 0, dil.Par = 0.5)
+bma(model_space, df, round = 4, EMS = NULL, dilution = 0, dil.Par = 0.5)
 }
 \arguments{
-\item{for_bma}{List with model space and likelihood table (the result of bma_prep function).}
+\item{model_space}{List with params and stats from the model space}
 
 \item{df}{Data frame with data for the SEM analysis.}
 
@@ -20,35 +20,36 @@ bma(for_bma, df, round = 4, EMS = NULL, dilution = 0, dil.Par = 0.5)
 \item{dil.Par}{Parameter associated with dilution prior - the exponent of the determinant (George 2010). Used only if parameter dilution = 1.}
 }
 \value{
-A list with bma objects: \cr
-\enumerate{
-\item uniform_table - table with the results under binomial model prior \cr
-\item random_table - table with the results under binomial-beta model prior \cr
-\item reg_names - vector with names of the regressors - to be used by the functions \cr
-\item R - total number of regressors \cr
-\item M - size of the mode space \cr
-\item forJointnes - table with model IDs and PMPs for jointness function \cr
-\item forBestModels - table with model IDs, PMPs, coefficients, stds, and, stdRs for best_models function \cr
-\item EMS - expected model size for binomial and binomial-beta model prior specified by the user (default EMS = R/2) \cr
-\item sizePriors - table with uniform and random model priors spread over model sizes for model_sizes function \cr
-\item PMPs - table with posterior model probabilities for model_sizes function \cr
-\item modelPriors - table with priors on models for model_pmp function \cr
-\item dilution - parameter indication if priors were diluted for model_sizes function \cr
-\item alphas - coefficients on lagged dependent variable for coef_hist function\cr
-\item betas_nonzero - nonzero coefficients on the regressors for coef_hist function \cr
-\item d_free - table with degrees of freedom of estimated models for best_models function \cr
-\item PMStable - table with prior and posterior expected model size for binomial and binomial-beta model prior
+A list with 16 elements.
+
+\describe{
+\item{uniform_table}{A table containing the results based on the binomialmodel prior.}
+\item{random_table}{A table containing the results based on the binomial-beta model prior.}
+\item{reg_names}{A vector containing the names of the regressors, used by the functions.}
+\item{R}{The total number of regressors.}
+\item{num_of_models}{The number of models present in the model space.}
+\item{forJointnes}{A table containing model IDs and posterior model probabilities (PMPs) for the jointness function.}
+\item{forBestModels}{A table containing model IDs, PMPs, coefficients, standard deviations,and standardized regression coefficients (stdRs) for the best_models function.}
+\item{EMS}{The expected model size for the binomial and binomial-beta model priors, as specified by the user (default is EMS = R/2).}
+\item{sizePriors}{A table of uniform and random model priors distributed over model sizes for the model_sizes function.}
+\item{PMPs}{A table containing the posterior model probabilities for use in the model_sizes function.}
+\item{modelPriors}{A table containing the model priors, used by the model_pmp function.}
+\item{dilution}{A parameter indicating whether the priors were diluted, used in the model_sizes function.}
+\item{alphas}{A vector of coefficients for the lagged dependent variable in the coef_hist function.}
+\item{betas_nonzero}{A vector of nonzero coefficients for the regressors in the coef_hist function.}
+\item{d_free}{A table containing the degrees of freedom for the estimated models in the best_models function.}
+\item{PMStable}{A table containing the prior and posterior expected model sizes for the binomial and binomial-beta model priors.}
 }
 }
 \description{
-This function calculates bma object based on the model_space object obtained using optimal_model_space function.
-It calculates BMA statistics and objects for the use by other functions.
+This function calculates BMA statistics based on the provided model space.
+Other objects for furhter analysis are also returned.
 }
 \examples{
 \donttest{
 library(magrittr)
 
-data_prepared <- bdsm::economic_growth[, 1:7] \%>\%
+data_prepared <- bdsm::economic_growth[, 1:6] \%>\%
   bdsm::feature_standardization(
     excluded_cols = c(country, year, gdp)
   ) \%>\%
@@ -58,8 +59,11 @@ data_prepared <- bdsm::economic_growth[, 1:7] \%>\%
     scale         = FALSE
   )
 
-for_bma <- bdsm::bma_prep_objects
-
-bma_results <- bma(for_bma, df = data_prepared, round = 3, dilution = 0)
+bma_results <- bma(
+  model_space = bdsm::small_model_space,
+  df          = data_prepared,
+  round       = 3,
+  dilution    = 0
+)
 }
 }

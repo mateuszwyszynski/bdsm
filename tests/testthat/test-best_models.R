@@ -1,6 +1,6 @@
 test_that(paste("best_models creates correct lists with graphs"), {
 
-  data_prepared <- bdsm::economic_growth[,1:7] %>%
+  data_prepared <- bdsm::economic_growth[,1:6] %>%
     bdsm::feature_standardization(
       excluded_cols = c(country, year, gdp)
     ) %>%
@@ -10,7 +10,7 @@ test_that(paste("best_models creates correct lists with graphs"), {
       scale         = FALSE
     )
 
-  bma_results <- bma(bma_prep_objects, df = data_prepared, round= 3, dilution = 0)
+  bma_results <- bma(small_model_space, df = data_prepared, round= 3, dilution = 0)
 
   best <- 5
 
