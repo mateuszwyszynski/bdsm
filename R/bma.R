@@ -63,14 +63,14 @@ bma <- function(for_bma, df, round = 4, EMS = NULL, dilution = 0, dil.Par = 0.5)
   num_of_models <- 2^R
   observations_num <- nrow((na.omit(df[,4])))
 
-  model_space <- for_bma[[1]]
+  model_space_params <- for_bma[[1]]
   like_table <- for_bma[[2]]
 
   likes <- matrix(like_table[2,], nrow = 1, ncol = num_of_models)
   std <- like_table[3:(2+K),]
   stdR <- like_table[(3+K):(2+2*K),]
-  alphas <- matrix(model_space[1,], nrow = 1, ncol = num_of_models)
-  betas <- model_space[8:(7+R),]
+  alphas <- matrix(model_space_params[1,], nrow = 1, ncol = num_of_models)
+  betas <- model_space_params[8:(7+R),]
   reg_ID <- rje::powerSetMat(R)
   colnames(reg_ID) <- reg_names[2:K]
 
