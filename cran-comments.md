@@ -1,3 +1,10 @@
+# 0.2.0
+
+# Resubmission
+
+Re-factored functions for calling the BSM summary.
+Expanded package documentation and README as preparing for the publication.
+
 # 0.1.0
 
 # Resubmission
