@@ -548,7 +548,7 @@ Therefore, the function provides an option for parallel computing.
 If the user's dataset contains only a few regressors, the sufficient option is
 \begin{Schunk}
 \begin{Sinput}
-> for_bma <- find_model_space(df = data_prepared, dep_var_col = gdp,
+> model_space <- find_model_space(df = data_prepared, dep_var_col = gdp,
 +                    timestamp_col = year, entity_col = country,
 +                    init_value = 0.5)
 \end{Sinput}
@@ -573,7 +573,7 @@ setDefaultCluster(cl)
 
 \begin{Schunk}
 \begin{Sinput}
-> for_bma <- find_model_space(df = data_prepared, dep_var_col = gdp,
+> model_space <- find_model_space(df = data_prepared, dep_var_col = gdp,
 +                    timestamp_col = year, entity_col = country,
 +                    init_value = 0.5, cl = cl)
 \end{Sinput}

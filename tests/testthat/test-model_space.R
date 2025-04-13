@@ -63,7 +63,7 @@ test_that(paste("model_space computes correct model_space list"), {
       scale         = FALSE
     )
 
-  for_bma <- find_model_space(
+  model_space <- find_model_space(
     df            = data_prepared,
     dep_var_col   = gdp,
     timestamp_col = year,
@@ -71,8 +71,8 @@ test_that(paste("model_space computes correct model_space list"), {
     init_value    = 0.5
   )
 
-  expect_equal(length(for_bma), 2)
-  expect_equal(class(for_bma), "list")
-  expect_equal(class(for_bma[[1]]), c("matrix","array"))
-  expect_equal(class(for_bma[[2]]), c("matrix","array"))
+  expect_equal(length(model_space), 2)
+  expect_equal(class(model_space), "list")
+  expect_equal(class(model_space[[1]]), c("matrix","array"))
+  expect_equal(class(model_space[[2]]), c("matrix","array"))
 })

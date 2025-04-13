@@ -97,12 +97,12 @@ data_prepared <- bdsm::economic_growth[, 1:5] %>%
 
 ### Estimating the Model Space
 
-The function `find_model_space()` estimates all possible models (each possible
-subset of regressors) via maximum likelihood, storing the results in a
-list object. For small to moderately sized datasets:
+The function `find_model_space()` estimates all possible models (each
+possible subset of regressors) via maximum likelihood, storing the
+results in a list object. For small to moderately sized datasets:
 
 ``` r
-for_bma <- bdsm::find_model_space(
+model_space <- bdsm::find_model_space(
   df             = data_prepared,
   dep_var_col    = gdp,      # Dependent variable
   timestamp_col  = year,
@@ -137,7 +137,7 @@ if (is.na(cores)) {
 }
 cl <- makeCluster(cores)
 
-for_bma <- bdsm::find_model_space(
+model_space <- bdsm::find_model_space(
   df             = data_prepared,
   timestamp_col  = year,
   entity_col     = country,
@@ -158,7 +158,7 @@ probabilities, posterior inclusion probabilities (PIPs), and other BMA
 statistics under the **binomial** and **binomial-beta** model priors:
 
 ``` r
-bma_results <- bdsm::bma(for_bma, df = data_prepared, round = 3)
+bma_results <- bdsm::bma(model_space, df = data_prepared, round = 3)
 
 # Inspect the BMA summary (binomial prior results first, binomial-beta second)
 bma_results[[1]]  # BMA stats under binomial prior
