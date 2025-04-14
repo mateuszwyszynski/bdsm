@@ -8,7 +8,7 @@ bdsm: Bayesian Dynamic Systems Modeling
 [![CRAN status
 badge](http://www.r-pkg.org/badges/version/bdsm)](https://CRAN.R-project.org/package=bdsm)
 [![License](https://img.shields.io/badge/license-GPL%20(%3E%3D2)-blue.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
-[![R-CMD-check](https://github.com/mateuszwyszynski/panels/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mateuszwyszynski/panels/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/mateuszwyszynski/panels/actions/workflows/R-CMD-check-main.yaml/badge.svg)](https://github.com/mateuszwyszynski/panels/actions/workflows/R-CMD-check-main.yaml)
 
 ## Overview
 
@@ -109,17 +109,17 @@ model_space <- bdsm::find_model_space(
   entity_col     = country,
   init_value     = 0.5,
 )
-#> initial  value 462.081140 
-#> final  value 172.229588 
+#> initial  value -427.743989 
+#> final  value -717.595537 
 #> converged
-#> initial  value 523.025755 
-#> final  value 105.304510 
+#> initial  value -366.799374 
+#> final  value -784.520619 
 #> converged
-#> initial  value 493.599417 
-#> final  value 103.833343 
+#> initial  value -396.225712 
+#> final  value -785.991786 
 #> converged
-#> initial  value 651.539389 
-#> final  value 35.153594 
+#> initial  value -238.285740 
+#> final  value -854.671535 
 #> converged
 ```
 
@@ -286,17 +286,17 @@ model_space <- bdsm::find_model_space(
   entity_col    = country,
   init_value     = 0.5,
 )
-#> initial  value 462.081140 
-#> final  value 172.229588 
+#> initial  value -427.743989 
+#> final  value -717.595537 
 #> converged
-#> initial  value 523.025755 
-#> final  value 105.304510 
+#> initial  value -366.799374 
+#> final  value -784.520619 
 #> converged
-#> initial  value 493.599417 
-#> final  value 103.833343 
+#> initial  value -396.225712 
+#> final  value -785.991786 
 #> converged
-#> initial  value 651.539389 
-#> final  value 35.153594 
+#> initial  value -238.285740 
+#> final  value -854.671535 
 #> converged
 
 # 3) Run Bayesian Model Averaging
