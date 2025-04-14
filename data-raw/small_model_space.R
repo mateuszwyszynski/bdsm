@@ -12,7 +12,7 @@ data_prepared <- bdsm::economic_growth[, 1:6] %>%
     scale         = FALSE
   )
 
-small_model_space <- find_model_space(
+small_model_space <- optim_model_space(
   df            = data_prepared,
   dep_var_col   = gdp,
   timestamp_col = year,

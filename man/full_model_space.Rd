@@ -3,7 +3,7 @@
 \docType{data}
 \name{full_model_space}
 \alias{full_model_space}
-\title{Example output of the find_model_space function}
+\title{Example output of the optim_model_space function}
 \format{
 \subsection{\code{full_model_space}}{
 
@@ -31,6 +31,6 @@ full_model_space
 }
 \description{
 A list with two elements: \code{params} and \code{stats} computed using the
-\code{find_model_space} function and the \code{economic_growth} dataset.
+\code{optim_model_space} function and the \code{economic_growth} dataset.
 }
 \keyword{datasets}

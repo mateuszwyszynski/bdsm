@@ -400,7 +400,7 @@ compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col
 #'     scale         = FALSE
 #'   )
 #'
-#' find_model_space(
+#' optim_model_space(
 #'   df            = data_prepared,
 #'   dep_var_col   = gdp,
 #'   timestamp_col = year,
@@ -410,7 +410,7 @@ compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col
 #'
 #' @export
 #
-find_model_space <-
+optim_model_space <-
   function(df, timestamp_col, entity_col, dep_var_col, init_value,
            exact_value = FALSE, cl = NULL,
            control = list(trace = 2, maxit = 10000, fnscale = -1,

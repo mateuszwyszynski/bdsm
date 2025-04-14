@@ -63,7 +63,7 @@ test_that(paste("model_space computes correct model_space list"), {
       scale         = FALSE
     )
 
-  model_space <- find_model_space(
+  model_space <- optim_model_space(
     df            = data_prepared,
     dep_var_col   = gdp,
     timestamp_col = year,

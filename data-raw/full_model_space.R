@@ -23,7 +23,7 @@ if (is.na(cores)) {
 }
 cl <- makeCluster(cores)
 
-full_model_space <- find_model_space(
+full_model_space <- optim_model_space(
   df            = data_prepared,
   dep_var_col   = gdp,
   timestamp_col = year,

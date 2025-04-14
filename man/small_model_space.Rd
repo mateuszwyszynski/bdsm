@@ -3,7 +3,7 @@
 \docType{data}
 \name{small_model_space}
 \alias{small_model_space}
-\title{Example output of the find_model_space function (small version)}
+\title{Example output of the optim_model_space function (small version)}
 \format{
 \subsection{\code{small_model_space}}{
 
@@ -31,7 +31,7 @@ small_model_space
 }
 \description{
 A list with two elements: \code{params} and \code{stats} computed using the
-\code{find_model_space} function and the \code{economic_growth} dataset, but
+\code{optim_model_space} function and the \code{economic_growth} dataset, but
 using only three regressors: \code{ish}, \code{sed} and \code{pgrw}.
 }
 \keyword{datasets}

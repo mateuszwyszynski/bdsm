@@ -53,10 +53,10 @@
 "economic_growth"
 
 
-#' Example output of the find_model_space function (small version)
+#' Example output of the optim_model_space function (small version)
 #'
 #' A list with two elements: \code{params} and \code{stats} computed using the
-#' \code{find_model_space} function and the \code{economic_growth} dataset, but
+#' \code{optim_model_space} function and the \code{economic_growth} dataset, but
 #' using only three regressors: \code{ish}, \code{sed} and \code{pgrw}.
 #'
 #' @format ## `small_model_space`
@@ -80,10 +80,10 @@
 "small_model_space"
 
 
-#' Example output of the find_model_space function
+#' Example output of the optim_model_space function
 #'
 #' A list with two elements: \code{params} and \code{stats} computed using the
-#' \code{find_model_space} function and the \code{economic_growth} dataset.
+#' \code{optim_model_space} function and the \code{economic_growth} dataset.
 #'
 #' @format ## `full_model_space`
 #' A list with two elements.

@@ -489,11 +489,11 @@ as well as various statistics for each considered model
 as explained in \autoref{ms_bma}.
 We refer to the object that consolidates both the parameters and the statistics
 as the \textbf{model space}.
-The core function of the package, \verb+find_model_space+,
+The core function of the package, \verb+optim_model_space+,
 is used to estimate the optimal model space using numerical optimization:
 
 <<eval=FALSE>>=
-full_model_space <- find_model_space(
+full_model_space <- optim_model_space(
   df            = data_prepared,
   dep_var_col   = gdp,
   timestamp_col = year,
@@ -626,13 +626,13 @@ Var_{R}(\hat{\theta}) = I(\hat{\theta})^{-1} \cdot G'(\hat{\theta}) G(\hat{\thet
 
 \subsection{Parallelization}
 
-The \verb+find_model_space+ function
+The \verb+optim_model_space+ function
 is the most computationally intensive part of the package.
 Therefore, the function provides an option for parallel computing.
 If the user's data contains only a few regressors, the sufficient option is
 
 <<eval=FALSE>>=
-model_space <- find_model_space(
+model_space <- optim_model_space(
   df            = data_prepared,
   dep_var_col   = gdp,
   timestamp_col = year,
@@ -659,7 +659,7 @@ setDefaultCluster(cl)
 \noindent Then the user just needs to provide this cluster to the function:
 
 <<eval=FALSE>>=
-model_space <- find_model_space(
+model_space <- optim_model_space(
   df            = data_prepared,
   dep_var_col   = gdp,
   timestamp_col = year,
@@ -672,7 +672,7 @@ model_space <- find_model_space(
 
 \subsection{Precomputed model spaces}
 
-Even with parallelization, \verb+find_model_space+ call may be time-consuming.
+Even with parallelization, \verb+optim_model_space+ call may be time-consuming.
 Hence, for users who want to quickly start practicing using the \verb+bdsm+,
 we provide already computed model space objects included with the package:
 
@@ -690,7 +690,7 @@ we provide already computed model space objects included with the package:
 \subsection{Bayesian model averaging: The \texttt{bma} function}
 
 The \verb+bma+ function enables users to perform Bayesian model averaging using
-the object obtained with the \verb+find_model_space+ function.
+the object obtained with the \verb+optim_model_space+ function.
 The \verb+round+ parameter specifies the decimal place
 to which the BMA statistics should be rounded in the results.
 
