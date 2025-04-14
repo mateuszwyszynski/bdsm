@@ -388,6 +388,7 @@ compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col
 #' standard errors for all estimated models
 #'
 #' @examples
+#' \dontrun{
 #' library(magrittr)
 #'
 #' data_prepared <- bdsm::economic_growth[, 1:5] %>%
@@ -407,7 +408,7 @@ compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col
 #'   entity_col    = country,
 #'   init_value    = 0.5
 #' )
-#'
+#'}
 #' @export
 #
 optim_model_space <-

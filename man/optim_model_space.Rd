@@ -53,6 +53,7 @@ This function calculates model space, values of the maximized likelihood functio
 standard deviations of the parameters that will be used in Bayesian model averaging.
 }
 \examples{
+\dontrun{
 library(magrittr)
 
 data_prepared <- bdsm::economic_growth[, 1:5] \%>\%
@@ -72,5 +73,5 @@ optim_model_space(
   entity_col    = country,
   init_value    = 0.5
 )
-
+}
 }
