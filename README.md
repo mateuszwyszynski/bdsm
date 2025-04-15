@@ -109,18 +109,6 @@ model_space <- bdsm::optim_model_space(
   entity_col     = country,
   init_value     = 0.5,
 )
-#> initial  value -427.743989 
-#> final  value -717.595537 
-#> converged
-#> initial  value -366.799374 
-#> final  value -784.520619 
-#> converged
-#> initial  value -396.225712 
-#> final  value -785.991786 
-#> converged
-#> initial  value -238.285740 
-#> final  value -854.671535 
-#> converged
 ```
 
 For larger datasets, you can leverage multiple cores:
@@ -286,18 +274,6 @@ model_space <- bdsm::optim_model_space(
   entity_col    = country,
   init_value     = 0.5,
 )
-#> initial  value -427.743989 
-#> final  value -717.595537 
-#> converged
-#> initial  value -366.799374 
-#> final  value -784.520619 
-#> converged
-#> initial  value -396.225712 
-#> final  value -785.991786 
-#> converged
-#> initial  value -238.285740 
-#> final  value -854.671535 
-#> converged
 
 # 3) Run Bayesian Model Averaging
 bma_obj <- bdsm::bma(
