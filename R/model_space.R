@@ -138,7 +138,7 @@ regressor_names_from_params_vector <- function(params) {
 #' @export
 optim_model_space_params <- function(df, timestamp_col, entity_col, dep_var_col, init_value,
                                      exact_value = FALSE, cl = NULL,
-                                     control = list(trace = 2, maxit = 10000,
+                                     control = list(trace = 0, maxit = 10000,
                                                     fnscale = -1, REPORT = 100,
                                                     scale = 0.05)) {
   matrices_shared_across_models <- df %>%
@@ -414,7 +414,7 @@ compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col
 optim_model_space <-
   function(df, timestamp_col, entity_col, dep_var_col, init_value,
            exact_value = FALSE, cl = NULL,
-           control = list(trace = 2, maxit = 10000, fnscale = -1,
+           control = list(trace = 0, maxit = 10000, fnscale = -1,
                           REPORT = 100, scale = 0.05)){
     params <- optim_model_space_params(
       df            = df,
