@@ -7,9 +7,14 @@
 \usepackage{lmodern}
 \usepackage{fix-cm}
 \usepackage{hyperref}
+\usepackage{color}
+
+\newenvironment{knitrout}{}{}
+\newenvironment{Sinput}{\begin{alltt}}{\end{alltt}}
+\newenvironment{Soutput}{\begin{alltt}}{\end{alltt}}
+\newenvironment{Scode}{\begin{alltt}}{\end{alltt}}
 
 \DeclareMathAlphabet{\mathbbold}{U}{bbold}{m}{n}
-
 
 \title{\texttt{bdsm}: Bayesian dynamic systems modelling. \\
 Bayesian model averaging for dynamic panels \\
@@ -25,6 +30,15 @@ with weakly exogenous regressors}
 
 \begin{document}
 \SweaveOpts{concordance=TRUE}
+
+<<setup, include=FALSE, echo=FALSE>>=
+knitr::opts_chunk$set(
+  fig.width = 5,
+  fig.height = 3,
+  dev = "pdf",
+  dpi = 72
+)
+@
 
 \footnotetext[1]{Lazarski University, $^{2}$University of Warsaw}
 %\setpapersize{A4}
