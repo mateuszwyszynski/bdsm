@@ -51,5 +51,3 @@ Imports:
 Depends:
     R (>= 3.5)
 Language: en-US
-VignetteBuilder: knitr
-BuildVignettes: true
