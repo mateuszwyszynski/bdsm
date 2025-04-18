@@ -1,3 +1,11 @@
+# 0.2.1
+
+# Resubmission
+
+Added only vignette as it was causing issues for auto check in previous version.
+The PDF file size shouldn't be a problem, but auto check claims it can be 
+vastly reduced, which does not seem to be the case.
+
 # 0.2.0
 
 # Resubmission

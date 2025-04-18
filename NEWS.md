@@ -1,3 +1,7 @@
+# bdsm 0.2.1
+
+* Added vignette explaining Bayesian model averaging for dynamic panels with weakly exogenous regressors
+
 # bdsm 0.2.0
 
 * Added GitHub Actions Workflows:
