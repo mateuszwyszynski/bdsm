@@ -8,7 +8,7 @@ bdsm: Bayesian Dynamic Systems Modeling
 [![CRAN status
 badge](http://www.r-pkg.org/badges/version/bdsm)](https://CRAN.R-project.org/package=bdsm)
 [![License](https://img.shields.io/badge/license-GPL%20(%3E%3D2)-blue.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
-[![R-CMD-check](https://github.com/mateuszwyszynski/panels/actions/workflows/R-CMD-check-main.yaml/badge.svg)](https://github.com/mateuszwyszynski/panels/actions/workflows/R-CMD-check-main.yaml)
+[![R-CMD-check](https://github.com/mateuszwyszynski/bdsm/actions/workflows/R-CMD-check-main.yaml/badge.svg)](https://github.com/mateuszwyszynski/bdsm/actions/workflows/R-CMD-check-main.yaml)
 
 ## Overview
 
