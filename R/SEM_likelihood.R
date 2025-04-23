@@ -14,7 +14,7 @@ generate_params_vector <- function(value, timestamps_n, regressors_n,
   matrix(c(alpha, phi_0, err_var, dep_vars, phi_1, beta, phis, psis))
 }
 
-SEM_params_to_list <- function(params, periods_n, tot_regressors_n,
+sem_params_to_list <- function(params, periods_n, tot_regressors_n,
                                lin_related_regressors_n) {
   phis_n <- tot_regressors_n*(periods_n - 1)
   psis_n <- tot_regressors_n*periods_n*(periods_n - 1)/2
@@ -81,12 +81,12 @@ matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
                                                 "cur_Z", "res_maker_matrix")) {
 
   Y1 <- if ("Y1" %in% which_matrices) {
-    df %>% SEM_dep_var_matrix(
+    df %>% sem_dep_var_matrix(
       timestamp_col = {{ timestamp_col }}, entity_col = {{ entity_col }},
       dep_var_col = {{ dep_var_col }})
   } else NULL
   Y2 <- if ("Y2" %in% which_matrices) {
-    df %>% SEM_regressors_matrix(
+    df %>% sem_regressors_matrix(
       timestamp_col = {{ timestamp_col }}, entity_col = {{ entity_col }},
       dep_var_col = {{ dep_var_col }})
   } else NULL
@@ -94,7 +94,7 @@ matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
     df %>%
       dplyr::select({{ timestamp_col }}, {{ entity_col }}, {{ dep_var_col }},
                     all_of(lin_related_regressors)) %>%
-      SEM_regressors_matrix(timestamp_col = {{ timestamp_col }},
+      sem_regressors_matrix(timestamp_col = {{ timestamp_col }},
                             entity_col = {{ entity_col }},
                             dep_var_col = {{ dep_var_col }})
   } else NULL
@@ -206,9 +206,9 @@ matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
 #'   dep_var = stats::rnorm(20), a = stats::rnorm(20), b = stats::rnorm(20)
 #' )
 #' df <-
-#'   feature_standardization(df, timestamp_col = times, entity_col = entities)
-#' SEM_likelihood(0.5, df, times, entities, dep_var)
-SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
+#'   feature_standardization(df, excluded_cols = c(times, entities))
+#' sem_likelihood(0.5, df, times, entities, dep_var)
+sem_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
                            lin_related_regressors = NULL,
                            per_entity = FALSE,
                            exact_value = TRUE) {
@@ -233,9 +233,9 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
     tot_regressors_n <- ncol(data$Y2) / (periods_n - 1)
     lin_related_regressors_n <- length(beta)
 
-    B <- SEM_B_matrix(alpha, periods_n, beta)
-    C <- SEM_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
-    S <- SEM_sigma_matrix(err_var, dep_vars, phis, psis)
+    B <- sem_B_matrix(alpha, periods_n, beta)
+    C <- sem_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
+    S <- sem_sigma_matrix(err_var, dep_vars, phis, psis)
 
     U1 <- if (lin_related_regressors_n == 0) {
       t(tcrossprod(B[[1]], Y1) - tcrossprod(C, cur_Z))
@@ -291,12 +291,12 @@ SEM_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
       }
 
       params <-
-        SEM_params_to_list(params, periods_n = periods_n,
+        sem_params_to_list(params, periods_n = periods_n,
                            tot_regressors_n = tot_regressors_n,
                            lin_related_regressors_n = lin_related_regressors_n)
     }
     likelihood <-
-      SEM_likelihood(params = params, data = data, per_entity = per_entity,
+      sem_likelihood(params = params, data = data, per_entity = per_entity,
                      exact_value = exact_value)
   }
   likelihood

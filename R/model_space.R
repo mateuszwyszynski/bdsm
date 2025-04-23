@@ -26,15 +26,20 @@
 #' @examples
 #' library(magrittr)
 #'
-#' data_prepared <- economic_growth[,1:7] %>%
-#'   feature_standardization(timestamp_col = year, entity_col = country) %>%
-#'   feature_standardization(timestamp_col = year, entity_col = country,
-#'                         time_effects = TRUE, scale = FALSE)
+#' data_prepared <- bdsm::economic_growth[, 1:5] %>%
+#'   bdsm::feature_standardization(
+#'     excluded_cols = c(country, year, gdp)
+#'   ) %>%
+#'   bdsm::feature_standardization(
+#'     group_by_col  = year,
+#'     excluded_cols = country,
+#'     scale         = FALSE
+#'   )
 #'
-#' initialize_model_space(data_prepared, year, country, gdp)
+#' init_model_space_params(data_prepared, year, country, gdp)
 #' @export
-initialize_model_space <- function(df, timestamp_col, entity_col,
-                                   dep_var_col, init_value = 1) {
+init_model_space_params <- function(df, timestamp_col, entity_col,
+                                    dep_var_col, init_value = 1) {
   regressors <- df %>%
     regressor_names(timestamp_col = {{ timestamp_col }},
                     entity_col = {{ entity_col }},
@@ -72,13 +77,14 @@ initialize_model_space <- function(df, timestamp_col, entity_col,
     replace(. == 0, NA)
 }
 
+
 #' Helper function to extract names from a vector defining a model
 #'
 #' For now it is assumed that we can only exclude linear relationships between
 #' regressors and the dependent variable.
 #'
 #' The vector needs to have named rows, i.e. it is assumed it comes from a
-#' model space (see \link[bdsm]{initialize_model_space} for details).
+#' model space (see \link[bdsm]{init_model_space_params} for details).
 #'
 #' @param params a vector with parameters describing the model
 #'
@@ -100,14 +106,263 @@ regressor_names_from_params_vector <- function(params) {
   names(regressors_subset)
 }
 
+
 #' Finds MLE parameters for each model in the given model space
 #'
 #' Given a dataset and an initial value for parameters, initializes a model
-#' space with parameters equal to initial value for each model. Then for each
+#' space with parameters equal to the initial value for each model. Then for each
 #' model performs a numerical optimization and finds parameters which maximize
 #' the likelihood.
 #'
+#' @param df Data frame with data for the analysis.
+#' @param timestamp_col The name of the column with time stamps.
+#' @param entity_col Column with entities (e.g. countries).
+#' @param dep_var_col Column with the dependent variable.
+#' @param init_value The value with which the model space will be initialized.
+#' This will be the starting point for the numerical optimization.
+#' @param exact_value Whether the exact value of the likelihood should be
+#' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
+#' \link[bdsm]{sem_likelihood} for details.
+#' @param cl An optional cluster object. If supplied, the function will use this
+#' cluster for parallel processing. If \code{NULL} (the default),
+#' \code{pbapply::pblapply} will run sequentially.
+#' @param control a list of control parameters for the optimization which are
+#' passed to \link[stats]{optim}. Default is
+#' \code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100, scale = 0.05)}.
+#'
+#' @return
+#' List (or matrix) of parameters describing analyzed models.
+#'
+#' @importFrom pbapply pbapply
+#'
+#' @export
+optim_model_space_params <- function(df, timestamp_col, entity_col, dep_var_col, init_value,
+                                     exact_value = FALSE, cl = NULL,
+                                     control = list(trace = 2, maxit = 10000,
+                                                    fnscale = -1, REPORT = 100,
+                                                    scale = 0.05)) {
+  matrices_shared_across_models <- df %>%
+    matrices_from_df(timestamp_col = {{ timestamp_col }},
+                     entity_col = {{ entity_col }},
+                     dep_var_col = {{ dep_var_col }},
+                     which_matrices = c("Y1", "Y2", "Z", "res_maker_matrix"))
+
+  init_params <- df %>%
+    init_model_space_params(timestamp_col = {{ timestamp_col }},
+                            entity_col = {{ entity_col }},
+                            dep_var_col = {{ dep_var_col }},
+                            init_value = init_value)
+
+  optimization_wrapper <- function(params, data) {
+    regressors_subset <- regressor_names_from_params_vector(params)
+
+    model_specific_matrices <- df %>%
+      matrices_from_df(timestamp_col = {{ timestamp_col }},
+                       entity_col = {{ entity_col }},
+                       dep_var_col = {{ dep_var_col }},
+                       lin_related_regressors = regressors_subset,
+                       which_matrices = c("cur_Y2", "cur_Z"))
+
+    data$cur_Z <- model_specific_matrices$cur_Z
+    data$cur_Y2 <- model_specific_matrices$cur_Y2
+
+    params_no_na <- stats::na.omit(params)
+
+    # Adjust the optimization control parameters.
+    control$parscale <- control$scale * params_no_na
+    control$scale <- NULL
+
+    optimized <- stats::optim(params_no_na, sem_likelihood, data = data,
+                              exact_value = exact_value,
+                              method = "BFGS",
+                              control = control)
+
+    params[!is.na(params)] <- optimized[[1]]
+    params
+  }
+
+  pbapply::pbapply(init_params, MARGIN = 2,  function(x) {
+    optimization_wrapper(x, matrices_shared_across_models)
+  }, cl = cl)
+}
+
+
+#' Approximate standard deviations for the models
+#'
+#' Approximate standard deviations are computed for the models in the given
+#' model space. Two versions are computed.
+#'
 #' @param df Data frame with data for the SEM analysis.
+#' @param dep_var_col Column with the dependent variable
+#' @param timestamp_col The name of the column with timestamps
+#' @param entity_col Column with entities (e.g. countries)
+#' @param params A matrix (with named rows) with each column corresponding
+#' to a model. Each column specifies model parameters. Compare with
+#' \link[bdsm]{optim_model_space_params}
+#' @param model_prior Which model prior to use. For now there are two options:
+#' \code{'uniform'} and \code{'binomial-beta'}. Default is \code{'uniform'}.
+#' @param exact_value Whether the exact value of the likelihood should be
+#' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
+#' \link[bdsm]{sem_likelihood} for details.
+#' @param cl An optional cluster object. If supplied, the function will use this
+#' cluster for parallel processing. If \code{NULL} (the default),
+#' \code{pbapply::pblapply} will run sequentially.
+#'
+#' @return
+#' Matrix with columns describing likelihood and standard deviations for each
+#' model. The first row is the likelihood for the model (computed using the
+#' parameters in the provided model space). The second row is almost 1/2 * BIC_k
+#' as in Raftery's Bayesian Model Selection in Social Research eq. 19 (see TODO
+#' in the code below). The third row is model posterior probability. Then there
+#' are rows with standard deviations for each parameter. After that we have rows
+#' with robust standard deviation (not sure yet what exactly "robust" means).
+#'
+#' @importFrom pbapply pbapply
+#' @export
+#'
+#' @examples
+#' \donttest{
+#'  library(magrittr)
+#'  data_prepared <- bdsm::economic_growth[, 1:6] %>%
+#'    bdsm::feature_standardization(
+#'      excluded_cols = c(country, year, gdp)
+#'    ) %>%
+#'    bdsm::feature_standardization(
+#'      group_by_col  = year,
+#'      excluded_cols = country,
+#'      scale         = FALSE
+#'    )
+#'
+#'  compute_model_space_stats(
+#'    df            = data_prepared,
+#'    dep_var_col   = gdp,
+#'    timestamp_col = year,
+#'    entity_col    = country,
+#'    params        = small_model_space$params
+#'  )
+#' }
+#'
+compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col,
+                              params, exact_value = FALSE,
+                              model_prior = 'uniform', cl = NULL) {
+  regressors <- df %>%
+    regressor_names(timestamp_col = {{ timestamp_col }},
+                    entity_col = {{ entity_col }},
+                    dep_var_col = {{ dep_var_col }})
+  regressors_n <- length(regressors)
+  variables_n <- regressors_n + 1
+
+  matrices_shared_across_models <- df %>%
+    matrices_from_df(timestamp_col = {{ timestamp_col }},
+                     entity_col = {{ entity_col }},
+                     dep_var_col = {{ dep_var_col }},
+                     which_matrices = c("Y1", "Y2", "Z", "res_maker_matrix"))
+
+  n_entities <- nrow(matrices_shared_across_models$Z)
+  periods_n <- nrow(df) / n_entities - 1
+
+  prior_exp_model_size <- regressors_n / 2
+  prior_inc_prob <- prior_exp_model_size / regressors_n
+
+  # THIS WILL BE DELETED
+  #print(paste("Prior Mean Model Size:", prior_exp_model_size))
+  #print(paste("Prior Inclusion Probability:", prior_inc_prob))
+
+  # parameter for beta (random) distribution of the prior inclusion probability
+  b <- (regressors_n - prior_exp_model_size) / prior_exp_model_size
+
+  std_dev_from_params <- function(params, data) {
+    regressors_subset <-
+      regressor_names_from_params_vector(params)
+
+    lin_features_n <- length(regressors_subset) + 1
+    features_n <- ncol(data$Z)
+
+    model_specific_matrices <- df %>%
+      matrices_from_df(timestamp_col = {{ timestamp_col }},
+                       entity_col = {{ entity_col }},
+                       dep_var_col = {{ dep_var_col }},
+                       lin_related_regressors = regressors_subset,
+                       which_matrices = c("cur_Y2", "cur_Z"))
+
+    data$cur_Z <- model_specific_matrices$cur_Z
+    data$cur_Y2 <- model_specific_matrices$cur_Y2
+
+    params_no_na <- params %>% stats::na.omit()
+
+    likelihood <-
+      sem_likelihood(params = params_no_na, data = data,
+                     exact_value = TRUE)
+
+    hess <- hessian(sem_likelihood, theta = params_no_na, data = data)
+
+    likelihood_per_entity <-
+      sem_likelihood(params_no_na, data = data, per_entity = TRUE)
+
+    # TODO: how to interpret the Gmat and Imat
+    Gmat <- rootSolve::gradient(sem_likelihood, params_no_na, data = data,
+                                per_entity = TRUE)
+    Imat <- crossprod(Gmat)
+
+    # Section 2.3.3 in Moral-Benito
+    # GROWTH EMPIRICS IN PANEL DATA UNDER MODEL UNCERTAINTY AND WEAK EXOGENEITY:
+    # "Finally, each model-specific posterior is given by a normal distribution
+    # with mean at the MLE and dispersion matrix equal to the inverse of the
+    # Fisher information."
+    # This is most likely why hessian is used to compute standard errors.
+    # TODO: Learn the Bernstein–von Mises theorem which explain in detail how
+    # all this works
+    stdr <- rep(0, features_n)
+    stdh <- rep(0, features_n)
+
+    . <- NULL
+    linear_params <- t(params) %>% as.data.frame() %>%
+      dplyr::select(tidyselect::matches('alpha'),
+                    tidyselect::matches('beta')) %>%
+      as.matrix() %>% t()
+
+    betas_first_ind <- 4 + periods_n
+    betas_last_ind <- betas_first_ind + lin_features_n - 2
+    inds <- if (betas_first_ind > betas_last_ind) {
+      c(1)
+    } else {
+      c(1, betas_first_ind:betas_last_ind)
+    }
+
+    stdr[!is.na(linear_params)] <- sqrt(diag(solve(hess) %*% Imat %*% solve(hess)))[inds]
+    stdh[!is.na(linear_params)] <- sqrt(diag(solve(hess)))[inds]
+
+    # Below we have almost 1/2 * BIC_k as in Raftery's Bayesian Model Selection
+    # in Social Research eq. 19. The part with reference model M_1 is skipped,
+    # because we use this formula to compute exp(logl) which is in turn used to
+    # compute posterior probabilities using eqs. 34/35. Since the part connected
+    # with M_1 model would be present in all posteriors it cancels out. Hence
+    # the important part is the one computed below.
+    #
+    # TODO: Why everything is divided by n_entities?
+
+    # Eq. 19
+    loglikelihood <-
+      (likelihood - (lin_features_n/2)*(log(n_entities*periods_n)))/n_entities
+
+    # Eq. 35
+    bic <- exp(loglikelihood)
+
+    c(likelihood, bic, stdh, stdr)
+  }
+
+  pbapply::pbapply(params, MARGIN = 2,  function(x) {
+    std_dev_from_params(x, matrices_shared_across_models)
+  }, cl = cl)
+}
+
+
+#' Calculation of the model_space object
+#'
+#' This function calculates model space, values of the maximized likelihood function, BICs, and
+#' standard deviations of the parameters that will be used in Bayesian model averaging.
+#'
+#' @param df Data frame with data for the analysis.
 #' @param timestamp_col The name of the column with time stamps
 #' @param entity_col Column with entities (e.g. countries)
 #' @param dep_var_col Column with the dependent variable
@@ -115,11 +370,10 @@ regressor_names_from_params_vector <- function(params) {
 #' This will be the starting point for the numerical optimization.
 #' @param exact_value Whether the exact value of the likelihood should be
 #' computed (\code{TRUE}) or just the proportional part (\code{FALSE}). Check
-#' \link[bdsm]{SEM_likelihood} for details.
-#' @param run_parallel If \code{TRUE} the optimization is run in parallel using
-#' the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
-#' base apply function is used. Note that using the parallel computing requires
-#' setting the default cluster. See README.
+#' \link[bdsm]{sem_likelihood} for details.
+#' @param cl An optional cluster object. If supplied, the function will use this
+#' cluster for parallel processing. If \code{NULL} (the default),
+#' \code{pbapply::pblapply} will run sequentially.
 #' @param control a list of control parameters for the optimization which are
 #' passed to \link[stats]{optim}. Default is
 #' \code{list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100, scale = 0.05)}, but note
@@ -128,80 +382,59 @@ regressor_names_from_params_vector <- function(params) {
 #' @importFrom parallel parApply
 #'
 #' @return
-#' List of parameters describing analyzed models
+#' List with two objects: \cr
+#' 1) params - table with parameters of all estimated models \cr
+#' 2) stats - table with the value of maximized likelihood function, BIC, and
+#' standard errors for all estimated models
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' library(magrittr)
 #'
-#' data_prepared <- economic_growth[,1:7] %>%
-#'    feature_standardization(timestamp_col = year, entity_col = country) %>%
-#'    feature_standardization(timestamp_col = year, entity_col = country,
-#'                            time_effects = TRUE, scale = FALSE)
+#' data_prepared <- bdsm::economic_growth[, 1:5] %>%
+#'   bdsm::feature_standardization(
+#'     excluded_cols = c(country, year, gdp)
+#'   ) %>%
+#'   bdsm::feature_standardization(
+#'     group_by_col  = year,
+#'     excluded_cols = country,
+#'     scale         = FALSE
+#'   )
 #'
-#' model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
-#'                                    timestamp_col = year, entity_col = country,
-#'                                    init_value = 0.5)
-#' }
-#'
+#' optim_model_space(
+#'   df            = data_prepared,
+#'   dep_var_col   = gdp,
+#'   timestamp_col = year,
+#'   entity_col    = country,
+#'   init_value    = 0.5
+#' )
+#'}
 #' @export
-optimal_model_space <-
+#
+optim_model_space <-
   function(df, timestamp_col, entity_col, dep_var_col, init_value,
-           exact_value = TRUE, run_parallel = FALSE,
+           exact_value = FALSE, cl = NULL,
            control = list(trace = 2, maxit = 10000, fnscale = -1,
-                          REPORT = 100, scale = 0.05)) {
-    matrices_shared_across_models <- df %>%
-      matrices_from_df(timestamp_col = {{ timestamp_col }},
-                       entity_col = {{ entity_col }},
-                       dep_var_col = {{ dep_var_col }},
-                       which_matrices = c("Y1", "Y2", "Z", "res_maker_matrix"))
-
-    model_space <- df %>%
-      initialize_model_space(timestamp_col = {{ timestamp_col }},
-                             entity_col = {{ entity_col}},
-                             dep_var_col = {{ dep_var_col }},
-                             init_value = init_value)
-
-    optimization_wrapper <- function(params, data) {
-      regressors_subset <-
-        regressor_names_from_params_vector(params)
-
-      model_specific_matrices <- df %>%
-        matrices_from_df(timestamp_col = {{ timestamp_col }},
-                         entity_col = {{ entity_col }},
-                         dep_var_col = {{ dep_var_col }},
-                         lin_related_regressors = regressors_subset,
-                         which_matrices = c("cur_Y2", "cur_Z"))
-
-      data$cur_Z <- model_specific_matrices$cur_Z
-      data$cur_Y2 <- model_specific_matrices$cur_Y2
-
-      params_no_na <- params %>% stats::na.omit()
-
-      # parscale argument somehow (don't know yet how) changes step size during
-      # optimization. Most likely optimization methods used in Gauss are
-      # scale-free and these used in R are not
-      # TODO: search for methods (or implement methods) in R which are scale-free
-      control$parscale = control$scale * params_no_na
-      control$scale = NULL
-
-      optimized <- stats::optim(params_no_na, SEM_likelihood, data = data,
-                                exact_value = exact_value,
-                                method = "BFGS",
-                                control = control)
-
-      params[!is.na(params)] <- optimized[[1]]
-      params
-    }
-
-    model_space <- do.call(
-      ifelse(run_parallel, "parApply", "apply"),
-      list(
-        X = model_space, MARGIN = 2,
-        FUN = optimization_wrapper,
-        data = matrices_shared_across_models
-      )
+                          REPORT = 100, scale = 0.05)){
+    params <- optim_model_space_params(
+      df            = df,
+      timestamp_col = {{timestamp_col}},
+      entity_col    = {{entity_col}},
+      dep_var_col   = {{dep_var_col}},
+      init_value    = init_value,
+      exact_value   = exact_value,
+      cl            = cl,
+      control       = control
     )
 
-    model_space
-}
+    stats <- compute_model_space_stats(
+      df            = df,
+      dep_var_col   = {{dep_var_col}},
+      timestamp_col = {{timestamp_col}},
+      entity_col    = {{entity_col}},
+      params        = params,
+      cl            = cl
+    )
+
+    list(params = params, stats = stats)
+  }

@@ -1,40 +1,35 @@
 #' Calculation of the bma object
 #'
-#' This function calculates bma object for the model_space object obtained using optimal_model_space function.
-#' It calculates BMA statistics and objects for the use by other functions.
+#' This function calculates BMA statistics based on the provided model space.
+#' Other objects for furhter analysis are also returned.
 #'
+#' @param model_space List with params and stats from the model space
 #' @param df Data frame with data for the SEM analysis.
-#' @param dep_var_col Column with the dependent variable
-#' @param timestamp_col The name of the column with timestamps
-#' @param entity_col Column with entities (e.g. countries)
-#' @param model_space The result of the optimal_model_space function. A matrix (with named rows)
-#' with each column corresponding to a model. Each column specifies model parameters. Compare with \link[bdsm]{optimal_model_space}
-#' @param app Parameter indicating the decimal place to which number in the BMA tables should be rounded (default app = 4)
+#' @param round Parameter indicating the decimal place to which number in the BMA tables and prior and posterior model sizes should be rounded (default round = 4)
 #' @param EMS Expected model size for model binomial and binomial-beta model prior
 #' @param dilution Binary parameter: 0 - NO application of a dilution prior; 1 - application of a dilution prior (George 2010).
 #' @param dil.Par Parameter associated with dilution prior - the exponent of the determinant (George 2010). Used only if parameter dilution = 1.
-#' @param run_parallel If \code{TRUE} the optimization is run in parallel using
-#' the \link[parallel]{parApply} function. If \code{FALSE} (default value) the
-#' base apply function is used. Note that using the parallel computing requires
-#' setting the default cluster. See README.
-
-#' @return A list with bma objects: \cr
-#' 1. uniform_table - table with the results under binomial model prior \cr
-#' 2. random_table - table with the results under binomial-beta model prior \cr
-#' 3. reg_names - vector with names of the regressors - to be used by the functions \cr
-#' 4. R - total number of regressors \cr
-#' 5. M - size of the mode space \cr
-#' 6. forJointnes - table with model IDs and PMPs for jointness function \cr
-#' 7. forBestModels - table with model IDs, PMPs, coefficients, stds, and, stdRs for best_models function \cr
-#' 8. EMS - expected model size for binomial and binomial-beta model prior specified by the user (default EMS = R/2) \cr
-#' 9. sizePriors - table with uniform and random model priors spread over model sizes for model_sizes function \cr
-#' 10. PMPs - table with posterior model probabilities for model_sizes function \cr
-#' 11. modelPriors - table with priors on models for model_pmp function \cr
-#' 12. dilution - parameter indication if priors were diluted for model_sizes function \cr
-#' 13. alphas - coefficients on lagged dependent variable for coef_hist function\cr
-#' 14. betas_nonzero - nonzero coefficients on the regressors for coef_hist function \cr
-#' 15. d_free - table with degrees of freedom of estimated models for best_models function \cr
-#' 16. PMStable - table with prior and posterior expected model size for binomial and binomial-beta model prior
+#'
+#' @return A list with 16 elements.
+#'
+#' \describe{
+#'   \item{uniform_table}{A table containing the results based on the binomialmodel prior.}
+#'   \item{random_table}{A table containing the results based on the binomial-beta model prior.}
+#'   \item{reg_names}{A vector containing the names of the regressors, used by the functions.}
+#'   \item{R}{The total number of regressors.}
+#'   \item{num_of_models}{The number of models present in the model space.}
+#'   \item{forJointnes}{A table containing model IDs and posterior model probabilities (PMPs) for the jointness function.}
+#'   \item{forBestModels}{A table containing model IDs, PMPs, coefficients, standard deviations,and standardized regression coefficients (stdRs) for the best_models function.}
+#'   \item{EMS}{The expected model size for the binomial and binomial-beta model priors, as specified by the user (default is EMS = R/2).}
+#'   \item{sizePriors}{A table of uniform and random model priors distributed over model sizes for the model_sizes function.}
+#'   \item{PMPs}{A table containing the posterior model probabilities for use in the model_sizes function.}
+#'   \item{modelPriors}{A table containing the model priors, used by the model_pmp function.}
+#'   \item{dilution}{A parameter indicating whether the priors were diluted, used in the model_sizes function.}
+#'   \item{alphas}{A vector of coefficients for the lagged dependent variable in the coef_hist function.}
+#'   \item{betas_nonzero}{A vector of nonzero coefficients for the regressors in the coef_hist function.}
+#'   \item{d_free}{A table containing the degrees of freedom for the estimated models in the best_models function.}
+#'   \item{PMStable}{A table containing the prior and posterior expected model sizes for the binomial and binomial-beta model priors.}
+#' }
 #'
 #' @export
 #'
@@ -44,22 +39,31 @@
 #' \donttest{
 #' library(magrittr)
 #'
-#' data_prepared <- economic_growth[,1:7] %>%
-#'    feature_standardization(timestamp_col = year, entity_col = country) %>%
-#'    feature_standardization(timestamp_col = year, entity_col = country,
-#'                            time_effects = TRUE, scale = FALSE)
+#' data_prepared <- bdsm::economic_growth[, 1:6] %>%
+#'   bdsm::feature_standardization(
+#'     excluded_cols = c(country, year, gdp)
+#'   ) %>%
+#'   bdsm::feature_standardization(
+#'     group_by_col  = year,
+#'     excluded_cols = country,
+#'     scale         = FALSE
+#'   )
 #'
-#' model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
-#'                                    timestamp_col = year, entity_col = country,
-#'                                    init_value = 0.5)
-#'
-#' bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
-#' entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
+#' bma_results <- bma(
+#'   model_space = bdsm::small_model_space,
+#'   df          = data_prepared,
+#'   round       = 3,
+#'   dilution    = 0
+#' )
 #' }
-
-
-bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
-               run_parallel = FALSE, app = 4, EMS = NULL, dilution = 0, dil.Par = 0.5){
+bma <- function(
+    model_space,
+    df,
+    round = 4,
+    EMS = NULL,
+    dilution = 0,
+    dil.Par = 0.5
+  ){
 
   reg_names <- colnames(df)
   reg_names <- reg_names[-(1:2)]
@@ -68,19 +72,18 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
   K <- length(reg_names)
   # Regressors without lag
   R <- K-1
-  # Model space size
-  M <- 2^R
-  # Number of observations
-  N <- nrow((na.omit(df[,4])))
 
-  like_table <- likelihoods_summary(df = df, dep_var_col = {{dep_var_col}}, timestamp_col = {{timestamp_col}},
-                                    entity_col = {{entity_col}}, model_space = model_space, run_parallel = run_parallel)
+  num_of_models <- 2^R
+  observations_num <- nrow((na.omit(df[,4])))
 
-  likes <- matrix(like_table[2,], nrow = 1, ncol = M)
-  std <- like_table[4:(3+K),]
-  stdR <- like_table[(4+K):(3+2*K),]
-  alphas <- matrix(model_space[1,], nrow = 1, ncol = M)
-  betas <- model_space[(3+R+1):(3+2*R),]
+  model_space_params <- model_space[[1]]
+  like_table <- model_space[[2]]
+
+  likes <- matrix(like_table[2,], nrow = 1, ncol = num_of_models)
+  std <- like_table[3:(2+K),]
+  stdR <- like_table[(3+K):(2+2*K),]
+  alphas <- matrix(model_space_params[1,], nrow = 1, ncol = num_of_models)
+  betas <- model_space_params[8:(7+R),]
   reg_ID <- rje::powerSetMat(R)
   colnames(reg_ID) <- reg_names[2:K]
 
@@ -104,17 +107,20 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
   # binomial (Sala-I-Martin et al. 2004) [uniform];
   # binomial-beta (Ley and Steel 2009) [random]
 
-  # Establishing model prior when the user has not provided it
+  # Expected model prior
   if (is.null(EMS)){EMS = R / 2}
+  if (EMS<0.01|EMS>R){
+    message("EMS was change to R/2 (R - number of regressors)")
+    EMS = R / 2}
 
-  uniform_models <- matrix(0, nrow = M, ncol = 1) # vector to store BINOMIAL probabilities ON MODELS
+  uniform_models <- matrix(0, nrow = num_of_models, ncol = 1) # vector to store BINOMIAL probabilities ON MODELS
   uniform_sizes <- matrix(0, nrow = K, ncol = 1) # vector to store BINOMIAL probabilities ON MODEL SIZES
-  random_models <- matrix(0, nrow = M, ncol = 1) # vector to store BINOMIAL-BETA probabilities ON MODELS
+  random_models <- matrix(0, nrow = num_of_models, ncol = 1) # vector to store BINOMIAL-BETA probabilities ON MODELS
   random_sizes <- matrix(0, nrow = K, ncol = 1) # vector to store BINOMIAL-BETA probabilities ON MODEL SIZES
 
-  r <- matrix(apply(table[,1:R], 1, sum), nrow = M, ncol = 1)
+  r <- matrix(apply(table[,1:R], 1, sum), nrow = num_of_models, ncol = 1)
 
-  for (i in 1:M){
+  for (i in 1:num_of_models){
     uniform_models[i,1] = ((EMS/R)^r[i,1])*(1-EMS/R)^(R-r[i,1])
     random_models[i,1] = gamma(1+r[i,1])*gamma((R-EMS)/EMS+R-r[i,1])
   }
@@ -126,10 +132,10 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
     if (!exists("dil.Par")) { dil.Par <- 0.5 } # CONDITION for setting the default value of dil.Par
     for_dilut <- df[,-(1:3)]
     for_dilut <- na.omit(for_dilut)
-    dilut <- matrix(0, nrow = M, ncol = 1)
-    dilut_sums <- matrix(rowSums(table[,1:R]), nrow = M, ncol = 1)
+    dilut <- matrix(0, nrow = num_of_models, ncol = 1)
+    dilut_sums <- matrix(rowSums(table[,1:R]), nrow = num_of_models, ncol = 1)
 
-    for (i in 1:M){
+    for (i in 1:num_of_models){
       if (dilut_sums[i,1]<2){
         dilut[i,1] = 1
       }else{
@@ -140,6 +146,8 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
 
     uniform_models <- uniform_models*dilut
     random_models <- random_models*dilut
+    uniform_models <- uniform_models / sum(uniform_models)
+    random_models <- random_models / sum(random_models)
   }
   ##################################
 
@@ -159,8 +167,8 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
 
   for_sizes <- cbind(rowSums(reg_ID),reg_ID,uniform_models,random_models)
   for_sizes <- for_sizes[order(for_sizes[,1]), ]
-  uniform_models_ordered <- matrix(for_sizes[,(R+2)], nrow = M, ncol = 1)
-  random_models_ordered <- matrix(for_sizes[,(R+3)], nrow = M, ncol = 1)
+  uniform_models_ordered <- matrix(for_sizes[,(R+2)], nrow = num_of_models, ncol = 1)
+  random_models_ordered <- matrix(for_sizes[,(R+3)], nrow = num_of_models, ncol = 1)
 
   for (i in 1:(R+1)){
     if (i==1){uniform_sizes[i,1] = uniform_models_ordered[1,1]
@@ -171,12 +179,12 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
   }
   ######################################################
 
-  for_PM_uniform <- matrix(0, nrow = M, ncol = K)
-  for_PM_random <- matrix(0, nrow = M, ncol = K)
-  for_var_uniform <- matrix(0, nrow = M, ncol = K)
-  for_var_random <- matrix(0, nrow = M, ncol = K)
-  for_varR_uniform <- matrix(0, nrow = M, ncol = K)
-  for_varR_random <- matrix(0, nrow = M, ncol = K)
+  for_PM_uniform <- matrix(0, nrow = num_of_models, ncol = K)
+  for_PM_random <- matrix(0, nrow = num_of_models, ncol = K)
+  for_var_uniform <- matrix(0, nrow = num_of_models, ncol = K)
+  for_var_random <- matrix(0, nrow = num_of_models, ncol = K)
+  for_varR_uniform <- matrix(0, nrow = num_of_models, ncol = K)
+  for_varR_random <- matrix(0, nrow = num_of_models, ncol = K)
 
   for (i in 1:K){
     for_PM_uniform[,i] = table[,R+i]*PMP_uniform
@@ -194,9 +202,9 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
   varR_uniform <- matrix(colSums(for_varR_uniform), nrow = K, ncol = 1)
   varR_random <- matrix(colSums(for_varR_random), nrow = K, ncol = 1)
 
-  ind_variables <- matrix(table[,(R+1):(R+K)], nrow = M, ncol = K)
-  PM_dev_uniform_prep <- matrix(0, nrow = M, ncol = K)
-  PM_dev_random_prep <- matrix(0, nrow = M, ncol = K)
+  ind_variables <- matrix(table[,(R+1):(R+K)], nrow = num_of_models, ncol = K)
+  PM_dev_uniform_prep <- matrix(0, nrow = num_of_models, ncol = K)
+  PM_dev_random_prep <- matrix(0, nrow = num_of_models, ncol = K)
 
   for (i in 1:K){
     PM_dev_uniform_prep[,i] <- ((ind_variables[,i] - PM_uniform[i,1])^2)*PMP_uniform
@@ -217,32 +225,32 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
   PSD_R_random <- (PM_dev_random + varR_random)^(0.5)
 
   reg_ID <- table[,1:R]
-  alphas <- matrix(table[,R+1], nrow = M, ncol = 1)
+  alphas <- matrix(table[,R+1], nrow = num_of_models, ncol = 1)
   betas <- table[,(R+2):(2*R+1)]
-  betas_nonzero <- matrix(0, nrow = M/2, ncol = R)
-  PM_uniform_nonzero <- matrix(0, nrow = M/2, ncol = R)
-  PM_random_nonzero <- matrix(0, nrow = M/2, ncol = R)
+  betas_nonzero <- matrix(0, nrow = num_of_models/2, ncol = R)
+  PM_uniform_nonzero <- matrix(0, nrow = num_of_models/2, ncol = R)
+  PM_random_nonzero <- matrix(0, nrow = num_of_models/2, ncol = R)
   Positive_betas <- matrix(0, nrow = R, ncol = 1)
   Positive_alpha <- 0
-  d_free <- matrix(0, nrow = M, ncol = 1) # Degrees of freedom
-  reg_sums <- matrix(rowSums(reg_ID), nrow = M, ncol = 1)
+  d_free <- matrix(0, nrow = num_of_models, ncol = 1) # Degrees of freedom
+  reg_sums <- matrix(rowSums(reg_ID), nrow = num_of_models, ncol = 1)
 
-  for (i in 1:M){
-    d_free[i,1] = N - reg_sums[i,1] - 1
+  for (i in 1:num_of_models){
+    d_free[i,1] = observations_num - reg_sums[i,1] - 1
     if(alphas[i,1]>0){
-      Positive_alpha <- 1/M + Positive_alpha
+      Positive_alpha <- 1/num_of_models + Positive_alpha
     }
   }
 
   for (i in 1:R){
     k=1
-    for (j in 1:M){
+    for (j in 1:num_of_models){
       if (betas[j,i]!=0){
         betas_nonzero[k,i] = betas[j,i]
         PM_uniform_nonzero[k,i] = PMP_uniform[j,1]
         PM_random_nonzero[k,i] = PMP_random[j,1]
         if (betas[j,i]>0){
-          Positive_betas[i,1] = 2/M + Positive_betas[i,1]
+          Positive_betas[i,1] = 2/num_of_models + Positive_betas[i,1]
         }
         k <- k + 1
       }
@@ -263,10 +271,10 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
 
   uniform_table <- cbind(PIP_uniform,PM_uniform,PSD_uniform,PSD_R_uniform,con_PM_uniform,con_PSD_uniform,con_PSD_R_uniform,Positive)
   random_table <- cbind(PIP_random,PM_random,PSD_random,PSD_R_random,con_PM_random,con_PSD_random,con_PSD_R_random,Positive)
-  uniform_table <- round(uniform_table, app)
-  random_table <- round(random_table, app)
+  uniform_table <- round(uniform_table, round)
+  random_table <- round(random_table, round)
 
-  bma_names <- c("PIP", "PM", "PSD", "PSD_R","PM_con", "PSD_con", "PSD_R_con", "%(+)")
+  bma_names <- c("PIP", "PM", "PSD", "PSDR","PMcon", "PSDcon", "PSDRcon", "%(+)")
 
   colnames(uniform_table) <- bma_names
   row.names(uniform_table) <- reg_names
@@ -285,11 +293,11 @@ bma = function(df, dep_var_col, timestamp_col, entity_col, model_space,
 
   PriorMS <- matrix(EMS, nrow = 1, ncol = 2)
   PosteriorMS <- matrix((colSums(PIPs)-1), nrow = 1, ncol = 2)
-  PMStable <- rbind(PriorMS,PosteriorMS)
+  PMStable <- round(t(rbind(PriorMS,PosteriorMS)),round)
   colnames(PMStable) <- c("Prior models size", "Posterior model size")
   row.names(PMStable) <- c("Binomial", "Binomial-beta")
 
-  bma_list <- list(uniform_table,random_table,reg_names,R,M,forJointness,
+  bma_list <- list(uniform_table,random_table,reg_names,R,num_of_models,forJointness,
                    forBestModels,EMS,sizePriors,PMPs,modelPriors,dilution,
                    alphas,betas_nonzero,d_free,PMStable)
   names(bma_list) <- c("Table with the binomial model prior results", "Table with the binomial model prior results",

@@ -1,5 +1,5 @@
 # microbenchmark(
-#   SEM_likelihood(
+#   sem_likelihood(
 #     0.5,
 #     generate_test_feature_standard_data(),
 #     times, entities, dep_var
@@ -13,9 +13,12 @@ test_that("SEM likelihood is calculated correctly for default feature standardiz
   skip_on_os(c("windows", "linux"))
   skip_on_cran()
   set.seed(1)
-  sem_value <- SEM_likelihood(
+  sem_value <- sem_likelihood(
     0.5,
-    generate_test_feature_standard_data(),
+    feature_standardization(
+      df            = generate_test_data(),
+      excluded_cols = c(entities, times)
+    ),
     times, entities, dep_var
   )
   expect_equal(sem_value, 133.223858)
@@ -25,9 +28,13 @@ test_that("SEM likelihood is calculated correctly for time_effects TRUE", {
   skip_on_os(c("windows", "linux"))
   skip_on_cran()
   set.seed(1)
-  sem_value <- SEM_likelihood(
+  sem_value <- sem_likelihood(
     0.5,
-    generate_test_feature_standard_data(time_effects = TRUE),
+    feature_standardization(
+      df            = generate_test_data(),
+      group_by_col  = times,
+      excluded_cols = entities
+    ),
     times, entities, dep_var
   )
   expect_equal(sem_value, 217.693805)
@@ -37,9 +44,14 @@ test_that("SEM likelihood is calculated correctly for time_effects TRUE and scal
   skip_on_os(c("windows", "linux"))
   skip_on_cran()
   set.seed(1)
-  sem_value <- SEM_likelihood(
+  sem_value <- sem_likelihood(
     0.5,
-    generate_test_feature_standard_data(time_effects = TRUE, scale = FALSE),
+    feature_standardization(
+      df            = generate_test_data(),
+      group_by_col  = times,
+      excluded_cols = entities,
+      scale = FALSE
+    ),
     times, entities, dep_var
   )
   expect_equal(sem_value, 225.54665)
@@ -49,9 +61,13 @@ test_that("SEM likelihood is calculated correctly for time_effects FALSE and sca
   skip_on_os(c("windows", "linux"))
   skip_on_cran()
   set.seed(1)
-  sem_value <- SEM_likelihood(
+  sem_value <- sem_likelihood(
     0.5,
-    generate_test_feature_standard_data(time_effects = FALSE, scale = FALSE),
+    feature_standardization(
+      df            = generate_test_data(),
+      excluded_cols = c(times, entities),
+      scale         = FALSE
+    ),
     times, entities, dep_var
   )
   expect_equal(sem_value, 140.498138)
@@ -63,9 +79,13 @@ test_that("SEM likelihood is calculated incorrectly for specific data", {
   set.seed(2)
   # TODO: That produces NaN for that particular seed.
   testthat::expect_warning(
-    sem_value <- SEM_likelihood(
+    sem_value <- sem_likelihood(
       0.5,
-      generate_test_feature_standard_data(time_effects = FALSE, scale = FALSE),
+      feature_standardization(
+        df            = generate_test_data(),
+        excluded_cols = c(times, entities),
+        scale         = FALSE
+      ),
       times, entities, dep_var
     )
   )

@@ -4,7 +4,7 @@
 \alias{jointness}
 \title{Calculation of of the jointness measures}
 \usage{
-jointness(bma_list, measure = "HCGHM", rho = 0.5, app = 3)
+jointness(bma_list, measure = "HCGHM", rho = 0.5, round = 3)
 }
 \arguments{
 \item{bma_list}{bma object (the result of the bma function)}
@@ -17,7 +17,7 @@ PPI - for posterior probability of including both variables.}
 
 \item{rho}{The parameter "rho" (\eqn{\rho}) to be used in HCGHM jointness measure (default rho = 0.5). Works only if HCGHM measure is chosen (Hofmarcher et al. 2018).}
 
-\item{app}{Parameter indicating the decimal place to which the jointness measures should be rounded (default app = 3).}
+\item{round}{Parameter indicating the decimal place to which the jointness measures should be rounded (default round = 3).}
 }
 \value{
 A table with jointness measures for all the pairs of regressors used in the analysis. Parameter "above" indicates what model prior is used for the values ABOVE the diagonal, and parameter "below" indicates what model prior is used for the values BELOW the diagonal.
@@ -41,18 +41,23 @@ Ley E, Steel M (2007) Jointness in Bayesian variable selection with applications
 \donttest{
 library(magrittr)
 
-data_prepared <- economic_growth[,1:7] \%>\%
-   feature_standardization(timestamp_col = year, entity_col = country) \%>\%
-   feature_standardization(timestamp_col = year, entity_col = country,
-                           time_effects = TRUE, scale = FALSE)
+data_prepared <- bdsm::economic_growth[, 1:6] \%>\%
+  bdsm::feature_standardization(
+    excluded_cols = c(country, year, gdp)
+  ) \%>\%
+  bdsm::feature_standardization(
+    group_by_col  = year,
+    excluded_cols = country,
+    scale         = FALSE
+  )
 
-model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
-                                   timestamp_col = year, entity_col = country,
-                                   init_value = 0.5)
+bma_results <- bma(
+  model_space = bdsm::small_model_space,
+  df          = data_prepared,
+  round       = 3,
+  dilution    = 0
+)
 
-bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
-entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
-
-jointness_table <- jointness(bma_results, measure = "HCGHM", rho = 0.5, app = 3)
+jointness_table <- jointness(bma_results, measure = "HCGHM", rho = 0.5, round = 3)
 }
 }

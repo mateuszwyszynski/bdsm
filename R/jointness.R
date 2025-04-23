@@ -19,7 +19,7 @@
 #' DW - for Doppelhofer & Weeks (2009) measure; \cr
 #' PPI - for posterior probability of including both variables.
 #' @param rho The parameter "rho" (\eqn{\rho}) to be used in HCGHM jointness measure (default rho = 0.5). Works only if HCGHM measure is chosen (Hofmarcher et al. 2018).
-#' @param app Parameter indicating the decimal place to which the jointness measures should be rounded (default app = 3).
+#' @param round Parameter indicating the decimal place to which the jointness measures should be rounded (default round = 3).
 #'
 #' @return A table with jointness measures for all the pairs of regressors used in the analysis. Parameter "above" indicates what model prior is used for the values ABOVE the diagonal, and parameter "below" indicates what model prior is used for the values BELOW the diagonal.
 #'
@@ -29,23 +29,28 @@
 #' \donttest{
 #' library(magrittr)
 #'
-#' data_prepared <- economic_growth[,1:7] %>%
-#'    feature_standardization(timestamp_col = year, entity_col = country) %>%
-#'    feature_standardization(timestamp_col = year, entity_col = country,
-#'                            time_effects = TRUE, scale = FALSE)
+#' data_prepared <- bdsm::economic_growth[, 1:6] %>%
+#'   bdsm::feature_standardization(
+#'     excluded_cols = c(country, year, gdp)
+#'   ) %>%
+#'   bdsm::feature_standardization(
+#'     group_by_col  = year,
+#'     excluded_cols = country,
+#'     scale         = FALSE
+#'   )
 #'
-#' model_space <- optimal_model_space(df = data_prepared, dep_var_col = gdp,
-#'                                    timestamp_col = year, entity_col = country,
-#'                                    init_value = 0.5)
+#' bma_results <- bma(
+#'   model_space = bdsm::small_model_space,
+#'   df          = data_prepared,
+#'   round       = 3,
+#'   dilution    = 0
+#' )
 #'
-#' bma_results <- bma(df = data_prepared, dep_var_col = gdp, timestamp_col = year,
-#' entity_col = country, model_space = model_space, run_parallel = FALSE, dilution = 0)
-#'
-#' jointness_table <- jointness(bma_results, measure = "HCGHM", rho = 0.5, app = 3)
+#' jointness_table <- jointness(bma_results, measure = "HCGHM", rho = 0.5, round = 3)
 #' }
 
 
-jointness=function(bma_list, measure = "HCGHM", rho = 0.5, app = 3){
+jointness <- function(bma_list, measure = "HCGHM", rho = 0.5, round = 3){
 
   # Extraction of the elements of the bma object
   reg_names <- bma_list[[3]] # vector with names of the regressors from bma object
@@ -159,7 +164,7 @@ jointness=function(bma_list, measure = "HCGHM", rho = 0.5, app = 3){
   }
 
   # Rounding up the numbers in a table
-  jointness_table <- round(jointness_table, digits=app)
+  jointness_table <- round(jointness_table, digits=round)
 
   for (i in 1:R){
     jointness_table[i,i] = NA
