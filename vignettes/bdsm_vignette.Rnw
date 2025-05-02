@@ -16,7 +16,7 @@ Bayesian model averaging for dynamic panels \\
 with weakly exogenous regressors}
 
 \author{%
-  Mateusz Wyszyński$^{1, 2}$\and
+  Mateusz Wyszyński$^{1, 2}$ \and
   Krzysztof Beck$^{1}$ \and
   Marcin Dubel$^{1}$
 }
