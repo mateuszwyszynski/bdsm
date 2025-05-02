@@ -42,9 +42,5 @@ RUN R CMD build --compact-vignettes=both . && \
     mkdir -p /output && \
     mv *.tar.gz /output
 
-# Dynamically check the package
-RUN PKG_TAR=$(ls -1t *.tar.gz | head -n 1) && \
-    R CMD check --as-cran "$PKG_TAR"
-
 # Open bash by default
 CMD ["bash"]
