@@ -18,12 +18,12 @@
 
 \title{\texttt{bdsm}: Bayesian dynamic systems modelling. \\
 Bayesian model averaging for dynamic panels \\
-with weakly exogenous regressors}
+with weakly exogenous regressors$^{1}$}
 
 \author{%
-  Mateusz Wyszyński$^{1, 2}$\and
-  Krzysztof Beck$^{1}$ \and
-  Marcin Dubel$^{1}$
+  Mateusz Wyszyński$^{2, 3}$\and
+  Krzysztof Beck$^{2}$ \and
+  Marcin Dubel$^{2}$
 }
 
 \date{}
@@ -40,7 +40,7 @@ knitr::opts_chunk$set(
 )
 @
 
-\footnotetext[1]{Lazarski University, $^{2}$University of Warsaw}
+\footnotetext[1]{This article was prepared within the research project “Bayesian simultaneous equations model averaging - theoretical development and R package,” funded by the Polish National Science Centre, on the basis of the decision No. DEC-2021/43/B/HS4/01745, $^{2}$Lazarski University, $^{3}$University of Warsaw}
 %\setpapersize{A4}
 % \VignetteIndexEntry{bdsm: Bayesian dynamic systems modelling}
 \maketitle
@@ -64,7 +64,9 @@ and perform Bayesian model selection
 to examine the most probable models based on posterior model probabilities.}
 
 
+{\footnotesize
 \tableofcontents
+}
 
 \clearpage
 \section{Introduction}
