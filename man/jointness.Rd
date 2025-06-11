@@ -20,7 +20,7 @@ PPI - for posterior probability of including both variables.}
 \item{round}{Parameter indicating the decimal place to which the jointness measures should be rounded (default round = 3).}
 }
 \value{
-A table with jointness measures for all the pairs of regressors used in the analysis. Parameter "above" indicates what model prior is used for the values ABOVE the diagonal, and parameter "below" indicates what model prior is used for the values BELOW the diagonal.
+A table with jointness measures for all the pairs of regressors used in the analysis. The results obtained with the binomial model prior are above the diagonal, while the ones obtained with the binomial-beta prior are below.
 }
 \description{
 This function calculates four types of the jointness measures based on the posterior model probabilities calculated using binomial and binomial-beta model prior. The four measures are: \cr
