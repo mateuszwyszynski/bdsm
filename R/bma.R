@@ -83,7 +83,10 @@ bma <- function(
   std <- like_table[3:(2+K),]
   stdR <- like_table[(3+K):(2+2*K),]
   alphas <- matrix(model_space_params[1,], nrow = 1, ncol = num_of_models)
-  betas <- model_space_params[8:(7+R),]
+
+  first_beta_row <- which(startsWith(rownames(model_space_params), "beta_"))[1]
+
+  betas <- model_space_params[first_beta_row:(first_beta_row-1+R),]
   reg_ID <- rje::powerSetMat(R)
   colnames(reg_ID) <- reg_names[2:K]
 
@@ -110,7 +113,7 @@ bma <- function(
   # Expected model prior
   if (is.null(EMS)){EMS = R / 2}
   if (EMS<0.01|EMS>R){
-    message("EMS was change to R/2 (R - number of regressors)")
+    message("EMS was changed to R/2 (R - number of regressors)")
     EMS = R / 2}
 
   uniform_models <- matrix(0, nrow = num_of_models, ncol = 1) # vector to store BINOMIAL probabilities ON MODELS
@@ -294,7 +297,7 @@ bma <- function(
   PriorMS <- matrix(EMS, nrow = 1, ncol = 2)
   PosteriorMS <- matrix((colSums(PIPs)-1), nrow = 1, ncol = 2)
   PMStable <- round(t(rbind(PriorMS,PosteriorMS)),round)
-  colnames(PMStable) <- c("Prior models size", "Posterior model size")
+  colnames(PMStable) <- c("Prior model size", "Posterior model size")
   row.names(PMStable) <- c("Binomial", "Binomial-beta")
 
   bma_list <- list(uniform_table,random_table,reg_names,R,num_of_models,forJointness,

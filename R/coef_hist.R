@@ -105,7 +105,7 @@ if (kernel==1){
       BW<-binW[1]
     }
     histPlots[[1]] <- invisible(ggplot2::ggplot(alpha, ggplot2::aes(x = .data[[x_names[1]]])) +
-                                  ggplot2::geom_histogram(binwidth = BW, fill = "skyblue", color = "white", alpha = 0.8) +
+                                  ggplot2::geom_histogram(binwidth = BW, fill = "skyblue", color = "skyblue", alpha = 0.8) +
                                   ggplot2::labs(
                                     title = paste("Distribiution of", x_names[1], "coefficients"),
                                     x = paste0("Coefficients on ",x_names[1]),
@@ -127,7 +127,7 @@ if (kernel==1){
         BW<-binW[i]
       }
       histPlots[[i]] <- invisible(ggplot2::ggplot(betas, ggplot2::aes(x = .data[[x_names[i]]])) +
-                                    ggplot2::geom_histogram(binwidth=BW, fill = "skyblue", color = "white", alpha = 0.8) +
+                                    ggplot2::geom_histogram(binwidth=BW, fill = "skyblue", color = "skyblue", alpha = 0.8) +
                                     ggplot2::labs(
                                       title = paste("Distribiution of", x_names[i], "coefficients"),
                                       x = paste0("Coefficients on ",x_names[i]),
@@ -145,7 +145,7 @@ if (kernel==1){
     if (is.null(num)){stop("Please provide a vector with number of bins through parameter num")}
     if (length(num)!=K){stop("num is missspecified: num should have K elements")}
     histPlots[[1]]<-invisible(ggplot2::ggplot(alpha, ggplot2::aes(x = .data[[x_names[1]]])) +
-                                ggplot2::geom_histogram(bins=num[1], fill = "skyblue", color = "white", alpha = 0.8) +
+                                ggplot2::geom_histogram(bins=num[1], fill = "skyblue", color = "skyblue", alpha = 0.8) +
                                 ggplot2::labs(
                                   title = paste("Distribiution of", x_names[1], "coefficients"),
                                   x = paste0("Coefficients on ",x_names[1]),
@@ -157,7 +157,7 @@ if (kernel==1){
     names(histPlots)[[1]] <-x_names[[1]]
     for (i in 2:K){
       histPlots[[i]]<-invisible(ggplot2::ggplot(betas, ggplot2::aes(x = .data[[x_names[i]]])) +
-                                  ggplot2::geom_histogram(bins=num[i], fill = "skyblue", color = "white", alpha = 0.8) +
+                                  ggplot2::geom_histogram(bins=num[i], fill = "skyblue", color = "skyblue", alpha = 0.8) +
                                   ggplot2::labs(
                                     title = paste("Distribiution of", x_names[i], "coefficients"),
                                     x = paste0("Coefficients on ",x_names[i]),

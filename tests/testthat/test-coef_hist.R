@@ -15,8 +15,8 @@ test_that(paste("coef_hist creates correct lists with graphs"), {
   coef_plots <- coef_hist(bma_results, kernel = 1)
 
   expect_equal(class(coef_plots), "list")
-  expect_equal(class(coef_plots[[1]]), c("gg","ggplot"))
-  expect_equal(class(coef_plots[[2]]), c("gg","ggplot"))
-  expect_equal(class(coef_plots[[3]]), c("gg","ggplot"))
-  expect_equal(class(coef_plots[[4]]), c("gg","ggplot"))
+  expect_true(ggplot2::is_ggplot(coef_plots[[1]]))
+  expect_true(ggplot2::is_ggplot(coef_plots[[2]]))
+  expect_true(ggplot2::is_ggplot(coef_plots[[3]]))
+  expect_true(ggplot2::is_ggplot(coef_plots[[4]]))
 })
