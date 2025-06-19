@@ -176,10 +176,10 @@ exogenous_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
 #'
 #' @examples
 #' residual_maker_matrix(matrix(c(1,2,3,4), nrow = 2))
-residual_maker_matrix <- function(m) {
+residual_maker_matrix <- memoise(function(m) {
   proj_matrix <- m%*%solve(crossprod(m))%*%t(m)
   diag(nrow(m)) - proj_matrix
-}
+})
 
 #' Coefficients matrix for SEM representation
 #'
