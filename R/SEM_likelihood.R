@@ -235,11 +235,14 @@ sem_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
 
     B <- sem_B_matrix(alpha, periods_n, beta)
     C <- sem_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
-    S <- sem_sigma_matrix(err_var, dep_vars, phis, psis)
+    S11_matrices <- sem_sigma11_matrix(err_var, dep_vars)
+    S11 <- S11_matrices$S11
+    S11_inverse <- S11_matrices$S11_inverse
+    S11_det <- S11_matrices$S11_det
+    S12 <- sem_sigma12_matrix(periods_n, phis, psis)
 
     U1 <- sem_U1_matrix(lin_related_regressors_n, B, C, Y1, cur_Y2, cur_Z)
-    S11_inverse <- solve(S[[1]])
-    M <- Y2 - U1 %*% S11_inverse %*% S[[2]]
+    M <- Y2 - U1 %*% S11_inverse %*% S12
     H <- crossprod(M, res_maker_matrix) %*% M
 
     gaussian_normalization_const <- log(2 * pi) *
@@ -247,7 +250,7 @@ sem_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
     trace_simplification_term <-
       1/2 * n_entities * (periods_n - 1) * tot_regressors_n
 
-    likelihood <- -n_entities/2 * log(det(S[[1]]) * det(H/n_entities))
+    likelihood <- -n_entities/2 * log(S11_det * det(H/n_entities))
 
     if(exact_value) {
       likelihood <- likelihood -
