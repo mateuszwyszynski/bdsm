@@ -273,7 +273,7 @@ sem_C_matrix <- memoise(function(alpha, phi_0, periods_n, beta = c(),
 #'
 #' @examples
 #' sem_psi_matrix(1:30, 4, 5)
-sem_psi_matrix <- function(psis, timestamps_n, features_n) {
+sem_psi_matrix <- memoise(function(psis, timestamps_n, features_n) {
   matrix_row_n <- timestamps_n
   psi_matrix_row <- function(row_ind) {
     psi_start_ind_in_row <- row_ind * (row_ind - 1) * features_n / 2 +
@@ -290,7 +290,7 @@ sem_psi_matrix <- function(psis, timestamps_n, features_n) {
     }
   }
   t(sapply(1:matrix_row_n, psi_matrix_row))
-}
+})
 
 #' Covariance matrix for SEM representation
 #'
