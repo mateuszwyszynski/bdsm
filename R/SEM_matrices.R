@@ -196,7 +196,7 @@ residual_maker_matrix <- memoise(function(m) {
 #'
 #' @examples
 #' sem_B_matrix(3, 4, 4:6)
-sem_B_matrix <- function(alpha, periods_n, beta = c()) {
+sem_B_matrix <- memoise(function(alpha, periods_n, beta = c()) {
   alpha_matrix <- diag(rep(-alpha, periods_n-1))
   B11 <- diag(periods_n)
   B11[2:periods_n, 1:(periods_n - 1)] <-
@@ -219,7 +219,7 @@ sem_B_matrix <- function(alpha, periods_n, beta = c()) {
     NULL
   }
   list(B11, B12)
-}
+})
 
 #' Coefficients matrix for initial conditions
 #'
