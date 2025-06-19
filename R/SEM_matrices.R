@@ -333,3 +333,16 @@ sem_sigma_matrix <- function(err_var, dep_vars, phis = c(), psis = c()) {
 
   list(O11, O12)
 }
+
+#' U1 for SEM representation
+#'
+#' @export
+sem_U1_matrix <- memoise(function(lin_related_regressors_n, B, C, Y1, cur_Y2,
+                                  cur_Z) {
+  if (lin_related_regressors_n == 0) {
+    t(tcrossprod(B[[1]], Y1) - tcrossprod(C, cur_Z))
+  } else {
+    t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) -
+      tcrossprod(C, cur_Z))
+  }
+})

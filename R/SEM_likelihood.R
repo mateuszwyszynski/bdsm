@@ -237,12 +237,7 @@ sem_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
     C <- sem_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
     S <- sem_sigma_matrix(err_var, dep_vars, phis, psis)
 
-    U1 <- if (lin_related_regressors_n == 0) {
-      t(tcrossprod(B[[1]], Y1) - tcrossprod(C, cur_Z))
-    } else {
-      t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) -
-          tcrossprod(C, cur_Z))
-    }
+    U1 <- sem_U1_matrix(lin_related_regressors_n, B, C, Y1, cur_Y2, cur_Z)
     S11_inverse <- solve(S[[1]])
     M <- Y2 - U1 %*% S11_inverse %*% S[[2]]
     H <- crossprod(M, res_maker_matrix) %*% M
