@@ -334,6 +334,58 @@ sem_sigma_matrix <- function(err_var, dep_vars, phis = c(), psis = c()) {
   list(O11, O12)
 }
 
+#' Covariance matrix for SEM representation (S11 part)
+#'
+#' Create covariance matrix for Simultaneous Equations Model (SEM)
+#' representation. Only the part necessary to compute concentrated likelihood
+#' function is computed (cf. Appendix in the Moral-Benito paper)
+#'
+#' @param err_var numeric
+#' @param dep_vars numeric vector
+#'
+#' @return Sigma11 matrix, its inverse and determinant
+#' @importFrom magrittr %>%
+#' @export
+sem_sigma11_matrix <- memoise(function(err_var, dep_vars) {
+  periods_n <- length(dep_vars)
+
+  S11 <- err_var^2 * optimbase::ones(periods_n, periods_n) +
+    diag(dep_vars^2)
+  S11_inverse <- solve(S11)
+  S11_det <- det(S11)
+
+  list(S11 = S11, S11_inverse = S11_inverse, S11_det = S11_det)
+})
+
+#' Covariance matrix for SEM representation (S12 part)
+#'
+#' Create covariance matrix for Simultaneous Equations Model (SEM)
+#' representation. Only the part necessary to compute concentrated likelihood
+#' function is computed (cf. Appendix in the Moral-Benito paper)
+#'
+#' @param periods_n numeric
+#' @param phis numeric vector
+#' @param psis numeric vector
+#'
+#' @return Sigma12 matrix
+#' @importFrom magrittr %>%
+#' @export
+sem_sigma12_matrix <- function(periods_n, phis = c(), psis = c()) {
+  if (length(phis) != 0) {
+    regressors_n <- length(phis) / (periods_n - 1)
+
+    phi_matrix <- matrix(rep(phis, periods_n), nrow = periods_n, byrow = TRUE)
+    psi_matrix <- sem_psi_matrix(
+      psis = psis, timestamps_n = periods_n,
+      features_n = regressors_n
+    )
+
+    phi_matrix + psi_matrix
+  } else {
+    NULL
+  }
+}
+
 #' U1 for SEM representation
 #'
 #' @export
