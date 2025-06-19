@@ -1,3 +1,5 @@
+source("R/memoise.R")
+
 regressor_names <- function(df, timestamp_col, entity_col, dep_var_col) {
   df %>%
     dplyr::select(
