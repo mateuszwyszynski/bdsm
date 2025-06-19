@@ -244,7 +244,8 @@ sem_B_matrix <- memoise(function(alpha, periods_n, beta = c()) {
 #' phi_1 <- 21:25
 #' periods_n <- 4
 #' sem_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
-sem_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
+sem_C_matrix <- memoise(function(alpha, phi_0, periods_n, beta = c(),
+                                 phi_1 = c()) {
   C1 <- matrix(rep(phi_0, periods_n))
   C1[1, 1] <- C1[1, 1] + alpha
   if (length(beta) != 0) {
@@ -254,7 +255,7 @@ sem_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
     C1 <- cbind(C1, col2)
   }
   C1
-}
+})
 
 #' Matrix with psi parameters for SEM representation
 #'
