@@ -1,3 +1,10 @@
+# 0.2.2
+
+# Resubmission
+
+* Modified the method for selecting beta coefficient rows in the `bma` function for improved robustness and compatibility.
+* Updated tests to align with the upcoming ggplot2 release (v4.0.0).
+
 # 0.2.1
 
 # Resubmission
