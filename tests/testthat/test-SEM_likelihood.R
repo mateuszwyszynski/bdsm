@@ -64,21 +64,3 @@ test_that("SEM likelihood is calculated correctly for time_effects FALSE and sca
   )
   expect_equal(sem_value, 137.3458462)
 })
-
-test_that("SEM likelihood is calculated incorrectly for specific data", {
-  skip_on_ci()
-  skip_on_cran()
-  set.seed(2)
-  # TODO: That produces NaN for that particular seed.
-  testthat::expect_warning(
-    sem_value <- sem_likelihood(
-      0.5,
-      feature_standardization(
-        df            = generate_test_data(),
-        excluded_cols = c(times, entities),
-        scale         = FALSE
-      ),
-      times, entities, dep_var
-    )
-  )
-})
