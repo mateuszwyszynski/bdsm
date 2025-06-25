@@ -32,7 +32,7 @@ jobs:
       - run: tlmgr --version
 
       - name: Update tlmgr
-        run: tlmgr update-- self
+        run: tlmgr update --self
 
       - name: Install missing LaTeX package
         run: |
