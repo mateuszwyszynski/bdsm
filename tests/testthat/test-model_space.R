@@ -1,5 +1,4 @@
 test_that("optim_model_space_params correctly computes small_economic_growth_ms", {
-  skip_on_ci()
   skip_on_cran()
   set.seed(23)
 
