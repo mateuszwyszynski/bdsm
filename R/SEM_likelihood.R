@@ -1,3 +1,6 @@
+#' @importFrom Rcpp sourceCpp
+#' @useDynLib bdsm, .registration = TRUE
+
 generate_params_vector <- function(value, timestamps_n, regressors_n,
                                    lin_related_regressors_n) {
   alpha <- value
