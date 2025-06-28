@@ -22,9 +22,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sem_B_matrix
+Rcpp::List sem_B_matrix(double alpha, int periods_n, Rcpp::Nullable<arma::vec> beta);
+RcppExport SEXP _bdsm_sem_B_matrix(SEXP alphaSEXP, SEXP periods_nSEXP, SEXP betaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< int >::type periods_n(periods_nSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<arma::vec> >::type beta(betaSEXP);
+    rcpp_result_gen = Rcpp::wrap(sem_B_matrix(alpha, periods_n, beta));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bdsm_residual_maker_matrix", (DL_FUNC) &_bdsm_residual_maker_matrix, 1},
+    {"_bdsm_sem_B_matrix", (DL_FUNC) &_bdsm_sem_B_matrix, 3},
     {NULL, NULL, 0}
 };
 
