@@ -19,3 +19,21 @@ residual_maker_matrix <- function(m) {
     .Call(`_bdsm_residual_maker_matrix`, m)
 }
 
+#' Coefficients matrix for SEM representation
+#'
+#' Create coefficients matrix for Simultaneous Equations Model (SEM)
+#' representation.
+#'
+#' @param alpha numeric
+#' @param periods_n integer
+#' @param beta numeric vector. Default is c() for no regressors case.
+#'
+#' @return List with two matrices B11 and B12
+#' @export
+#'
+#' @examples
+#' sem_B_matrix(3, 4, 4:6)
+sem_B_matrix <- function(alpha, periods_n, beta = NULL) {
+    .Call(`_bdsm_sem_B_matrix`, alpha, periods_n, beta)
+}
+
