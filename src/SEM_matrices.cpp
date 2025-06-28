@@ -162,3 +162,68 @@ arma::mat sem_C_matrix(double alpha, double phi_0, int periods_n,
   
   return C1;
 }
+
+//' Matrix with psi parameters for SEM representation
+//'
+//' @param psis double vector with psi parameter values
+//' @param timestamps_n number of time stamps (e.g. years)
+//' @param features_n number of features (e.g. population size, investment rate)
+//'
+//' @return
+//' A matrix with \code{timestamps_n} rows and
+//' \code{(timestamps_n - 1) * feature_n} columns. Psis are filled in row by row
+//' in a block manner, i.e. blocks of size \code{feature_n} are placed next to
+//' each other
+//'
+//' @export
+//'
+//' @examples
+//' sem_psi_matrix(1:30, 4, 5)
+// [[Rcpp::export]]
+arma::mat sem_psi_matrix(const arma::vec &psis, int timestamps_n, int features_n)
+{
+  int matrix_row_n = timestamps_n;
+  int n_cols = (timestamps_n - 1) * features_n;
+  arma::mat result(matrix_row_n, n_cols, arma::fill::zeros);
+
+  for (int row_ind = 1; row_ind <= matrix_row_n; row_ind++)
+  {
+    // Calculate psi indices for this row
+    int psi_start_ind_in_row = row_ind * (row_ind - 1) * features_n / 2 +
+                               (row_ind - 1) * (timestamps_n - row_ind) * features_n + 1;
+    int psi_end_ind_in_row = psi_start_ind_in_row +
+                             (timestamps_n - row_ind) * features_n - 1;
+
+    if (row_ind == 1)
+    {
+      // First row: fill with psis[psi_start_ind_in_row:psi_end_ind_in_row]
+      for (int j = 0; j < (timestamps_n - row_ind) * features_n; j++)
+      {
+        if (psi_start_ind_in_row - 1 + j < psis.n_elem)
+        {
+          result(row_ind - 1, j) = psis(psi_start_ind_in_row - 1 + j);
+        }
+      }
+    }
+    else if (row_ind == matrix_row_n)
+    {
+      // Last row: all zeros (already filled with zeros)
+    }
+    else
+    {
+      // Other rows: zeros followed by psis
+      int n_zeros_front = (row_ind - 1) * features_n;
+
+      // Fill the psi values after the zeros
+      for (int j = 0; j < (timestamps_n - row_ind) * features_n; j++)
+      {
+        if (psi_start_ind_in_row - 1 + j < psis.n_elem)
+        {
+          result(row_ind - 1, n_zeros_front + j) = psis(psi_start_ind_in_row - 1 + j);
+        }
+      }
+    }
+  }
+
+  return result;
+}

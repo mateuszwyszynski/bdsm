@@ -64,3 +64,23 @@ sem_C_matrix <- function(alpha, phi_0, periods_n, beta = NULL, phi_1 = NULL) {
     .Call(`_bdsm_sem_C_matrix`, alpha, phi_0, periods_n, beta, phi_1)
 }
 
+#' Matrix with psi parameters for SEM representation
+#'
+#' @param psis double vector with psi parameter values
+#' @param timestamps_n number of time stamps (e.g. years)
+#' @param features_n number of features (e.g. population size, investment rate)
+#'
+#' @return
+#' A matrix with \code{timestamps_n} rows and
+#' \code{(timestamps_n - 1) * feature_n} columns. Psis are filled in row by row
+#' in a block manner, i.e. blocks of size \code{feature_n} are placed next to
+#' each other
+#'
+#' @export
+#'
+#' @examples
+#' sem_psi_matrix(1:30, 4, 5)
+sem_psi_matrix <- function(psis, timestamps_n, features_n) {
+    .Call(`_bdsm_sem_psi_matrix`, psis, timestamps_n, features_n)
+}
+

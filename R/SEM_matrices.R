@@ -160,41 +160,6 @@ exogenous_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
     dplyr::select({{ dep_var_col }}, {{ regressors }}) %>% as.matrix()
 }
 
-#' Matrix with psi parameters for SEM representation
-#'
-#' @param psis double vector with psi parameter values
-#' @param timestamps_n number of time stamps (e.g. years)
-#' @param features_n number of features (e.g. population size, investment rate)
-#'
-#' @return
-#' A matrix with \code{timestamps_n} rows and
-#' \code{(timestamps_n - 1) * feature_n} columns. Psis are filled in row by row
-#' in a block manner, i.e. blocks of size \code{feature_n} are placed next to
-#' each other
-#'
-#' @export
-#'
-#' @examples
-#' sem_psi_matrix(1:30, 4, 5)
-sem_psi_matrix <- function(psis, timestamps_n, features_n) {
-  matrix_row_n <- timestamps_n
-  psi_matrix_row <- function(row_ind) {
-    psi_start_ind_in_row <- row_ind * (row_ind - 1) * features_n / 2 +
-      (row_ind - 1) * (timestamps_n - row_ind) * features_n + 1
-    psi_end_ind_in_row <- psi_start_ind_in_row +
-      (timestamps_n - row_ind) * features_n - 1
-    if(row_ind == 1) {
-      psis[psi_start_ind_in_row:psi_end_ind_in_row]
-    } else if (row_ind == matrix_row_n) {
-      optimbase::zeros(1, (row_ind - 1)*features_n)
-    } else {
-      c(optimbase::zeros(1, (row_ind - 1)*features_n),
-        psis[psi_start_ind_in_row:psi_end_ind_in_row])
-    }
-  }
-  t(sapply(1:matrix_row_n, psi_matrix_row))
-}
-
 #' Covariance matrix for SEM representation
 #'
 #' Create covariance matrix for Simultaneous Equations Model (SEM)
