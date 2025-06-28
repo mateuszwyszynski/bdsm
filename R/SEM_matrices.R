@@ -160,46 +160,6 @@ exogenous_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
     dplyr::select({{ dep_var_col }}, {{ regressors }}) %>% as.matrix()
 }
 
-#' Coefficients matrix for SEM representation
-#'
-#' Create coefficients matrix for Simultaneous Equations Model (SEM)
-#' representation.
-#'
-#' @param alpha numeric
-#' @param periods_n integer
-#' @param beta numeric vector. Default is c() for no regressors case.
-#'
-#' @return List with two matrices B11 and B12
-#' @importFrom magrittr %>%
-#' @export
-#'
-#' @examples
-#' sem_B_matrix(3, 4, 4:6)
-sem_B_matrix <- function(alpha, periods_n, beta = c()) {
-  alpha_matrix <- diag(rep(-alpha, periods_n-1))
-  B11 <- diag(periods_n)
-  B11[2:periods_n, 1:(periods_n - 1)] <-
-    B11[2:periods_n, 1:(periods_n - 1)] + alpha_matrix
-
-  B12 <- if (length(beta) != 0) {
-    regressors_n <- length(beta)
-    n_cols <- regressors_n*(periods_n - 1)
-    beta_row <- function(row_ind, beta, n_cols, regressors_n) {
-      n_zeros_front <- (row_ind-1)*regressors_n
-      c(rep(0, n_zeros_front), -beta,
-        rep(0, n_cols - n_zeros_front - regressors_n))
-    }
-    beta_matrix <- 1:(periods_n-1) %>%
-      sapply(beta_row, beta = beta,
-             n_cols = n_cols, regressors_n = regressors_n) %>% t()
-    rbind(optimbase::zeros(1, n_cols),
-          beta_matrix)
-  } else {
-    NULL
-  }
-  list(B11, B12)
-}
-
 #' Coefficients matrix for initial conditions
 #'
 #' Create matrix for Simultaneous Equations Model (SEM)
