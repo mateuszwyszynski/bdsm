@@ -227,3 +227,80 @@ arma::mat sem_psi_matrix(const arma::vec &psis, int timestamps_n, int features_n
 
   return result;
 }
+
+//' Covariance matrix for SEM representation
+//'
+//' Create covariance matrix for Simultaneous Equations Model (SEM)
+//' representation. Only the part necessary to compute concentrated likelihood
+//' function is computed (cf. Appendix in the Moral-Benito paper)
+//'
+//' @param err_var numeric
+//' @param dep_vars numeric vector
+//' @param phis numeric vector
+//' @param psis numeric vector
+//'
+//' @return List with two matrices Sigma11 and Sigma12
+//' @export
+//'
+//' @examples
+//' err_var <- 1
+//' dep_vars <- c(2, 2, 2, 2)
+//' phis <- c(10, 10, 20, 20, 30, 30)
+//' psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
+//' sem_sigma_matrix(err_var, dep_vars, phis, psis)
+// [[Rcpp::export]]
+Rcpp::List sem_sigma_matrix(double err_var, const arma::vec &dep_vars,
+                            Rcpp::Nullable<arma::vec> phis = R_NilValue,
+                            Rcpp::Nullable<arma::vec> psis = R_NilValue)
+{
+  int periods_n = dep_vars.n_elem;
+
+  // Create O11 matrix
+  arma::mat O11 = err_var * err_var * arma::ones(periods_n, periods_n) +
+                  arma::diagmat(arma::square(dep_vars));
+
+  // Create O12 matrix
+  arma::mat O12;
+  bool has_phis = false;
+
+  if (phis.isNotNull())
+  {
+    arma::vec phis_vec = Rcpp::as<arma::vec>(phis);
+    if (phis_vec.n_elem > 0)
+    {
+      has_phis = true;
+      int regressors_n = phis_vec.n_elem / (periods_n - 1);
+
+      // Create phi_matrix - repeat phis for each row
+      arma::mat phi_matrix(periods_n, phis_vec.n_elem);
+      for (int i = 0; i < periods_n; i++)
+      {
+        phi_matrix.row(i) = phis_vec.t();
+      }
+
+      // Create psi_matrix if psis are provided
+      arma::mat psi_matrix;
+      if (psis.isNotNull())
+      {
+        arma::vec psis_vec = Rcpp::as<arma::vec>(psis);
+        psi_matrix = sem_psi_matrix(psis_vec, periods_n, regressors_n);
+      }
+      else
+      {
+        psi_matrix = arma::zeros(periods_n, phis_vec.n_elem);
+      }
+
+      O12 = phi_matrix + psi_matrix;
+    }
+  }
+
+  // Return list
+  if (has_phis)
+  {
+    return Rcpp::List::create(O11, O12);
+  }
+  else
+  {
+    return Rcpp::List::create(O11, R_NilValue);
+  }
+}

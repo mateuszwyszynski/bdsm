@@ -84,3 +84,27 @@ sem_psi_matrix <- function(psis, timestamps_n, features_n) {
     .Call(`_bdsm_sem_psi_matrix`, psis, timestamps_n, features_n)
 }
 
+#' Covariance matrix for SEM representation
+#'
+#' Create covariance matrix for Simultaneous Equations Model (SEM)
+#' representation. Only the part necessary to compute concentrated likelihood
+#' function is computed (cf. Appendix in the Moral-Benito paper)
+#'
+#' @param err_var numeric
+#' @param dep_vars numeric vector
+#' @param phis numeric vector
+#' @param psis numeric vector
+#'
+#' @return List with two matrices Sigma11 and Sigma12
+#' @export
+#'
+#' @examples
+#' err_var <- 1
+#' dep_vars <- c(2, 2, 2, 2)
+#' phis <- c(10, 10, 20, 20, 30, 30)
+#' psis <- c(101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112)
+#' sem_sigma_matrix(err_var, dep_vars, phis, psis)
+sem_sigma_matrix <- function(err_var, dep_vars, phis = NULL, psis = NULL) {
+    .Call(`_bdsm_sem_sigma_matrix`, err_var, dep_vars, phis, psis)
+}
+
