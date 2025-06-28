@@ -63,12 +63,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sem_sigma_matrix
+Rcpp::List sem_sigma_matrix(double err_var, const arma::vec& dep_vars, Rcpp::Nullable<arma::vec> phis, Rcpp::Nullable<arma::vec> psis);
+RcppExport SEXP _bdsm_sem_sigma_matrix(SEXP err_varSEXP, SEXP dep_varsSEXP, SEXP phisSEXP, SEXP psisSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type err_var(err_varSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type dep_vars(dep_varsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<arma::vec> >::type phis(phisSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<arma::vec> >::type psis(psisSEXP);
+    rcpp_result_gen = Rcpp::wrap(sem_sigma_matrix(err_var, dep_vars, phis, psis));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bdsm_residual_maker_matrix", (DL_FUNC) &_bdsm_residual_maker_matrix, 1},
     {"_bdsm_sem_B_matrix", (DL_FUNC) &_bdsm_sem_B_matrix, 3},
     {"_bdsm_sem_C_matrix", (DL_FUNC) &_bdsm_sem_C_matrix, 5},
     {"_bdsm_sem_psi_matrix", (DL_FUNC) &_bdsm_sem_psi_matrix, 3},
+    {"_bdsm_sem_sigma_matrix", (DL_FUNC) &_bdsm_sem_sigma_matrix, 4},
     {NULL, NULL, 0}
 };
 
