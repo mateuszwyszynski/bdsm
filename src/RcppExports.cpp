@@ -50,11 +50,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sem_psi_matrix
+arma::mat sem_psi_matrix(const arma::vec& psis, int timestamps_n, int features_n);
+RcppExport SEXP _bdsm_sem_psi_matrix(SEXP psisSEXP, SEXP timestamps_nSEXP, SEXP features_nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type psis(psisSEXP);
+    Rcpp::traits::input_parameter< int >::type timestamps_n(timestamps_nSEXP);
+    Rcpp::traits::input_parameter< int >::type features_n(features_nSEXP);
+    rcpp_result_gen = Rcpp::wrap(sem_psi_matrix(psis, timestamps_n, features_n));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bdsm_residual_maker_matrix", (DL_FUNC) &_bdsm_residual_maker_matrix, 1},
     {"_bdsm_sem_B_matrix", (DL_FUNC) &_bdsm_sem_B_matrix, 3},
     {"_bdsm_sem_C_matrix", (DL_FUNC) &_bdsm_sem_C_matrix, 5},
+    {"_bdsm_sem_psi_matrix", (DL_FUNC) &_bdsm_sem_psi_matrix, 3},
     {NULL, NULL, 0}
 };
 
