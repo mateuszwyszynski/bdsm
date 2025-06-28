@@ -35,10 +35,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sem_C_matrix
+arma::mat sem_C_matrix(double alpha, double phi_0, int periods_n, Rcpp::Nullable<arma::vec> beta, Rcpp::Nullable<arma::vec> phi_1);
+RcppExport SEXP _bdsm_sem_C_matrix(SEXP alphaSEXP, SEXP phi_0SEXP, SEXP periods_nSEXP, SEXP betaSEXP, SEXP phi_1SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type phi_0(phi_0SEXP);
+    Rcpp::traits::input_parameter< int >::type periods_n(periods_nSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<arma::vec> >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<arma::vec> >::type phi_1(phi_1SEXP);
+    rcpp_result_gen = Rcpp::wrap(sem_C_matrix(alpha, phi_0, periods_n, beta, phi_1));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bdsm_residual_maker_matrix", (DL_FUNC) &_bdsm_residual_maker_matrix, 1},
     {"_bdsm_sem_B_matrix", (DL_FUNC) &_bdsm_sem_B_matrix, 3},
+    {"_bdsm_sem_C_matrix", (DL_FUNC) &_bdsm_sem_C_matrix, 5},
     {NULL, NULL, 0}
 };
 

@@ -100,3 +100,65 @@ Rcpp::List sem_B_matrix(double alpha, int periods_n, Rcpp::Nullable<arma::vec> b
     return Rcpp::List::create(B11, R_NilValue);
   }
 }
+
+//' Coefficients matrix for initial conditions
+//'
+//' Create matrix for Simultaneous Equations Model (SEM)
+//' representation with coefficients placed next to initial values
+//' of regressors, dependent variable and country-specific time-invariant
+//' variables.
+//'
+//' @param alpha numeric
+//' @param phi_0 numeric
+//' @param periods_n numeric
+//' @param beta numeric vector. Default is c() for no regressors case.
+//' @param phi_1 numeric vector. Default is c() for no regressors case.
+//'
+//' @return matrix
+//' @export
+//'
+//' @examples
+//' alpha <- 9
+//' phi_0 <- 19
+//' beta <- 11:15
+//' phi_1 <- 21:25
+//' periods_n <- 4
+//' sem_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
+// [[Rcpp::export]]
+arma::mat sem_C_matrix(double alpha, double phi_0, int periods_n, 
+                       Rcpp::Nullable<arma::vec> beta = R_NilValue, 
+                       Rcpp::Nullable<arma::vec> phi_1 = R_NilValue)
+{
+  // Create C1 matrix - column vector with phi_0 repeated periods_n times
+  arma::mat C1(periods_n, 1);
+  C1.fill(phi_0);
+  
+  // Add alpha to the first element
+  C1(0, 0) = C1(0, 0) + alpha;
+  
+  // Handle beta and phi_1 if provided
+  if (beta.isNotNull()) {
+    arma::vec beta_vec = Rcpp::as<arma::vec>(beta);
+    if (beta_vec.n_elem > 0) {
+      if (phi_1.isNotNull()) {
+        arma::vec phi_1_vec = Rcpp::as<arma::vec>(phi_1);
+        
+        // Create col2 matrix - phi_1 repeated for each row
+        arma::mat col2(periods_n, phi_1_vec.n_elem);
+        for (int i = 0; i < periods_n; i++) {
+          col2.row(i) = phi_1_vec.t();
+        }
+        
+        // Add beta to the first row
+        for (int j = 0; j < beta_vec.n_elem && j < phi_1_vec.n_elem; j++) {
+          col2(0, j) = col2(0, j) + beta_vec(j);
+        }
+        
+        // Combine C1 and col2
+        C1 = arma::join_rows(C1, col2);
+      }
+    }
+  }
+  
+  return C1;
+}
