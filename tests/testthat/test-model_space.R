@@ -19,7 +19,8 @@ test_that("optim_model_space_params correctly computes small_economic_growth_ms"
     init_value    = 0.5
   )
 
-  expect_equal(params, small_model_space$params)
+  # Use all.equal with tolerance for cross-platform numerical stability
+  expect_true(isTRUE(all.equal(params, small_model_space$params, tolerance = 1e-8)))
 })
 
 
