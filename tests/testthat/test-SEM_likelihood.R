@@ -10,7 +10,6 @@
 # 25.80372 26.05294 27.14582 26.22264 27.25252 36.02822   100
 
 test_that("SEM likelihood is calculated correctly for default feature standardization parameters", {
-  skip_on_cran()
   sem_value <- sem_likelihood(
     0.5,
     feature_standardization(
@@ -23,7 +22,6 @@ test_that("SEM likelihood is calculated correctly for default feature standardiz
 })
 
 test_that("SEM likelihood is calculated correctly for time_effects TRUE", {
-  skip_on_cran()
   sem_value <- sem_likelihood(
     0.5,
     feature_standardization(
@@ -37,7 +35,6 @@ test_that("SEM likelihood is calculated correctly for time_effects TRUE", {
 })
 
 test_that("SEM likelihood is calculated correctly for time_effects TRUE and scale FALSE", {
-  skip_on_cran()
   sem_value <- sem_likelihood(
     0.5,
     feature_standardization(
@@ -52,7 +49,6 @@ test_that("SEM likelihood is calculated correctly for time_effects TRUE and scal
 })
 
 test_that("SEM likelihood is calculated correctly for time_effects FALSE and scale FALSE", {
-  skip_on_cran()
   sem_value <- sem_likelihood(
     0.5,
     feature_standardization(
