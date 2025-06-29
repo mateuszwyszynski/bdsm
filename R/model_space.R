@@ -329,8 +329,8 @@ compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col
       c(1, betas_first_ind:betas_last_ind)
     }
 
-    stdr[!is.na(linear_params)] <- sqrt(diag(stable_solve(hess) %*% Imat %*% stable_solve(hess)))[inds]
-    stdh[!is.na(linear_params)] <- sqrt(diag(stable_solve(hess)))[inds]
+    stdr[!is.na(linear_params)] <- sqrt(diag(solve(hess) %*% Imat %*% solve(hess)))[inds]
+    stdh[!is.na(linear_params)] <- sqrt(diag(solve(hess)))[inds]
 
     # Below we have almost 1/2 * BIC_k as in Raftery's Bayesian Model Selection
     # in Social Research eq. 19. The part with reference model M_1 is skipped,

@@ -50,10 +50,6 @@ sem_params_to_list <- function(params, periods_n, tot_regressors_n,
        beta = beta, phi_1 = phi_1, phis = phis, psis = psis)
 }
 
-stable_solve <- function(matrix) {
-  MASS::fractions(solve(matrix))
-}
-
 #' List of matrices for SEM model
 #'
 #' @param df Dataframe with data for the likelihood computations.
@@ -247,7 +243,7 @@ sem_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
       t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) -
           tcrossprod(C, cur_Z))
     }
-    S11_inverse <- stable_solve(S[[1]])
+    S11_inverse <- solve(S[[1]])
     M <- Y2 - U1 %*% S11_inverse %*% S[[2]]
     H <- crossprod(M, res_maker_matrix) %*% M
 
