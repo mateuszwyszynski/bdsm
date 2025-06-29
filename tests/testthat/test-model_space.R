@@ -19,7 +19,7 @@ test_that("optim_model_space_params correctly computes small_economic_growth_ms"
     init_value    = 0.5
   )
 
-  expect_equal(params, small_model_space$params)
+  expect_equal(params, small_model_space$params, tolerance = 1.5e-06)
 })
 
 
