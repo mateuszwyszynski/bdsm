@@ -31,6 +31,9 @@ jobs:
       - uses: r-lib/actions/setup-tinytex@v2
       - run: tlmgr --version
 
+      - name: Update tlmgr
+        run: tlmgr update --self
+
       - name: Install missing LaTeX package
         run: |
           tlmgr install vmargin
