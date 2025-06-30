@@ -14,29 +14,30 @@ Rcpp::List sem_sigma_matrix(double err_var, const arma::vec &dep_vars,
                             Rcpp::Nullable<arma::vec> phis = R_NilValue,
                             Rcpp::Nullable<arma::vec> psis = R_NilValue);
 
-arma::mat operator*(const arma::mat &A, const arma::mat &B)
+// arma::mat operator*(const arma::mat &A, const arma::mat &B)
+// {
+//   static Rcpp::Function rmul("%*%");
+//   return Rcpp::as<arma::mat>(rmul(A, B));
+// }
+
+// arma::mat operator-(const arma::mat &A, const arma::mat &B)
+// {
+//   static Rcpp::Function rsub("-");
+//   return Rcpp::as<arma::mat>(rsub(A, B));
+// }
+
+inline arma::mat crossprod(const arma::mat &M)
 {
-  static Rcpp::Function rmul("%*%");
-  return Rcpp::as<arma::mat>(rmul(A, B));
+  // static Rcpp::Function rcrossprod("crossprod");
+  // return Rcpp::as<arma::mat>(rcrossprod(M));
+  return M.t() * M;
 }
 
-arma::mat operator-(const arma::mat &A, const arma::mat &B)
-{
-  static Rcpp::Function rsub("-");
-  return Rcpp::as<arma::mat>(rsub(A, B));
-}
-
-arma::mat crossprod(const arma::mat &M)
-{
-  static Rcpp::Function rcrossprod("crossprod");
-  return Rcpp::as<arma::mat>(rcrossprod(M));
-}
-
-double rsum(const arma::mat &M)
-{
-  static Rcpp::Function fn("sum");
-  return Rcpp::as<arma::vec>(fn(M)).at(0);
-}
+// double rsum(const arma::mat &M)
+// {
+//   static Rcpp::Function fn("sum");
+//   return Rcpp::as<arma::vec>(fn(M)).at(0);
+// }
 
 // [[Rcpp::export]]
 SEXP sem_likelihood_calculate(double alpha, double phi_0, double err_var,
@@ -105,7 +106,7 @@ SEXP sem_likelihood_calculate(double alpha, double phi_0, double err_var,
   arma::vec result;
   if (!per_entity)
   {
-    likelihood -= 0.5 * rsum(diagvec(S11_inverse * crossprod(U1)));
+    likelihood -= 0.5 * sum(diagvec(S11_inverse * crossprod(U1)));
     return wrap(likelihood);
   }
   else
