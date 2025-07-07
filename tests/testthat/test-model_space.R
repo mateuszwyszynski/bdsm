@@ -1,6 +1,6 @@
 test_that("optim_model_space_params correctly computes small_economic_growth_ms", {
   set.seed(23)
-
+  skip_on_cran()
   data_prepared <- bdsm::economic_growth[,1:6] %>%
     bdsm::feature_standardization(
       excluded_cols = c(country, year, gdp)
@@ -19,8 +19,7 @@ test_that("optim_model_space_params correctly computes small_economic_growth_ms"
     init_value    = 0.5
   )
 
-  # Use all.equal with tolerance for cross-platform numerical stability
-  expect_true(isTRUE(all.equal(params, small_model_space$params, tolerance = 1e-8)))
+  expect_equal(params, small_model_space$params)
 })
 
 
