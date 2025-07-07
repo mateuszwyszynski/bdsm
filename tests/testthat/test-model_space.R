@@ -1,6 +1,6 @@
 test_that("optim_model_space_params correctly computes small_economic_growth_ms", {
   set.seed(23)
-  skip_on_cran()
+
   data_prepared <- bdsm::economic_growth[,1:6] %>%
     bdsm::feature_standardization(
       excluded_cols = c(country, year, gdp)
