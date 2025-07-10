@@ -190,6 +190,7 @@ matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
 #' times number of time stamps divided by 2, i.e.
 #' \code{regressors_n * (periods_n - 1) * periods_n / 2}
 #'
+#' @importFrom Matrix chol2inv chol
 #'
 #' @return
 #' The value of the likelihood for SEM model (or a part of interest of the
@@ -243,7 +244,7 @@ sem_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
       t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) -
           tcrossprod(C, cur_Z))
     }
-    S11_inverse <- solve(S[[1]])
+    S11_inverse <- chol2inv(chol(S[[1]]))
     M <- Y2 - U1 %*% S11_inverse %*% S[[2]]
     H <- crossprod(M, res_maker_matrix) %*% M
 
@@ -252,7 +253,9 @@ sem_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
     trace_simplification_term <-
       1/2 * n_entities * (periods_n - 1) * tot_regressors_n
 
-    likelihood <- -n_entities/2 * log(det(S[[1]]) * det(H/n_entities))
+    log_det_S1 <- determinant(S[[1]], logarithm = TRUE)$modulus[1]
+    log_det_H <- determinant(H / n_entities, logarithm = TRUE)$modulus[1]
+    likelihood <- -n_entities / 2 * (log_det_S1 + log_det_H)
 
     if(exact_value) {
       likelihood <- likelihood -
