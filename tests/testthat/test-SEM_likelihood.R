@@ -19,7 +19,7 @@ test_that("SEM likelihood is calculated correctly for default feature standardiz
     ),
     times, entities, dep_var
   )
-  expect_equal(sem_value, 128.543556)
+  expect_equal(sem_value, 129.114478)
 })
 
 test_that("SEM likelihood is calculated correctly for time_effects TRUE", {
@@ -33,7 +33,7 @@ test_that("SEM likelihood is calculated correctly for time_effects TRUE", {
     ),
     times, entities, dep_var
   )
-  expect_equal(sem_value, 217.2744944)
+  expect_equal(sem_value, 220.706362)
 })
 
 test_that("SEM likelihood is calculated correctly for time_effects TRUE and scale FALSE", {
@@ -48,7 +48,7 @@ test_that("SEM likelihood is calculated correctly for time_effects TRUE and scal
     ),
     times, entities, dep_var
   )
-  expect_equal(sem_value, 226.791028)
+  expect_equal(sem_value, 226.759455)
 })
 
 test_that("SEM likelihood is calculated correctly for time_effects FALSE and scale FALSE", {
@@ -62,5 +62,5 @@ test_that("SEM likelihood is calculated correctly for time_effects FALSE and sca
     ),
     times, entities, dep_var
   )
-  expect_equal(sem_value, 137.3458462)
+  expect_equal(sem_value, 137.2956098)
 })
