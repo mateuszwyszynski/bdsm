@@ -12,7 +12,7 @@ permissions: read-all
 jobs:
   R-CMD-check:
     name: "R CMD check (macOS, develop)"
-    runs-on: macos-latest
+    runs-on: macos-14
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
@@ -21,6 +21,8 @@ jobs:
 
       - uses: r-lib/actions/setup-r@v2
         with:
+          r-version: '4.4.2'
+          r-archive: 'https://cloud.r-project.org'
           use-public-rspm: true
 
       - uses: r-lib/actions/setup-r-dependencies@v2
@@ -30,6 +32,9 @@ jobs:
 
       - uses: r-lib/actions/setup-tinytex@v2
       - run: tlmgr --version
+
+      - name: Update tlmgr
+        run: tlmgr update --self
 
       - name: Install missing LaTeX package
         run: |

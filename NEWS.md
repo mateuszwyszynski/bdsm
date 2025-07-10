@@ -1,3 +1,8 @@
+# bdsm 0.2.2
+
+* Modified the method for selecting beta coefficient rows in the `bma` function for improved robustness and compatibility.
+* Updated tests to align with changes in the upcoming ggplot2 release (v4.0.0), ensuring compatibility and future-proofing the package.
+
 # bdsm 0.2.1
 
 * Added vignette explaining Bayesian model averaging for dynamic panels with weakly exogenous regressors
