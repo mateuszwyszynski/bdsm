@@ -329,8 +329,26 @@ compute_model_space_stats <- function(df, dep_var_col, timestamp_col, entity_col
       c(1, betas_first_ind:betas_last_ind)
     }
 
-    stdr[!is.na(linear_params)] <- sqrt(diag(solve(hess) %*% Imat %*% solve(hess)))[inds]
-    stdh[!is.na(linear_params)] <- sqrt(diag(solve(hess)))[inds]
+    # If needed, apply Hessian regularisation
+    eigH <- eigen(hess, symmetric=TRUE)
+    lambda <- eigH$values
+    V <- eigH$vectors
+
+    # choose a tiny threshold:
+    tol_H <- length(lambda) * max(abs(lambda)) * .Machine$double.eps
+    if (any(lambda < tol_H)) {
+      lambda[lambda < tol_H] <- tol_H
+      hess <- V %*% diag(lambda) %*% t(V)
+      message("Regularized Hessian: bumped up ",
+              sum(eigH$values < tol_H),
+              " eigenvalues to ", format(tol_H))
+    }
+    # END of Hessian reguralisation
+
+    inv_hess = solve(hess, symmetric=TRUE)
+
+    stdr[!is.na(linear_params)] <- sqrt(diag(inv_hess %*% Imat %*% inv_hess))[inds]
+    stdh[!is.na(linear_params)] <- sqrt(diag(inv_hess))[inds]
 
     # Below we have almost 1/2 * BIC_k as in Raftery's Bayesian Model Selection
     # in Social Research eq. 19. The part with reference model M_1 is skipped,
