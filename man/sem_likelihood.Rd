@@ -12,7 +12,8 @@ sem_likelihood(
   dep_var_col,
   lin_related_regressors = NULL,
   per_entity = FALSE,
-  exact_value = TRUE
+  exact_value = TRUE,
+  H_ev_threshold = 1e-12
 )
 }
 \arguments{

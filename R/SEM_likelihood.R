@@ -211,7 +211,7 @@ matrices_from_df <- function(df, timestamp_col, entity_col, dep_var_col,
 sem_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
                            lin_related_regressors = NULL,
                            per_entity = FALSE,
-                           exact_value = TRUE) {
+                           exact_value = TRUE, H_ev_threshold = 1e-12) {
   if (is.list(params) && !is.data.frame(data)) {
     alpha <- params$alpha
     phi_0 <- params$phi_0
@@ -226,6 +226,7 @@ sem_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
     Y2 <- data$Y2
     cur_Y2 <- data$cur_Y2
     cur_Z <- data$cur_Z
+
     res_maker_matrix <- residual_maker_matrix(cur_Z)
 
     n_entities <- nrow(Y1)
@@ -243,16 +244,31 @@ sem_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
       t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) -
           tcrossprod(C, cur_Z))
     }
-    S11_inverse <- solve(S[[1]])
-    M <- Y2 - U1 %*% S11_inverse %*% S[[2]]
-    H <- crossprod(M, res_maker_matrix) %*% M
+    qrS1 <- qr(S[[1]])
+    # Solve S[[1]] X = S[[2]]
+    X <- qr.solve(qrS1, S[[2]])
+    M <- Y2 - U1 %*% X
+    H_scaled <- crossprod(M, res_maker_matrix) %*% M / n_entities
 
     gaussian_normalization_const <- log(2 * pi) *
       n_entities * (periods_n + (periods_n-1) * tot_regressors_n) / 2
     trace_simplification_term <-
       1/2 * n_entities * (periods_n - 1) * tot_regressors_n
 
-    likelihood <- -n_entities/2 * log(det(S[[1]]) * det(H/n_entities))
+    R <- qr.R(qrS1)
+    log_det_S1 <- sum(log(abs(diag(R))))
+
+    eig_H <- eigen(H_scaled, symmetric = TRUE)
+    if (any(eig_H$values <= 0)) {
+      message("H/n had non-positive eigenvalues. Eigenvalues were: ", eig_H[1], " Replacing non-positive eigenvalues with: ", H_ev_threshold)
+      eig_H$values[eig_H$values < 0] <- H_ev_threshold
+      H_scaled <- eig_H$vectors %*% diag(eig_H$values) %*% t(eig_H$vectors)
+    }
+    if (any(eig_H$values <= 0)) {
+      message("H/n still has non-positive eigenvalues. Eigenvalues are", eig_H[1], "THIS SHOULD NEVER HAPPEN")
+    }
+    log_det_H <- sum(log(eig_H$values))
+    likelihood <- -n_entities/2 * (log_det_S1 + log_det_H)
 
     if(exact_value) {
       likelihood <- likelihood -
@@ -260,9 +276,13 @@ sem_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
     }
 
     likelihood <- if(!per_entity) {
-      likelihood - 1/2 * sum(diag(S11_inverse %*% crossprod(U1)))
+      A <- crossprod(U1)
+      X <- qr.solve(qrS1, A)
+      trace_term <- sum(diag(X))
+      likelihood - 1/2 * trace_term
     } else {
-      likelihood / n_entities  - 1/2 * diag(U1 %*% S11_inverse %*% t(U1))
+      quad_terms <- apply(U1, 1, function(u) sum(u * qr.solve(qrS1, u)))
+      likelihood / n_entities  - 1/2 * quad_terms
     }
   } else {
     if (is.data.frame(data)) {
