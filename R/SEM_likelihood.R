@@ -244,9 +244,11 @@ sem_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
       t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) -
           tcrossprod(C, cur_Z))
     }
+
+    # Cholesky-based solve
+    X <- solve(S[[1]], S[[2]], symmetric = TRUE)
+
     qrS1 <- qr(S[[1]])
-    # Solve S[[1]] X = S[[2]]
-    X <- qr.solve(qrS1, S[[2]])
     M <- Y2 - U1 %*% X
     H_scaled <- crossprod(M, res_maker_matrix) %*% M / n_entities
 
@@ -260,7 +262,7 @@ sem_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
 
     eig_H <- eigen(H_scaled, symmetric = TRUE)
     if (any(eig_H$values <= 0)) {
-      message("H/n had non-positive eigenvalues. Eigenvalues were: ", eig_H[1], " Replacing non-positive eigenvalues with: ", H_ev_threshold)
+      # message("H/n had non-positive eigenvalues. Eigenvalues were: ", eig_H[1], " Replacing non-positive eigenvalues with: ", H_ev_threshold)
       eig_H$values[eig_H$values < 0] <- H_ev_threshold
       H_scaled <- eig_H$vectors %*% diag(eig_H$values) %*% t(eig_H$vectors)
     }
@@ -277,11 +279,10 @@ sem_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
 
     likelihood <- if(!per_entity) {
       A <- crossprod(U1)
-      X <- qr.solve(qrS1, A)
-      trace_term <- sum(diag(X))
+      trace_term <- sum(diag( solve(S[[1]], A, symmetric = TRUE)))
       likelihood - 1/2 * trace_term
     } else {
-      quad_terms <- apply(U1, 1, function(u) sum(u * qr.solve(qrS1, u)))
+      quad_terms <- apply(U1, 1, function(u) sum(u * solve(S[[1]], u, symmetric = TRUE)))
       likelihood / n_entities  - 1/2 * quad_terms
     }
   } else {
