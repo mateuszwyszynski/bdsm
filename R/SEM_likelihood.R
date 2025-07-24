@@ -261,6 +261,8 @@ sem_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
     log_det_S1 <- sum(log(abs(diag(R))))
 
     eig_H <- eigen(H_scaled, symmetric = TRUE)
+    message("H/n eigenvalues are: ", eig_H[1])
+    message("In total there are: ", length(eig_H[[1]]), " eigenvalues.")
     if (any(eig_H$values <= 0)) {
       # message("H/n had non-positive eigenvalues. Eigenvalues were: ", eig_H[1], " Replacing non-positive eigenvalues with: ", H_ev_threshold)
       eig_H$values[eig_H$values < 0] <- H_ev_threshold

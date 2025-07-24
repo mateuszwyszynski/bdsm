@@ -5,7 +5,7 @@ generate_test_data <- function(n_entities, n_periods) {
     dep_var = stats::rnorm(n_entities * n_periods),
     a = round(stats::rnorm(n_entities * n_periods), 5),
     b = round(stats::rnorm(n_entities * n_periods), 5),
-    c = round(stats::rnorm(n_entities * n_periods), 5)
+    c = round(stats::rnorm(n_entities * n_periods), 5),
   ),
   class = "data.frame", row.names = c(NA, -n_entities * n_periods))
 }
@@ -20,11 +20,12 @@ set.seed(1)
 #
 # So to have a working model we need:
 #
-# n_entities - 2 eigenvalues >= (n_periods - 2)*(number of regressors)
+# n_entities - 2 >= (n_periods - 2)*(number of regressors)
 #
+# because otherwise we end up with some of the eigenvalues automatically zero.
 # Not sure yet why, but this seems to be the case
 
-df_test <- generate_test_data(n_entities = 10, n_periods = 9)
+df_test <- generate_test_data(n_entities = 25, n_periods = 10)
 
 matrices_shared_across_models <- df_test %>%
   matrices_from_df(timestamp_col = times,
@@ -50,8 +51,7 @@ sem_value <- sem_likelihood(
 
 X <- cbind(
   matrices_shared_across_models$Y1,
-  matrices_shared_across_models$Y2,
-  matrices_shared_across_models$Z
+  matrices_shared_across_models$Y2
 )
 
 # X <- as.matrix(na.omit(stand_data1[, 3:7]))
