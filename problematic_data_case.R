@@ -17,11 +17,38 @@ matrices_shared_across_models <- stand_data1 %>%
                    dep_var_col = Eint,
                    which_matrices = c("Y1", "Y2", "Z", "res_maker_matrix"))
 
-matrices_shared_across_models <- data_prepared %>%
-  matrices_from_df(timestamp_col = year,
-                   entity_col = country,
-                   dep_var_col = gdp,
-                   which_matrices = c("Y1", "Y2", "Z", "res_maker_matrix"))
+X <- cbind(
+  matrices_shared_across_models$Y1,
+  matrices_shared_across_models$Y2
+)
+
+# X <- as.matrix(na.omit(stand_data1[, 3:7]))
+
+check_condition <- function(X) {
+  s <- svd(X, nu=0, nv=0)$d
+  cond <- max(s)/min(s)
+  message("Design matrix has condition number ", format(cond))
+  if (cond > 1e8) {
+    warning("Very high condition number -> severe collinearity")
+  }
+  invisible(cond)
+}
+
+check_condition(X)
+
+diagnose_flat_direction <- function(X, tol = 1e-8) {
+  svdX <- svd(X)
+  small <- which(svdX$d < tol * max(svdX$d))
+  if (length(small)>0) {
+    cat("Found", length(small),
+        "near-zero singular values.  Example flat directions:\n")
+    print( svdX$v[, small, drop=FALSE] )
+  } else {
+    message("No extremely small singular values.")
+  }
+}
+
+diagnose_flat_direction(X)
 
 model1 <- optim_model_space(df=stand_data1,
                             timestamp_col = year,

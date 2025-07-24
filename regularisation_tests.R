@@ -54,14 +54,12 @@ X <- cbind(
   matrices_shared_across_models$Y2
 )
 
-# X <- as.matrix(na.omit(stand_data1[, 3:7]))
-
 check_condition <- function(X) {
   s <- svd(X, nu=0, nv=0)$d
   cond <- max(s)/min(s)
   message("Design matrix has condition number ", format(cond))
   if (cond > 1e8) {
-    warning("Very high condition number → severe collinearity")
+    warning("Very high condition number -> severe collinearity")
   }
   invisible(cond)
 }
@@ -73,7 +71,7 @@ diagnose_flat_direction <- function(X, tol = 1e-8) {
   small <- which(svdX$d < tol * max(svdX$d))
   if (length(small)>0) {
     cat("Found", length(small),
-        "near‑zero singular values.  Example flat directions:\n")
+        "near-zero singular values.  Example flat directions:\n")
     print( svdX$v[, small, drop=FALSE] )
   } else {
     message("No extremely small singular values.")
