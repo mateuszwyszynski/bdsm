@@ -12,7 +12,6 @@ generate_test_data <- function(n_entities, n_periods) {
   class = "data.frame", row.names = c(NA, -n_entities * n_periods))
 }
 
-# set.seed(1)
 # One can generate a random data with a different number of regressors using the code below.
 # Then we can test how sem_likelihood behaves.
 # If you add some debugging messages, you can print out the eigenvalues of the matrix H and check their number.
@@ -49,7 +48,11 @@ generate_test_data <- function(n_entities, n_periods) {
 #
 # so 11*5 + 1 = 56 entities are necessary to even have a chance of having non-zero eigenvalues in H.
 
-df_test <- generate_test_data(n_entities = 56, n_periods = 12)
+k = 5
+t = 12
+
+set.seed(1)
+df_test <- generate_test_data(n_entities = 57, n_periods = t)
 
 matrices_shared_across_models <- df_test %>%
   matrices_from_df(timestamp_col = times,
@@ -67,11 +70,20 @@ df_test_prepared <- df_test %>%
     scale         = FALSE
   )
 
+lin_rel_regs <- c("a","b","c","d","e")
+params <- generate_params_vector(0.5, t, k, length(lin_rel_regs))
+
+for (i in 1:length(params)) {
+  params[i] = params[i]*(-1)^i
+}
+
+params <- stats::rnorm(length(params))
+
 sem_value <- sem_likelihood(
-  0.5,
+  params,
   df_test_prepared,
   times, entities, dep_var,
-  lin_related_regressors = c("a","b","c","d","e")
+  lin_related_regressors = lin_rel_regs
 )
 
 X <- cbind(
