@@ -59,7 +59,7 @@ k = 5
 t = 12
 
 set.seed(1)
-df_test <- generate_test_data(n_entities = 57, n_periods = t)
+df_test <- generate_test_data(n_entities = 55, n_periods = t)
 
 matrices_shared_across_models <- df_test %>%
   matrices_from_df(timestamp_col = times,
@@ -80,11 +80,11 @@ df_test_prepared <- df_test %>%
 lin_rel_regs <- c("a","b","c","d","e")
 params <- generate_params_vector(0.5, t, k, length(lin_rel_regs))
 
-for (i in 1:length(params)) {
-  params[i] = params[i]*(-1)^i
-}
-
-params <- stats::rnorm(length(params))
+# for (i in 1:length(params)) {
+#   params[i] = params[i]*(-1)^i
+# }
+#
+# params <- stats::rnorm(length(params))
 
 sem_value <- sem_likelihood(
   params,

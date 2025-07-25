@@ -234,6 +234,8 @@ sem_likelihood <- function(params, data, timestamp_col, entity_col, dep_var_col,
     tot_regressors_n <- ncol(data$Y2) / (periods_n - 1)
     lin_related_regressors_n <- length(beta)
 
+    cur_Z[, 1] <- stats::rnorm(n_entities)
+
     B <- sem_B_matrix(alpha, periods_n, beta)
     C <- sem_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
     S <- sem_sigma_matrix(err_var, dep_vars, phis, psis)
