@@ -41,6 +41,13 @@ generate_test_data <- function(n_entities, n_periods) {
 #
 # IMPORTANT: For some reason in my experiments with randomly generated data I always need to satisfy a strict inequality in (**).
 # I'm not sure yet what is the reason for that.
+# EDIT: I believe that the reason for the strict inequality is that the matrix Z
+# contains the lagged dependent variable as one of its columns. The residual
+# maker matrix maps onto the space orthogonal to the space spanned by the
+# columns of Z. The matrix H is computed as M^T P M. I believe that since Z
+# contains the lagged dependent variable, and M contains both the dependent
+# variable and its lagged copy, one dimension is always or almost always dropped
+# when H is calculated.
 #
 # Example:
 # n_regressors = 5
