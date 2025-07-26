@@ -20,11 +20,14 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: macos-latest,   r: 'release'}
-          - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
-          - {os: ubuntu-latest,   r: 'release'}
-          - {os: ubuntu-latest,   r: 'oldrel-1'}
+          # Strict check on macOS + R 4.4.2
+          - { os: macos-latest,   r: '4.4.2' }
+          # Regular full-test on the latest macOS R
+          - { os: macos-latest,   r: 'release' }
+          - { os: windows-latest, r: 'release' }
+          - { os: ubuntu-latest,  r: 'devel', http-user-agent: 'release' }
+          - { os: ubuntu-latest,  r: 'release' }
+          - { os: ubuntu-latest,  r: 'oldrel-1' }
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -32,13 +35,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2
         with:
-          r-version: '4.4.2'
-          r-archive: 'https://cloud.r-project.org'
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
       - uses: r-lib/actions/setup-r-dependencies@v2
@@ -54,7 +56,14 @@ jobs:
           tlmgr install vmargin
           tlmgr install grfext
 
+      - name: Set RUN_BMA_FULL_TEST env var on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' ||
+            github.event_name == 'pull_request' && github.base_ref == 'main'
+        run: echo "RUN_BMA_FULL_TEST=true" >> $GITHUB_ENV
+
       - uses: r-lib/actions/check-r-package@v2
+        env:
+          RUN_BMA_FULL_TEST: ${{ env.RUN_BMA_FULL_TEST }}
         with:
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'

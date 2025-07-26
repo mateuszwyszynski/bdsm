@@ -104,3 +104,9 @@
 #'    }
 #' }
 "full_model_space"
+
+
+#' Example output of the bma function
+#'
+#' A list with multiple elements summarising the BMA analysis
+"full_bma_results"
