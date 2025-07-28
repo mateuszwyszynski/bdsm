@@ -1,3 +1,5 @@
+source("R/memoise.R")
+
 regressor_names <- function(df, timestamp_col, entity_col, dep_var_col) {
   df %>%
     dplyr::select(
@@ -174,10 +176,10 @@ exogenous_matrix <- function(df, timestamp_col, entity_col, dep_var_col) {
 #'
 #' @examples
 #' residual_maker_matrix(matrix(c(1,2,3,4), nrow = 2))
-residual_maker_matrix <- function(m) {
+residual_maker_matrix <- memoise(function(m) {
   proj_matrix <- m%*%solve(crossprod(m))%*%t(m)
   diag(nrow(m)) - proj_matrix
-}
+})
 
 #' Coefficients matrix for SEM representation
 #'
@@ -194,7 +196,7 @@ residual_maker_matrix <- function(m) {
 #'
 #' @examples
 #' sem_B_matrix(3, 4, 4:6)
-sem_B_matrix <- function(alpha, periods_n, beta = c()) {
+sem_B_matrix <- memoise(function(alpha, periods_n, beta = c()) {
   alpha_matrix <- diag(rep(-alpha, periods_n-1))
   B11 <- diag(periods_n)
   B11[2:periods_n, 1:(periods_n - 1)] <-
@@ -217,7 +219,7 @@ sem_B_matrix <- function(alpha, periods_n, beta = c()) {
     NULL
   }
   list(B11, B12)
-}
+})
 
 #' Coefficients matrix for initial conditions
 #'
@@ -242,7 +244,8 @@ sem_B_matrix <- function(alpha, periods_n, beta = c()) {
 #' phi_1 <- 21:25
 #' periods_n <- 4
 #' sem_C_matrix(alpha, phi_0, periods_n, beta, phi_1)
-sem_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
+sem_C_matrix <- memoise(function(alpha, phi_0, periods_n, beta = c(),
+                                 phi_1 = c()) {
   C1 <- matrix(rep(phi_0, periods_n))
   C1[1, 1] <- C1[1, 1] + alpha
   if (length(beta) != 0) {
@@ -252,7 +255,7 @@ sem_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
     C1 <- cbind(C1, col2)
   }
   C1
-}
+})
 
 #' Matrix with psi parameters for SEM representation
 #'
@@ -270,7 +273,7 @@ sem_C_matrix <- function(alpha, phi_0,  periods_n, beta = c(), phi_1 = c()) {
 #'
 #' @examples
 #' sem_psi_matrix(1:30, 4, 5)
-sem_psi_matrix <- function(psis, timestamps_n, features_n) {
+sem_psi_matrix <- memoise(function(psis, timestamps_n, features_n) {
   matrix_row_n <- timestamps_n
   psi_matrix_row <- function(row_ind) {
     psi_start_ind_in_row <- row_ind * (row_ind - 1) * features_n / 2 +
@@ -287,7 +290,7 @@ sem_psi_matrix <- function(psis, timestamps_n, features_n) {
     }
   }
   t(sapply(1:matrix_row_n, psi_matrix_row))
-}
+})
 
 #' Covariance matrix for SEM representation
 #'
@@ -330,3 +333,68 @@ sem_sigma_matrix <- function(err_var, dep_vars, phis = c(), psis = c()) {
 
   list(O11, O12)
 }
+
+#' Covariance matrix for SEM representation (S11 part)
+#'
+#' Create covariance matrix for Simultaneous Equations Model (SEM)
+#' representation. Only the part necessary to compute concentrated likelihood
+#' function is computed (cf. Appendix in the Moral-Benito paper)
+#'
+#' @param err_var numeric
+#' @param dep_vars numeric vector
+#'
+#' @return Sigma11 matrix, its inverse and determinant
+#' @importFrom magrittr %>%
+#' @export
+sem_sigma11_matrix <- memoise(function(err_var, dep_vars) {
+  periods_n <- length(dep_vars)
+
+  S11 <- err_var^2 * optimbase::ones(periods_n, periods_n) +
+    diag(dep_vars^2)
+  S11_inverse <- solve(S11)
+  S11_det <- det(S11)
+
+  list(S11 = S11, S11_inverse = S11_inverse, S11_det = S11_det)
+})
+
+#' Covariance matrix for SEM representation (S12 part)
+#'
+#' Create covariance matrix for Simultaneous Equations Model (SEM)
+#' representation. Only the part necessary to compute concentrated likelihood
+#' function is computed (cf. Appendix in the Moral-Benito paper)
+#'
+#' @param periods_n numeric
+#' @param phis numeric vector
+#' @param psis numeric vector
+#'
+#' @return Sigma12 matrix
+#' @importFrom magrittr %>%
+#' @export
+sem_sigma12_matrix <- function(periods_n, phis = c(), psis = c()) {
+  if (length(phis) != 0) {
+    regressors_n <- length(phis) / (periods_n - 1)
+
+    phi_matrix <- matrix(rep(phis, periods_n), nrow = periods_n, byrow = TRUE)
+    psi_matrix <- sem_psi_matrix(
+      psis = psis, timestamps_n = periods_n,
+      features_n = regressors_n
+    )
+
+    phi_matrix + psi_matrix
+  } else {
+    NULL
+  }
+}
+
+#' U1 for SEM representation
+#'
+#' @export
+sem_U1_matrix <- memoise(function(lin_related_regressors_n, B, C, Y1, cur_Y2,
+                                  cur_Z) {
+  if (lin_related_regressors_n == 0) {
+    t(tcrossprod(B[[1]], Y1) - tcrossprod(C, cur_Z))
+  } else {
+    t(tcrossprod(B[[1]], Y1) + tcrossprod(B[[2]], cur_Y2) -
+      tcrossprod(C, cur_Z))
+  }
+})
