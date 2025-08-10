@@ -26,8 +26,6 @@ SEXP sem_likelihood_calculate(double alpha, double phi_0, double err_var,
                               Rcpp::Nullable<arma::vec> psis = R_NilValue,
                               bool per_entity = false,
                               bool exact_value = true) {
-  Function solve("solve");
-
   arma::mat res_maker_matrix = residual_maker_matrix(cur_Z);
 
   int n_entities = Y1.n_rows;
@@ -52,8 +50,7 @@ SEXP sem_likelihood_calculate(double alpha, double phi_0, double err_var,
     U1 = trans(B1 * trans(Y1) + B2 * trans(as<arma::mat>(cur_Y2)) -
                C * trans(cur_Z));
   }
-  // arma::mat S11_inverse = inv(S1);
-  arma::mat S11_inverse = as<arma::mat>(solve(S1));
+  arma::mat S11_inverse = inv(S1);
   arma::mat M = Y2 - U1 * S11_inverse * S2;
   arma::mat H = trans(M) * res_maker_matrix * M;
 
