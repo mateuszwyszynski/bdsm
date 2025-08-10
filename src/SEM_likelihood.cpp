@@ -20,11 +20,6 @@ arma::mat operator*(const arma::mat &A, const arma::mat &B) {
   return Rcpp::as<arma::mat>(rmul(A, B));
 }
 
-arma::mat operator-(const arma::mat &A, const arma::mat &B) {
-  static Rcpp::Function rsub("-");
-  return Rcpp::as<arma::mat>(rsub(A, B));
-}
-
 arma::mat crossprod(const arma::mat &M) {
   static Rcpp::Function rcrossprod("crossprod");
   return Rcpp::as<arma::mat>(rcrossprod(M));
