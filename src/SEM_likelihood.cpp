@@ -15,11 +15,6 @@ Rcpp::List sem_sigma_matrix(double err_var, const arma::vec &dep_vars,
                             Rcpp::Nullable<arma::vec> phis = R_NilValue,
                             Rcpp::Nullable<arma::vec> psis = R_NilValue);
 
-arma::mat operator*(const arma::mat &A, const arma::mat &B) {
-  static Rcpp::Function rmul("%*%");
-  return Rcpp::as<arma::mat>(rmul(A, B));
-}
-
 // [[Rcpp::export]]
 SEXP sem_likelihood_calculate(double alpha, double phi_0, double err_var,
                               const arma::vec &dep_vars, const arma::mat &Y1,
