@@ -20,14 +20,7 @@ using namespace arma;
 //' residual_maker_matrix(matrix(c(1,2,3,4), nrow = 2))
 // [[Rcpp::export]]
 arma::mat residual_maker_matrix(const arma::mat &m) {
-  Function crossprod("crossprod");
-  Function solve("solve");
-
-  // Equivalent to R: m %*% solve(crossprod(m)) %*% t(m)
-  SEXP crossprod_result = crossprod(m);
-  SEXP solve_result = solve(crossprod_result);
-  arma::mat solve_mat = Rcpp::as<arma::mat>(solve_result);
-
+  arma::mat solve_mat = inv(trans(m) * m);
   arma::mat proj_matrix = m * solve_mat * m.t();
   return arma::eye(m.n_rows, m.n_rows) - proj_matrix;
 }
