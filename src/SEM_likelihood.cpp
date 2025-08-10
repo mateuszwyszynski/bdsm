@@ -25,11 +25,6 @@ arma::mat crossprod(const arma::mat &M) {
   return Rcpp::as<arma::mat>(rcrossprod(M));
 }
 
-double rsum(const arma::mat &M) {
-  static Rcpp::Function fn("sum");
-  return Rcpp::as<arma::vec>(fn(M)).at(0);
-}
-
 // [[Rcpp::export]]
 SEXP sem_likelihood_calculate(double alpha, double phi_0, double err_var,
                               const arma::vec &dep_vars, const arma::mat &Y1,
@@ -94,7 +89,7 @@ SEXP sem_likelihood_calculate(double alpha, double phi_0, double err_var,
 
   arma::vec result;
   if (!per_entity) {
-    likelihood -= 0.5 * rsum(diagvec(S11_inverse * crossprod(U1)));
+    likelihood -= 0.5 * sum(diagvec(S11_inverse * crossprod(U1)));
     return wrap(likelihood);
   } else {
     arma::vec per_entity_likelihood = arma::vec(n_entities);
