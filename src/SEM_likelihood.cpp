@@ -26,7 +26,6 @@ SEXP sem_likelihood_calculate(double alpha, double phi_0, double err_var,
                               Rcpp::Nullable<arma::vec> psis = R_NilValue,
                               bool per_entity = false,
                               bool exact_value = true) {
-  Function log("log");
   Function solve("solve");
 
   arma::mat res_maker_matrix = residual_maker_matrix(cur_Z);
@@ -59,13 +58,12 @@ SEXP sem_likelihood_calculate(double alpha, double phi_0, double err_var,
   arma::mat H = trans(M) * res_maker_matrix * M;
 
   double gaussian_normalization_const =
-      as<double>(log(2 * M_PI)) * n_entities *
+      log(2 * M_PI) * n_entities *
       (periods_n + (periods_n - 1) * tot_regressors_n) / 2.0;
   double trace_simplification_term =
       0.5 * n_entities * (periods_n - 1) * tot_regressors_n;
 
-  double likelihood =
-      -n_entities / 2.0 * as<double>(log(det(S1) * det(H / n_entities)));
+  double likelihood = -n_entities / 2.0 * log(det(S1) * det(H / n_entities));
 
   if (isnan(likelihood)) {
     return wrap(likelihood);
