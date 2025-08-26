@@ -62,6 +62,7 @@ inst/doc
 /output
 
 # Rcpp
+*.dll
 *.o
 *.so
 *.tmp
