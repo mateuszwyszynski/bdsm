@@ -68,8 +68,6 @@ Rcpp::List sem_B_matrix(double alpha, int periods_n,
 
       // Fill beta_matrix for rows 2 to periods_n
       for (int row_ind = 1; row_ind < periods_n; row_ind++) {
-        int n_zeros_front = (row_ind - 1) * regressors_n;
-
         // Place -beta values in the appropriate position
         int start_col = (row_ind - 1) * regressors_n;
         B12(row_ind, arma::span(start_col, start_col + regressors_n - 1)) =
