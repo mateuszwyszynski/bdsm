@@ -1,4 +1,6 @@
+#include "SEM_matrices.h"
 #include <RcppArmadillo.h>
+
 using namespace Rcpp;
 using namespace arma;
 

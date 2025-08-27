@@ -1,20 +1,11 @@
+#include "SEM_matrices.h"
 #include <RcppArmadillo.h>
 #include <cmath>
+
 using namespace Rcpp;
 using namespace arma;
 
 // [[Rcpp::depends(RcppArmadillo)]]
-
-// Function declarations from SEM_matrices.cpp
-arma::mat residual_maker_matrix(const arma::mat &m);
-Rcpp::List sem_B_matrix(double alpha, int periods_n,
-                        Rcpp::Nullable<arma::vec> beta = R_NilValue);
-arma::mat sem_C_matrix(double alpha, double phi_0, int periods_n,
-                       Rcpp::Nullable<arma::vec> beta = R_NilValue,
-                       Rcpp::Nullable<arma::vec> phi_1 = R_NilValue);
-Rcpp::List sem_sigma_matrix(double err_var, const arma::vec &dep_vars,
-                            Rcpp::Nullable<arma::vec> phis = R_NilValue,
-                            Rcpp::Nullable<arma::vec> psis = R_NilValue);
 
 // [[Rcpp::export]]
 SEXP sem_likelihood_calculate(double alpha, double phi_0, double err_var,
