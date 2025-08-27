@@ -1,4 +1,5 @@
 #include <RcppArmadillo.h>
+#include <cmath>
 using namespace Rcpp;
 using namespace arma;
 
@@ -44,11 +45,11 @@ SEXP sem_likelihood_calculate(double alpha, double phi_0, double err_var,
 
   arma::mat U1;
   if (lin_related_regressors_n == 0) {
-    U1 = trans(B1 * trans(Y1) - C * trans(cur_Z));
+    U1 = Y1 * B1.t() - cur_Z * C.t();
   } else {
     arma::mat B2 = as<arma::mat>(B[1]);
-    U1 = trans(B1 * trans(Y1) + B2 * trans(as<arma::mat>(cur_Y2)) -
-               C * trans(cur_Z));
+    const arma::mat cur_Y2_mat = as<arma::mat>(cur_Y2);
+    U1 = cur_Y2_mat * B2.t() + Y1 * B1.t() - cur_Z * C.t();
   }
   arma::mat S11_inverse = inv(S1);
   arma::mat M = Y2 - U1 * S11_inverse * S2;
@@ -60,9 +61,13 @@ SEXP sem_likelihood_calculate(double alpha, double phi_0, double err_var,
   double trace_simplification_term =
       0.5 * n_entities * (periods_n - 1) * tot_regressors_n;
 
-  double likelihood = -n_entities / 2.0 * log(det(S1) * det(H / n_entities));
+  double S1_sign{}, S1_det{};
+  arma::log_det(S1_det, S1_sign, S1);
+  double H_sign{}, H_det{};
+  arma::log_det(H_det, H_sign, H / n_entities);
+  double likelihood = -static_cast<double>(n_entities) / 2.0 * (S1_det + H_det);
 
-  if (isnan(likelihood)) {
+  if (std::isnan(likelihood)) {
     return wrap(likelihood);
   }
 
@@ -70,12 +75,11 @@ SEXP sem_likelihood_calculate(double alpha, double phi_0, double err_var,
     likelihood -= gaussian_normalization_const + trace_simplification_term;
   }
 
-  arma::vec result;
   if (!per_entity) {
     likelihood -= 0.5 * sum(diagvec(S11_inverse * trans(U1) * U1));
     return wrap(likelihood);
   } else {
-    arma::vec per_entity_likelihood = arma::vec(n_entities);
+    arma::vec per_entity_likelihood(n_entities);
     per_entity_likelihood.fill(likelihood / n_entities);
     arma::vec diagonal_terms = -0.5 * diagvec(U1 * S11_inverse * trans(U1));
     per_entity_likelihood += diagonal_terms;
