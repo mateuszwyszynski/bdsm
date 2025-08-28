@@ -1,5 +1,11 @@
-#' @importFrom Rcpp sourceCpp
 #' @useDynLib bdsm, .registration = TRUE
+
+# Import C++ dependencies to satisfy CRAN checks.
+# Fixes the following NOTE:
+# Namespace in Imports field not imported from: ‘X’
+#   All declared Imports should be used.
+#' @importFrom Rcpp sourceCpp
+#' @importFrom RcppArmadillo armadillo_version
 
 generate_params_vector <- function(value, timestamps_n, regressors_n,
                                    lin_related_regressors_n) {
