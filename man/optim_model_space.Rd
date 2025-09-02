@@ -12,7 +12,7 @@ optim_model_space(
   init_value,
   exact_value = FALSE,
   cl = NULL,
-  control = list(trace = 2, maxit = 10000, fnscale = -1, REPORT = 100, scale = 0.05)
+  control = list(trace = 0, maxit = 10000, fnscale = -1, REPORT = 100, scale = 0.05)
 )
 }
 \arguments{

@@ -1,9 +1,15 @@
 generate_test_data <- function() {
-  data.frame(
-    entities = rep(1:4, 5),
-    times = rep(seq(1960, 2000, 10), each = 4),
-    dep_var = stats::rnorm(20), a = stats::rnorm(20), b = stats::rnorm(20)
-  )
+  n_entities <- 35
+  n_periods <- 12
+  structure(list(
+    entities = rep(1:n_entities, n_periods),
+    times = rep(1:n_periods, each=n_entities),
+    dep_var = stats::rnorm(n_entities * n_periods),
+    a = round(stats::rnorm(n_entities * n_periods), 5),
+    b = round(stats::rnorm(n_entities * n_periods), 5),
+    c = round(stats::rnorm(n_entities * n_periods), 5)
+  ),
+  class = "data.frame", row.names = c(NA, -n_entities * n_periods))
 }
 
 generate_test_feature_standard_data <- function(time_effects = FALSE, scale = TRUE) {
