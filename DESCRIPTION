@@ -1,6 +1,6 @@
 Package: bdsm
 Title: Bayesian Dynamic Systems Modeling
-Version: 0.2.2
+Version: 0.3.0
 Authors@R:
     c(person(given = "Mateusz",
            family = "Wyszynski",

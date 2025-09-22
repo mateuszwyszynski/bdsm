@@ -1,4 +1,4 @@
-# bdsm 0.2.3
+# bdsm 0.3.0
 
 * Reimplemented SEM likelihood computation in C++.
 
