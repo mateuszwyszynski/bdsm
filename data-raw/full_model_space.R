@@ -22,6 +22,7 @@ if (is.na(cores)) {
   cores <- min(cores, detectCores())
 }
 cl <- makeCluster(cores)
+clusterEvalQ(cl, library(bdsm))
 
 full_model_space <- optim_model_space(
   df            = data_prepared,
