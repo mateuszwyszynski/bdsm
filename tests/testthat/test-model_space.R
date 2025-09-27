@@ -65,12 +65,24 @@ test_that("optim_model_space_params correctly computes small_economic_growth_ms"
   compare_matrices(params, small_model_space$params, tols = rep(0.001, 8))
 })
 
+non_zero_stats_mask_generator <- function(lin_features_n) {
+  ones <- rep(1, lin_features_n)
+  lin_features_mask <- t(rje::powerSetMat(lin_features_n))
+  rbind(
+    ones, ones, ones,
+    lin_features_mask,
+    ones,
+    lin_features_mask
+  )
+}
 
 test_that(paste("compute_model_space_stats computes correct likelihoods and",
                 "standard deviations based on small_model_space"), {
                   set.seed(23)
 
-                  data_prepared <- bdsm::economic_growth[, 1:6] %>%
+                  lin_features_n <- 3
+
+                  data_prepared <- bdsm::economic_growth[, 1:(3+lin_features_n)] %>%
                     bdsm::feature_standardization(
                       excluded_cols = c(country, year, gdp)
                     ) %>%
@@ -88,6 +100,9 @@ test_that(paste("compute_model_space_stats computes correct likelihoods and",
                     params        = small_model_space$params
                   )
 
+                  mask <- non_zero_stats_mask_generator(lin_features_n)
+
+                  expect_true(all(model_space_stats[mask == 1] != 0))
                   expect_equal(model_space_stats, small_model_space$stats)
                 })
 
@@ -167,5 +182,9 @@ test_that("Moral-Benito BMA results are replicated (main branch only)", {
     tols <- NULL
   }
 
+  lin_features_n <- 9
+  mask <- non_zero_stats_mask_generator(lin_features_n)
+
+  expect_true(all(model_space_stats[mask == 1] != 0))
   compare_matrices(actual, expected, tols = tols)
 })

@@ -136,6 +136,7 @@ if (is.na(cores)) {
   cores <- min(cores, detectCores())
 }
 cl <- makeCluster(cores)
+clusterEvalQ(cl, library(bdsm))
 
 model_space <- bdsm::optim_model_space(
   df             = data_prepared,
